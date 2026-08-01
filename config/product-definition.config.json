@@ -1,0 +1,46 @@
+{
+  "schema": "dgo-product-definition/v1",
+  "generatedAt": "2026-07-20T21:43:59.336560+00:00",
+  "productName": "DGO Digital OPS",
+  "coordinatingOffice": "Office of the Director-General/CEO",
+  "executiveSummary": "DGO Digital OPS is a DGCEO-coordinated operational control platform for managing official correspondences, registry minutes, assignments, departmental tasks, response tracking, approvals, dispatch, closure and archive across the Agency.",
+  "ingestionSources": [
+    {
+      "id": "physical-scanned-documents",
+      "label": "Physical documents received and scanned",
+      "description": "Official hard-copy documents received by the Agency, scanned and ingested for registry, minutes, assignment and tracking."
+    },
+    {
+      "id": "customer-service-emails",
+      "label": "Customer Service emails",
+      "description": "Emails received by customer service that require review, assignment, response tracking, escalation, closure or archive."
+    },
+    {
+      "id": "public-portal-correspondence",
+      "label": "Public portal submissions",
+      "description": "Correspondences submitted from public-facing portals and routed into intake, registry and task assignment."
+    },
+    {
+      "id": "dgceo-outgoing-correspondence",
+      "label": "DGCEO outgoing correspondence",
+      "description": "Outgoing DGCEO letters, directives, approvals, minutes and instructions requiring dispatch, tracking, closure and archive."
+    }
+  ],
+  "users": [
+    "Office of the Director-General",
+    "Director-General/CEO",
+    "Executive Assistant / Automation Support to the DGCEO",
+    "Heads of Departments and Units",
+    "Customer Service",
+    "Staff",
+    "IT Department"
+  ],
+  "corePurposes": [
+    "Single point of access to all four ingestion sources",
+    "Innovative digital-traditional registry-minutes",
+    "Task assignment from all ingestion sources",
+    "End-to-end lifecycle tracking and management of operations and tasks",
+    "Related operational oversight, reporting, audit and accountability purposes"
+  ],
+  "principle": "The platform must be judged by whether a user can receive or locate a matter from any ingestion source, register it, minute it, assign it, track it, review it, dispatch it, close it and archive it without confusion."
+}
