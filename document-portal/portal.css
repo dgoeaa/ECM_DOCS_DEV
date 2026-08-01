@@ -46,7 +46,8 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-top{position:sticky;top:0;z-index:var(--dgo-z-sticky);background:var(--dgo-color-surface-page);border-bottom:1px solid var(--dgo-color-border-default)}
 .pf-top__in{display:flex;align-items:center;gap:20px;min-height:68px}
 .pf-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;flex:none}
-.pf-brand__mark{width:38px;height:38px;flex:none}
+.pf-brand__mark{width:38px;height:38px;flex:none;object-fit:contain}
+[data-theme="dark"] .pf-brand__mark,[data-theme="dark"] .pf-hero__mark{filter:brightness(0) invert(1)}
 .pf-brand__txt{display:flex;flex-direction:column;min-width:0}
 .pf-brand__name{display:block;font-family:var(--dgo-family-display);font-size:16px;font-weight:700;letter-spacing:-.01em;color:var(--dgo-color-fg-strong);line-height:1.1;white-space:nowrap}
 .pf-brand__sub{display:block;font-family:var(--dgo-family-sans);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--dgo-color-fg-muted);line-height:1.4;margin-top:3px;white-space:nowrap}
@@ -69,7 +70,7 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 /* ---- hero ---- */
 .pf-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--dgo-color-border-default);background:var(--dgo-color-surface-page)}
 .pf-hero__grid{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(28px,4vw,64px);align-items:center;padding-block:clamp(40px,5.5vw,84px)}
-.pf-hero__mark{position:absolute;right:-90px;top:-60px;width:min(560px,52vw);aspect-ratio:1;background:url("ds/logo/mark.svg") center/contain no-repeat;opacity:.05;pointer-events:none}
+.pf-hero__mark{position:absolute;right:-90px;top:-60px;width:min(560px,52vw);aspect-ratio:1;background:url("ds/logo/nitda-symbol.png") center/contain no-repeat;opacity:.05;pointer-events:none}
 .pf-trust{display:flex;flex-wrap:wrap;gap:8px 22px;padding-top:6px}
 .pf-trust li{display:flex;align-items:center;gap:8px;font-size:var(--dgo-type-body-sm);color:var(--dgo-color-fg-muted)}
 .pf-trust svg{color:var(--dgo-color-action-accent)}
@@ -237,8 +238,6 @@ mark{background:var(--dgo-color-action-accent-soft);color:inherit;border-radius:
 .pf-foot a:hover{color:var(--dgo-smart-300)}
 .pf-foot p{margin:0;font-size:13px;line-height:1.65;color:var(--dgo-color-fg-on-brand-soft)}
 .pf-foot__bar{border-top:1px solid var(--dgo-color-surface-on-brand-veil);padding-block:16px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:12px;color:var(--dgo-color-fg-on-brand-faint)}
-.pf-foot__lock{display:flex;align-items:center;gap:10px}
-.pf-foot__lock img{height:34px;width:auto}
 .pf-status{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--dgo-color-fg-on-brand-muted)}
 .pf-status i{width:7px;height:7px;border-radius:50%;background:var(--dgo-color-action-accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--dgo-color-action-accent) 22%,transparent)}
 

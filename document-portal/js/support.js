@@ -236,7 +236,7 @@ PF.page = function () {
     var box = PF.$('#caseResult');
     box.hidden = false;
     box.innerHTML =
-      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-endorsed.svg" alt="NITDA" style="height:52px"><p style="margin:10px 0 0;font-size:12px">Support case ' + t.ref + ' · filed ' + PF.dateTime(t.at) + '</p></div>' +
+      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Support case ' + t.ref + ' · filed ' + PF.dateTime(t.at) + '</p></div>' +
       '<div class="pf-result">' +
         '<div class="pf-result__head"><span class="pf-result__ic">' + PF.icon('check') + '</span>' +
           '<div><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:24px;line-height:1.15">Case opened</h2>' +

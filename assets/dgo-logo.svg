@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 52" role="img" aria-label="DGO Digital Ops — An Initiative of NITDA">
-  <style>.w{font:800 33px Arial;fill:#05583B}.s{font:700 8px Arial;fill:#05583B;letter-spacing:1.3px}.e{font:600 5.5px Arial;fill:#777274;letter-spacing:1px}</style>
-  <text class="w" x="0" y="36">DG</text>
-  <g transform="translate(66 26)"><circle r="14" fill="none" stroke="#17B255" stroke-width="4"/><circle r="5" fill="#05583B"/></g>
-  <text class="s" x="92" y="20">DIGITAL OPS</text><line x1="92" y1="27" x2="176" y2="27" stroke="#17B255"/>
-  <text class="e" x="92" y="39">AN INITIATIVE OF NITDA</text>
-</svg>

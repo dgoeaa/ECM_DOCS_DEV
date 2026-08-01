@@ -10,7 +10,9 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 **This repository must not be made public in its current state.**
 
-1. **22 live Power Automate SAS signatures are present in 16 tracked files at HEAD**, several in client-delivered JavaScript (`document-portal/js/data.js`, `document-portal_Central_NITDA_/js/data.js`, `newack/unified-hub-ackflow.html`, `newack/config.js`, and the Bespoke reference portal). A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow.
+1. **4 live Power Automate SAS signatures remain in 2 tracked files** — `document-portal/js/data.js` (3) and `newack/config.js` (1) — both client-delivered. A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow.
+
+   **22 distinct signatures were public before the structural cleanup.** Removing the files did not revoke them. **All 22 must be rotated**, not only the 4 still present.
 
    **Rotate every one of them in Power Automate.** Deleting the files revokes nothing, and neither does rewriting history. Rotation must come first. `npm run test:secrets` lists the affected files; `tests/secrets-baseline.txt` tracks them.
 
@@ -28,8 +30,7 @@ Both items are open. See G-03 and G-04 of the capability assessment.
 |-----|------------|-------------|
 | **DGO R11.6 Runtime** | `index.html` | Obsidian Harmonized Design System runtime — platform shell with routing, client-side RBAC, state, module boundaries, accessibility and theming. 25 routes. |
 | **ECM Activity Hub Portal** | `ECM_ActivityHub_Portal/index.html` | Executive SPA — correspondence, approvals, meetings, briefs, decisions, tasks and AI-assisted operations. |
-| **Document Portal** | `document-portal/index.html` | Public document submission and tracking portal. |
-| **Document Portal (Central NITDA)** | `document-portal_Central_NITDA_/index.html` | NITDA-branded variant of the above. |
+| **Document Portal** | `document-portal/index.html` | Public document submission and tracking portal (PWA — service worker, manifest, offline). |
 | **Acknowledgement flow** | `newack/index.html` | Acknowledgement / unified hub prototype. |
 
 All are zero-build: no bundler, no transpilation, no server-side rendering. They need a real HTTP server (not `file://`) because browsers block ES-module imports across origins.
@@ -38,12 +39,7 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 | Path | Contents |
 |---|---|
-| `Bespoke platform welcome experience/` | Welcome/boot experience prototypes and a reference portal |
-| `Consolidate_Merged_Folder_Files_Embed/` | BRD/FRD hybrid, data-model architecture, operations manifests |
-| `Flows_Sample/` | Power Automate flow run records (OTP, fetch, bulk assign, dynamic actions) |
-| `CLient_Proxy_App_Backend/` | Client proxy backend material |
-| `universal_filename_policy_deliverables/` | Filename policy SOP, memo, handbook |
-| `ECM_DOCS_DEV.zip`, `HTML_OPS_Templates.zip` | Archived platform copy and HTML templates |
+| `ECM_DOCS_DEV.zip` | **Archive of record.** Contains the full platform snapshot plus every reference artefact: Power Automate flow exports, the BRD/FRD, the DGCEO data model, the SharePoint provisioning extraction, the HTML ops email templates, and nested archives of the Bespoke welcome-experience prototypes and the client-proxy template. Loose copies were removed from the tree in favour of this single archive. |
 
 ---
 
@@ -146,8 +142,7 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 ├── styles/                             CSS @layer cascade
 │   └── dgo-design-system/              Self-hosted design tokens + fonts
 ├── ECM_ActivityHub_Portal/             ECM portal (index.html at its root)
-├── document-portal/                    Public document portal
-├── document-portal_Central_NITDA_/     NITDA-branded variant
+├── document-portal/                    Public document portal (PWA)
 ├── newack/                             Acknowledgement flow prototype
 ├── tests/
 │   ├── README.md                       Suite design and the secrets ratchet
@@ -156,10 +151,12 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
 │   └── smoke.spec.js                   Playwright smoke suite
 ├── scripts/check-links.mjs             Link / asset checker
-├── tools/                              Bundle expand / rebuild / payload contract
 ├── .github/workflows/ci.yml            CI
+├── LICENSE                             Proprietary — NITDA, all rights reserved
 ├── AUDIT.md                            Repository audit record (see its correction note)
-├── CAPABILITY_ASSESSMENT_R11.6.md      Capability assessment and gap analysis
+├── CAPABILITY_ASSESSMENT_R11.6.md      Runtime capability assessment and gap analysis
+├── REPOSITORY_AUDIT.md                 Repository-wide security/data audit
+├── FORENSIC_REPOSITORY_AUDIT.md        Forensic structural audit and disposition register
 ├── CONTRIBUTING.md
 ├── package.json
 └── playwright.config.js
@@ -195,6 +192,5 @@ These are open questions, recorded here rather than guessed at:
 
 - **Deployment.** There is no Pages workflow, `.nojekyll`, or staging allow-list in this repository. If GitHub Pages is adopted, decide which of the five apps are published and add a staging step — a new top-level runtime directory will 404 in production while working locally otherwise. Note the security status above: publishing before rotation would expose live credentials.
 - **Codespaces.** No `.devcontainer/` exists; the previous one-click setup instructions did not apply here.
-- **Embedded state bundle.** `tools/expand_bundle.py` and `tools/rebuild_bundle.py` are present, but `CLEAN_PACKAGE_MANIFEST.json` and `DGO_Target_CLEAN_RUNTIME.state.json` are not, so they cannot run. Either restore the manifest or retire the tooling.
-- **Portal layout.** The ECM portal lives flat at `ECM_ActivityHub_Portal/`. Earlier documentation assumed an `htdocs/` subdirectory. The flat layout is treated as canonical here; if that is wrong, the paths in `package.json`, `scripts/check-links.mjs` and `tests/smoke.spec.js` need updating together.
+- **Portal layout.** The ECM portal lives flat at `ECM_ActivityHub_Portal/`. Earlier documentation assumed an `htdocs/` subdirectory. The flat layout is canonical.
 - **Rendered-appearance regression coverage.** None exists beyond the smoke suite's theme check. `styles/index.css` documents unresolved, measured cascade debt in its `overrides` layer.

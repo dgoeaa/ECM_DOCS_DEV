@@ -2,7 +2,7 @@
 
 A single, unified portal for document submission, status tracking, helpdesk support and
 registry operations. It merges the two source portals (`digitaldocs.page.gd` and
-`intelhub.page.gd`) into one product built on the **DGO Design System v2.1**.
+`intelhub.page.gd`) into one product built on the **NITDA Design System v2.1**.
 
 Static files only — no build step, no framework, no CDN dependency. Copy the folder to any
 web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Apps) and it runs.

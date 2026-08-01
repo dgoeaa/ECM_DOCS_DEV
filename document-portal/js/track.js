@@ -152,7 +152,7 @@ PF.page = function () {
     var s = PF.service(rec.service), st = PF.status(rec.status);
     var events = rec.events.slice().reverse();
     out.innerHTML =
-      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-endorsed.svg" alt="NITDA" style="height:52px"><p style="margin:10px 0 0;font-size:12px">Request record ' + rec.id + ' · printed ' + PF.dateTime(new Date().toISOString()) + '</p></div>' +
+      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Request record ' + rec.id + ' · printed ' + PF.dateTime(new Date().toISOString()) + '</p></div>' +
       '<div class="dgo-stack dgo-stack--5">' +
         '<div class="pf-panel">' +
           '<div class="pf-panel__head" style="flex-wrap:wrap">' +
