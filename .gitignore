@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Local runtime configuration — holds real Power Automate SAS URLs.
+# A SAS URL is a credential; never commit these. Copy the matching
+# config.example.js and fill it in locally instead.
+config/config.local.js
+ECM_ActivityHub_Portal/config.local.js
+ECM_ActivityHub_Portal/htdocs/config.local.js
+
+# Ad-hoc runtime state exports
+*.state.json
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp

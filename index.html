@@ -18,5 +18,44 @@
   <noscript><div class="fatal">JavaScript is required to run DGO Digital Operations.</div></noscript>
   <script type="module" src="shared/figma-uiux-runtime.js"></script>
   <script type="module" src="core/boot.js"></script>
+  <!-- Boot watchdog. core/boot.js has its own try/catch, but it cannot catch a failure to
+       RESOLVE the static module graph: that happens before boot() is ever invoked, so no
+       catch runs, no pageerror fires, and the spinner above stays up forever — visually
+       indistinguishable from a slow network. That is exactly how 12 missing config modules
+       shipped unnoticed. Record module load failures and surface them if boot never lands. -->
+  <script>
+    (function () {
+      var failed = [];
+      window.addEventListener('error', function (e) {
+        var el = e.target;
+        if (el && el !== window && (el.tagName === 'SCRIPT' || el.tagName === 'LINK')) {
+          var src = el.src || el.href || '';
+          if (src && failed.indexOf(src) === -1) failed.push(src);
+        }
+      }, true);
+      setTimeout(function () {
+        if (window.__DGO_BOOTED__) return;
+        var host = document.getElementById('app');
+        if (!host || !host.querySelector('.boot')) return;
+        var esc = function (s) {
+          return String(s).replace(/[&<>]/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m];
+          });
+        };
+        var detail = failed.length
+          ? '<p>The following resources failed to load:</p><ul>' +
+            failed.map(function (u) { return '<li><code>' + esc(u) + '</code></li>'; }).join('') +
+            '</ul>'
+          : '<p>No failing resource was reported. Check the browser console and the network ' +
+            'panel — an ES module in the graph most likely failed to resolve.</p>';
+        host.innerHTML =
+          '<div class="fatal"><h1>DGO could not start</h1>' +
+          '<p>The runtime did not finish booting within 15 seconds.</p>' + detail +
+          '<p>Serve the app over HTTP (not <code>file://</code>) and confirm every module ' +
+          'under <code>config/</code>, <code>core/</code>, <code>modules/</code> and ' +
+          '<code>shared/</code> is present.</p></div>';
+      }, 15000);
+    })();
+  </script>
 </body>
 </html>

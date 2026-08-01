@@ -30,22 +30,30 @@ export function normalizeTheme(theme){ const t=themeAliases[theme]||theme||Desig
 export function normalizeDensity(density){ return DesignSystem.densities.includes(density)?density:DesignSystem.defaultDensity; }
 export function getTheme(){ return normalizeTheme(State.get()?.settings?.theme); }
 export function getDensity(){ return normalizeDensity(State.get()?.settings?.density); }
+// Theme and density live on <html> ONLY. Every themed rule in the design system is
+// written as a bare `[data-theme="…"]` / `[data-density="…"]` selector intended for
+// :root, and no stylesheet targets body[data-theme] or dgo-shell[data-theme].
+// Mirroring the attributes onto <body> and <dgo-shell> therefore bought nothing and
+// actively broke theming: a bare `[data-theme="light"]` matches those elements
+// directly, so the light token block won over the dark/hc values inherited from
+// <html> for every descendant. Writers that only touched documentElement (core/boot.js,
+// modules/settings.js, core/nitda-module-adapter.js) left the mirrors stale and the
+// UI half-themed. One source of truth removes the whole failure class.
 export function applyRootAttributes(route='home', options={}){
   const theme=normalizeTheme(options.theme || getTheme());
   const density=normalizeDensity(options.density || getDensity());
   document.documentElement.dataset.theme=theme;
   document.documentElement.dataset.density=density;
-  document.body?.setAttribute('data-theme', theme);
-  document.body?.setAttribute('data-density', density);
   const shell=document.querySelector('dgo-shell');
-  if(shell){ shell.dataset.theme=theme; shell.dataset.density=density; shell.dataset.route=route; }
+  if(shell){ shell.dataset.route=route; }
   return { theme, density, route };
 }
 export function setTheme(theme){ const t=normalizeTheme(theme); State.patch({settings:{...State.get().settings, theme:t}}, {module:'settings', action:'theme', event:'audit:theme-updated'}); applyRootAttributes(undefined,{theme:t}); return t; }
 export function setDensity(density){ const d=normalizeDensity(density); State.patch({settings:{...State.get().settings, density:d}}, {module:'settings', action:'density', event:'audit:density-updated'}); applyRootAttributes(undefined,{density:d}); return d; }
 export function nextTheme(){ const t=getTheme(); return DesignSystem.themes[(DesignSystem.themes.indexOf(t)+1)%DesignSystem.themes.length]; }
 export function nextDensity(){ return getDensity()==='comfortable'?'compact':'comfortable'; }
-export function shellAttrs(route, options={}){ const t=normalizeTheme(options.theme || getTheme()), d=normalizeDensity(options.density || getDensity()); return `class="dgo-shell" data-theme="${t}" data-density="${d}" data-route="${safeAttr(route||'home')}" data-navopen="${options.navOpen?'true':'false'}"`; }
+// No data-theme / data-density here either — see applyRootAttributes above.
+export function shellAttrs(route, options={}){ return `class="dgo-shell" data-route="${safeAttr(route||'home')}" data-navopen="${options.navOpen?'true':'false'}"`; }
 export function statusClass(status){ const key=String(status||'neutral').toLowerCase().replace(/\s+/g,'-'); const tone=toneMap[key]||'neutral'; return `dgo-pill dgo-pill--${tone}`; }
 export function sourceClass(sourceId){ const key=String(sourceId||'unknown').toLowerCase().replace(/\s+/g,'-'); return `dgo-source dgo-source--${sourceMap[key]||key||'unknown'}`; }
 export function priorityClass(priority){ const key=String(priority||'normal').toLowerCase(); const tone=toneMap[key]||'info'; return `dgo-pill dgo-pill--${tone}`; }

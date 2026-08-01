@@ -375,7 +375,7 @@ PF.page = function () {
     var due = PF.date(rec.dueAt);
     PF.$('#result').hidden = false;
     PF.$('#result').innerHTML =
-      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-endorsed.svg" alt="NITDA" style="height:52px"><p style="margin:10px 0 0;font-size:12px">Submission receipt · generated ' + PF.dateTime(rec.submittedAt) + '</p></div>' +
+      '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Submission receipt · generated ' + PF.dateTime(rec.submittedAt) + '</p></div>' +
       '<div class="pf-result">' +
         '<div class="pf-result__head"><span class="pf-result__ic"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></span>' +
         '<div><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:24px;line-height:1.15">Submission received</h2>' +

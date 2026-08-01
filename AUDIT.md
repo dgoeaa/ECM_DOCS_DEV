@@ -1,5 +1,17 @@
 # AUDIT.md
 
+> ## ⚠️ Correction — 2026-08-01
+>
+> Two claims in this record are **not correct for this repository**. The findings themselves are left unedited below, as an audit record should be; these are the corrections.
+>
+> **1. F-007 and the secrets note are wrong about scope.** This document states no hardcoded `sig=` SAS token was found in shipped code, and the superseding note above says the signatures survive only in git history. In `dgoeaa/ECM_DOCS_DEV` at HEAD there are **22 distinct live SAS signatures across 16 tracked files in the working tree**, several of them in client-delivered JavaScript (`document-portal/js/data.js`, `document-portal_Central_NITDA_/js/data.js`, `newack/unified-hub-ackflow.html`, `newack/config.js`, and the Bespoke reference portal). Those files are served to browsers, so the credentials are readable via View Source wherever those portals are hosted.
+>
+> F-007's original scope was `ECM_ActivityHub_Portal/**`, and within that scope it stands. The audit simply never covered the rest of this repository. `npm run test:secrets` now enumerates the affected files and fails on any new one.
+>
+> **2. F-001/F-002/F-003 are scoped too narrowly.** The client-trust failure is recorded against the ECM Activity Hub Portal only. **The DGO R11.6 root runtime has the same defect, and a hardcoded `systemAdmin` besides.** It has no authentication, sends no `Authorization` header, and passes caller identity as a plain `userEmail` field taken from `localStorage`. Escalation from `viewer` to `systemAdmin` by editing one storage key was demonstrated empirically.
+>
+> Full analysis, method and evidence: [`CAPABILITY_ASSESSMENT_R11.6.md`](CAPABILITY_ASSESSMENT_R11.6.md) (G-03 and G-04).
+
 > **Superseded in part by [`ECM_ActivityHub_Portal/REVIEW.md`](ECM_ActivityHub_Portal/REVIEW.md)** (full multidimensional review at commit `77cb6af`). Every finding below was independently re-verified there (§6). Summary of changes:
 >
 > - **F-001/F-002/F-003 upheld and strengthened** — the client-trust failure was reproduced as a live exploit, not just inferred.

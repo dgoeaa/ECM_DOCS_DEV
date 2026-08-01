@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Runs first and finishes in seconds. This is the check that would have caught the 12
+  # config modules that were imported but never committed — a failure that produced no
+  # thrown error at runtime, only an infinite boot spinner.
+  imports:
+    name: Module graph
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check every relative import resolves
+        run: node tests/check-imports.mjs
+
+  smoke:
+    name: Smoke tests
+    runs-on: ubuntu-latest
+    needs: imports
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run smoke suite
+        run: npm run test:smoke
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    needs: imports
+    # Crawls live pages and depends on external hosts being reachable; informational only
+    # so a flaky CDN cannot block a merge.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:links
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Ratchet, not a gate: fails on a NEW leak, reports the already-known ones from
+      # tests/secrets-baseline.txt. The baselined signatures (gap G-03) must be ROTATED in
+      # Power Automate before removal — deleting a file revokes nothing — so failing the
+      # build on them would only make CI permanently red without improving security.
+      - name: Check for new SAS signatures
+        run: node tests/check-secrets.mjs

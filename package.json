@@ -10,14 +10,12 @@
   },
   "scripts": {
     "start": "http-server . -p 8080 --cors -c-1 --silent",
-    "serve:portal": "http-server ECM_ActivityHub_Portal/htdocs -p 8080 --cors -c-1 --silent",
-    "test": "node tests/run.mjs",
-    "test:static": "node tests/run.mjs --suite=static",
-    "test:browser": "node tests/run.mjs --suite=browser",
-    "test:full": "node tests/run.mjs --full",
+    "serve:portal": "http-server ECM_ActivityHub_Portal -p 8080 --cors -c-1 --silent",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:smoke",
+    "test:imports": "node tests/check-imports.mjs",
+    "test:secrets": "node tests/check-secrets.mjs",
     "test:smoke": "playwright test",
-    "test:links": "node scripts/check-links.mjs",
-    "baseline:update": "node tests/run.mjs --full --update-baseline"
+    "test:links": "node scripts/check-links.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

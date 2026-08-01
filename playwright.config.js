@@ -18,7 +18,26 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Use an already-installed Chrome/Chromium when one is pointed at, so the suite
+        // runs in sandboxes and images that ship a browser but cannot download
+        // Playwright's pinned build. CI leaves these unset and uses the pinned browser
+        // installed by `npx playwright install --with-deps chromium`.
+        launchOptions: {
+          ...(process.env.DGO_CHROME_PATH ||
+          process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
+          process.env.CHROME_PATH
+            ? {
+                executablePath:
+                  process.env.DGO_CHROME_PATH ||
+                  process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
+                  process.env.CHROME_PATH,
+              }
+            : {}),
+          ...(process.env.DGO_CHROME_NO_SANDBOX ? { args: ['--no-sandbox'] } : {}),
+        },
+      },
     },
   ],
   webServer: {

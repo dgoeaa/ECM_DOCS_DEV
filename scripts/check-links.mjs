@@ -23,7 +23,7 @@ const SKIP_PATTERNS = [
   'powerautomate\\.com',
   'kanihamza\\.workers\\.dev',
   'localhost:\\d+/config/config\\.local\\.js$',
-  'localhost:\\d+/ECM_ActivityHub_Portal/htdocs/config\\.local\\.js$',
+  'localhost:\\d+/ECM_ActivityHub_Portal/config\\.local\\.js$',
 ];
 
 async function main() {
@@ -42,7 +42,7 @@ async function main() {
     const skipArg = SKIP_PATTERNS.join('|');
     const urls = [
       `http://localhost:${PORT}/index.html`,
-      `http://localhost:${PORT}/ECM_ActivityHub_Portal/htdocs/index.html`,
+      `http://localhost:${PORT}/ECM_ActivityHub_Portal/index.html`,
     ];
 
     for (const url of urls) {
@@ -50,9 +50,14 @@ async function main() {
       try {
         execSync(
           `npx linkinator "${url}" --skip "${skipArg}" --format text --timeout 10000`,
-          { stdio: 'inherit' }
+          // Hard ceiling per entry point. Without it a recursive crawl that reaches an
+          // unreachable host can hang indefinitely and stall CI rather than fail it.
+          { stdio: 'inherit', timeout: 120_000 }
         );
-      } catch {
+      } catch (err) {
+        if (err?.killed || err?.signal === 'SIGTERM') {
+          console.error(`\n✗ Timed out after 120s crawling ${url}`);
+        }
         exitCode = 1;
       }
     }

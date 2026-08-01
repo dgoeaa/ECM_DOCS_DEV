@@ -13,7 +13,7 @@ const SHELL = [
   './ds/styles/reset.css', './ds/styles/base.css', './ds/styles/layout.css',
   './ds/styles/components.css', './ds/styles/components/command-palette.css',
   './ds/fonts/CascadiaMono-Regular.woff2',
-  './ds/logo/mark.svg', './ds/logo/nitda-endorsed.svg',
+  './ds/logo/nitda-symbol.png', './ds/logo/nitda-lockup.png', './ds/logo/nitda-lockup-white.png',
   './js/icons.js', './js/data.js', './js/core.js', './js/home.js',
   './js/submit.js', './js/track.js', './js/support.js', './js/admin-panels.js', './js/admin.js'
 ];
