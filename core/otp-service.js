@@ -1,0 +1,8 @@
+import { invokeObsidianAction } from './security-actions.js';
+import { AuditLog } from './audit-log.js';
+import { createError, ErrorClass } from './errors.js';
+const enc=new TextEncoder(); async function digestPayload(payload){const h=await crypto.subtle.digest('SHA-256',enc.encode(JSON.stringify(payload||{}))); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+export const OtpService=Object.freeze({requestOtp,verifyOtp,verifyOtpAndExecute});
+export async function requestOtp({actor,purpose,refs=[],operation,payload={},ttlSeconds=300}){ const req={actor,purpose,refs,operation,payloadDigest:await digestPayload(payload),ttlSeconds,requestedAt:new Date().toISOString()}; AuditLog.record({ref:refs[0]||'',actor,event:'audit:otp-requested',meta:{purpose,operation,refs}}); return invokeObsidianAction('REQUEST_OTP',req); }
+export async function verifyOtp({requestId,otp,actor,operation,refs=[],payload={}}){ const res=await invokeObsidianAction('VERIFY_OTP',{requestId,otp,actor,operation,refs,payloadDigest:await digestPayload(payload),verifiedAt:new Date().toISOString()}); if(!res?.verified && !res?.ok){ AuditLog.record({ref:refs[0]||'',actor,event:'audit:otp-failed',meta:{operation,requestId}}); throw createError(ErrorClass.OTP_VERIFICATION_FAILED,'OTP verification failed.'); } AuditLog.record({ref:refs[0]||'',actor,event:'audit:otp-verified',meta:{operation,requestId}}); return {...res,verified:true}; }
+export async function verifyOtpAndExecute({requestId,otp,actor,operation,refs=[],payload={},execute}){ const r=await verifyOtp({requestId,otp,actor,operation,refs,payload}); if(!r.verified) throw createError(ErrorClass.OTP_VERIFICATION_FAILED,'OTP verification failed.'); return execute(); }

@@ -1,0 +1,4 @@
+const store=new Map();
+export const UIState={get:(key,defaults={})=>({...defaults,...(store.get(key)||{})}),set:(key,patch)=>{const next={...(store.get(key)||{}),...patch};store.set(key,next);return next},clear:key=>store.delete(key)};
+export const pageSlice=(rows,page=1,size=25)=>{const pages=Math.max(1,Math.ceil(rows.length/size)),safe=Math.min(Math.max(1,page),pages),start=(safe-1)*size;return{rows:rows.slice(start,start+size),page:safe,pages,total:rows.length,size}};
+export const pager=(p)=>p.pages<=1?'':`<nav class="pager" aria-label="Pagination"><button class="btn ghost" data-page="${p.page-1}" ${p.page<=1?'disabled':''}>Previous</button><span>Page ${p.page} of ${p.pages} · ${p.total} records</span><button class="btn ghost" data-page="${p.page+1}" ${p.page>=p.pages?'disabled':''}>Next</button></nav>`;
