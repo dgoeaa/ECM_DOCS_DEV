@@ -1,0 +1,147 @@
+/* ============================================================
+   DGO Design System v2.0 — Semantic Tokens
+   Intent-named. Components consume these.
+   Theme files (light/dark/hc) re-bind these to primitives.
+   ============================================================ */
+
+:root {
+  /* ---------- Action / brand ---------- */
+  --dgo-color-action-primary:        var(--dgo-green-700);
+  --dgo-color-action-primary-hover:  var(--dgo-green-800);
+  --dgo-color-action-primary-press:  var(--dgo-green-900);
+  --dgo-color-action-primary-soft:   var(--dgo-green-50);
+
+  --dgo-color-action-accent:         var(--dgo-smart-400);
+  --dgo-color-action-accent-hover:   var(--dgo-smart-500);
+  --dgo-color-action-accent-press:   var(--dgo-smart-600);
+  --dgo-color-action-accent-soft:    var(--dgo-smart-50);
+
+  --dgo-color-action-secondary:      transparent;
+  --dgo-color-action-secondary-hover:var(--dgo-green-50);
+  --dgo-color-action-secondary-press:var(--dgo-green-100);
+
+  --dgo-color-action-danger:         var(--dgo-danger-600);
+  --dgo-color-action-danger-hover:   var(--dgo-danger-800);
+  --dgo-color-action-danger-soft:    var(--dgo-danger-50);
+
+  /* ---------- Surface ---------- */
+  --dgo-color-surface-page:      var(--dgo-paper);
+  --dgo-color-surface-raised:    var(--dgo-paper-raised);
+  --dgo-color-surface-sunken:    var(--dgo-paper-sunken);
+  --dgo-color-surface-muted:     var(--dgo-ink-50);
+  --dgo-color-surface-inverse:   var(--dgo-green-900);
+  --dgo-color-surface-brand:     var(--dgo-green-700);
+  --dgo-color-surface-overlay:   var(--dgo-overlay-tint);
+
+  /* ---------- Foreground / text ---------- */
+  --dgo-color-fg-default:        var(--dgo-ink-900);
+  --dgo-color-fg-strong:         var(--dgo-ink-1000);
+  --dgo-color-fg-muted:          var(--dgo-ink-500);
+  --dgo-color-fg-subtle:         var(--dgo-ink-400);
+  --dgo-color-fg-disabled:       var(--dgo-ink-300);
+  --dgo-color-fg-on-brand:       var(--dgo-ink-0);
+  --dgo-color-fg-on-brand-muted: rgba(255, 255, 255, 0.78);
+  --dgo-color-fg-on-brand-soft:  rgba(255, 255, 255, 0.66);
+  --dgo-color-fg-on-brand-faint: rgba(255, 255, 255, 0.55);
+  --dgo-color-fg-on-accent:      var(--dgo-ink-0);
+  --dgo-color-fg-link:           var(--dgo-green-700);
+  --dgo-color-fg-link-hover:     var(--dgo-smart-500);
+  --dgo-color-fg-link-visited:   var(--dgo-green-800);
+
+  /* ---------- Border ---------- */
+  --dgo-color-border-default:    var(--dgo-ink-100);
+  --dgo-color-border-strong:     var(--dgo-ink-200);
+  --dgo-color-border-stronger:   var(--dgo-ink-300);
+  --dgo-color-border-brand:      var(--dgo-green-700);
+  --dgo-color-border-accent:     var(--dgo-smart-400);
+  --dgo-color-border-on-brand:   rgba(255, 255, 255, 0.20);
+  --dgo-color-border-on-brand-soft: rgba(255, 255, 255, 0.14);
+  --dgo-color-surface-on-brand-veil: rgba(255, 255, 255, 0.12);
+  --dgo-color-border-focus:      var(--dgo-smart-400);
+
+  /* ---------- Status (subtle + strong pairs) ---------- */
+  --dgo-color-info-subtle-bg:    var(--dgo-info-50);
+  --dgo-color-info-subtle-fg:    var(--dgo-info-800);
+  --dgo-color-info-strong-bg:    var(--dgo-info-600);
+  --dgo-color-info-strong-fg:    var(--dgo-ink-0);
+
+  --dgo-color-success-subtle-bg: var(--dgo-smart-50);
+  --dgo-color-success-subtle-fg: var(--dgo-smart-600);
+  --dgo-color-success-strong-bg: var(--dgo-smart-500);
+  --dgo-color-success-strong-fg: var(--dgo-ink-0);
+
+  --dgo-color-warning-subtle-bg: var(--dgo-warn-50);
+  --dgo-color-warning-subtle-fg: var(--dgo-warn-800);
+  --dgo-color-warning-strong-bg: var(--dgo-warn-400);
+  --dgo-color-warning-strong-fg: var(--dgo-ink-900);
+
+  --dgo-color-danger-subtle-bg:  var(--dgo-danger-50);
+  --dgo-color-danger-subtle-fg:  var(--dgo-danger-800);
+  --dgo-color-danger-strong-bg:  var(--dgo-danger-600);
+  --dgo-color-danger-strong-fg:  var(--dgo-ink-0);
+
+  /* ---------- Operational status (DGO workflow) ---------- */
+  --dgo-color-status-pending-bg:    var(--dgo-warn-50);
+  --dgo-color-status-pending-fg:    var(--dgo-warn-800);
+  --dgo-color-status-routed-bg:     var(--dgo-info-50);
+  --dgo-color-status-routed-fg:     var(--dgo-info-800);
+  --dgo-color-status-replied-bg:    var(--dgo-smart-50);
+  --dgo-color-status-replied-fg:    var(--dgo-smart-600);
+  --dgo-color-status-action-bg:     var(--dgo-danger-50);
+  --dgo-color-status-action-fg:     var(--dgo-danger-800);
+  --dgo-color-status-draft-bg:      var(--dgo-green-50);
+  --dgo-color-status-draft-fg:      var(--dgo-green-800);
+  --dgo-color-status-archived-bg:   var(--dgo-ink-50);
+  --dgo-color-status-archived-fg:   var(--dgo-ink-600);
+  --dgo-color-status-escalated-bg:  #FAD2D9;
+  --dgo-color-status-escalated-fg:  #780820;
+
+  /* ---------- Focus ring ---------- */
+  --dgo-focus-ring:    0 0 0 2px var(--dgo-color-surface-page), 0 0 0 5px var(--dgo-smart-400); /* @kind shadow */
+  --dgo-focus-ring-inset: inset 0 0 0 3px var(--dgo-smart-400); /* @kind shadow */
+
+  /* ---------- Type intent ---------- */
+  --dgo-type-display-xxl: var(--dgo-size-60); /* @kind font */
+  --dgo-type-display-xl:  var(--dgo-size-48); /* @kind font */
+  --dgo-type-display:     var(--dgo-size-40); /* @kind font */
+  --dgo-type-h1:          var(--dgo-size-33); /* @kind font */
+  --dgo-type-h2:          var(--dgo-size-28); /* @kind font */
+  --dgo-type-h3:          var(--dgo-size-23); /* @kind font */
+  --dgo-type-h4:          var(--dgo-size-19); /* @kind font */
+  --dgo-type-body-lg:     var(--dgo-size-16); /* @kind font */
+  --dgo-type-body:        var(--dgo-size-14); /* @kind font */
+  --dgo-type-body-sm:     var(--dgo-size-12); /* @kind font */
+  --dgo-type-caption:     var(--dgo-size-12); /* @kind font */
+
+  /* ---------- Radius intent ---------- */
+  --dgo-radius-sharp:    var(--dgo-r-2);
+  --dgo-radius-control:  var(--dgo-r-6);
+  --dgo-radius-card:     var(--dgo-r-10);
+  --dgo-radius-frame:    var(--dgo-r-18);
+  --dgo-radius-circle:   var(--dgo-r-pill);
+
+  /* ---------- Elevation intent ---------- */
+  --dgo-elevation-flat:    var(--dgo-shadow-0); /* @kind shadow */
+  --dgo-elevation-card:    var(--dgo-shadow-2); /* @kind shadow */
+  --dgo-elevation-raised:  var(--dgo-shadow-3); /* @kind shadow */
+  --dgo-elevation-overlay: var(--dgo-shadow-4); /* @kind shadow */
+  --dgo-elevation-modal:   var(--dgo-shadow-5); /* @kind shadow */
+  --dgo-elevation-popover: var(--dgo-shadow-4); /* @kind shadow */
+
+  /* ---------- Motion intent ---------- */
+  --dgo-motion-enter:  var(--dgo-dur-slow) var(--dgo-ease-entrance); /* @kind other */
+  --dgo-motion-exit:   var(--dgo-dur-fast) var(--dgo-ease-exit); /* @kind other */
+  --dgo-motion-state:  var(--dgo-dur-base) var(--dgo-ease-standard); /* @kind other */
+  --dgo-motion-hero:   var(--dgo-dur-deliberate) var(--dgo-ease-emphasized); /* @kind other */
+}
+
+/* ============= Reduced motion ============= */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dgo-dur-instant:    0ms; /* @kind other */
+    --dgo-dur-fast:       0ms; /* @kind other */
+    --dgo-dur-base:       0ms; /* @kind other */
+    --dgo-dur-slow:       50ms; /* @kind other */
+    --dgo-dur-deliberate: 50ms; /* @kind other */
+  }
+}

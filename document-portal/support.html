@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Support and helpdesk — NITDA Intelligent Portal</title>
+<meta name="description" content="Answers to the questions the NITDA registry hears most, the helpdesk channels, and a support case with a reference you can quote.">
+<meta name="theme-color" content="#05583B">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="ds/ds.css">
+<link rel="stylesheet" href="portal.css">
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('nitda.portal.theme')||'light')}catch(e){}</script>
+</head>
+<body data-page="support">
+<a class="pf-skip" href="#main">Skip to main content</a>
+<div class="pf-ribbon"><div class="pf-wrap pf-ribbon__in">
+<span class="pf-ribbon__flag"><i style="background:#008751"></i><i style="background:#fff"></i><i style="background:#008751"></i></span>
+<span>An official portal of the Federal Republic of Nigeria</span>
+<span class="pf-ribbon__end"><span class="pf-hide-sm"><b data-live-open>0</b> requests in progress</span><a href="https://nitda.gov.ng" target="_blank" rel="noopener">nitda.gov.ng</a></span>
+</div></div>
+<header class="pf-top"><div class="pf-wrap pf-top__in">
+<a class="pf-brand" href="index.html"><img class="pf-brand__mark" src="ds/logo/mark.svg" alt="" width="38" height="38"><span class="pf-brand__txt"><span class="pf-brand__name">NITDA Intelligent Portal</span><span class="pf-brand__sub">Submit · Track · Resolve</span></span></a>
+<nav class="pf-nav" aria-label="Primary">
+<a href="index.html" data-nav="home">Home</a>
+<a href="submit.html" data-nav="submit">Submit</a>
+<a href="track.html" data-nav="track">Track</a>
+<a href="support.html" data-nav="support">Support</a>
+<a href="admin.html" data-nav="admin">Operations</a>
+</nav>
+<div class="pf-top__acts">
+<button class="pf-kbd-trigger" id="cmdkBtn" type="button" aria-label="Search the portal"><svg class="icon-sm" aria-hidden="true"><use href="#i-search"></use></svg><span>Search</span><kbd class="dgo-kbd" data-mac-key>Ctrl K</kbd></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon" id="themeBtn" type="button" aria-label="Change theme"></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon pf-burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu"></button>
+</div>
+</div></header>
+<nav class="pf-mobile" id="mobileNav" data-open="false" aria-label="Mobile"><div class="pf-wrap pf-mobile__in">
+<a href="index.html" data-nav="home">Home</a>
+<a href="submit.html" data-nav="submit">Submit a document</a>
+<a href="track.html" data-nav="track">Track a request</a>
+<a href="support.html" data-nav="support">Support and helpdesk</a>
+<a href="admin.html" data-nav="admin">Operations console</a>
+</div></nav>
+<div class="pf-nojs" id="nojs"><b>JavaScript is required.</b> The helpdesk form validates and files your case in the browser. Enable JavaScript, or write to <a href="mailto:portal@nitda.gov.ng">portal@nitda.gov.ng</a>.</div>
+
+<main id="main" class="pf-main">
+
+<section class="pf-section--tight" style="border-bottom:1px solid var(--dgo-color-border-default)"><div class="pf-wrap">
+<nav class="dgo-crumbs" aria-label="Breadcrumb" style="margin-bottom:18px"><a href="index.html">Home</a><span class="dgo-crumbs__sep">/</span><span class="dgo-crumbs__current">Support</span></nav>
+<div class="dgo-grid dgo-grid--2" style="gap:clamp(24px,4vw,56px);align-items:end">
+<div class="dgo-stack dgo-stack--4">
+<p class="pf-eyebrow"><span class="pf-eyebrow__dot"></span>Helpdesk</p>
+<h1 class="pf-display" style="font-size:clamp(29px,3.6vw,44px)">Stuck on a submission, an ID or a decision? Start here.</h1>
+<p class="pf-sub">Most questions are answered below. If yours is not, open a case — you get a reference immediately and the registry replies to your email address within one working day.</p>
+</div>
+<div class="dgo-grid dgo-grid--3" style="gap:14px" id="supportStats"></div>
+</div>
+</div></section>
+
+<section class="pf-section"><div class="pf-wrap">
+<div class="pf-two" id="supportGrid">
+
+<div class="dgo-stack dgo-stack--5">
+<div class="pf-panel" id="casePanel">
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-chat"></use></svg><h2 class="pf-panel__title">Open a helpdesk case</h2><span class="pf-note" style="margin-left:auto">Replies within 1 working day</span></div>
+<div class="pf-panel__body">
+<form id="caseForm" class="dgo-stack dgo-stack--5" novalidate>
+<div class="dgo-field">
+<label class="dgo-field__label dgo-field__label--req" for="topic">What is this about?</label>
+<div class="dgo-select"><select class="dgo-select__field" id="topic" name="topic" required></select></div>
+<p class="dgo-field__error" id="topic-err" hidden></p>
+</div>
+<div class="pf-form-grid">
+<div class="dgo-field">
+<label class="dgo-field__label dgo-field__label--req" for="cname">Your name</label>
+<input class="dgo-input" id="cname" name="cname" type="text" autocomplete="name" placeholder="Amaka Smith" required>
+<p class="dgo-field__error" id="cname-err" hidden></p>
+</div>
+<div class="dgo-field">
+<label class="dgo-field__label dgo-field__label--req" for="cemail">Email address</label>
+<input class="dgo-input" id="cemail" name="cemail" type="email" autocomplete="email" placeholder="you@organisation.gov.ng" required>
+<p class="dgo-field__help">The reply goes to this address.</p>
+<p class="dgo-field__error" id="cemail-err" hidden></p>
+</div>
+</div>
+<div class="dgo-field">
+<label class="dgo-field__label" for="cref">Tracking ID <span style="font-weight:400;color:var(--dgo-color-fg-muted)">— if your question is about an existing request</span></label>
+<input class="dgo-input pf-mono" id="cref" name="cref" type="text" placeholder="NITDA-XXXXXXXXX" spellcheck="false" autocapitalize="characters">
+<p class="dgo-field__help" id="cref-help">Quoting the ID gets your case to the right unit without a second exchange.</p>
+<p class="dgo-field__error" id="cref-err" hidden></p>
+</div>
+<div class="dgo-field">
+<label class="dgo-field__label dgo-field__label--req" for="cmsg">How can we help?</label>
+<textarea class="dgo-textarea" id="cmsg" name="cmsg" rows="6" placeholder="Describe what you were doing, what you expected and what happened instead. Include dates and file names where they matter."></textarea>
+<div class="dgo-row dgo-row--between"><p class="dgo-field__help">Twenty characters minimum.</p><p class="dgo-field__help pf-mono" id="cmsgCount">0</p></div>
+<p class="dgo-field__error" id="cmsg-err" hidden></p>
+</div>
+<label class="dgo-check" for="cconsent" style="align-items:flex-start;gap:10px">
+<input type="checkbox" id="cconsent" name="cconsent">
+<span style="font-size:13px;line-height:1.55;color:var(--dgo-color-fg-muted)">I agree that NITDA may process the details in this case to answer it, under the Nigeria Data Protection Act.</span>
+</label>
+<p class="dgo-field__error" id="cconsent-err" hidden></p>
+<div id="caseStatus" aria-live="polite"></div>
+<div class="dgo-row" style="gap:10px;flex-wrap:wrap">
+<button class="dgo-btn dgo-btn--primary" id="caseBtn" type="submit"><svg class="icon-sm" aria-hidden="true"><use href="#i-send"></use></svg>Review and send</button>
+<button class="dgo-btn dgo-btn--ghost" id="caseReset" type="button">Clear form</button>
+<span class="pf-note" style="margin-left:auto">Case reference issued instantly</span>
+</div>
+</form>
+</div>
+</div>
+<div id="caseResult" hidden></div>
+
+<div class="pf-panel" id="casesPanel" hidden>
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-folder"></use></svg><h2 class="pf-panel__title">Your cases from this device</h2><span class="pf-note" style="margin-left:auto" id="casesCount"></span></div>
+<ul class="pf-recs" id="casesList"></ul>
+</div>
+</div>
+
+<div class="dgo-stack dgo-stack--4">
+<div class="dgo-stack dgo-stack--3" id="channels"></div>
+<div class="pf-panel">
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-accent)"><use href="#i-check-circle"></use></svg><h2 class="pf-panel__title">Portal status</h2></div>
+<div class="pf-panel__body dgo-stack dgo-stack--3" id="statusPanel"></div>
+</div>
+<div class="pf-panel">
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-fg-muted)"><use href="#i-info"></use></svg><h2 class="pf-panel__title">Include these and we can act at once</h2></div>
+<div class="pf-panel__body">
+<ul class="dgo-stack dgo-stack--3" style="list-style:none;margin:0;padding:0;font-size:13.5px;line-height:1.55">
+<li class="dgo-row" style="gap:10px;align-items:flex-start"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-accent);margin-top:3px"><use href="#i-check"></use></svg><span>The tracking ID, exactly as printed on your receipt.</span></li>
+<li class="dgo-row" style="gap:10px;align-items:flex-start"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-accent);margin-top:3px"><use href="#i-check"></use></svg><span>The email address used at submission — we can only discuss a record with that address.</span></li>
+<li class="dgo-row" style="gap:10px;align-items:flex-start"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-accent);margin-top:3px"><use href="#i-check"></use></svg><span>The file names involved, and the date you sent them.</span></li>
+<li class="dgo-row" style="gap:10px;align-items:flex-start"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-accent);margin-top:3px"><use href="#i-check"></use></svg><span>Any wording the portal showed you, copied out in full.</span></li>
+</ul>
+</div>
+</div>
+</div>
+
+</div>
+</div></section>
+
+<section class="pf-section--tight" style="border-top:1px solid var(--dgo-color-border-default)"><div class="pf-wrap dgo-stack dgo-stack--5">
+<div class="dgo-row dgo-row--bottom dgo-row--between" style="gap:20px;flex-wrap:wrap">
+<div class="dgo-stack dgo-stack--3" style="max-width:560px">
+<p class="pf-eyebrow"><span class="pf-eyebrow__dot"></span>Answers</p>
+<h2 class="pf-title">Questions the registry hears most.</h2>
+</div>
+<div class="dgo-stack dgo-stack--2" style="min-width:min(320px,100%)">
+<label class="dgo-field__label" for="faqSearch">Search the answers</label>
+<div class="dgo-search"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-fg-muted)"><use href="#i-search"></use></svg>
+<input id="faqSearch" type="search" placeholder="tracking ID, file size, fees…" style="border:0;background:none;flex:1;font:inherit;color:inherit;outline:none" autocomplete="off">
+<span class="pf-note pf-mono" id="faqCount"></span></div>
+</div>
+</div>
+<div class="pf-faq" id="faqList"></div>
+<div id="faqEmpty" hidden></div>
+</div></section>
+
+</main>
+
+<footer class="pf-foot"><div class="pf-wrap">
+<div class="pf-foot__grid">
+<div>
+<img src="ds/logo/nitda-endorsed.svg" alt="National Information Technology Development Agency" style="height:46px;width:auto;margin-bottom:14px">
+<p>The Intelligent Portal is the single front door for document submission, status tracking and support across the agency.</p>
+<p style="margin-top:12px">No. 28 Port Harcourt Crescent, Off Gimbiya Street, Area 11, Garki, Abuja.</p>
+</div>
+<div><h3>Services</h3><ul>
+<li><a href="submit.html?service=it-clearance">IT project clearance</a></li>
+<li><a href="submit.html?service=ndpa-compliance">Data protection filing</a></li>
+<li><a href="submit.html?service=accreditation">Accreditation</a></li>
+<li><a href="submit.html?service=general">General correspondence</a></li>
+</ul></div>
+<div><h3>Portal</h3><ul>
+<li><a href="submit.html">Submit a document</a></li>
+<li><a href="track.html">Track a request</a></li>
+<li><a href="support.html">Support</a></li>
+<li><a href="admin.html">Operations console</a></li>
+</ul></div>
+<div><h3>Contact</h3><ul>
+<li><a href="mailto:portal@nitda.gov.ng">portal@nitda.gov.ng</a></li>
+<li><a href="tel:+2347000006483">+234 700 000 6483</a></li>
+<li>Monday – Friday, 08:00 – 17:00 WAT</li>
+</ul></div>
+</div>
+<div class="pf-foot__bar">
+<span>© <span data-year></span> National Information Technology Development Agency. All rights reserved.</span>
+<span class="pf-status"><i></i> All portal services operational</span>
+<span style="margin-left:auto">Built on the DGO Design System v2.1</span>
+</div>
+</div></footer>
+
+<script src="js/icons.js"></script>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/support.js"></script>
+</body>
+</html>

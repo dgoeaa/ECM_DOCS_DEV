@@ -1,0 +1,45 @@
+/* ============================================================
+   DGO v2.0 — Modern Reset
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
+ul[role="list"], ol[role="list"] { list-style: none; padding: 0; margin: 0; }
+
+a { color: inherit; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+table { border-collapse: collapse; }
+[hidden] { display: none !important; }
+
+/* Focus outline replaced everywhere with semantic focus ring */
+:focus { outline: none; }
+:focus-visible { outline: none; }
+
+/* Logical-only margin reset for RTL safety */
+ul, ol {
+  padding-inline-start: 1.5rem;
+}

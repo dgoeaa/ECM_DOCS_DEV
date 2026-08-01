@@ -1,0 +1,38 @@
+/* ============================================================
+   DGO v2.0 — Density modes
+   [data-density="comfortable"] (default) | [data-density="compact"]
+   ============================================================ */
+
+:root,
+[data-density="comfortable"] {
+  --dgo-density-pad:          var(--dgo-s-4);
+  --dgo-density-pad-y:        var(--dgo-s-3);
+  --dgo-density-gap:          var(--dgo-s-3);
+  --dgo-density-row:          48px;
+
+  --dgo-btn-h-sm:             32px;
+  --dgo-btn-h-md:             40px;
+  --dgo-btn-h-lg:             48px;
+  --dgo-input-h:              40px;
+  --dgo-table-row-h:          48px;
+  --dgo-card-pad:             var(--dgo-s-5);
+}
+
+[data-density="compact"] {
+  --dgo-density-pad:          var(--dgo-s-2);
+  --dgo-density-pad-y:        var(--dgo-s-1_5);
+  --dgo-density-gap:          var(--dgo-s-2);
+  --dgo-density-row:          36px;
+
+  --dgo-btn-h-sm:             28px;
+  --dgo-btn-h-md:             32px;
+  --dgo-btn-h-lg:             40px;
+  --dgo-input-h:              32px;
+  --dgo-table-row-h:          36px;
+  --dgo-card-pad:             var(--dgo-s-4);
+
+  /* Command palette compacts with the rest of the system */
+  --dgo-cmdk-input-h:         40px;
+  --dgo-cmdk-item-h:          36px;
+  --dgo-cmdk-item-pad:        var(--dgo-s-2);
+}

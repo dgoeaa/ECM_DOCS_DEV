@@ -1,0 +1,15 @@
+/* DGO Design System v2.1 — single-entry barrel for the NITDA Intelligent Portal.
+   Load order is significant: brand foundation → token tiers → reset/base/layout → components. */
+@import url("colors_and_type.css");
+@import url("tokens/tokens.primitive.css");
+@import url("tokens/tokens.semantic.css");
+@import url("tokens/tokens.theme-light.css");
+@import url("tokens/tokens.theme-dark.css");
+@import url("tokens/tokens.theme-hc.css");
+@import url("tokens/tokens.component.css");
+@import url("tokens/tokens.density.css");
+@import url("styles/reset.css");
+@import url("styles/base.css");
+@import url("styles/layout.css");
+@import url("styles/components.css");
+@import url("styles/components/command-palette.css");

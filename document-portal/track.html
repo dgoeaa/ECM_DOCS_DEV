@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Track a request — NITDA Intelligent Portal</title>
+<meta name="description" content="Follow every stage, note and decision on a submitted document using your tracking ID.">
+<meta name="theme-color" content="#05583B">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="ds/ds.css">
+<link rel="stylesheet" href="portal.css">
+<script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('nitda.portal.theme')||'light')}catch(e){}</script>
+</head>
+<body data-page="track">
+<a class="pf-skip" href="#main">Skip to main content</a>
+<div class="pf-ribbon"><div class="pf-wrap pf-ribbon__in">
+<span class="pf-ribbon__flag"><i style="background:#008751"></i><i style="background:#fff"></i><i style="background:#008751"></i></span>
+<span>An official portal of the Federal Republic of Nigeria</span>
+<span class="pf-ribbon__end"><span class="pf-hide-sm"><b data-live-open>0</b> requests in progress</span><a href="https://nitda.gov.ng" target="_blank" rel="noopener">nitda.gov.ng</a></span>
+</div></div>
+<header class="pf-top"><div class="pf-wrap pf-top__in">
+<a class="pf-brand" href="index.html"><img class="pf-brand__mark" src="ds/logo/mark.svg" alt="" width="38" height="38"><span class="pf-brand__txt"><span class="pf-brand__name">NITDA Intelligent Portal</span><span class="pf-brand__sub">Submit · Track · Resolve</span></span></a>
+<nav class="pf-nav" aria-label="Primary">
+<a href="index.html" data-nav="home">Home</a>
+<a href="submit.html" data-nav="submit">Submit</a>
+<a href="track.html" data-nav="track">Track</a>
+<a href="support.html" data-nav="support">Support</a>
+<a href="admin.html" data-nav="admin">Operations</a>
+</nav>
+<div class="pf-top__acts">
+<button class="pf-kbd-trigger" id="cmdkBtn" type="button" aria-label="Search the portal"><svg class="icon-sm" aria-hidden="true"><use href="#i-search"></use></svg><span>Search</span><kbd class="dgo-kbd" data-mac-key>Ctrl K</kbd></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon" id="themeBtn" type="button" aria-label="Change theme"></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon pf-burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu"></button>
+</div>
+</div></header>
+<nav class="pf-mobile" id="mobileNav" data-open="false" aria-label="Mobile"><div class="pf-wrap pf-mobile__in">
+<a href="index.html" data-nav="home">Home</a>
+<a href="submit.html" data-nav="submit">Submit a document</a>
+<a href="track.html" data-nav="track">Track a request</a>
+<a href="support.html" data-nav="support">Support and helpdesk</a>
+<a href="admin.html" data-nav="admin">Operations console</a>
+</div></nav>
+<div class="pf-nojs" id="nojs"><b>JavaScript is required.</b> Request lookup runs in your browser. Enable JavaScript, or write to <a href="mailto:portal@nitda.gov.ng">portal@nitda.gov.ng</a>.</div>
+
+<main id="main" class="pf-main"><section class="pf-section--tight"><div class="pf-wrap pf-wrap--narrow dgo-stack dgo-stack--6">
+
+<nav class="dgo-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="dgo-crumbs__sep">/</span><span class="dgo-crumbs__current">Track a request</span></nav>
+
+<div class="dgo-stack dgo-stack--3" id="trackIntro">
+<p class="pf-eyebrow"><span class="pf-eyebrow__dot"></span>Request lookup</p>
+<h1 class="pf-title">Where is my document?</h1>
+<p class="pf-lead">Enter the tracking ID from your receipt together with the email address used at submission. Both are needed — the email keeps somebody else's record out of your hands.</p>
+</div>
+
+<form class="pf-panel pf-no-print" id="lookup" novalidate>
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-search"></use></svg><h2 class="pf-panel__title">Look up a request</h2></div>
+<div class="pf-panel__body dgo-stack dgo-stack--4">
+<div class="pf-form-grid">
+<div class="dgo-field"><label class="dgo-field__label dgo-field__label--req" for="trackId">Tracking ID</label><input class="dgo-input pf-mono" id="trackId" name="trackId" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="NITDA-XXXXXXXXX" style="text-transform:uppercase;letter-spacing:.04em"><p class="dgo-field__error" id="trackId-err" hidden></p></div>
+<div class="dgo-field"><label class="dgo-field__label dgo-field__label--req" for="trackEmail">Email used at submission</label><input class="dgo-input" id="trackEmail" name="trackEmail" type="email" autocomplete="email" placeholder="name@organisation.gov.ng"><p class="dgo-field__error" id="trackEmail-err" hidden></p></div>
+</div>
+<div id="quickPicks"></div>
+</div>
+<div class="pf-panel__foot dgo-row dgo-row--between" style="gap:12px;flex-wrap:wrap">
+<span class="pf-note">Lookups are logged for audit purposes.</span>
+<span class="dgo-cluster dgo-cluster--2"><button type="button" class="dgo-btn dgo-btn--secondary" id="resetBtn">Reset</button><button type="submit" class="dgo-btn dgo-btn--primary" id="lookupBtn"><svg class="icon-sm" aria-hidden="true"><use href="#i-search"></use></svg>Check status</button></span>
+</div>
+</form>
+
+<div id="trackOut" aria-live="polite"></div>
+
+<div class="pf-panel pf-no-print" id="minePanel" hidden>
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-id"></use></svg><h2 class="pf-panel__title">Recent activity on this device</h2><button class="dgo-btn dgo-btn--ghost dgo-btn--sm" id="forgetBtn" type="button">Forget</button></div>
+<ul class="pf-recs" id="mineList"></ul>
+<div class="pf-panel__foot"><span class="pf-note">Stored only in this browser so you can jump back to a request without retyping the ID.</span></div>
+</div>
+
+</div></section></main>
+
+<footer class="pf-foot"><div class="pf-wrap">
+<div class="pf-foot__grid">
+<div>
+<img src="ds/logo/nitda-endorsed.svg" alt="National Information Technology Development Agency" style="height:46px;width:auto;margin-bottom:14px">
+<p>The Intelligent Portal is the single front door for document submission, status tracking and support across the agency.</p>
+<p style="margin-top:12px">No. 28 Port Harcourt Crescent, Off Gimbiya Street, Area 11, Garki, Abuja.</p>
+</div>
+<div><h3>Services</h3><ul>
+<li><a href="submit.html?service=it-clearance">IT project clearance</a></li>
+<li><a href="submit.html?service=ndpa-compliance">Data protection filing</a></li>
+<li><a href="submit.html?service=accreditation">Accreditation</a></li>
+<li><a href="submit.html?service=general">General correspondence</a></li>
+</ul></div>
+<div><h3>Portal</h3><ul>
+<li><a href="submit.html">Submit a document</a></li>
+<li><a href="track.html">Track a request</a></li>
+<li><a href="support.html">Support</a></li>
+<li><a href="admin.html">Operations console</a></li>
+</ul></div>
+<div><h3>Contact</h3><ul>
+<li><a href="mailto:portal@nitda.gov.ng">portal@nitda.gov.ng</a></li>
+<li><a href="tel:+2347000006483">+234 700 000 6483</a></li>
+<li>Monday – Friday, 08:00 – 17:00 WAT</li>
+</ul></div>
+</div>
+<div class="pf-foot__bar">
+<span>© <span data-year></span> National Information Technology Development Agency. All rights reserved.</span>
+<span class="pf-status"><i></i> All portal services operational</span>
+<span style="margin-left:auto">Built on the DGO Design System v2.1</span>
+</div>
+</div></footer>
+
+<script src="js/icons.js"></script>
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/track.js"></script>
+</body>
+</html>
