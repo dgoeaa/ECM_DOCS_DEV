@@ -5,7 +5,9 @@
 **Date:** 2026-08-01
 **Method:** Static module-graph resolution, git-history forensics, and empirical browser execution (Chromium 1194 via Playwright, local static server). Every finding below is reproducible; the probes are described inline.
 
-> **Remediation status — updated 2026-08-01.** Five of the nine gaps have since been fixed and verified in this branch: **G-01** (configs restored), **G-02** (boot watchdog), **G-05/G-06** (theming), **G-07** (welcome params), and **G-08 in part** (`.gitignore` added). The findings below are preserved **as originally assessed**; §10 records what changed and how it was verified. The two credential/authentication gaps — **G-03** and **G-04** — remain **open by design**, because both require decisions and infrastructure outside this repository.
+> **Remediation status — updated 2026-08-01.** Seven of the nine gaps have since been fixed and verified in this branch: **G-01** (configs restored), **G-02** (boot watchdog), **G-05/G-06** (theming), **G-07** (welcome params), **G-08** (quality gate and CI built), and **G-09** (documentation corrected). The findings below are preserved **as originally assessed**; §10 records what changed and how it was verified. The two credential/authentication gaps — **G-03** and **G-04** — remain **open by design**, because both require decisions and infrastructure outside this repository.
+>
+> **One figure in the original assessment was wrong and is corrected throughout:** the SAS signature count is **22 across 16 files**, not 24 across 17. The original used a grep character class written `[A-Za-z0-9_\-]`; inside POSIX brackets the backslash is a literal class member, so escaped sequences in the JSON files produced spurious extra variants. Two independent methods now agree at 22.
 
 ---
 
@@ -26,13 +28,13 @@ Layered on top is a **credential-exposure problem materially worse than the one 
 | Functional breadth | **Strong** | 25/25 routes render clean once configs restored | Strong |
 | Governance & auditability | **Strong** | Ownership, audit, idempotency, receipts, OTP all present and wired | Strong |
 | Build integrity | **Failed** | 13 required modules absent; app cannot boot | ✅ **Passing** |
-| Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run | 🟡 Still absent |
+| Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run | ✅ **Built** |
 | Security — secrets | **Critical** | 22 live SAS signatures in tracked files at HEAD | 🔴 Unchanged |
 | Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated | 🔴 Unchanged |
 | Presentation / theming | **Degraded** | Dark theme unreadable; high-contrast theme inert | ✅ **Working** |
-| Documentation accuracy | **Poor** | README describes a repository layout that does not exist here | 🔴 Unchanged |
+| Documentation accuracy | **Poor** | README describes a repository layout that does not exist here | ✅ **Corrected** |
 
-**Posture after remediation: still NOT DEPLOYABLE — but for two reasons instead of eight.** The runtime now boots, renders and themes correctly. What blocks deployment is no longer packaging: it is the live credentials (G-03) and the absence of authentication (G-04).
+**Posture after remediation: still NOT DEPLOYABLE — but for two reasons instead of eight.** The runtime now boots, renders and themes correctly, and a quality gate exists to keep it that way. What blocks deployment is no longer packaging: it is the live credentials (G-03) and the absence of authentication (G-04). Both are security decisions, not engineering backlog.
 
 ---
 
@@ -247,11 +249,11 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 | G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | ✅ **Fixed** — `7204da7` |
 | G-03 | 22 live SAS signatures in 16 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
 | G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🔴 **Open** — needs an identity provider + backend work |
-| G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | 🟡 **Partial** — `.gitignore` added (`d728f79`); suite/CI outstanding |
+| G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | ✅ **Fixed** — `d728f79`, `ef0e390` (bundle manifest retired, not restored) |
 | G-05 | Dark theme renders content unreadable | **High** | ✅ **Fixed** — `1176d1d` |
 | G-06 | High-contrast theme inert; WCAG claim unsupported | **High** | ✅ **Fixed** — `1176d1d` |
 | G-02 | Boot failure silent; fatal handler unreachable | **Medium** | ✅ **Fixed** — `99eccea` |
-| G-09 | README/AUDIT describe a different repository; secrets claim false | **Medium** | 🔴 **Open** — deliberately deferred; see §10 |
+| G-09 | README/AUDIT describe a different repository; secrets claim false | **Medium** | ✅ **Fixed** — README/CONTRIBUTING rewritten, AUDIT correction note |
 | G-07 | Duplicate welcome layers; `?skipWelcome=1` not honoured | **Low** | ✅ **Fixed** — `a7df402` |
 
 ## 8. Recommended sequence
@@ -298,6 +300,8 @@ Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`.
 | `1176d1d` | G-05, G-06 | Removed the stale theme/density mirrors from `applyRootAttributes()` and `shellAttrs()`. |
 | `99eccea` | G-02 | Added a 15-second boot watchdog to `index.html` that surfaces failing resource URLs. |
 | `a7df402` | G-07 | Aligned `shouldShow()` in `shared/welcome-runtime.js` with `shouldSkip()` in `core/welcome-experience.js`. |
+| `ef0e390` | G-08 | Built the quality gate: `tests/check-imports.mjs`, `tests/smoke.spec.js`, `tests/check-secrets.mjs` + baseline, `.github/workflows/ci.yml`. Fixed the `htdocs/` paths in `package.json` and `scripts/check-links.mjs`. |
+| *(this commit)* | G-09 | Rewrote `README.md` and `CONTRIBUTING.md` for this repository; added a correction note to `AUDIT.md`. |
 
 **Verification after all changes:**
 
@@ -320,5 +324,5 @@ Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`.
 
 - **G-03 (secrets).** Not touched. Rotating the 22 signatures in Power Automate must come *first* — scrubbing files or rewriting history revokes nothing and would destroy the evidence trail before rotation is confirmed. This is an operational decision with a live-service blast radius.
 - **G-04 (authentication).** Not attempted. It requires an identity provider, token issuance, and authorization logic inside every Power Automate flow. None of that lives in this repository, and a client-side-only change here would be security theatre.
-- **G-08 (test suite / CI).** Only `.gitignore` was added. Reconstructing the contract suite, its baseline, and three CI workflows is a design task in its own right, and the originals are absent from both the repository and the zip — there is nothing to restore, only something to rebuild.
-- **G-09 (documentation).** Left open on purpose: the README's corrections depend on decisions still outstanding (final repository name, whether the `htdocs` layout or the flat one is canonical, and the outcome of the G-03 rotation). Correcting it now would bake in guesses.
+- **G-08 (test suite / CI) — since built.** The originals were absent from both the repository and the archived platform copy, so this is a rebuild rather than a restore. What exists now is deliberately narrower than the CSS-contract-and-baseline harness the old README described: three checks (import graph, secret ratchet, smoke) plus CI. **There is still no rendered-appearance regression coverage** beyond the theme assertion, so the cascade debt documented in `styles/index.css` remains unmeasured.
+- **G-09 (documentation) — since corrected.** `README.md` and `CONTRIBUTING.md` were rewritten against verified facts, and every path and command they cite was checked to exist. Genuinely undecided questions — deployment target, whether the flat portal layout is canonical, the fate of the bundle tooling — are recorded under "Not yet decided" rather than guessed at. `AUDIT.md` was **not** rewritten: an audit record should stand as written, so a dated correction note was prepended instead, scoping F-007 accurately and extending F-001/F-002/F-003 to the root runtime.
