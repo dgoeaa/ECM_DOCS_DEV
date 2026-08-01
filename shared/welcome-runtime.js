@@ -20,8 +20,18 @@ function markUnseen(){
   const s = State.get();
   State.patch({ settings:{ ...(s.settings||{}), welcomeSeen:false } }, { module:'welcome', action:'reset-welcome', event:'audit:welcome-reset' });
 }
+// Must agree with shouldSkip() in core/welcome-experience.js. Both layers read the same
+// WelcomeExperienceConfig, but this one previously gated on welcomeSeen alone and ignored
+// the query params entirely — so ?skipWelcome=1 suppressed the core welcome and this
+// overlay still took over the screen. CONTRIBUTING.md tells test authors to rely on that
+// parameter, so the documented idiom did not work.
 function shouldShow({force=false}={}){
-  return !!force || (!embedded() && State.get().settings?.welcomeSeen === false);
+  if(force) return true;                                   // explicit replay always wins
+  if(!C.enabled) return false;
+  const q = new URLSearchParams(location.search);
+  if((C.forceQueryParams||[]).some(k=>q.has(k))) return true;
+  if((C.skipQueryParams||[]).some(k=>q.has(k))) return false;
+  return !embedded() && State.get().settings?.welcomeSeen === false;
 }
 function overlayHtml(){
   const s = State.get(), p = s.profile || {};
