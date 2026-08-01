@@ -1,0 +1,99 @@
+/* ============================================================
+   DGO v2.0 — Layout primitives
+   stack · cluster · grid · sidebar · split
+   ============================================================ */
+
+/* Stack — vertical flow with consistent spacing */
+.dgo-stack { display: flex; flex-direction: column; gap: var(--dgo-density-gap); }
+.dgo-stack--1 { gap: var(--dgo-s-1); }
+.dgo-stack--2 { gap: var(--dgo-s-2); }
+.dgo-stack--3 { gap: var(--dgo-s-3); }
+.dgo-stack--4 { gap: var(--dgo-s-4); }
+.dgo-stack--5 { gap: var(--dgo-s-5); }
+.dgo-stack--6 { gap: var(--dgo-s-6); }
+.dgo-stack--8 { gap: var(--dgo-s-8); }
+.dgo-stack--12 { gap: var(--dgo-s-12); }
+
+/* Cluster — wrapping horizontal flow */
+.dgo-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dgo-density-gap);
+}
+.dgo-cluster--2 { gap: var(--dgo-s-2); }
+.dgo-cluster--3 { gap: var(--dgo-s-3); }
+.dgo-cluster--4 { gap: var(--dgo-s-4); }
+.dgo-cluster--end { justify-content: flex-end; }
+.dgo-cluster--between { justify-content: space-between; }
+
+/* Row — horizontal flex, non-wrapping by default */
+.dgo-row {
+  display: flex;
+  gap: var(--dgo-density-gap);
+  align-items: center;
+}
+.dgo-row--top    { align-items: flex-start; }
+.dgo-row--bottom { align-items: flex-end; }
+.dgo-row--baseline { align-items: baseline; }
+.dgo-row--stretch { align-items: stretch; }
+.dgo-row--between { justify-content: space-between; }
+.dgo-row--end     { justify-content: flex-end; }
+.dgo-row--center  { justify-content: center; }
+
+.dgo-spacer { flex: 1 1 auto; }
+
+/* Grid */
+.dgo-grid {
+  display: grid;
+  gap: var(--dgo-density-gap);
+}
+.dgo-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dgo-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dgo-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dgo-grid--6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.dgo-grid--12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.dgo-grid--auto { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+@media (max-width: 900px) {
+  .dgo-grid--3, .dgo-grid--4, .dgo-grid--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dgo-grid--12 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .dgo-grid--2, .dgo-grid--3, .dgo-grid--4, .dgo-grid--6 { grid-template-columns: 1fr; }
+  .dgo-grid--12 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Sidebar layout — fixed-width sidebar + fluid content */
+.dgo-sidebar-layout {
+  display: grid;
+  grid-template-columns: var(--dgo-sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+.dgo-sidebar-layout--collapsed {
+  grid-template-columns: var(--dgo-sidebar-w-collapsed) minmax(0, 1fr);
+}
+
+@media (max-width: 900px) {
+  .dgo-sidebar-layout { grid-template-columns: 1fr; }
+}
+
+/* Split — two columns, prefer space-between */
+.dgo-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--dgo-s-4);
+}
+
+/* App shell scaffold */
+.dgo-app {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+.dgo-app__topbar { grid-row: 1; }
+.dgo-app__body   { grid-row: 2; min-height: 0; }
+
+/* Container queries (component-level reflow) */
+.dgo-cq { container-type: inline-size; }
