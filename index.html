@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#05583B">
+  <title>DGO Digital Operations — R11.6 Obsidian Harmonized Design System Runtime</title>
+  <link rel="icon" href="assets/dgo-mark.svg">
+  <!-- Single deterministic @layer entry (see styles/index.css). Replaces 19 unordered links. -->
+  <link rel="stylesheet" href="styles/index.css">
+  <!-- Runtime config: copy config/config.example.js → config/config.local.js and fill in
+       rotated endpoint URLs.  The onerror handler is intentional — the file is optional. -->
+  <script src="config/config.local.js" onerror="void 0"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+  <div id="app"><div class="boot" role="status">Loading DGO Digital Operations…</div></div>
+  <noscript><div class="fatal">JavaScript is required to run DGO Digital Operations.</div></noscript>
+  <script type="module" src="shared/figma-uiux-runtime.js"></script>
+  <script type="module" src="core/boot.js"></script>
+</body>
+</html>

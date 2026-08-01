@@ -1,0 +1,186 @@
+/* =========================================================
+   NITDA Design System — Colors & Type
+   Source: NITDA Brand Guidelines 2020 (uploads/NITDA Brand Manual ...)
+   ========================================================= */
+
+/* ---- Webfonts ----
+   Brand fonts:
+     • Alwyn New (Light, Regular, Bold, Light Italic) — Mark Simonson Studio (commercial).
+       Substituted with "Outfit" from Google Fonts (geometric sans, similar
+       proportions, full weight range). Replace with the licensed Alwyn New
+       webfont in /fonts/ when available.
+     • Verdana — system font, used for body/long-form content.
+*/
+/* External Google Fonts @import removed (blocking boot on restricted networks) — see base.css note.
+   Brand faces fall back to the system stack; self-host Outfit in /fonts/ to restore exact typography. */
+
+/* Element styling and the @font-face rule moved to brand-type.css (`brand` layer) by Phase 1:
+   this sheet is imported into `tokens`, the lowest layer, where no element rule can win.
+   Custom properties are all that belong here. */
+
+:root {
+  /* =====================================================
+     COLORS
+     ===================================================== */
+
+  /* --- Primary: Deep Green (PANTONE 7484C) --- */
+  --nitda-deep-green:        #05583B;   /* R5 G88 B59 — flagship brand color */
+  --nitda-deep-green-80:     #377962;   /* 80% tint */
+  --nitda-deep-green-40:     #9BBCAE;   /* 40% tint */
+  --nitda-deep-green-20:     #CDDDD7;   /* derived for surfaces */
+  --nitda-deep-green-10:     #E6EEEB;   /* derived for surfaces */
+  --nitda-deep-green-deep:   #033F2A;   /* derived hover/press, ~10% darker */
+
+  /* --- Secondary: Smart Green (PANTONE 354C) --- */
+  --nitda-smart-green:       #17B255;   /* R23 G178 B85 — accent, CTAs, success */
+  --nitda-smart-green-80:    #45C176;   /* 80% tint */
+  --nitda-smart-green-40:    #A2E0BB;   /* 40% tint */
+  --nitda-smart-green-deep:  #119143;   /* derived hover/press */
+
+  /* --- Neutrals --- */
+  --nitda-black:             #373435;   /* brand black, R55 G52 B53 */
+  --nitda-black-80:          #5F5C5D;
+  --nitda-black-40:          #AFADAE;
+  --nitda-white:             #FFFFFF;
+
+  /* Extended neutrals for UI work (derived).
+
+     Phase 5a removed levels 50-800. They were a second, unthemed neutral ladder alongside
+     --dgo-ink-*, and once the semantic aliases below were bound to the DGO semantics nothing
+     referenced any of them: 400, 700 and 800 were already carried in tests/baseline.json as
+     `css-token-orphan`, and the rest joined them. Level 900 stays because brand-type.css still
+     paints h3/h4 with it. Use --dgo-ink-* for new UI neutrals; the brand neutrals above
+     (--nitda-black*, --nitda-white) remain the brand-manual reference. */
+  --nitda-ink-900:           #1B1A1A;
+
+  /* --- Tertiary (Coat of Arms only — DO NOT use in general design) --- */
+  --nitda-coa-red:           #C8102E;
+  --nitda-coa-yellow:        #FFD200;
+
+  /* --- Semantic --- */
+  --nitda-success:           var(--nitda-smart-green);
+  --nitda-warning:           #E1A100;
+  --nitda-danger:            #C8102E;
+  --nitda-info:              #0B6BB0;
+
+  /* --- Surface / Foreground tokens ---
+
+     These are SEMANTIC aliases, not brand constants, and brand-type.css paints bare elements
+     with them: `html` reads --bg-default/--fg-default, `p` reads --fg-default, `a` reads
+     --fg-link, `code` reads --bg-muted, `hr` reads --border-default.
+
+     They used to resolve to the --nitda-* primitives above, which are fixed by the brand
+     guideline and are therefore the same value in every theme. Nothing re-bound them for
+     `dark` or `hc`, so every paragraph in the runtime rendered #1B1A1A regardless of theme —
+     1.03:1 on the dark card, i.e. invisible. They are bound to the DGO semantics here for the
+     same reason tokens.legacy-bridge.css binds the legacy short vars: two vocabularies that
+     mean the same thing must not be able to diverge.
+
+     Every binding below is byte-identical in `light` to the --nitda-* value it replaces except
+     the four marked, which are recorded in tests/README.md. The --nitda-* brand primitives
+     themselves are untouched: they remain the brand palette. */
+  --bg-default:              var(--dgo-color-surface-page);      /* #FFFFFF */
+  --bg-subtle:               var(--dgo-color-surface-muted);     /* #FAF9F9 -> #FAFAF9, 0 consumers */
+  --bg-muted:                var(--dgo-color-surface-sunken);    /* #F4F2F3 -> #F5F4F4, see README */
+  --bg-inverse:              var(--dgo-color-surface-brand);     /* #05583B */
+  /* No DGO counterpart: the semantics stop at surface-brand, so this alias keeps the brand
+     primitive and stays unthemed. It has no consumer; adding one needs a DGO token first. */
+  --bg-inverse-strong:       var(--nitda-deep-green-deep);
+
+  --fg-default:              var(--dgo-color-fg-default);        /* #1B1A1A */
+  --fg-muted:                var(--dgo-color-fg-muted);          /* #5F5C5D */
+  --fg-subtle:               var(--dgo-color-fg-subtle);         /* #807D7E */
+  --fg-on-green:             var(--nitda-white);                 /* white on green is white in
+                                                                    every theme; keeps the brand
+                                                                    white referenced */
+  --fg-on-light:             var(--dgo-color-fg-brand);          /* #05583B */
+  --fg-link:                 var(--dgo-color-fg-link);           /* #05583B */
+  --fg-link-hover:           var(--dgo-color-fg-link-hover);     /* #17B255 -> #119143, see README */
+
+  --border-default:          var(--dgo-color-border-default);    /* #E8E6E7 */
+  --border-strong:           var(--dgo-color-border-strong);     /* #D6D4D5 -> #807D7E, 0 consumers */
+  --border-on-green:         var(--dgo-color-border-on-brand);   /* .18 -> .20 alpha, 0 consumers */
+
+  /* =====================================================
+     TYPE
+     ===================================================== */
+
+  /* Families */
+  --font-display:  "Outfit", "Alwyn New", "Helvetica Neue", Arial, sans-serif;
+  --font-sans:     "Outfit", "Alwyn New", "Helvetica Neue", Arial, sans-serif;
+  --font-body:     Verdana, Geneva, "DejaVu Sans", sans-serif;
+  --font-mono:     ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Type scale (uses Outfit/Alwyn for display, Verdana for body) */
+  --fs-display-xl:  72px;
+  --fs-display-l:   56px;
+  --fs-display:     44px;
+  --fs-h1:          36px;
+  --fs-h2:          28px;
+  --fs-h3:          22px;
+  --fs-h4:          18px;
+  --fs-body-lg:     18px;
+  --fs-body:        16px;
+  --fs-body-sm:     14px;
+  --fs-caption:     12px;
+  --fs-overline:    11px;
+
+  /* Line heights */
+  --lh-tight:       1.1; /* @kind font */
+  --lh-snug:        1.25; /* @kind font */
+  --lh-normal:      1.4; /* @kind font */
+  --lh-relaxed:     1.6; /* @kind font */
+
+  /* Weights */
+  --fw-light:       300; /* @kind font */
+  --fw-regular:     400; /* @kind font */
+  --fw-medium:      500; /* @kind font */
+  --fw-semibold:    600; /* @kind font */
+  --fw-bold:        700; /* @kind font */
+  --fw-black:       800; /* @kind font */
+
+  /* Tracking (typographic letter-spacing) */
+  --tr-tight:       -0.02em; /* @kind font */
+  --tr-normal:       0em; /* @kind font */
+  --tr-wide:         0.04em; /* @kind font */
+  --tr-overline:     0.12em; /* @kind font */
+
+  /* =====================================================
+     SPACING & RADIUS
+     ===================================================== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  /* =====================================================
+     ELEVATION
+     ===================================================== */
+  --shadow-xs: 0 1px 2px rgba(5, 88, 59, 0.06);
+  --shadow-sm: 0 1px 3px rgba(5, 88, 59, 0.08), 0 1px 2px rgba(5, 88, 59, 0.06);
+  --shadow-md: 0 4px 12px rgba(5, 88, 59, 0.10), 0 2px 4px rgba(5, 88, 59, 0.06);
+  --shadow-lg: 0 12px 28px rgba(5, 88, 59, 0.14), 0 4px 8px rgba(5, 88, 59, 0.06);
+  --shadow-xl: 0 24px 48px rgba(5, 88, 59, 0.18);
+  --shadow-focus: 0 0 0 3px rgba(23, 178, 85, 0.35);
+
+  /* =====================================================
+     MOTION
+     ===================================================== */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-emphasis: cubic-bezier(0.3, 0, 0, 1.2); /* @kind other */
+  --dur-fast:   120ms; /* @kind other */
+  --dur-base:   200ms; /* @kind other */
+  --dur-slow:   320ms; /* @kind other */
+}

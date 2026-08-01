@@ -1,0 +1,28 @@
+/* DGO Design System 2.2 — technical expansion tokens */
+:root {
+  --dgo-control-target-min: 44px;
+  --dgo-control-target-compact: 36px;
+  --dgo-focus-width: 3px;
+  --dgo-focus-offset: 3px;
+  --dgo-focus-color: var(--dgo-color-border-focus);
+  --dgo-duration-progress: 800ms;
+  --dgo-duration-skeleton: 1400ms;
+  --dgo-duration-spin: 800ms;
+  --dgo-ease-spring: cubic-bezier(.2,.8,.2,1);
+  --dgo-content-xs: 20rem;
+  --dgo-content-sm: 30rem;
+  --dgo-content-md: 48rem;
+  --dgo-content-lg: 64rem;
+  --dgo-content-xl: 80rem;
+  --dgo-chart-grid: var(--dgo-color-border-default);
+  --dgo-chart-label: var(--dgo-color-fg-muted);
+  --dgo-chart-highlight: var(--dgo-color-action-accent);
+  --dgo-backdrop-blur: var(--dgo-blur-4);
+  --dgo-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --dgo-safe-top: env(safe-area-inset-top, 0px);
+  --dgo-reading-measure: 70ch;
+}
+[data-density="compact"] { --dgo-control-target-min: var(--dgo-control-target-compact); }
+@media (prefers-reduced-motion: reduce) {
+  :root { --dgo-duration-progress: 0ms; --dgo-duration-skeleton: 0ms; --dgo-duration-spin: 0ms; }
+}

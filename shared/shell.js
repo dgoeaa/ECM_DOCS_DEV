@@ -1,0 +1,114 @@
+import { Routes } from '../config/routes.config.js';
+import { NavGroups } from '../config/nav.config.js';
+import { VisibleWorkspaces, HiddenTechnicalRoutes, workspaceGuide } from '../config/workflow-clarity.config.js';
+import { State } from '../core/state.js';
+import { createFocusTrap } from '../core/focus-trap.js';
+import { Router } from '../core/router.js';
+import { fmtDateTime } from '../core/ui.js';
+import { setTheme, setDensity, nextTheme, nextDensity, applyRootAttributes, escapeHtml as esc, normalizeTheme, normalizeDensity } from './design-system-adapter.js';
+import { CommandPalette, ToastHost } from './components.js';
+import { installAccessibilityShortcuts, afterRouteChange } from './accessibility.js';
+import { allWorkspaceCommands, guideFor } from './workspace-guide.js';
+import { canCurrentUserAccess } from '../core/current-user.js';
+
+const I = Object.freeze({home:'⌂','ecm-erp-charter':'⚖',correspondence:'✉','single-assignment':'▣',orchestrator:'⌘','response-tracking':'↔',approvals:'✓',dispatch:'➤',settings:'⚙',activities:'▤','bulk-assignment':'∞',lookup:'⌕',archive:'◇',registry:'▣',comments:'◌',reports:'R',statistics:'∑',executive:'E',assistant:'✦','operator-hud':'O',diagnostics:'D','user-admin':'U'});
+
+// The sidebar collapses to an off-canvas drawer at this width (see the `@media (max-width:900px)`
+// block in styles/app.css that parks `.dgo-sidebar` at translateX(-100%)). Kept in sync by hand:
+// the two have to agree or the drawer is either inert while visible, or tabbable while hidden.
+const NAV_DRAWER_MAX = 900;
+
+// Guarded: the custom element is only declared/registered in a browser, so this module is
+// safely importable in non-browser (diagnostic) contexts without a ReferenceError.
+if (typeof HTMLElement !== 'undefined' && typeof customElements !== 'undefined') {
+class Shell extends HTMLElement{
+  connectedCallback(){ this._installed=false; this.render(); this._off=State.on(()=>this.refreshIdentityAndNav()); Router.start(); if(!this._installed){ installAccessibilityShortcuts(this); this._installed=true; } }
+  disconnectedCallback(){ this._off?.(); }
+  render(){
+    const s=State.get(); const route=Router.path(); const theme=normalizeTheme(s.settings.theme); const density=normalizeDensity(s.settings.density); applyRootAttributes(route,{theme,density});
+    this.innerHTML=`<div class="dgo-ministry-bar">Federal Ministry of Communications, Innovation & Digital Economy</div>
+    <div class="dgo-shell-grid" data-shell-grid>
+      <aside class="dgo-sidebar" aria-label="Primary navigation" data-nav>
+        <div class="dgo-brand-lockup"><img src="assets/dgo-mark.svg" alt="" aria-hidden="true"><span><b>DG<span>O</span> Digital Ops</b><small>An Initiative of NITDA</small></span></div>
+        <nav class="dgo-sidebar__nav">${this.navHtml()}</nav>
+        <div class="dgo-sidebar__identity"><b data-name>${esc(s.profile.name)}</b><small data-role>${esc(s.profile.persona)} · ${esc(s.profile.email)}</small></div>
+      </aside>
+      <section class="dgo-workarea">
+        <header class="dgo-topbar">
+          <button type="button" class="dgo-iconbtn dgo-hamburger" data-menu aria-label="Toggle navigation">☰</button>
+          <div class="dgo-route-title"><small data-eyebrow>ACTIVE WORKSPACE</small><b data-context>${esc(this.routeLabel(route))}</b></div>
+          <div class="dgo-topbar__spacer"></div>
+          <button type="button" class="dgo-search-trigger" data-palette aria-label="Search and command palette"><span>⌕</span><span>Search references, tasks, people...</span><kbd>Ctrl K</kbd></button>
+          <button type="button" class="dgo-iconbtn" data-guide aria-label="Workspace guide" title="Workspace guide">?</button>
+          <button type="button" class="dgo-iconbtn" data-sync aria-label="Synchronize data" title="Synchronize data">↻</button>
+          <button type="button" class="dgo-iconbtn" data-density aria-label="Toggle density" title="Density: ${esc(density)}">↕</button>
+          <button type="button" class="dgo-iconbtn" data-theme aria-label="Switch theme" title="Theme: ${esc(theme)}">◐</button>
+          <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(s.profile.persona)}</small></span></button>
+        </header>
+        <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
+        <footer class="dgo-footer"><span>DGO Digital Operations</span><small>Governed runtime · ${esc(fmtDateTime(new Date().toISOString()))}</small></footer>
+      </section>
+    </div>
+    <div class="dgo-scrim" data-scrim hidden></div>
+    <div class="dgo-live-region" aria-live="polite" data-live-region></div>
+    ${ToastHost()}${CommandPalette()}`;
+    this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert();
+  }
+  navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon" aria-hidden="true">${I[r.path]||'•'}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
+  bind(){
+    this.querySelector('[data-menu]')?.addEventListener('click',()=>this.toggleNav());
+    this.querySelector('[data-scrim]')?.addEventListener('click',()=>this.closeNav());
+    this.querySelector('[data-theme]')?.addEventListener('click',()=>{ const t=setTheme(nextTheme()); this.toast(`Theme set to ${t}`,'success'); });
+    this.querySelector('[data-density]')?.addEventListener('click',()=>{ const d=setDensity(nextDensity()); this.toast(`Density set to ${d}`,'success'); });
+    this.querySelector('[data-palette]')?.addEventListener('click',()=>this.openCommandPalette());
+    this.querySelector('[data-guide]')?.addEventListener('click',()=>this.showGuide());
+    this.querySelector('[data-sync]')?.addEventListener('click',()=>{ State.patch({runtime:{...State.get().runtime,lastLoad:new Date().toISOString()}},{module:'shell',action:'sync',event:'audit:sync-requested'}); this.toast('Synchronization requested','info'); });
+    this.querySelectorAll('.dgo-sidebar__item').forEach(a=>a.addEventListener('click',()=>this.closeNav()));
+    this.querySelector('[data-command-close]')?.addEventListener('click',()=>this.closeCommandPalette());
+    this.querySelector('[data-command-input]')?.addEventListener('input',e=>this.renderCommandResults(e.target.value));
+  }
+  toggleNav(){ const open=this.dataset.navopen==='true'; this.dataset.navopen=open?'false':'true'; this.querySelector('[data-scrim]').hidden=open; this.syncNavInert(); }
+  closeNav(){ this.dataset.navopen='false'; const s=this.querySelector('[data-scrim]'); if(s) s.hidden=true; this.syncNavInert(); }
+  // Below the drawer breakpoint the sidebar is parked off-canvas with translateX(-100%), which
+  // hides it visually but leaves every link tabbable: keyboard users land on invisible controls
+  // they cannot scroll into view. `inert` removes the subtree from both the tab order and the
+  // accessibility tree while it is closed. It must be scoped to the drawer layout — above the
+  // breakpoint the sidebar is permanently visible, and marking it inert would strip primary
+  // navigation from keyboard and screen-reader users entirely.
+  syncNavInert(){
+    const nav=this.querySelector('[data-nav]'); if(!nav) return;
+    const drawer=typeof matchMedia==='function' && matchMedia(`(max-width:${NAV_DRAWER_MAX}px)`).matches;
+    nav.inert = drawer && this.dataset.navopen!=='true';
+  }
+  watchNavBreakpoint(){
+    if(this._navQuery || typeof matchMedia!=='function') return;
+    this._navQuery=matchMedia(`(max-width:${NAV_DRAWER_MAX}px)`);
+    this._navQuery.addEventListener('change',()=>this.syncNavInert());
+  }
+  // Keyboard-accessible modal focus management: trap Tab within an open surface and return focus to
+  // the opener on close. Dialogs additionally own an Escape handler that settles their own
+  // dismissal contract (see dialog()/confirm()).
+  _trapFocus(surface){
+    // Single shared implementation so dialogs, drawers, the command palette and the
+    // welcome/OTP overlay all deliver the same keyboard contract.
+    createFocusTrap(surface);
+  }
+  // A dialog that carries a pending promise (confirm) must be dismissed through its own
+  // _dismiss() so the awaiting governed action is cancelled rather than stranded.
+  closeTransientSurfaces(){ this.closeNav(); this.closeCommandPalette(); this.querySelectorAll('[data-dialog]').forEach(d=>{ if(d._dismiss){ d._dismiss(); return; } d._releaseTrap?.(); d.remove(); }); }
+  active(route){ applyRootAttributes(route); this.querySelectorAll('.dgo-sidebar__item').forEach(a=>{ const on=a.dataset.route===route; a.classList.toggle('active',on); if(on)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); }); const ctx=this.querySelector('[data-context]'); if(ctx)ctx.textContent=this.routeLabel(route); const mainEl=this.querySelector('#main'); if(mainEl)mainEl.setAttribute('aria-label',this.routeLabel(route)); afterRouteChange(); }
+  routeLabel(route){ return Routes.find(r=>r.path===route)?.label || route || 'Command Center'; }
+  refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${s.profile.persona} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
+  openCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(!p)return; p.hidden=false; this.renderCommandResults(''); this._trapFocus(p); requestAnimationFrame(()=>this.querySelector('[data-command-input]')?.focus()); }
+  closeCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(p){ p.hidden=true; p._releaseTrap?.(); } }
+  renderCommandResults(q=''){ const box=this.querySelector('[data-command-results]'); if(!box)return; const query=String(q).toLowerCase(); const items=allWorkspaceCommands().filter(c=>canCurrentUserAccess(c.route)).filter(c=>!query || `${c.label} ${c.route} ${c.purpose}`.toLowerCase().includes(query)).slice(0,20); box.innerHTML=items.map(c=>`<button type="button" role="option" class="dgo-cmdk__item" data-open-route="${esc(c.route)}"><span>${I[c.route]||'•'}</span><span><b>${esc(c.label)}</b><small>${esc(c.primary?'Workspace':(c.visibleThrough||'Contextual'))}</small></span></button>`).join('') || '<div class="dgo-cmdk__empty">No matching workspace.</div>'; box.querySelectorAll('[data-open-route]').forEach(b=>b.addEventListener('click',()=>{Router.go(b.dataset.openRoute); this.closeCommandPalette();})); }
+  showGuide(){ const route=Router.path(); const g=guideFor(route); const title=g?.label || this.routeLabel(route); const body=`<p>${esc(g?.purpose || g?.reason || 'This workspace is governed by the DGO operating model.')}</p>${g?.owns?`<p><b>Owns:</b> ${esc(g.owns.join(', '))}</p>`:''}${g?.handoffs?`<p><b>Handoffs:</b> ${esc(g.handoffs.join(', '))}</p>`:''}`; this.dialog(title, body); }
+  toast(message,tone='info'){ const host=this.querySelector('[data-toast-host]'); if(!host)return; const node=document.createElement('div'); node.className=`dgo-toast dgo-toast--${tone}`; node.textContent=String(message||''); host.appendChild(node); setTimeout(()=>node.remove(),4200); }
+  dialog(title, body){ const wrap=document.createElement('div'); wrap.className='dgo-dialog-backdrop'; wrap.dataset.dialog='guide'; wrap.innerHTML=`<section class="dgo-dialog" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${esc(title)}</h2><button type="button" class="dgo-iconbtn" data-dialog-close aria-label="Close dialog">×</button></header><div class="dgo-dialog__body">${body}</div><footer><button type="button" class="dgo-btn dgo-btn--primary" data-dialog-close>Close</button></footer></section>`; const close=()=>{ wrap._releaseTrap?.(); wrap.remove(); }; wrap._dismiss=close; wrap.querySelectorAll('[data-dialog-close]').forEach(b=>b.addEventListener('click',close)); this.appendChild(wrap); createFocusTrap(wrap,{onEscape:close}); requestAnimationFrame(()=>wrap.querySelector('button')?.focus()); }
+  confirm(options){ const o=typeof options==='string'?{title:'Confirm action',body:options}:options||{}; return new Promise(resolve=>{ const wrap=document.createElement('div'); wrap.className='dgo-dialog-backdrop'; wrap.dataset.dialog='confirm'; wrap.innerHTML=`<section class="dgo-dialog" role="dialog" aria-modal="true" aria-label="${esc(o.title||'Confirm action')}"><header><h2>${esc(o.title||'Confirm action')}</h2></header><div class="dgo-dialog__body">${/<[a-z][\s\S]*>/i.test(o.body||'')?(o.body||''):('<p>'+esc(o.body||'Do you want to continue?')+'</p>')}</div><footer><button type="button" class="dgo-btn dgo-btn--secondary" data-no>Cancel</button><button type="button" class="dgo-btn dgo-btn--primary" data-yes>Continue</button></footer></section>`;
+    // Every dismissal route (Cancel, Escape, global transient close) must resolve the
+    // promise: an unresolved confirm would strand the governed action awaiting it.
+    let settled=false; const settle=value=>{ if(settled) return; settled=true; wrap._releaseTrap?.(); wrap.remove(); resolve(value); }; wrap._dismiss=()=>settle(false); wrap.querySelector('[data-no]').addEventListener('click',()=>settle(false)); wrap.querySelector('[data-yes]').addEventListener('click',()=>settle(true)); this.appendChild(wrap); createFocusTrap(wrap,{initialFocus:'[data-yes]',onEscape:()=>settle(false)}); requestAnimationFrame(()=>wrap.querySelector('[data-yes]')?.focus()); }); }
+}
+customElements.define('dgo-shell', Shell);
+}

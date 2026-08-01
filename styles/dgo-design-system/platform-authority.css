@@ -1,0 +1,132 @@
+/* DGO R11.2 revised design-system authority layer.
+   Non-destructive, viewport-safe, runtime-safe. It uses the revised DGO 2.2 tokens
+   and component contracts while preserving the R11.1 route, viewport and shell contracts. */
+
+/* color-scheme now has a single owner in base.css; the legacy short-var bridge is owned by
+   tokens.legacy-bridge.css. This sheet declares nothing on the page root. */
+
+/* Revised DGO button contract for the runtime's compact button API. */
+.btn,.iconbtn,.entry-btn,.dgo-btn {
+  min-block-size: var(--dgo-control-target-min,44px);
+  min-inline-size: var(--dgo-control-target-min,44px);
+  border-radius: var(--dgo-btn-radius,var(--dgo-radius-control));
+  border: 1px solid transparent;
+  font-family: var(--dgo-family-sans);
+  font-weight: var(--dgo-wt-600);
+  transition: background-color var(--dgo-motion-state), border-color var(--dgo-motion-state), color var(--dgo-motion-state), box-shadow var(--dgo-motion-state), transform var(--dgo-dur-instant) var(--dgo-ease-sharp);
+}
+.btn:not(.ghost),.entry-btn,.dgo-btn--primary { background: var(--dgo-color-action-primary); color: var(--dgo-color-fg-on-brand); border-color: var(--dgo-color-action-primary); }
+.btn:not(.ghost):hover,.entry-btn:hover,.dgo-btn--primary:hover { background: var(--dgo-color-action-primary-hover); border-color: var(--dgo-color-action-primary-hover); }
+.entry-btn:focus-visible { background: var(--dgo-color-action-primary-hover); border-color: var(--dgo-color-action-primary-hover); }
+.btn.ghost,.iconbtn,.dgo-btn--ghost { background: var(--dgo-color-surface-raised); color: var(--dgo-color-fg-brand); border-color: var(--dgo-color-border-default); }
+.btn.ghost:hover,.iconbtn:hover,.dgo-btn--ghost:hover { background: var(--dgo-color-action-secondary-hover); border-color: var(--dgo-color-action-primary); }
+.btn:disabled,.iconbtn:disabled,.btn[aria-disabled="true"] { opacity:.55; cursor:not-allowed; pointer-events:none; }
+.btn:active:not(:disabled),.iconbtn:active:not(:disabled){ transform:translateY(1px); }
+
+/* Forms use revised field/input sizing, focus and error affordances.
+   The field height is the larger of the density height and the target-size floor, so a field is
+   never smaller than the minimum this sheet declares for every other control. */
+input,select,textarea,.dgo-input,.dgo-select,.dgo-textarea {
+  min-block-size: max(var(--dgo-input-h,40px), var(--dgo-control-target-min));
+  border: 1px solid var(--dgo-input-border,var(--dgo-color-border-strong));
+  border-radius: var(--dgo-input-radius,var(--dgo-radius-control));
+  background: var(--dgo-input-bg,var(--dgo-color-surface-page));
+  color: var(--dgo-color-fg-default);
+  padding-inline: var(--dgo-input-px,var(--dgo-s-3));
+}
+textarea { padding-block: var(--dgo-s-2); }
+/* The outline is the only part of this ring that survives forced-colors mode, so every focusable
+   element type has to be listed here — box-shadow alone leaves a Windows high-contrast user
+   with no visible focus at all. */
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible,.btn:focus-visible,.iconbtn:focus-visible,a:focus-visible,[tabindex]:focus-visible {
+  outline: var(--dgo-focus-width,3px) solid var(--dgo-color-border-focus);
+  outline-offset: var(--dgo-focus-offset,3px);
+  box-shadow: var(--dgo-focus-ring);
+}
+/* Focus parity: the keyboard state mirrors the hover affordance of the same control, which means
+   it must also mirror its contrast. Painting every focused .btn with --a put white label text on
+   #17B255 (2.79:1) and gave a focused ghost button a brand-green fill under brand-green text. */
+.btn:not(.ghost):focus-visible,.dgo-btn--primary:focus-visible { background: var(--dgo-color-action-primary-hover); border-color: var(--dgo-color-action-primary-hover); }
+.btn.ghost:focus-visible,.iconbtn:focus-visible,.dgo-btn--ghost:focus-visible { background: var(--dgo-color-action-secondary-hover); border-color: var(--dgo-color-action-primary); }
+.grid label,.dgo-field { gap: var(--dgo-s-1_5,var(--dgo-s-1)); color: var(--dgo-color-fg-default); }
+
+/* Target size (WCAG 2.5.5): --dgo-control-target-min is the declared minimum for anything that
+   receives pointer input. It was declared for .btn only, so chips, disclosure summaries, the
+   topbar controls and the skip link fell through to whatever literal app.css happened to set.
+   Pills and badges are deliberately excluded: they are read, not pressed. */
+summary,button.chip,a.chip,.dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button,a.skip {
+  min-block-size: var(--dgo-control-target-min);
+}
+.dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button,button.chip,a.chip { min-inline-size: var(--dgo-control-target-min); }
+
+/* Cards, panels, workspaces and shell surfaces. */
+.panel,.record,.empty,.tablewrap,.kpi,.toolbar,.dgo-card,.dgo-panel,.dgo-metric,.dgo-kpi-card {
+  background: var(--dgo-card-bg,var(--dgo-color-surface-raised));
+  border-color: var(--dgo-card-border,var(--dgo-color-border-default));
+  border-radius: var(--dgo-card-radius,var(--dgo-radius-card));
+  box-shadow: var(--dgo-card-shadow,var(--dgo-elevation-card));
+}
+.workspace { container-type: inline-size; }
+.pagehead,.dgo-module-view__head { gap: var(--dgo-s-3); }
+.eyebrow,.dgo-overline { color: var(--dgo-color-action-accent); font-weight: var(--dgo-wt-700); letter-spacing: var(--dgo-tr-widest); }
+h1,h2,h3,h4 { font-family: var(--dgo-family-display); color: var(--dgo-color-fg-strong); }
+.subtitle,.meta { color: var(--dgo-color-fg-muted); }
+
+/* KPI/metric contract: only modules that call kpis() render this component. */
+.kpis,.dgo-dashboard__metrics { grid-template-columns: repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap: var(--dgo-s-4); }
+.kpi,.dgo-metric { padding: var(--dgo-card-pad,var(--dgo-s-5)); border-left-color: var(--dgo-color-action-accent); }
+.kpi small,.dgo-metric__label { color: var(--dgo-color-fg-muted); font-size: var(--dgo-type-caption); letter-spacing: var(--dgo-tr-wide); text-transform: uppercase; }
+.kpi b,.dgo-metric__value { color: var(--dgo-color-fg-strong); font-family: var(--dgo-family-display); font-size: var(--dgo-type-h1); line-height: var(--dgo-lh-110); }
+
+/* Status, pills, chips and badges. */
+.pill,.chip,.badge { /* .dgo-pill* owned solely by components.css */
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--dgo-s-1);
+  min-block-size: var(--dgo-badge-h,22px);
+  padding-inline: var(--dgo-badge-px,var(--dgo-s-2));
+  border-radius: var(--dgo-badge-radius,var(--dgo-r-pill));
+  font-size: var(--dgo-badge-fs,var(--dgo-type-caption));
+  font-weight: var(--dgo-badge-fw,var(--dgo-wt-600));
+  background: var(--dgo-color-surface-sunken);
+  color: var(--dgo-color-fg-default);
+  border: 1px solid transparent;
+}
+.pill.ok,.chip.ok { background: var(--dgo-color-success-subtle-bg); color: var(--dgo-color-success-subtle-fg); }
+.pill.danger,.chip.danger { background: var(--dgo-color-danger-subtle-bg); color: var(--dgo-color-danger-subtle-fg); }
+.pill.info,.chip.info { background: var(--dgo-color-info-subtle-bg); color: var(--dgo-color-info-subtle-fg); }
+.pill:not(.ok):not(.danger):not(.info) { background: var(--dgo-color-status-pending-bg); color: var(--dgo-color-status-pending-fg); }
+.chip:not(.active) { background: var(--dgo-color-action-primary-soft); color: var(--dgo-color-action-primary); border-color: color-mix(in srgb,var(--dgo-color-action-primary) 24%,transparent); }
+
+/* Tables and data grids. */
+.tablewrap,.dgo-table-wrap { overflow:auto; overscroll-behavior:inline contain; }
+.tablewrap table,.dgo-table { border-collapse: collapse; inline-size: 100%; font-size: var(--dgo-type-body-sm); }
+th { color: var(--dgo-table-header-fg); font-weight: var(--dgo-wt-600); text-transform: uppercase; }
+td,th { border-block-end: 1px solid var(--dgo-table-border,var(--dgo-color-border-default)); }
+tbody tr:hover td { background: var(--dgo-table-row-hover); }
+.navlink { min-block-size: var(--dgo-control-target-min,44px); }
+.navlink.active,.navlink:hover { background: color-mix(in srgb,var(--dgo-color-action-accent) 16%,transparent); color: var(--dgo-color-fg-on-brand); }
+.footer { border-color: var(--dgo-color-border-default); }
+dialog::backdrop { backdrop-filter: blur(var(--dgo-backdrop-blur,4px)); }
+
+/* New revised design-system components used by enriched modules. */
+.dgo-timeline,.timeline { position:relative; display:grid; gap:var(--dgo-s-4); padding-inline-start:var(--dgo-s-7); }
+.dgo-timeline::before,.timeline::before { content:""; position:absolute; inset-block:var(--dgo-s-1); inset-inline-start:var(--dgo-s-2); inline-size:2px; background:var(--dgo-color-border-default); }
+.timeline li { position:relative; list-style:none; }
+.timeline li::before { content:""; position:absolute; inset-inline-start:calc(-1 * var(--dgo-s-6)); inset-block-start:.35rem; inline-size:var(--dgo-s-3); block-size:var(--dgo-s-3); border-radius:50%; background:var(--dgo-color-action-accent); box-shadow:0 0 0 3px var(--dgo-color-surface-raised); }
+.thread { max-block-size:min(56vh,34rem); overflow:auto; }
+.msg { padding:var(--dgo-s-3); border:1px solid var(--dgo-color-border-default); border-radius:var(--dgo-radius-card); background:var(--dgo-color-surface-sunken); }
+.msg.mine { background:var(--dgo-color-action-primary-soft); color:var(--dgo-color-action-primary); }
+.msg .who { display:block; color:var(--dgo-color-fg-muted); font-size:var(--dgo-type-caption); font-weight:var(--dgo-wt-700); margin-block-end:var(--dgo-s-1); }
+.welcome__card,.welcome__item { border-color:var(--dgo-color-border-default); border-radius:var(--dgo-radius-card); }
+
+@media (forced-colors:active) {
+  .panel,.record,.empty,.tablewrap,.kpi,.toolbar,.btn,.iconbtn,dialog { border-color: CanvasText; box-shadow:none; }
+  .navlink.active { outline: 2px solid Highlight; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+@media print {
+  .nav,.top,.ministry,.feedback,.pane,.welcome { display:none !important; }
+  html,body,.shell,.content,main { overflow:visible !important; height:auto !important; }
+  .panel,.record,.kpi,.tablewrap { box-shadow:none; break-inside:avoid; }
+}

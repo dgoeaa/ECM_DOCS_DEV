@@ -1,0 +1,28 @@
+{
+  "name": "dgo-r11-ui-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DGO R11.6 runtime UI contracts, Playwright smoke tests, and dev-server tooling.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "http-server . -p 8080 --cors -c-1 --silent",
+    "serve:portal": "http-server ECM_ActivityHub_Portal/htdocs -p 8080 --cors -c-1 --silent",
+    "test": "node tests/run.mjs",
+    "test:static": "node tests/run.mjs --suite=static",
+    "test:browser": "node tests/run.mjs --suite=browser",
+    "test:full": "node tests/run.mjs --full",
+    "test:smoke": "playwright test",
+    "test:links": "node scripts/check-links.mjs",
+    "baseline:update": "node tests/run.mjs --full --update-baseline"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "http-server": "^14.1.1",
+    "linkinator": "^6.1.2",
+    "puppeteer-core": "^25.4.0"
+  }
+}

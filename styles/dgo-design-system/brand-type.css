@@ -1,0 +1,145 @@
+/* =========================================================
+   NITDA Design System — Brand element styling
+   Source: NITDA Brand Guidelines 2020 (uploads/NITDA Brand Manual ...)
+
+   Split out of colors_and_type.css by Phase 1. That file is imported into the `tokens` layer,
+   the lowest in the cascade, so every element rule it carried was outranked by `base` and
+   above and could never take effect on its own terms. The rules were not deleted — some of
+   them are the only declaration of their property — so they live here instead, in a `brand`
+   layer that sits directly above `tokens` and directly below `base`.
+
+   Nothing in `tokens` styles elements, so raising these rules out of it changes no outcome:
+   the sheets that beat them before (base, layout, components, overrides) still beat them, and
+   the sheets they never competed with still contain no element styling. colors_and_type.css
+   keeps the custom properties; this sheet keeps the styling that uses them.
+
+   The DGO design system (`base.css` and below) remains authoritative wherever the two meet.
+   ========================================================= */
+
+/* No self-hosted brand monospace ships with this runtime. "Cascadia Mono" is kept at the front of
+   the --font-mono / --dgo-family-mono stacks so an installed copy is still preferred, but there is
+   no @font-face: the file that was here was 0 bytes, so it could never decode, and preloading it
+   cost a request on every page load to no effect. Restoring it means adding the real woff2 back
+   under fonts/ and reinstating both the @font-face and the <link rel="preload"> in index.html. */
+
+/* =========================================================
+   SEMANTIC TYPE STYLES
+   Use these directly on elements for consistent typography.
+   ========================================================= */
+
+html { font-family: var(--font-body); color: var(--fg-default); background: var(--bg-default); }
+body { margin: 0; font-size: var(--fs-body); line-height: var(--lh-normal); -webkit-font-smoothing: antialiased; }
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  color: var(--nitda-deep-green);
+  margin: 0 0 var(--space-4);
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tr-tight);
+  color: var(--nitda-deep-green);
+  margin: 0 0 var(--space-3);
+}
+
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  color: var(--nitda-ink-900);
+  margin: 0 0 var(--space-3);
+}
+
+h4, .h4 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  color: var(--nitda-ink-900);
+  margin: 0 0 var(--space-2);
+}
+
+.display, .display-l, .display-xl {
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tr-tight);
+  color: var(--nitda-deep-green);
+}
+.display    { font-size: var(--fs-display); }
+.display-l  { font-size: var(--fs-display-l); }
+.display-xl { font-size: var(--fs-display-xl); font-weight: var(--fw-black); }
+
+p, .body {
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-default);
+  margin: 0 0 var(--space-3);
+  text-wrap: pretty;
+}
+.body-lg { font-size: var(--fs-body-lg); line-height: var(--lh-relaxed); }
+.body-sm { font-size: var(--fs-body-sm); line-height: var(--lh-normal); }
+
+.caption {
+  font-family: var(--font-body);
+  font-size: var(--fs-caption);
+  color: var(--fg-muted);
+  line-height: var(--lh-normal);
+}
+
+.overline {
+  font-family: var(--font-sans);
+  font-size: var(--fs-overline);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-overline);
+  color: var(--nitda-smart-green);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tr-wide);
+  color: var(--nitda-deep-green);
+}
+
+a, .link {
+  color: var(--fg-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+a:hover, .link:hover { color: var(--fg-link-hover); }
+/* Keyboard parity (SC 2.4.7/2.4.11): the pointer affordance must also be a focus affordance. */
+.link:focus-visible { color: var(--fg-link-hover); }
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+code {
+  background: var(--bg-muted);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-default);
+  margin: var(--space-6) 0;
+}
+
+::selection { background: var(--nitda-smart-green-40); color: var(--nitda-deep-green); }

@@ -1,0 +1,251 @@
+/* ============================================================
+   DGO Design System v2.0 — Primitive Tokens
+   Raw values. Never reference these directly from components.
+   ============================================================ */
+
+:root {
+  /* ---------- Color: Primary Green (NITDA-sibling) ---------- */
+  --dgo-green-50:   #EAF3EF;
+  --dgo-green-100:  #CFE3D8;
+  --dgo-green-200:  #A4CCB7;
+  --dgo-green-300:  #6FAE8E;
+  --dgo-green-400:  #3D8E69;
+  --dgo-green-500:  #1A7250;
+  --dgo-green-600:  #0C603F;
+  --dgo-green-700:  #05583B;   /* Brand Deep Green (PANTONE 7484C sibling) */
+  --dgo-green-800:  #033F2A;
+  --dgo-green-900:  #022819;
+  --dgo-green-950:  #011610;
+
+  /* ---------- Color: Accent / Smart Green (operational/active) ---------- */
+  --dgo-smart-50:   #E6F7ED;
+  --dgo-smart-100:  #C2EED2;
+  --dgo-smart-200:  #8BD9A9;
+  --dgo-smart-300:  #45C578;
+  --dgo-smart-400:  #17B255;   /* Brand Smart Green (PANTONE 354C) */
+  --dgo-smart-500:  #119143;
+  --dgo-smart-600:  #0D7234;
+  --dgo-smart-700:  #0A5828;
+  --dgo-smart-800:  #07401D;
+
+  /* ---------- Color: Ink (warm-cool neutral) ---------- */
+  --dgo-ink-0:      #FFFFFF;
+  --dgo-ink-25:     #FAFAF9;
+  --dgo-ink-50:     #F5F4F4;
+  --dgo-ink-100:    #E8E6E7;
+  --dgo-ink-200:    #C4C3C3;
+  --dgo-ink-300:    #A09E9F;
+  --dgo-ink-400:    #807D7E;
+  --dgo-ink-500:    #5F5C5D;
+  --dgo-ink-600:    #4A4849;
+  --dgo-ink-700:    #373435;   /* Brand black */
+  --dgo-ink-800:    #2D2C2C;
+  --dgo-ink-900:    #1B1A1A;
+  --dgo-ink-1000:   #0D0C0C;
+
+  /* ---------- Color: Surface (paper system) ---------- */
+  --dgo-paper:      #FFFFFF;
+  --dgo-paper-raised:  #FFFFFF;
+  --dgo-paper-sunken:  #F5F4F4;
+  --dgo-overlay-tint:  rgba(11, 26, 20, 0.62);
+
+  /* ---------- Color: Semantic Hues ---------- */
+  --dgo-info-50:    #E6F0F8;
+  --dgo-info-100:   #BFD9EE;
+  --dgo-info-400:   #2A8AD1;
+  --dgo-info-600:   #0B6BB0;
+  --dgo-info-800:   #054871;
+
+  --dgo-warn-50:    #FBF1D8;
+  --dgo-warn-100:   #F7E2A8;
+  --dgo-warn-400:   #E1A100;
+  --dgo-warn-600:   #A87500;
+  --dgo-warn-800:   #5A3F00;
+
+  --dgo-danger-50:  #FBE7EB;
+  --dgo-danger-100: #F6C2CB;
+  --dgo-danger-400: #DE3552;
+  --dgo-danger-600: #C8102E;
+  --dgo-danger-800: #780820;
+
+  /* ---------- Coat-of-arms only — never general UI ---------- */
+  --dgo-coa-red:    #C8102E;
+  --dgo-coa-yellow: #E1A100;
+
+  /* ---------- Data-viz: 8 categorical (colour-blind verified) ---------- */
+  --dgo-cat-1: #05583B;   /* deep green */
+  --dgo-cat-2: #17B255;   /* smart green */
+  --dgo-cat-3: #0B6BB0;   /* civic blue */
+  --dgo-cat-4: #E1A100;   /* amber */
+  --dgo-cat-5: #C8102E;   /* red */
+  --dgo-cat-6: #4538D9;   /* indigo */
+  --dgo-cat-7: #7A5800;   /* gold-brown */
+  --dgo-cat-8: #00838A;   /* teal */
+
+  /* Sequential (single-hue green) */
+  --dgo-seq-1: #EAF3EF;
+  --dgo-seq-2: #A4CCB7;
+  --dgo-seq-3: #3D8E69;
+  --dgo-seq-4: #05583B;
+  --dgo-seq-5: #022819;
+
+  /* Diverging (red ← neutral → green) */
+  --dgo-div-neg-2: #C8102E;
+  --dgo-div-neg-1: #F6C2CB;
+  --dgo-div-mid:   #FAFAF9;
+  --dgo-div-pos-1: #C2EED2;
+  --dgo-div-pos-2: #119143;
+
+  /* ---------- Type: families ---------- */
+  --dgo-family-display: 'Outfit', 'Alwyn New', 'Inter', system-ui, sans-serif; /* @kind font */
+  --dgo-family-sans:    'Inter', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; /* @kind font */
+  --dgo-family-body:    Verdana, Geneva, 'DejaVu Sans', sans-serif; /* @kind font */
+  --dgo-family-mono:    'Cascadia Mono', 'JetBrains Mono', 'SF Mono', Consolas, 'Courier New', monospace; /* @kind font */
+
+  /* ---------- Type: modular scale (1.200 ratio, 8 steps) ---------- */
+  --dgo-size-11:  11px;   /* persistent micro-label legibility floor */
+  --dgo-size-12:  12px;   /* caption */
+  --dgo-size-14:  14px;   /* body sm */
+  --dgo-size-16:  16px;   /* body */
+  --dgo-size-19:  19px;   /* h4 */
+  --dgo-size-23:  23px;   /* h3 */
+  --dgo-size-28:  28px;   /* h2 */
+  --dgo-size-33:  33px;   /* h1 */
+  --dgo-size-40:  40px;   /* display-sm */
+  --dgo-size-48:  48px;   /* display */
+  --dgo-size-60:  60px;   /* display-xxl */
+
+  /* ---------- Type: weights ---------- */
+  --dgo-wt-300: 300; /* @kind font */
+  --dgo-wt-400: 400; /* @kind font */
+  --dgo-wt-500: 500; /* @kind font */
+  --dgo-wt-600: 600; /* @kind font */
+  --dgo-wt-700: 700; /* @kind font */
+  --dgo-wt-800: 800; /* @kind font */
+
+  /* ---------- Type: line-heights (diacritic-safe) ---------- */
+  --dgo-lh-100: 1.0; /* @kind font */
+  --dgo-lh-110: 1.1; /* @kind font */
+  --dgo-lh-120: 1.2; /* @kind font */
+  --dgo-lh-130: 1.3; /* @kind font */
+  --dgo-lh-140: 1.4; /* @kind font */
+  --dgo-lh-150: 1.5; /* @kind font */
+  --dgo-lh-170: 1.7; /* @kind font */
+
+  /* ---------- Type: tracking ---------- */
+  --dgo-tr-tightest: -0.02em; /* @kind font */
+  --dgo-tr-tight:    -0.01em; /* @kind font */
+  --dgo-tr-normal:   0; /* @kind font */
+  --dgo-tr-wide:     0.06em; /* @kind font */
+  --dgo-tr-wider:    0.12em; /* @kind font */
+  --dgo-tr-widest:   0.18em; /* @kind font */
+
+  /* ---------- Spacing: 4pt grid, 0–24 ---------- */
+  --dgo-s-0:    0; /* @kind spacing */
+  --dgo-s-px:   1px;
+  --dgo-s-0_5:  2px;
+  --dgo-s-1:    4px;
+  --dgo-s-1_5:  6px;
+  --dgo-s-2:    8px;
+  --dgo-s-3:    12px;
+  --dgo-s-4:    16px;
+  --dgo-s-5:    20px;
+  --dgo-s-6:    24px;
+  --dgo-s-7:    28px;
+  --dgo-s-8:    32px;
+  --dgo-s-9:    36px;
+  --dgo-s-10:   40px;
+  --dgo-s-11:   44px;
+  --dgo-s-12:   48px;
+  --dgo-s-14:   56px;
+  --dgo-s-16:   64px;
+  --dgo-s-20:   80px;
+  --dgo-s-24:   96px;
+
+  /* ---------- Radius ---------- */
+  --dgo-r-0:    0; /* @kind radius */
+  --dgo-r-2:    2px;
+  --dgo-r-4:    4px;
+  --dgo-r-6:    6px;
+  --dgo-r-8:    8px;
+  --dgo-r-10:   10px;
+  --dgo-r-12:   12px;
+  --dgo-r-16:   16px;
+  --dgo-r-18:   18px;
+  --dgo-r-24:   24px;
+  --dgo-r-pill: 9999px;
+
+  /* ---------- Border widths ---------- */
+  --dgo-bw-0:   0; /* @kind spacing */
+  --dgo-bw-1:   1px; /* @kind spacing */
+  --dgo-bw-2:   2px; /* @kind spacing */
+  --dgo-bw-3:   3px; /* @kind spacing */
+  --dgo-bw-4:   4px; /* @kind spacing */
+
+  /* ---------- Elevation: shadow stops (green-tinted) ---------- */
+  --dgo-shadow-0:  none;
+  --dgo-shadow-1:  0 1px 2px rgba(5, 88, 59, 0.06);
+  --dgo-shadow-2:  0 1px 3px rgba(5, 88, 59, 0.10), 0 1px 2px rgba(5, 88, 59, 0.06);
+  --dgo-shadow-3:  0 4px 6px rgba(5, 88, 59, 0.10), 0 2px 4px rgba(5, 88, 59, 0.06);
+  --dgo-shadow-4:  0 10px 15px rgba(5, 88, 59, 0.12), 0 4px 6px rgba(5, 88, 59, 0.06);
+  --dgo-shadow-5:  0 20px 28px rgba(5, 88, 59, 0.16), 0 8px 12px rgba(5, 88, 59, 0.08);
+  --dgo-shadow-6:  0 28px 40px rgba(5, 88, 59, 0.20), 0 12px 18px rgba(5, 88, 59, 0.10);
+
+  /* ---------- Motion: duration ---------- */
+  --dgo-dur-instant:    50ms; /* @kind other */
+  --dgo-dur-fast:       150ms; /* @kind other */
+  --dgo-dur-base:       250ms; /* @kind other */
+  --dgo-dur-slow:       400ms; /* @kind other */
+  --dgo-dur-deliberate: 600ms; /* @kind other */
+
+  /* ---------- Motion: easing ---------- */
+  --dgo-ease-standard:   cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --dgo-ease-entrance:   cubic-bezier(0.0, 0, 0.2, 1); /* @kind other */
+  --dgo-ease-exit:       cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --dgo-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.2); /* @kind other */
+  --dgo-ease-sharp:      cubic-bezier(0.4, 0, 0.6, 1); /* @kind other */
+  --dgo-ease-linear:     linear; /* @kind other */
+
+  /* ---------- Z-index scale ---------- */
+  --dgo-z-base:     0; /* @kind other */
+  --dgo-z-raised:   10; /* @kind other */
+  --dgo-z-sticky:   100; /* @kind other */
+  --dgo-z-fixed:    200; /* @kind other */
+  --dgo-z-overlay:  900; /* @kind other */
+  --dgo-z-modal:    1000; /* @kind other */
+  --dgo-z-popover:  1100; /* @kind other */
+  --dgo-z-toast:    1200; /* @kind other */
+  --dgo-z-tooltip:  1300; /* @kind other */
+  --dgo-z-max:      2147483647; /* @kind other */
+
+  /* ---------- Opacity ---------- */
+  --dgo-op-0:   0; /* @kind other */
+  --dgo-op-10:  0.10; /* @kind other */
+  --dgo-op-20:  0.20; /* @kind other */
+  --dgo-op-40:  0.40; /* @kind other */
+  --dgo-op-60:  0.60; /* @kind other */
+  --dgo-op-80:  0.80; /* @kind other */
+  --dgo-op-95:  0.95; /* @kind other */
+  --dgo-op-100: 1; /* @kind other */
+
+  /* ---------- Blur ---------- */
+  --dgo-blur-0:  0; /* @kind other */
+  --dgo-blur-4:  4px; /* @kind other */
+  --dgo-blur-8:  8px; /* @kind other */
+  --dgo-blur-16: 16px; /* @kind other */
+
+  /* ---------- Breakpoints (reference only — used in @media) ---------- */
+  --dgo-bp-xs: 360px;
+  --dgo-bp-sm: 600px;
+  --dgo-bp-md: 905px;
+  --dgo-bp-lg: 1240px;
+  --dgo-bp-xl: 1440px;
+  --dgo-bp-2xl: 1920px;
+
+  /* ---------- Container widths ---------- */
+  --dgo-c-narrow: 640px;
+  --dgo-c-text:   720px;
+  --dgo-c-content: 960px;
+  --dgo-c-wide:   1240px;
+  --dgo-c-full:   1440px;
+}

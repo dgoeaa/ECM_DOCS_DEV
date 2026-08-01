@@ -1,0 +1,38 @@
+/* DGO R11.6 — SINGLE legacy short-var bridge (sole owner).
+   Reconciliation Approach A: this file is now the only definition of the legacy
+   short vars; the hardcoded styles/tokens.css is deleted. Values are preserved
+   verbatim from the prior render EXCEPT the four spec-mandated corrections, which
+   bind to the DGO token scale so the two vocabularies can never diverge again:
+     --rc     -> var(--dgo-radius-control)  (7px -> 6px)
+     --bd     -> var(--dgo-color-border-default)
+     --mut    -> var(--dgo-color-fg-muted)
+     --strong -> var(--dgo-color-fg-strong)  (re-pointed to --dgo-ink-900 = #1B1A1A, decision D2)
+   Font families bind to the DGO families (decision D1: body = Inter).
+   Live layout dims (--ministry, --header, --footer, --nav-expanded, --nav-collapsed,
+   --pad) are RETAINED —
+   they are consumed by app.css layout calcs (.split --pane-max, .dg-layout), not dead. */
+:root{
+  --p:#05583B;--p2:#04462F;--a:#17B255;--dark:#0B2A1F;--mint:#A2E0BB;--gold:#C9A227;
+  --bg:#F6F8F7;--s:#FFFFFF;--sunken:#EFF4F1;--fg:#373435;
+  --strong:var(--dgo-color-fg-strong);          /* D2 -> #1B1A1A */
+  --mut:var(--dgo-color-fg-muted);               /* correction */
+  --bd:var(--dgo-color-border-default);          /* correction */
+  --danger:#C8102E;--warn:#D97706;--ok:#107C10;--info:#0B6BB0;
+  --ok-soft:#E4F5E1;--warn-soft:#FBF1D8;--danger-soft:#FBE4E4;--info-soft:#E4EFFB;--accent-soft:#EAF7EF;--neutral-soft:#F2F4F7;
+  --r:10px;
+  --rc:var(--dgo-radius-control);                /* correction -> 6px */
+  --shadow:0 8px 24px rgba(11,42,31,.14);
+  --shadow-strong:var(--dgo-elevation-overlay, 0 26px 70px rgba(5,88,59,.18));
+  --focus:0 0 0 3px rgba(23,178,85,.35);
+  --nav-expanded:240px;--nav-collapsed:64px;--ministry:22px;--header:56px;--footer:52px;--pad:14px;
+  --display:var(--dgo-family-display);
+  --sans:var(--dgo-family-sans);
+  --body:var(--dgo-family-sans);                 /* D1: body = Inter */
+  --workspace-max:min(100%, 1440px);
+}
+[data-density=compact]{--pad:10px;--footer:46px}
+[data-theme=dark]{--bg:#0D1511;--s:#16221C;--sunken:#101B16;--fg:#ECF4F0;--mut:#B7C6BF;--bd:#31443A;--p:#40C978;--gold:#D8B84A;--danger:#F1637C;--warn:#E9A23B;--ok:#4FBE4F;--info:#5AA7E0;--ok-soft:#14331C;--warn-soft:#38290F;--danger-soft:#3A151B;--info-soft:#12283A;--accent-soft:#123324;--neutral-soft:#1C2622}
+/* High contrast. The runtime theme id is `hc` (shared/design-system-adapter.js);
+   `high-contrast` is only the documented alias, so both must be bound or the block is dead.
+   Values mirror tokens.theme-hc.css so the legacy and DGO vocabularies cannot diverge. */
+[data-theme=hc],[data-theme=high-contrast]{--bg:#FFFFFF;--s:#FFFFFF;--sunken:#F0EFEF;--fg:#000000;--mut:#2D2C2C;--bd:#000000;--p:#022819;--p2:#000000;--a:#0A5828;--dark:#000000;--mint:#FFFFFF;--gold:#5A3F00;--danger:#780820;--warn:#5A3F00;--ok:#07401D;--info:#054871;--focus:0 0 0 2px #FFFFFF,0 0 0 5px #000000,0 0 0 8px #E1A100;--ok-soft:#C2EED2;--warn-soft:#FBF1D8;--danger-soft:#FBE7EB;--info-soft:#E6F0F8;--accent-soft:#CFE3D8;--neutral-soft:#E8E6E7}
