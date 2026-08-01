@@ -17,7 +17,7 @@ The *engineering substance* is real. 105 ES modules, 25 route modules, and a gen
 
 The *delivered artifact* is broken. **13 configuration modules that the runtime imports were never committed to this repository.** The app hangs on its boot spinner forever, and does so silently — no error is shown to the user. Around it, the entire quality apparatus the README describes (test suite, CI workflows, bundle manifest, deploy gate) is **absent from the repository**, so nothing detected this.
 
-Layered on top is a **credential-exposure problem materially worse than the one the repo documents.** `README.md` and `AUDIT.md` both state that SAS-signed Power Automate URLs have been removed from the working tree and survive only in git history. That is **not correct for this repository**: 24 distinct live SAS signatures are present across 17 tracked files at HEAD, including the client-delivered JavaScript of two shipping portals.
+Layered on top is a **credential-exposure problem materially worse than the one the repo documents.** `README.md` and `AUDIT.md` both state that SAS-signed Power Automate URLs have been removed from the working tree and survive only in git history. That is **not correct for this repository**: 22 distinct live SAS signatures are present across 16 tracked files at HEAD, including the client-delivered JavaScript of two shipping portals.
 
 **Overall posture: NOT DEPLOYABLE.** Three of the four blockers are mechanical and quick. The fourth (authentication) is a genuine engineering commitment.
 
@@ -27,7 +27,7 @@ Layered on top is a **credential-exposure problem materially worse than the one 
 | Governance & auditability | **Strong** | Ownership, audit, idempotency, receipts, OTP all present and wired | Strong |
 | Build integrity | **Failed** | 13 required modules absent; app cannot boot | ✅ **Passing** |
 | Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run | 🟡 Still absent |
-| Security — secrets | **Critical** | 24 live SAS signatures in tracked files at HEAD | 🔴 Unchanged |
+| Security — secrets | **Critical** | 22 live SAS signatures in tracked files at HEAD | 🔴 Unchanged |
 | Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated | 🔴 Unchanged |
 | Presentation / theming | **Degraded** | Dark theme unreadable; high-contrast theme inert | ✅ **Working** |
 | Documentation accuracy | **Poor** | README describes a repository layout that does not exist here | 🔴 Unchanged |
@@ -126,7 +126,7 @@ This is why G-01 could ship unnoticed: the failure mode is indistinguishable fro
 
 ## 4. Gap analysis — security (CRITICAL)
 
-### G-03 — 24 live SAS signatures in tracked files at HEAD
+### G-03 — 22 live SAS signatures in tracked files at HEAD
 
 `README.md` states the SAS URLs "have been removed from the working tree, but **15 distinct SAS signatures remain in 5 git blobs**". `AUDIT.md` F-007 similarly reports no `sig=` token in shipped code.
 
@@ -140,8 +140,11 @@ This is why G-01 could ship unnoticed: the failure mode is indistinguishable fro
 | `document-portal_Central_NITDA_/js/data.js` | 3 | **Yes** |
 | `Bespoke platform welcome experience/reference-portal/assets/common.js` | 2 | **Yes** |
 | `Bespoke platform welcome experience/uploads/nitda_intelligent_state.forensic.json` | 2 | No |
-| `Flows_Sample/` — 9 flow-run records | 14 occurrences | No |
-| **Total distinct** | **24** | — |
+| `newack/config.js` | 1 | **Yes** |
+| `Flows_Sample/` — 9 flow-run records | 16 (2,1,1,2,2,2,2,2,2) | No |
+| **Total distinct (deduplicated across files)** | **22** | — |
+
+*(Per-file counts sum to more than 22 because several signatures appear in more than one file. Rotation is per signature, so 22 is the figure that governs the remediation.)*
 
 A Power Automate SAS URL is a bearer credential: possession alone authorizes invocation. Four of these files are **served to browsers** by shipping applications (`document-portal/`, `document-portal_Central_NITDA_/`, `newack/`, and the Bespoke welcome portal), so the signatures are readable by any visitor via View Source. These flows include task creation, bulk assignment, email dispatch, and OTP generation/verification.
 
@@ -242,7 +245,7 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 | ID | Finding | Severity | Status |
 |---|---|---|---|
 | G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | ✅ **Fixed** — `7204da7` |
-| G-03 | 24 live SAS signatures in 17 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
+| G-03 | 22 live SAS signatures in 16 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
 | G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🔴 **Open** — needs an identity provider + backend work |
 | G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | 🟡 **Partial** — `.gitignore` added (`d728f79`); suite/CI outstanding |
 | G-05 | Dark theme renders content unreadable | **High** | ✅ **Fixed** — `1176d1d` |
@@ -254,7 +257,7 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 ## 8. Recommended sequence
 
 **Immediate (day 0)**
-1. **Rotate all 24 SAS signatures in Power Automate.** Everything else is cosmetic until this is done — the credentials are live and, for four files, publicly readable wherever those portals are hosted. Do this *before* any history rewrite; a rewrite invalidates clones without revoking anything.
+1. **Rotate all 22 SAS signatures in Power Automate.** Everything else is cosmetic until this is done — the credentials are live and, for four files, publicly readable wherever those portals are hosted. Do this *before* any history rewrite; a rewrite invalidates clones without revoking anything.
 2. **Restore the 13 config modules** from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. Verified to produce a clean boot and 25/25 route pass.
 3. **Add `.gitignore`** covering `config/config.local.js`, `ECM_ActivityHub_Portal/config.local.js`, `node_modules/`, `*.state.json`.
 
@@ -315,7 +318,7 @@ Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`.
 
 ### Deliberately not done
 
-- **G-03 (secrets).** Not touched. Rotating the 24 signatures in Power Automate must come *first* — scrubbing files or rewriting history revokes nothing and would destroy the evidence trail before rotation is confirmed. This is an operational decision with a live-service blast radius.
+- **G-03 (secrets).** Not touched. Rotating the 22 signatures in Power Automate must come *first* — scrubbing files or rewriting history revokes nothing and would destroy the evidence trail before rotation is confirmed. This is an operational decision with a live-service blast radius.
 - **G-04 (authentication).** Not attempted. It requires an identity provider, token issuance, and authorization logic inside every Power Automate flow. None of that lives in this repository, and a client-side-only change here would be security theatre.
 - **G-08 (test suite / CI).** Only `.gitignore` was added. Reconstructing the contract suite, its baseline, and three CI workflows is a design task in its own right, and the originals are absent from both the repository and the zip — there is nothing to restore, only something to rebuild.
 - **G-09 (documentation).** Left open on purpose: the README's corrections depend on decisions still outstanding (final repository name, whether the `htdocs` layout or the flat one is canonical, and the outcome of the G-03 rotation). Correcting it now would bake in guesses.
