@@ -5,6 +5,8 @@
 **Date:** 2026-08-01
 **Method:** Static module-graph resolution, git-history forensics, and empirical browser execution (Chromium 1194 via Playwright, local static server). Every finding below is reproducible; the probes are described inline.
 
+> **Remediation status — updated 2026-08-01.** Five of the nine gaps have since been fixed and verified in this branch: **G-01** (configs restored), **G-02** (boot watchdog), **G-05/G-06** (theming), **G-07** (welcome params), and **G-08 in part** (`.gitignore` added). The findings below are preserved **as originally assessed**; §10 records what changed and how it was verified. The two credential/authentication gaps — **G-03** and **G-04** — remain **open by design**, because both require decisions and infrastructure outside this repository.
+
 ---
 
 ## 1. Executive summary
@@ -19,16 +21,18 @@ Layered on top is a **credential-exposure problem materially worse than the one 
 
 **Overall posture: NOT DEPLOYABLE.** Three of the four blockers are mechanical and quick. The fourth (authentication) is a genuine engineering commitment.
 
-| Dimension | Rating | Basis |
-|---|---|---|
-| Functional breadth | **Strong** | 25/25 routes render clean once configs restored |
-| Governance & auditability | **Strong** | Ownership, audit, idempotency, receipts, OTP all present and wired |
-| Build integrity | **Failed** | 13 required modules absent; app cannot boot |
-| Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run |
-| Security — secrets | **Critical** | 24 live SAS signatures in tracked files at HEAD |
-| Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated |
-| Presentation / theming | **Degraded** | Dark theme unreadable; high-contrast theme inert |
-| Documentation accuracy | **Poor** | README describes a repository layout that does not exist here |
+| Dimension | Rating (as assessed) | Basis | Now |
+|---|---|---|---|
+| Functional breadth | **Strong** | 25/25 routes render clean once configs restored | Strong |
+| Governance & auditability | **Strong** | Ownership, audit, idempotency, receipts, OTP all present and wired | Strong |
+| Build integrity | **Failed** | 13 required modules absent; app cannot boot | ✅ **Passing** |
+| Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run | 🟡 Still absent |
+| Security — secrets | **Critical** | 24 live SAS signatures in tracked files at HEAD | 🔴 Unchanged |
+| Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated | 🔴 Unchanged |
+| Presentation / theming | **Degraded** | Dark theme unreadable; high-contrast theme inert | ✅ **Working** |
+| Documentation accuracy | **Poor** | README describes a repository layout that does not exist here | 🔴 Unchanged |
+
+**Posture after remediation: still NOT DEPLOYABLE — but for two reasons instead of eight.** The runtime now boots, renders and themes correctly. What blocks deployment is no longer packaging: it is the live credentials (G-03) and the absence of authentication (G-04).
 
 ---
 
@@ -235,17 +239,17 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 
 ## 7. Consolidated findings
 
-| ID | Finding | Severity | Effort |
+| ID | Finding | Severity | Status |
 |---|---|---|---|
-| G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | Minutes (verified fix available) |
-| G-03 | 24 live SAS signatures in 17 tracked files at HEAD, 4 client-delivered | **Critical** | Hours + rotation window |
-| G-04 | No authentication; privilege escalation demonstrated | **Critical** | Weeks (backend work) |
-| G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | Days |
-| G-05 | Dark theme renders content unreadable | **High** | Hours |
-| G-06 | High-contrast theme inert; WCAG claim unsupported | **High** | Hours (same fix as G-05) |
-| G-02 | Boot failure silent; fatal handler unreachable | **Medium** | Hours |
-| G-09 | README/AUDIT describe a different repository; secrets claim false | **Medium** | Hours |
-| G-07 | Duplicate welcome layers; `?skipWelcome=1` not honoured | **Low** | Hours |
+| G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | ✅ **Fixed** — `7204da7` |
+| G-03 | 24 live SAS signatures in 17 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
+| G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🔴 **Open** — needs an identity provider + backend work |
+| G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | 🟡 **Partial** — `.gitignore` added (`d728f79`); suite/CI outstanding |
+| G-05 | Dark theme renders content unreadable | **High** | ✅ **Fixed** — `1176d1d` |
+| G-06 | High-contrast theme inert; WCAG claim unsupported | **High** | ✅ **Fixed** — `1176d1d` |
+| G-02 | Boot failure silent; fatal handler unreachable | **Medium** | ✅ **Fixed** — `99eccea` |
+| G-09 | README/AUDIT describe a different repository; secrets claim false | **Medium** | 🔴 **Open** — deliberately deferred; see §10 |
+| G-07 | Duplicate welcome layers; `?skipWelcome=1` not honoured | **Low** | ✅ **Fixed** — `a7df402` |
 
 ## 8. Recommended sequence
 
@@ -274,4 +278,44 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 - **Boot/route/RBAC/theme probes:** Playwright-driven Chromium (`/opt/pw-browsers/chromium-1194`) against a minimal Node static server, one port per probe. Route sweep sets `location.hash` per route and inspects the `[data-outlet]` subtree. RBAC probe mutates `localStorage` and reloads. Theme probes read `getComputedStyle` on `<html>`, `<body>`, `.panel`, `<dgo-shell>` and capture 1400×880 screenshots.
 - **Zip comparison:** `diff -rq` of `ECM_DOCS_DEV.zip::DGO_Targets_Platform/` against the working tree, per directory.
 
-**One caveat, stated plainly:** the precise CSS declaration that pins `body`'s background across themes was not isolated to a single line — the `overrides` layer holds two authorities that `styles/index.css` itself documents as unresolved, measured cascade debt. The *defect* (G-05/G-06) is reproducible and screenshot-evidenced; the *one-line cause* should be confirmed with the cascade-measurement tooling described in that file before patching. That tooling is part of the missing `tests/` tree (G-08).
+**One caveat, stated plainly:** the precise CSS declaration that pins `body`'s background across themes was not isolated to a single line — the `overrides` layer holds two authorities that `styles/index.css` itself documents as unresolved, measured cascade debt. The *defect* (G-05/G-06) is reproducible and screenshot-evidenced; the *one-line cause* should be confirmed before patching.
+
+> **Caveat resolved.** The cause was **not** the CSS cascade. `applyRootAttributes()` mirrored `data-theme` onto `<body>` and `<dgo-shell>`, where a bare `[data-theme="light"]` selector matched them directly and beat the values inherited from `<html>`. See §10.
+
+---
+
+## 10. Remediation log
+
+Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`. Every item was verified by re-running the probes in §9.
+
+| Commit | Gap | Change |
+|---|---|---|
+| `d728f79` | G-08 (part) | Added `.gitignore` — `node_modules/`, `config.local.js`, `*.state.json`, test output. Verified no tracked file is shadowed by any pattern. |
+| `7204da7` | G-01 | Restored the 13 config modules byte-identical from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. |
+| `1176d1d` | G-05, G-06 | Removed the stale theme/density mirrors from `applyRootAttributes()` and `shellAttrs()`. |
+| `99eccea` | G-02 | Added a 15-second boot watchdog to `index.html` that surfaces failing resource URLs. |
+| `a7df402` | G-07 | Aligned `shouldShow()` in `shared/welcome-runtime.js` with `shouldSkip()` in `core/welcome-experience.js`. |
+
+**Verification after all changes:**
+
+- Module graph: **117 modules reachable, 0 broken edges** (was 105 reachable, 35 broken).
+- Boot: `__DGO_BOOTED__ true`, shell mounted, 17 nav entries, **0 page errors**; the only 404 is the optional `config/config.local.js`.
+- Routes: **25/25 render, 0 failures.**
+- Themes, both switch paths (direct `documentElement` write and the in-app toggle) now agree:
+
+  | Theme | `body` background | `body` colour | `.panel` background |
+  |---|---|---|---|
+  | light | `#F5F4F4` | `rgb(27,26,26)` | `#FFFFFF` |
+  | dark | `#081109` | `rgb(232,237,234)` | `#122019` |
+  | hc | `#F0EFEF` | `#000000` | `#FFFFFF` |
+
+- Density, which carried the same latent mirror defect, now switches too (`--dgo-density-pad` 16px comfortable → 8px compact).
+- Watchdog: silent on a healthy tree; fires and names the failing resource on a tree with config modules deleted.
+- Welcome: `?skipWelcome=1` and `?embed=1` reach a mounted shell with the route rendered; default load and `?showWelcome=1` still present the welcome.
+
+### Deliberately not done
+
+- **G-03 (secrets).** Not touched. Rotating the 24 signatures in Power Automate must come *first* — scrubbing files or rewriting history revokes nothing and would destroy the evidence trail before rotation is confirmed. This is an operational decision with a live-service blast radius.
+- **G-04 (authentication).** Not attempted. It requires an identity provider, token issuance, and authorization logic inside every Power Automate flow. None of that lives in this repository, and a client-side-only change here would be security theatre.
+- **G-08 (test suite / CI).** Only `.gitignore` was added. Reconstructing the contract suite, its baseline, and three CI workflows is a design task in its own right, and the originals are absent from both the repository and the zip — there is nothing to restore, only something to rebuild.
+- **G-09 (documentation).** Left open on purpose: the README's corrections depend on decisions still outstanding (final repository name, whether the `htdocs` layout or the flat one is canonical, and the outcome of the G-03 rotation). Correcting it now would bake in guesses.
