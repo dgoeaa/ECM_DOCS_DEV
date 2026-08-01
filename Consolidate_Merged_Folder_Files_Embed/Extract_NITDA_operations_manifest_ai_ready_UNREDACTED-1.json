@@ -1,0 +1,4395 @@
+{
+  "manifest_schema_version": "1.0.0-ai-ready",
+  "generated_at_utc": "2026-07-30T09:55:34.567042+00:00",
+  "source": {
+    "file_name": "NITDA_Digital_Ops_Hub_patched.html",
+    "byte_size": 283953,
+    "sha256": "345454be06650c9de60e88422c2d1b18a93b6715f38675aa964f77799c80162c",
+    "line_count": 5716
+  },
+  "completeness_statement": "This manifest is an exhaustive static extraction from the provided HTML source. It includes every endpoint declared in ENDPOINTS, every callAPI invocation found, all extracted flow-related functions and payload snippets, all extracted flow-related UI controls, full signed URLs, mappings, constants, state keys, and source references. It cannot include Power Automate designer internals, connector secrets, run history, or external tenant configuration not embedded in the HTML.",
+  "integrity_checks": {
+    "endpoint_count": 10,
+    "function_count": 14,
+    "flow_related_ui_control_count": 98,
+    "callapi_call_site_count": 10,
+    "global_interceptor_mapping_count": 4,
+    "unconfigured_endpoint_ids": [
+      "E09"
+    ],
+    "configured_endpoint_ids": [
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E05",
+      "E06",
+      "E07",
+      "E08",
+      "E10"
+    ],
+    "shared_workflow_aliases": {
+      "E05": [
+        "E08",
+        "E10"
+      ],
+      "E08": [
+        "E05",
+        "E10"
+      ],
+      "E10": [
+        "E05",
+        "E08"
+      ]
+    },
+    "full_url_inclusion": "All URL strings from ENDPOINTS are included unredacted in endpoint_registry.full_url and query_parameters_full."
+  },
+  "endpoint_registry": [
+    {
+      "id": "E01",
+      "name": "Fetch_References_and_Lookups_Data",
+      "purpose": "Fetch references + lookup datasets",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "ff455c68e9ac493e858fb984bcfd01fb",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU",
+      "source_lines": [
+        2017,
+        2021
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU"
+      },
+      "path": "/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E01: {\n    name: 'Fetch_References_and_Lookups_Data',\n    purpose: 'Fetch references + lookup datasets',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU'\n  }"
+    },
+    {
+      "id": "E02",
+      "name": "Get Docs",
+      "purpose": "Retrieve documents",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "818ec4053f1e4f0b87845114241d8b74",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+      "source_lines": [
+        2023,
+        2027
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50"
+      },
+      "path": "/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E02: {\n    name: 'Get Docs',\n    purpose: 'Retrieve documents',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50'\n  }"
+    },
+    {
+      "id": "E03",
+      "name": "fetch tasks",
+      "purpose": "Fetch tasks list/data",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "37642ba3597f4cf58288cc71b5e6b519",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4",
+      "source_lines": [
+        2029,
+        2033
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4"
+      },
+      "path": "/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E03: {\n    name: 'fetch tasks',\n    purpose: 'Fetch tasks list/data',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4'\n  }"
+    },
+    {
+      "id": "E04",
+      "name": "get emails",
+      "purpose": "Retrieve emails",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "3931e2ff995242b6b2c920c8b2209797",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U",
+      "source_lines": [
+        2035,
+        2039
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U"
+      },
+      "path": "/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E04: {\n    name: 'get emails',\n    purpose: 'Retrieve emails',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U'\n  }"
+    },
+    {
+      "id": "E05",
+      "name": "Deployed Create task",
+      "purpose": "Create a task (deployed flow)",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "6b3bad3005b44bf6bced0f8074d3f2ed",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "source_lines": [
+        2041,
+        2045
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ"
+      },
+      "path": "/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [
+        "E08",
+        "E10"
+      ],
+      "source_code": "\n  E05: {\n    name: 'Deployed Create task',\n    purpose: 'Create a task (deployed flow)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  }"
+    },
+    {
+      "id": "E06",
+      "name": "bulk Assign direct",
+      "purpose": "Bulk assignment (direct)",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "7e71fffe770a45ccb93bf216bb53786e",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE",
+      "source_lines": [
+        2047,
+        2051
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE"
+      },
+      "path": "/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E06: {\n    name: 'bulk Assign direct',\n    purpose: 'Bulk assignment (direct)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE'\n  }"
+    },
+    {
+      "id": "E07",
+      "name": "optimized bulk assign",
+      "purpose": "Bulk assignment (optimized)",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "1154b50e1d17420dadb3b012e7e2a02c",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4",
+      "source_lines": [
+        2053,
+        2057
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4"
+      },
+      "path": "/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E07: {\n    name: 'optimized bulk assign',\n    purpose: 'Bulk assignment (optimized)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4'\n  }"
+    },
+    {
+      "id": "E08",
+      "name": "Flag Document Action",
+      "purpose": "Flag document (DG Attention, Follow-Up, INT, UNC) — routes through E05 create-task flow with flagDocument action",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "6b3bad3005b44bf6bced0f8074d3f2ed",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "source_lines": [
+        2059,
+        2063
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ"
+      },
+      "path": "/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [
+        "E05",
+        "E10"
+      ],
+      "source_code": "\n  E08: {\n    name: 'Flag Document Action',\n    purpose: 'Flag document (DG Attention, Follow-Up, INT, UNC) — routes through E05 create-task flow with flagDocument action',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  }"
+    },
+    {
+      "id": "E10",
+      "name": "Update Task",
+      "purpose": "Update task progress, priority or add comments — routes through E05 create-task flow with updateTask action",
+      "method": "POST",
+      "configured": true,
+      "host": "defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443",
+      "workflow_id": "6b3bad3005b44bf6bced0f8074d3f2ed",
+      "trigger": "manual",
+      "api_version": "1",
+      "sp": "/triggers/manual/run",
+      "sv": "1.0",
+      "sig_present": true,
+      "url_redacted": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "source_lines": [
+        2065,
+        2069
+      ],
+      "full_url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+      "query_parameters_full": {
+        "api-version": "1",
+        "sp": "/triggers/manual/run",
+        "sv": "1.0",
+        "sig": "1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ"
+      },
+      "path": "/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke",
+      "scheme": "https",
+      "shared_workflow_with_endpoint_ids": [
+        "E05",
+        "E08"
+      ],
+      "source_code": "\n  E10: {\n    name: 'Update Task',\n    purpose: 'Update task progress, priority or add comments — routes through E05 create-task flow with updateTask action',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  }"
+    },
+    {
+      "id": "E09",
+      "name": "Send Email (Not Configured)",
+      "purpose": "Outbound email operations (compose, reply, forward) — PENDING PROVISIONING. No Power Automate flow deployed.",
+      "method": "POST",
+      "configured": false,
+      "host": "",
+      "workflow_id": "",
+      "trigger": "",
+      "api_version": "",
+      "sp": "",
+      "sv": "",
+      "sig_present": false,
+      "url_redacted": "",
+      "source_lines": [
+        2071,
+        2075
+      ],
+      "full_url": "",
+      "query_parameters_full": {},
+      "path": "",
+      "scheme": "",
+      "shared_workflow_with_endpoint_ids": [],
+      "source_code": "\n  E09: {\n    name: 'Send Email (Not Configured)',\n    purpose: 'Outbound email operations (compose, reply, forward) — PENDING PROVISIONING. No Power Automate flow deployed.',\n    method: 'POST',\n    url: ''\n  }"
+    }
+  ],
+  "endpoint_to_function_map": {
+    "E01": [
+      "fetchLookups"
+    ],
+    "E02": [
+      "fetchDocs",
+      "loadMoreDocs"
+    ],
+    "E03": [
+      "fetchTasks",
+      "loadMoreTasks"
+    ],
+    "E04": [
+      "fetchEmails",
+      "loadMoreEmails"
+    ],
+    "E05": [
+      "submitEmailTask",
+      "submitAssignment",
+      "submitFlagAction",
+      "submitTaskUpdate",
+      "executeSubsidiaryAction"
+    ],
+    "E06": [],
+    "E07": [],
+    "E08": [],
+    "E10": [],
+    "E09": []
+  },
+  "logical_operations": [
+    {
+      "operation_id": "LOOKUPS_READ",
+      "category": "reference_data",
+      "description": "Fetch users, categories, and departments reference data.",
+      "endpoint_ids": [
+        "E01"
+      ],
+      "functions": [
+        "fetchLookups"
+      ],
+      "source_references": [
+        {
+          "function": "fetchLookups",
+          "source_lines": [
+            2717,
+            2765
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "lookups"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "id",
+        "method",
+        "mode",
+        "operation",
+        "platform",
+        "source",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "fetchLookups",
+          "name": "payload",
+          "line": 2729,
+          "snippet": "{\n      action: 'lookups',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent }\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "",
+          "type": "",
+          "label_or_text": "🔄 Reload Reference Data",
+          "onclick": "fetchLookups(false, true)",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "DOCUMENTS_READ_INITIAL",
+      "category": "documents",
+      "description": "Fetch initial documents page.",
+      "endpoint_ids": [
+        "E02"
+      ],
+      "functions": [
+        "fetchDocs"
+      ],
+      "source_references": [
+        {
+          "function": "fetchDocs",
+          "source_lines": [
+            2806,
+            2842
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "getDocs"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "id",
+        "method",
+        "mode",
+        "odataFilter",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "fetchDocs",
+          "name": "payload",
+          "line": 2811,
+          "snippet": "{\n      action: 'getDocs',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.docsPageSize,\n      skip: 0\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "",
+          "type": "",
+          "label_or_text": "Fetch Docs",
+          "onclick": "fetchDocs()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "DOCUMENTS_READ_PAGINATED",
+      "category": "documents",
+      "description": "Fetch additional documents pages with top/skip pagination.",
+      "endpoint_ids": [
+        "E02"
+      ],
+      "functions": [
+        "loadMoreDocs"
+      ],
+      "source_references": [
+        {
+          "function": "loadMoreDocs",
+          "source_lines": [
+            5321,
+            5367
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "getDocs"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "id",
+        "method",
+        "mode",
+        "odataFilter",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "loadMoreDocs",
+          "name": "payload",
+          "line": 5327,
+          "snippet": "{\n      action: 'getDocs', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.docsPageSize, skip: skip\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "TASKS_READ_INITIAL",
+      "category": "tasks",
+      "description": "Fetch initial tasks page.",
+      "endpoint_ids": [
+        "E03"
+      ],
+      "functions": [
+        "fetchTasks"
+      ],
+      "source_references": [
+        {
+          "function": "fetchTasks",
+          "source_lines": [
+            3163,
+            3195
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "getTasks"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "id",
+        "method",
+        "mode",
+        "odataFilter",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "fetchTasks",
+          "name": "payload",
+          "line": 3168,
+          "snippet": "{\n      action: 'getTasks',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.tasksPageSize,\n      skip: 0\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "",
+          "type": "",
+          "label_or_text": "Fetch Tasks",
+          "onclick": "fetchTasks()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "TASKS_READ_PAGINATED",
+      "category": "tasks",
+      "description": "Fetch additional tasks pages with top/skip pagination.",
+      "endpoint_ids": [
+        "E03"
+      ],
+      "functions": [
+        "loadMoreTasks"
+      ],
+      "source_references": [
+        {
+          "function": "loadMoreTasks",
+          "source_lines": [
+            5387,
+            5429
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "getTasks"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "id",
+        "method",
+        "mode",
+        "odataFilter",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "loadMoreTasks",
+          "name": "payload",
+          "line": 5393,
+          "snippet": "{\n      action: 'getTasks', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.tasksPageSize, skip: skip\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "tasks-load-more-btn",
+          "type": "",
+          "label_or_text": "⬇️ Load More Tasks",
+          "onclick": "loadMoreTasks()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "EMAILS_READ_INITIAL",
+      "category": "emails",
+      "description": "Fetch initial email page for selected folder/unread filter.",
+      "endpoint_ids": [
+        "E04"
+      ],
+      "functions": [
+        "fetchEmails"
+      ],
+      "source_references": [
+        {
+          "function": "fetchEmails",
+          "source_lines": [
+            3418,
+            3452
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "emailsfetch"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "fetchOnlyUnread",
+        "folderPath",
+        "id",
+        "method",
+        "mode",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "fetchEmails",
+          "name": "payload",
+          "line": 3425,
+          "snippet": "{\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: 0,\n      fetchOnlyUnread: unreadOnly\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "",
+          "type": "",
+          "label_or_text": "Fetch Emails",
+          "onclick": "fetchEmails()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        },
+        {
+          "tag": "select",
+          "id": "email-folder-select",
+          "type": "",
+          "label_or_text": "📥 Inbox 📤 Sent Items 📝 Drafts 🗑️ Deleted 📦 Archive",
+          "onclick": "",
+          "onchange": "fetchEmails()",
+          "oninput": "",
+          "maxlength": "",
+          "options": [
+            "📥 Inbox",
+            "📤 Sent Items",
+            "📝 Drafts",
+            "🗑️ Deleted",
+            "📦 Archive"
+          ]
+        },
+        {
+          "tag": "input",
+          "id": "unread-only",
+          "type": "checkbox",
+          "label_or_text": "",
+          "onclick": "",
+          "onchange": "fetchEmails()",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "EMAILS_READ_PAGINATED",
+      "category": "emails",
+      "description": "Fetch additional email pages with top/skip pagination.",
+      "endpoint_ids": [
+        "E04"
+      ],
+      "functions": [
+        "loadMoreEmails"
+      ],
+      "source_references": [
+        {
+          "function": "loadMoreEmails",
+          "source_lines": [
+            3454,
+            3501
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "emailsfetch"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "detected_payload_field_keys": [
+        "action",
+        "device",
+        "fetchOnlyUnread",
+        "folderPath",
+        "id",
+        "method",
+        "mode",
+        "operation",
+        "platform",
+        "skip",
+        "source",
+        "top",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "loadMoreEmails",
+          "name": "payload",
+          "line": 3463,
+          "snippet": "{\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: skip,\n      fetchOnlyUnread: unreadOnly\n    }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "email-load-more-btn",
+          "type": "",
+          "label_or_text": "⬇️ Load More",
+          "onclick": "loadMoreEmails()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "EMAIL_TO_TASK_CREATE",
+      "category": "task_creation",
+      "description": "Create a task from selected email.",
+      "endpoint_ids": [
+        "E05"
+      ],
+      "functions": [
+        "submitEmailTask"
+      ],
+      "source_references": [
+        {
+          "function": "submitEmailTask",
+          "source_lines": [
+            3918,
+            4045
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "emailtotaskassignment"
+      ],
+      "detected_operation_values": [
+        "createTaskFromEmail"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "detected_payload_field_keys": [
+        "AckDue",
+        "AcknolwedgementDueBy",
+        "AcknowledgementDueBy",
+        "ActionRequired",
+        "ActivityID",
+        "AssignedDSU",
+        "AssignedTo",
+        "AssignedToTitle",
+        "AttachmentLink",
+        "Categorization",
+        "Category",
+        "CategoryCode",
+        "Comments",
+        "CopyTo",
+        "CreatedBy",
+        "Description",
+        "ID",
+        "PreReferenceID",
+        "PrimaryDSU",
+        "Priority",
+        "RefIDD",
+        "StartDate",
+        "Status",
+        "SubCategory",
+        "SubCategoryCode",
+        "SupportAssignedTo",
+        "SupportAssignedToTitle",
+        "SupportDSU",
+        "SupportDSUKey",
+        "TaskDue",
+        "TaskDueDate",
+        "Timeline",
+        "Title",
+        "action",
+        "assignment",
+        "bodyContent",
+        "bodyPreview",
+        "conversationId",
+        "device",
+        "email",
+        "fromAddress",
+        "id",
+        "internetMessageId",
+        "items",
+        "method",
+        "mode",
+        "operation",
+        "payload",
+        "platform",
+        "receivedDateTime",
+        "selection",
+        "single",
+        "source",
+        "subject",
+        "supportingAssignedTo",
+        "task",
+        "type",
+        "ua",
+        "userEmail",
+        "webLink"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "submitEmailTask",
+          "name": "payload",
+          "line": 3963,
+          "snippet": "{\n    action: 'emailtotaskassignment',\n    operation: 'createTaskFromEmail',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    payload: {\n      email: {\n        id: em?.id || '',\n        subject: em?.subject || title,\n        receivedDateTime: em?.receivedDateTime || new Date().toISOString(),\n        // P2-4: object form per schema (was bare string)\n        fromAddress: fromAddrObj,\n        webLink: em?.webLink || '',\n        conversationId: em?.conversationId || '',\n        internetMessageId: em?.internetMessageId || '',\n        bodyPreview: em?.bodyPreview || '',\n        bodyContent: em?.bodyContent || em?.body?.content || ''\n      },\n      task: {\n        StartDate: today,\n        // P2-4: ActivityID is the email message ID for email-sourced tasks\n        ActivityID: em?.id || '',\n        Title: title,\n        Description: em?.bodyPreview || title,\n        Status: 'New',\n        Category: category,\n        CategoryCode: catCode,\n        SubCategory: subcategory,\n        SubCategoryCode: subCatCode,\n        // P2-4: Categorization composite mirrors the bulk-assignment pattern\n        Categorization: category && subcategory ? `${category}-${subcategory}` : (category || ''),\n        PrimaryDSU: primaryDSU,\n        AssignedTo: assignee,\n        AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU,\n        // P2-4: Support fields populated from cascading category lookup\n        supportingAssignedTo: coassignee,\n        SupportAssignedTo: coassignee,\n        SupportAssignedToTitle: supportAssignedToTitle,\n        SupportDSU: supportDSU,\n        SupportDSUKey: supportDSU,\n        Priority: priority,\n        Timeline: timeline,\n        // P2-4: Use tomorrow as default acknowledgement/task due (was today,\n        // which is unworkable in practice). Server may override.\n        AckDue: tomorrow,\n        TaskDue: tomorrow,\n        AcknowledgementDueBy: tomorrow,\n        // Schema explicitly lists this typo'd field name (AcknolwedgementDueBy)\n        // — sending both for forward/backward compatibility.\n        AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: ccList,\n        ActionRequired: actionReq,\n        Comments: comments,\n        CreatedBy: AppState.currentUser.email,\n        AttachmentLink: em?.webLink || '',\n        // P2-4: Pre-reference ID for traceability\n        PreReferenceID: refIdStub\n      },\n      selection: { single: { ID: em?.id || '', RefIDD: '', Title: em?.subject || '' }, items: [] },\n      assignment: { type: 'emailtask' }\n    }\n  }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "etask-confirm-submit-btn",
+          "type": "",
+          "label_or_text": "📤 Confirm & Submit",
+          "onclick": "submitEmailTask()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "ASSIGNMENT_CREATE_SINGLE",
+      "category": "assignment",
+      "description": "Create a single document/activity assignment.",
+      "endpoint_ids": [
+        "E05"
+      ],
+      "functions": [
+        "submitAssignment"
+      ],
+      "source_references": [
+        {
+          "function": "submitAssignment",
+          "source_lines": [
+            4648,
+            4758
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "singleassignment"
+      ],
+      "detected_operation_values": [
+        "create"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "detected_payload_field_keys": [
+        "AckDue",
+        "AcknolwedgementDueBy",
+        "AcknowledgementDueBy",
+        "ActionRequired",
+        "ActivityID",
+        "AssignedDSU",
+        "AssignedTo",
+        "AssignedToTitle",
+        "AssignmentType",
+        "AttachmentLink",
+        "Categorization",
+        "Category",
+        "CategoryCode",
+        "Comments",
+        "CopyTo",
+        "CreatedBy",
+        "Description",
+        "ID",
+        "NewActivityTask",
+        "PreReferenceID",
+        "PrimaryDSU",
+        "Priority",
+        "RefIDD",
+        "Selected",
+        "StartDate",
+        "Status",
+        "SubCategory",
+        "SubCategoryCode",
+        "SupportAssignedTo",
+        "SupportAssignedToTitle",
+        "SupportDSU",
+        "SupportDSUKey",
+        "TaskDue",
+        "TaskDueDate",
+        "Timeline",
+        "Title",
+        "action",
+        "assignment",
+        "device",
+        "id",
+        "items",
+        "method",
+        "mode",
+        "operation",
+        "payload",
+        "platform",
+        "selection",
+        "single",
+        "source",
+        "supportingAssignedTo",
+        "task",
+        "type",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "submitAssignment",
+          "name": "payload",
+          "line": 4656,
+          "snippet": "{\n    action: 'singleassignment',\n    operation: 'create',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: a.type,\n    NewActivityTask: {\n      StartDate: today,\n      ActivityID: doc?.ID || '',\n      Title: doc?.Title || '',\n      Description: doc?.Description || '',\n      Status: 'New',\n      Category: a.selectedCategory,\n      CategoryCode: a.selectedCategoryCode,\n      SubCategory: a.selectedSubCategory,\n      SubCategoryCode: a.selectedSubCategoryCode,\n      PrimaryDSU: a.selectedPrimaryDSU,\n      AssignedTo: a.selectedAssignedTo,\n      AssignedToTitle: a.selectedAssignedToTitle,\n      AssignedDSU: a.selectedPrimaryDSU,\n      supportingAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedToTitle: a.selectedSupportAssignedToTitle,\n      SupportDSU: a.selectedSupportDSU,\n      SupportDSUKey: a.selectedSupportDSU,\n      AckDue: tomorrow,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDue: tomorrow,\n      TaskDueDate: tomorrow,\n      Timeline: a.selectedTimeline || 'N/A',\n      CopyTo: a.selectedCopyTo,\n      Priority: a.selectedPriority,\n      PreReferenceID: refId,\n      Categorization: a.selectedCategory + '-' + a.selectedSubCategory,\n      AttachmentLink: doc?.AttachmentLink || '',\n      Comments: a.selectedComments,\n      ActionRequired: a.selectedActionRequired || '',\n      CreatedBy: AppState.currentUser.email\n    },\n    Selected: { ID: doc?.ID || '', RefIDD: String(doc?.ID || ''), Title: doc?.Title || '' },\n    payload: {\n      task: {\n        StartDate: today,\n        ActivityID: doc?.ID,\n        Title: doc?.Title,\n        Category: a.selectedCategory,\n        CategoryCode: a.selectedCategoryCode,\n        SubCategory: a.selectedSubCategory,\n        SubCategoryCode: a.selectedSubCategoryCode,\n        AssignedTo: a.selectedAssignedTo,\n        AssignedToTitle: a.selectedAssignedToTitle,\n        AssignedDSU: a.selectedPrimaryDSU,\n        PrimaryDSU: a.selectedPrimaryDSU,\n        supportingAssignedTo: a.selectedSupportAssignedTo,\n        SupportDSU: a.selectedSupportDSU,\n        Priority: a.selectedPriority,\n        AcknowledgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: a.selectedCopyTo,\n        PreReferenceID: refId,\n        Comments: a.selectedComments,\n        ActionRequired: a.selectedActionRequired || '',\n        CreatedBy: AppState.currentUser.email\n      },\n      selection: { single: { ID: doc?.ID, RefIDD: String(doc?.ID || ''), Title: doc?.Title }, items: [] },\n      assignment: { type: a.type }\n    }\n  }"
+        }
+      ],
+      "related_ui_controls_by_handler": [],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "BULK_ASSIGNMENT_DIRECT",
+      "category": "bulk_assignment",
+      "description": "Bulk assign selected documents using direct mode.",
+      "endpoint_ids": [
+        "E06"
+      ],
+      "functions": [
+        "executeBulkAssign"
+      ],
+      "source_references": [
+        {
+          "function": "executeBulkAssign",
+          "source_lines": [
+            4891,
+            4999
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "bulkassignment"
+      ],
+      "detected_operation_values": [
+        "create"
+      ],
+      "detected_mode_values": [
+        "bulk"
+      ],
+      "detected_payload_field_keys": [
+        "AcknolwedgementDueBy",
+        "AcknowledgementDueBy",
+        "AssignedDSU",
+        "AssignedTo",
+        "AssignedToTitle",
+        "AssignmentType",
+        "Categorization",
+        "Category",
+        "CategoryCode",
+        "Comments",
+        "CreatedBy",
+        "NewActivityTask",
+        "PrimaryDSU",
+        "Priority",
+        "SelectedItems",
+        "StartDate",
+        "Status",
+        "SubCategory",
+        "SubCategoryCode",
+        "SupportAssignedTo",
+        "SupportDSU",
+        "TaskDueDate",
+        "Timeline",
+        "Title",
+        "action",
+        "assignment",
+        "device",
+        "id",
+        "items",
+        "method",
+        "mode",
+        "operation",
+        "payload",
+        "platform",
+        "selection",
+        "source",
+        "supportingAssignedTo",
+        "task",
+        "type",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "executeBulkAssign",
+          "name": "payload",
+          "line": 4917,
+          "snippet": "{\n    action: 'bulkassignment',\n    operation: 'create',\n    mode: 'bulk',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: 'bulkassignment',\n    NewActivityTask: {\n      StartDate: today,\n      Title: '',\n      Status: 'New',\n      Category: category,\n      CategoryCode: catCode,\n      SubCategory: subcategory,\n      SubCategoryCode: subCatCode,\n      PrimaryDSU: primaryDSU,\n      AssignedTo: assignee,\n      AssignedToTitle: assignedToTitle,\n      AssignedDSU: primaryDSU,\n      supportingAssignedTo: '',\n      SupportAssignedTo: '',\n      SupportDSU: '',\n      Priority: priority,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDueDate: tomorrow,\n      Comments: comments,\n      CreatedBy: AppState.currentUser.email,\n      Timeline: 'N/A',\n      Categorization: category + '-' + subcategory\n    },\n    SelectedItems: selectedItemsPayload,\n    payload: {\n      task: {\n        Category: category, CategoryCode: catCode, SubCategory: subcategory, SubCategoryCode: subCatCode,\n        PrimaryDSU: primaryDSU, AssignedTo: assignee, AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU, Priority: priority, AcknowledgementDueBy: tomorrow, AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow, Comments: comments, CreatedBy: AppState.currentUser.email\n      },\n      selection: { items: selectedItemsPayload },\n      assignment: { type: 'bulkassignment' }\n    }\n  }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "bulk-confirm-proceed-btn",
+          "type": "",
+          "label_or_text": "✅ Confirm & Assign",
+          "onclick": "executeBulkAssign()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "BULK_ASSIGNMENT_OPTIMIZED",
+      "category": "bulk_assignment",
+      "description": "Bulk assign selected documents using optimized mode.",
+      "endpoint_ids": [
+        "E07"
+      ],
+      "functions": [
+        "executeBulkAssign"
+      ],
+      "source_references": [
+        {
+          "function": "executeBulkAssign",
+          "source_lines": [
+            4891,
+            4999
+          ]
+        }
+      ],
+      "detected_action_values": [
+        "bulkassignment"
+      ],
+      "detected_operation_values": [
+        "create"
+      ],
+      "detected_mode_values": [
+        "bulk"
+      ],
+      "detected_payload_field_keys": [
+        "AcknolwedgementDueBy",
+        "AcknowledgementDueBy",
+        "AssignedDSU",
+        "AssignedTo",
+        "AssignedToTitle",
+        "AssignmentType",
+        "Categorization",
+        "Category",
+        "CategoryCode",
+        "Comments",
+        "CreatedBy",
+        "NewActivityTask",
+        "PrimaryDSU",
+        "Priority",
+        "SelectedItems",
+        "StartDate",
+        "Status",
+        "SubCategory",
+        "SubCategoryCode",
+        "SupportAssignedTo",
+        "SupportDSU",
+        "TaskDueDate",
+        "Timeline",
+        "Title",
+        "action",
+        "assignment",
+        "device",
+        "id",
+        "items",
+        "method",
+        "mode",
+        "operation",
+        "payload",
+        "platform",
+        "selection",
+        "source",
+        "supportingAssignedTo",
+        "task",
+        "type",
+        "ua",
+        "userEmail"
+      ],
+      "payload_objects_full_snippets": [
+        {
+          "function": "executeBulkAssign",
+          "name": "payload",
+          "line": 4917,
+          "snippet": "{\n    action: 'bulkassignment',\n    operation: 'create',\n    mode: 'bulk',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: 'bulkassignment',\n    NewActivityTask: {\n      StartDate: today,\n      Title: '',\n      Status: 'New',\n      Category: category,\n      CategoryCode: catCode,\n      SubCategory: subcategory,\n      SubCategoryCode: subCatCode,\n      PrimaryDSU: primaryDSU,\n      AssignedTo: assignee,\n      AssignedToTitle: assignedToTitle,\n      AssignedDSU: primaryDSU,\n      supportingAssignedTo: '',\n      SupportAssignedTo: '',\n      SupportDSU: '',\n      Priority: priority,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDueDate: tomorrow,\n      Comments: comments,\n      CreatedBy: AppState.currentUser.email,\n      Timeline: 'N/A',\n      Categorization: category + '-' + subcategory\n    },\n    SelectedItems: selectedItemsPayload,\n    payload: {\n      task: {\n        Category: category, CategoryCode: catCode, SubCategory: subcategory, SubCategoryCode: subCatCode,\n        PrimaryDSU: primaryDSU, AssignedTo: assignee, AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU, Priority: priority, AcknowledgementDueBy: tomorrow, AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow, Comments: comments, CreatedBy: AppState.currentUser.email\n      },\n      selection: { items: selectedItemsPayload },\n      assignment: { type: 'bulkassignment' }\n    }\n  }"
+        }
+      ],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "bulk-confirm-proceed-btn",
+          "type": "",
+          "label_or_text": "✅ Confirm & Assign",
+          "onclick": "executeBulkAssign()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "DOCUMENT_FLAG_ACTION",
+      "category": "document_action",
+      "description": "Flag a document for DG Attention, Follow-Up, INT, or UNC via E05 dispatcher; E08 is declared alias using same workflow.",
+      "endpoint_ids": [
+        "E05",
+        "E08"
+      ],
+      "functions": [
+        "submitFlagAction",
+        "executeSubsidiaryAction"
+      ],
+      "source_references": [
+        {
+          "function": "submitFlagAction",
+          "source_lines": [
+            3101,
+            3158
+          ]
+        },
+        {
+          "function": "executeSubsidiaryAction",
+          "source_lines": [
+            2673,
+            2673
+          ]
+        }
+      ],
+      "detected_action_values": [],
+      "detected_operation_values": [
+        "update"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "detected_payload_field_keys": [],
+      "payload_objects_full_snippets": [],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "modal-flag-submit-btn",
+          "type": "",
+          "label_or_text": "✅ Submit Flag",
+          "onclick": "submitFlagAction()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "TASK_UPDATE",
+      "category": "task_update",
+      "description": "Update task progress, priority, and comments via E05 dispatcher; E10 is declared alias using same workflow.",
+      "endpoint_ids": [
+        "E05",
+        "E10"
+      ],
+      "functions": [
+        "submitTaskUpdate",
+        "executeSubsidiaryAction"
+      ],
+      "source_references": [
+        {
+          "function": "submitTaskUpdate",
+          "source_lines": [
+            3313,
+            3382
+          ]
+        },
+        {
+          "function": "executeSubsidiaryAction",
+          "source_lines": [
+            2673,
+            2673
+          ]
+        }
+      ],
+      "detected_action_values": [],
+      "detected_operation_values": [
+        "update"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "detected_payload_field_keys": [],
+      "payload_objects_full_snippets": [],
+      "related_ui_controls_by_handler": [
+        {
+          "tag": "button",
+          "id": "",
+          "type": "",
+          "label_or_text": "📤 Submit Update",
+          "onclick": "submitTaskUpdate()",
+          "onchange": "",
+          "oninput": "",
+          "maxlength": "",
+          "options": []
+        }
+      ],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    },
+    {
+      "operation_id": "EMAIL_SEND_STUB",
+      "category": "email_outbound_stub",
+      "description": "Outbound compose/reply/forward actions are represented as UI stubs only. No Power Automate URL is configured.",
+      "endpoint_ids": [
+        "E09"
+      ],
+      "functions": [],
+      "source_references": [],
+      "detected_action_values": [],
+      "detected_operation_values": [],
+      "detected_mode_values": [],
+      "detected_payload_field_keys": [],
+      "payload_objects_full_snippets": [],
+      "related_ui_controls_by_handler": [],
+      "timeout_policy": "Default 30000 ms unless overridden. Bulk operations use 90000 ms in executeBulkAssign.",
+      "transport": "HTTP POST JSON through callAPI wrapper; source code includes X-Correlation-ID header and JSON body with correlationId."
+    }
+  ],
+  "global_interceptor": {
+    "source_lines": [
+      70,
+      112
+    ],
+    "mappings": [
+      {
+        "matched_workflow_id": "ff455c68e9ac493e858fb984bcfd01fb",
+        "endpoint_id": "E01",
+        "schema_id": "S02_get-references-lookup-schema",
+        "line": 78
+      },
+      {
+        "matched_workflow_id": "818ec4053f1e4f0b87845114241d8b74",
+        "endpoint_id": "E02",
+        "schema_id": "S01_get-docs-flow-trigger-schema",
+        "line": 79
+      },
+      {
+        "matched_workflow_id": "37642ba3597f4cf58288cc71b5e6b519",
+        "endpoint_id": "E03",
+        "schema_id": "S04_get-tasks-flow-schema",
+        "line": 80
+      },
+      {
+        "matched_workflow_id": "3931e2ff995242b6b2c920c8b2209797",
+        "endpoint_id": "E04",
+        "schema_id": "S03_get-emails-flow-trigged-schema",
+        "line": 81
+      }
+    ],
+    "behavior": [
+      "Intercepts fetch calls containing powerautomate/automations/direct",
+      "Maps workflow ID to endpointId/schemaId",
+      "Parses JSON request body",
+      "Validates body through NITDA.validate(schemaId,data)",
+      "Calls shell flow through NITDA.callFlow(endpointId,body)",
+      "Returns Response(JSON data) to original code",
+      "Publishes data:updated after E05 success"
+    ]
+  },
+  "nitda_module_adapter_methods": [
+    {
+      "method": "ready",
+      "parameters": [],
+      "implementation_summary": "_send('MODULE_READY', {title: document.title}); },",
+      "line": 44
+    },
+    {
+      "method": "onUnmount",
+      "parameters": [
+        "cb"
+      ],
+      "implementation_summary": "if (typeof cb === 'function') _unmount.push(cb); },",
+      "line": 45
+    },
+    {
+      "method": "toast",
+      "parameters": [
+        "msg",
+        "type",
+        "title"
+      ],
+      "implementation_summary": "_send('TOAST', {msg:msg, type:type||'inf', title:title}); },",
+      "line": 46
+    },
+    {
+      "method": "callFlow",
+      "parameters": [
+        "endpointId",
+        "body",
+        "opts"
+      ],
+      "implementation_summary": "return _req('PA_CALL', {endpointId:endpointId, body:body||{}, opts:opts||{}}, {timeout:(opts&&opts.timeout)||35000}); },",
+      "line": 47
+    },
+    {
+      "method": "validate",
+      "parameters": [
+        "schemaId",
+        "data"
+      ],
+      "implementation_summary": "return _req('VALIDATE', {schemaId:schemaId, data:data}); },",
+      "line": 48
+    },
+    {
+      "method": "publish",
+      "parameters": [
+        "topic",
+        "data"
+      ],
+      "implementation_summary": "_send('PUB_PUBLISH', {topic:topic, data:data}); },",
+      "line": 49
+    },
+    {
+      "method": "log",
+      "parameters": [
+        "msg"
+      ],
+      "implementation_summary": "_send('AUDIT', {msg:msg}); },",
+      "line": 50
+    },
+    {
+      "method": "getUser",
+      "parameters": [],
+      "implementation_summary": "return _req('GET_USER', {}); }",
+      "line": 51
+    }
+  ],
+  "common_api_contract": {
+    "content_type": "application/json",
+    "http_method": "POST for configured endpoints",
+    "common_payload_fields_observed": [
+      "action",
+      "operation",
+      "mode",
+      "source",
+      "userEmail",
+      "method",
+      "device",
+      "correlationId"
+    ],
+    "source_value": "DGO_FAST_Track_WEB_OPS",
+    "device_fields_observed": [
+      "id",
+      "platform",
+      "ua"
+    ],
+    "wrapper_behavior": {
+      "duplicates": "AppState._fetching[endpointKey] blocks duplicate in-flight requests.",
+      "correlation": "crypto.randomUUID() if available, otherwise Date.now/Math.random fallback.",
+      "headers": [
+        "Content-Type: application/json",
+        "X-Correlation-ID: correlationId"
+      ],
+      "timeout": "AbortController; default 30000 ms parameter; bulk passes 90000 ms.",
+      "response": "Reads resp.text(); attempts JSON.parse; returns parsed data or text.",
+      "error": "Throws HTTP status errors and timeout/network errors; telemetry logs cid prefix."
+    },
+    "parse_response_behavior": "parseResponse unwraps JSON string, detects double-stringified JSON and logs a warning."
+  },
+  "function_registry": [
+    {
+      "parameters": [
+        "endpointKey",
+        "payload",
+        "loaderMsg = 'Loading...'",
+        "suppressLoader = false",
+        "timeoutMs = 30000"
+      ],
+      "source_lines": [
+        2616,
+        2666
+      ],
+      "callAPI_endpoints": [],
+      "subsidiary_actions": [],
+      "payload_objects": [],
+      "source_code": "async function callAPI(endpointKey, payload, loaderMsg = 'Loading...', suppressLoader = false, timeoutMs = 30000) {\n  const ep = ENDPOINTS[endpointKey];\n  if (!ep) throw new Error(`Unknown endpoint: ${endpointKey}`);\n  // Concurrent-fetch guard: reject duplicate in-flight requests for the same endpoint key\n  if (AppState._fetching && AppState._fetching[endpointKey]) {\n    const skipMsg = `${ep.name}: duplicate request blocked — already in flight`;\n    logTelemetry(ep.name, skipMsg, 'Warning', 0);\n    throw new Error(skipMsg);\n  }\n  if (AppState._fetching) AppState._fetching[endpointKey] = true;\n  if (!suppressLoader) showLoader(loaderMsg);\n  const start = Date.now();\n  // Generate correlation ID for tracing (D-0009)\n  const correlationId = (typeof crypto !== 'undefined' && crypto.randomUUID)\n    ? crypto.randomUUID()\n    : Date.now().toString(36) + Math.random().toString(36).slice(2);\n  // AbortController with configurable timeout (D-0010, P1-5)\n  const controller = new AbortController();\n  const effectiveTimeout = Number(timeoutMs) > 0 ? Number(timeoutMs) : 30000;\n  const timeoutId = setTimeout(() => controller.abort(), effectiveTimeout);\n  try {\n    const resp = await fetch(ep.url, {\n      method: ep.method,\n      headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': correlationId },\n      body: JSON.stringify({ ...payload, correlationId }),\n      signal: controller.signal\n    });\n    clearTimeout(timeoutId);\n    const durationMs = Date.now() - start;\n    if (!resp.ok) {\n      const errText = await resp.text();\n      logTelemetry(ep.name, `HTTP ${resp.status}: ${errText.slice(0, 100)} [cid:${correlationId.slice(0,8)}]`, 'Error', durationMs);\n      throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 200)}`);\n    }\n    let data;\n    const text = await resp.text();\n    try { data = JSON.parse(text); } catch { data = text; }\n    logTelemetry(ep.name, `Success • ${typeof data === 'object' ? JSON.stringify(data).length : text.length} bytes [cid:${correlationId.slice(0,8)}]`, 'Success', durationMs);\n    setLastUpdated();\n    return data;\n  } catch(e) {\n    clearTimeout(timeoutId);\n    const durationMs = Date.now() - start;\n    const msg = e.name === 'AbortError' ? `Request timed out after ${Math.round(effectiveTimeout/1000)} seconds` : (e.message || 'Network error');\n    logTelemetry(ep.name, `${msg} [cid:${correlationId.slice(0,8)}]`, 'Error', durationMs);\n    throw new Error(msg);\n  } finally {\n    if (AppState._fetching) AppState._fetching[endpointKey] = false;\n    if (!suppressLoader) hideLoader();\n  }\n}",
+      "detected_action_values": [],
+      "detected_operation_values": [],
+      "detected_mode_values": [],
+      "endpoint_ids": []
+    },
+    {
+      "parameters": [
+        "actionName",
+        "entityId",
+        "entityTitle",
+        "contextPayload = {}",
+        "loaderMsg = ''"
+      ],
+      "source_lines": [
+        2673,
+        2673
+      ],
+      "callAPI_endpoints": [],
+      "subsidiary_actions": [],
+      "payload_objects": [],
+      "source_code": "async function executeSubsidiaryAction(actionName, entityId, entityTitle, contextPayload = {}",
+      "detected_action_values": [],
+      "detected_operation_values": [],
+      "detected_mode_values": [],
+      "endpoint_ids": []
+    },
+    {
+      "parameters": [
+        "suppressLoader = false",
+        "force = false"
+      ],
+      "source_lines": [
+        2717,
+        2765
+      ],
+      "callAPI_endpoints": [
+        "E01"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 2729,
+          "snippet": "{\n      action: 'lookups',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent }\n    }"
+        }
+      ],
+      "source_code": "async function fetchLookups(suppressLoader = false, force = false) {\n  // P3-2: Coalesce repeat calls. Reference data (categories, departments,\n  // users) only changes when an admin updates the master tables — refetching\n  // on every navigation to telemetry / home / sidebar refresh wastes a round\n  // trip per visit. Short-circuit unless explicitly forced or data is empty.\n  const alreadyLoaded = (AppState.categories?.length > 0)\n                     && (AppState.departments?.length > 0);\n  if (alreadyLoaded && !force) {\n    logTelemetry('Lookups skipped', 'Already cached — pass force=true to refresh', 'Info', 0);\n    return;\n  }\n  try {\n    const payload = {\n      action: 'lookups',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent }\n    };\n    const raw = await callAPI('E01', payload, 'Loading reference data...', suppressLoader);\n    const data = parseResponse(raw);\n    // Parse the response structure\n    const inner = data && data.data ? data.data : data;\n    if (inner && inner.users) AppState.users = inner.users;\n    if (inner && inner.categories) AppState.categories = inner.categories;\n    if (inner && inner.departments) AppState.departments = inner.departments;\n    updateRefDataStats();\n    populateLookupDropdowns();\n    logTelemetry('Lookups loaded', `Users:${AppState.users.length} Cats:${AppState.categories.length} Depts:${AppState.departments.length}`, 'Success');\n  } catch(e) {\n    console.error('Lookups error:', e);\n    logTelemetry('Lookups', 'Reference data failed to load: ' + e.message, 'Error');\n    // Show a user-visible persistent warning so users know dropdowns may be empty\n    const warnId = 'lookups-warn-banner';\n    if (!document.getElementById(warnId)) {\n      const banner = document.createElement('div');\n      banner.id = warnId;\n      banner.className = 'notify-banner error show';\n      banner.style.cssText = 'position:fixed;top:62px;left:50%;transform:translateX(-50%);z-index:9000;min-width:340px;max-width:90vw;box-shadow:var(--shadow-md);';\n      banner.innerHTML = '⚠️ Reference data (users, categories, departments) failed to load. Category and assignee dropdowns may be empty. ' +\n        '<button class=\"btn btn-secondary btn-sm\" style=\"margin-left:8px;\" onclick=\"fetchLookups(false, true);this.closest(\\'#lookups-warn-banner\\').remove()\">🔄 Retry</button>' +\n        '<button class=\"btn btn-icon btn-ghost btn-sm\" style=\"margin-left:4px;\" onclick=\"this.closest(\\'#lookups-warn-banner\\').remove()\">✕</button>';\n      document.body.appendChild(banner);\n      setTimeout(() => { const el = document.getElementById(warnId); if (el) el.remove(); }, 15000);\n    }\n  }\n}",
+      "detected_action_values": [
+        "lookups"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E01"
+      ]
+    },
+    {
+      "parameters": [
+        "odataFilter = ''",
+        "suppressLoader = false"
+      ],
+      "source_lines": [
+        2806,
+        2842
+      ],
+      "callAPI_endpoints": [
+        "E02"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 2811,
+          "snippet": "{\n      action: 'getDocs',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.docsPageSize,\n      skip: 0\n    }"
+        }
+      ],
+      "source_code": "async function fetchDocs(odataFilter = '', suppressLoader = false) {\n  // Reset pagination on every fresh fetch\n  AppState.docsPage = 0;\n  AppState.docsTotalKnown = false;\n  try {\n    const payload = {\n      action: 'getDocs',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.docsPageSize,\n      skip: 0\n    };\n    const raw = await callAPI('E02', payload, 'Fetching documents...', suppressLoader);\n    const data = parseResponse(raw);\n    // The response is: { ok, status, request, timing, data: { docs: [...] }, errors, meta }\n    const inner = data && data.data ? data.data : data;\n    const docs = Array.isArray(inner) ? inner : (inner && inner.docs ? inner.docs : []);\n    AppState.docs = docs;\n    AppState.docsFiltered = [...docs];\n    resetDocsFilters(); // STATE-02: reset stale filter state on every fresh fetch\n    renderDocsGallery(AppState.docsFiltered);\n    updateDocsCount(docs.length);\n    updateDocsPaginationUI(docs.length, docs.length < AppState.docsPageSize);\n    updateKPIs();\n    renderHomeRecentDocs();\n    populateDocsStatusFilter();\n    updateBulkSelectUI();\n    logTelemetry('Docs fetched', `Count: ${docs.length}`, 'Success');\n  } catch(e) {\n    showGalleryError('docs-gallery', 'Failed to fetch documents: ' + e.message);\n  }\n}",
+      "detected_action_values": [
+        "getDocs"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E02"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        5321,
+        5367
+      ],
+      "callAPI_endpoints": [
+        "E02"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 5327,
+          "snippet": "{\n      action: 'getDocs', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.docsPageSize, skip: skip\n    }"
+        }
+      ],
+      "source_code": "async function loadMoreDocs() {\n  const nextPage = AppState.docsPage + 1;\n  const skip = nextPage * AppState.docsPageSize;\n  const btn = document.getElementById('docs-load-more-btn');\n  if (btn) { btn.disabled = true; btn.textContent = '⏳ Loading...'; }\n  try {\n    const payload = {\n      action: 'getDocs', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.docsPageSize, skip: skip\n    };\n    const raw = await callAPI('E02', payload, 'Loading more documents...');\n    const data = parseResponse(raw);\n    const inner = data?.data || data;\n    const newDocs = Array.isArray(inner) ? inner : (inner?.docs || []);\n    AppState.docsPage = nextPage;\n    AppState.docs = [...AppState.docs, ...newDocs];\n\n    const hasActiveDocsFilter = !!(\n      (document.getElementById('docs-search')?.value || '').trim() ||\n      (document.getElementById('filter-assigned-to')?.value || '') ||\n      (document.getElementById('filter-category')?.value || '') ||\n      (document.getElementById('filter-status')?.value || '') ||\n      (document.getElementById('filter-assignment-status')?.value || '') ||\n      (document.getElementById('filter-date-from')?.value || '') ||\n      (document.getElementById('filter-date-to')?.value || '')\n    );\n\n    if (hasActiveDocsFilter) {\n      // Preserve current filters/search after appending\n      filterDocs();\n    } else {\n      AppState.docsFiltered = [...AppState.docs];\n      renderDocsGallery(AppState.docsFiltered);\n      updateDocsCount(AppState.docs.length);\n    }\n    updateDocsPaginationUI(newDocs.length, newDocs.length < AppState.docsPageSize);\n    updateKPIs();\n    updateBulkSelectUI();\n    populateDocsStatusFilter();\n    logTelemetry('Docs load-more', `New: ${newDocs.length} | Total: ${AppState.docs.length}`, 'Success');\n  } catch(e) {\n    if (btn) { btn.disabled = false; btn.textContent = '⬇️ Load More Docs'; }\n    logTelemetry('Load More Docs', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [
+        "getDocs"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E02"
+      ]
+    },
+    {
+      "parameters": [
+        "odataFilter = ''",
+        "suppressLoader = false"
+      ],
+      "source_lines": [
+        3163,
+        3195
+      ],
+      "callAPI_endpoints": [
+        "E03"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 3168,
+          "snippet": "{\n      action: 'getTasks',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.tasksPageSize,\n      skip: 0\n    }"
+        }
+      ],
+      "source_code": "async function fetchTasks(odataFilter = '', suppressLoader = false) {\n  // Reset pagination on every fresh fetch\n  AppState.tasksPage = 0;\n  AppState.tasksTotalKnown = false;\n  try {\n    const payload = {\n      action: 'getTasks',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: odataFilter || null,\n      top: AppState.tasksPageSize,\n      skip: 0\n    };\n    const raw = await callAPI('E03', payload, 'Fetching tasks...', suppressLoader);\n    const data = parseResponse(raw);\n    const inner = data && data.data ? data.data : data;\n    const tasks = Array.isArray(inner) ? inner : (inner && inner.tasks ? inner.tasks : []);\n    AppState.tasks = tasks;\n    AppState.tasksFiltered = [...tasks];\n    resetTaskFilters(); // reset stale filter state on every fresh fetch (align with docs behavior)\n    updateTasksPaginationUI(tasks.length, tasks.length < AppState.tasksPageSize);\n    populateTaskClassifications();\n    updateKPIs();\n    renderHomeRecentTasks();\n    logTelemetry('Tasks fetched', `Count: ${tasks.length}`, 'Success');\n  } catch(e) {\n    showGalleryError('tasks-gallery', 'Failed to fetch tasks: ' + e.message);\n  }\n}",
+      "detected_action_values": [
+        "getTasks"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E03"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        5387,
+        5429
+      ],
+      "callAPI_endpoints": [
+        "E03"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 5393,
+          "snippet": "{\n      action: 'getTasks', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.tasksPageSize, skip: skip\n    }"
+        }
+      ],
+      "source_code": "async function loadMoreTasks() {\n  const nextPage = AppState.tasksPage + 1;\n  const skip = nextPage * AppState.tasksPageSize;\n  const btn = document.getElementById('tasks-load-more-btn');\n  if (btn) { btn.disabled = true; btn.textContent = '⏳ Loading...'; }\n  try {\n    const payload = {\n      action: 'getTasks', operation: 'read', mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email,\n      method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      odataFilter: null, top: AppState.tasksPageSize, skip: skip\n    };\n    const raw = await callAPI('E03', payload, 'Loading more tasks...');\n    const data = parseResponse(raw);\n    const inner = data?.data || data;\n    const newTasks = Array.isArray(inner) ? inner : (inner?.tasks || []);\n    AppState.tasksPage = nextPage;\n    AppState.tasks = [...AppState.tasks, ...newTasks];\n\n    const hasActiveTasksFilter = !!(\n      (document.getElementById('tasks-search')?.value || '').trim() ||\n      (document.getElementById('filter-task-status')?.value || '') ||\n      (document.getElementById('filter-task-priority')?.value || '') ||\n      (document.getElementById('filter-task-classification')?.value || '')\n    );\n\n    if (hasActiveTasksFilter) {\n      // Preserve current filters/search after appending\n      filterTasks();\n    } else {\n      AppState.tasksFiltered = [...AppState.tasks];\n      renderTasksGallery(AppState.tasksFiltered);\n      updateTasksCount(AppState.tasks.length);\n    }\n    updateTasksPaginationUI(newTasks.length, newTasks.length < AppState.tasksPageSize);\n    populateTaskClassifications();\n    updateKPIs();\n    logTelemetry('Tasks load-more', `New: ${newTasks.length} | Total: ${AppState.tasks.length}`, 'Success');\n  } catch(e) {\n    if (btn) { btn.disabled = false; btn.textContent = '⬇️ Load More Tasks'; }\n    logTelemetry('Load More Tasks', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [
+        "getTasks"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E03"
+      ]
+    },
+    {
+      "parameters": [
+        "suppressLoader = false"
+      ],
+      "source_lines": [
+        3418,
+        3452
+      ],
+      "callAPI_endpoints": [
+        "E04"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 3425,
+          "snippet": "{\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: 0,\n      fetchOnlyUnread: unreadOnly\n    }"
+        }
+      ],
+      "source_code": "async function fetchEmails(suppressLoader = false) {\n  const folder = document.getElementById('email-folder-select')?.value || 'inbox';\n  const unreadOnly = document.getElementById('unread-only')?.checked || false;\n  // Reset pagination on fresh fetch\n  AppState.emailsPage = 0;\n  AppState.emailsTotalKnown = false;\n  try {\n    const payload = {\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: 0,\n      fetchOnlyUnread: unreadOnly\n    };\n    const raw = await callAPI('E04', payload, 'Fetching emails...', suppressLoader);\n    const data = parseResponse(raw);\n    const inner = data && data.data ? data.data : data;\n    const emails = Array.isArray(inner) ? inner : (inner && inner.emails ? inner.emails : []);\n    AppState.emails = emails;\n    AppState.emailsFiltered = [...emails];\n    renderEmailsList(emails);\n    updateEmailsCount(emails.length);\n    updateEmailPaginationUI(emails.length, false);\n    updateKPIs();\n    logTelemetry('Emails fetched', `Count: ${emails.length} folder: ${folder}`, 'Success');\n  } catch(e) {\n    document.getElementById('emails-list').innerHTML = `<div class=\"empty-state\"><p style=\"color:var(--error);\">Failed to fetch emails: ${escHtml(e.message)}</p></div>`;\n  }\n}",
+      "detected_action_values": [
+        "emailsfetch"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E04"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        3454,
+        3501
+      ],
+      "callAPI_endpoints": [
+        "E04"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 3463,
+          "snippet": "{\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: skip,\n      fetchOnlyUnread: unreadOnly\n    }"
+        }
+      ],
+      "source_code": "async function loadMoreEmails() {\n  const folder = document.getElementById('email-folder-select')?.value || 'inbox';\n  const unreadOnly = document.getElementById('unread-only')?.checked || false;\n  // Compute next page parameters BEFORE the request; only commit the page increment on success\n  const nextPage = AppState.emailsPage + 1;\n  const skip = nextPage * AppState.emailsPageSize;\n  const btn = document.getElementById('email-load-more-btn');\n  if (btn) { btn.disabled = true; btn.textContent = '⏳ Loading...'; }\n  try {\n    const payload = {\n      action: 'emailsfetch',\n      operation: 'read',\n      mode: 'read',\n      source: 'DGO_FAST_Track_WEB_OPS',\n      userEmail: AppState.currentUser.email,\n      method: 'POST',\n      device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n      folderPath: folder,\n      top: AppState.emailsPageSize,\n      skip: skip,\n      fetchOnlyUnread: unreadOnly\n    };\n    const raw = await callAPI('E04', payload, 'Loading more emails...');\n    const data = parseResponse(raw);\n    const inner = data && data.data ? data.data : data;\n    const newEmails = Array.isArray(inner) ? inner : (inner && inner.emails ? inner.emails : []);\n    // Commit page increment only after a successful response\n    AppState.emailsPage = nextPage;\n    AppState.emails = [...AppState.emails, ...newEmails];\n    // Re-apply active search filter after appending to preserve user's current search state\n    const activeSearch = (document.getElementById('emails-search')?.value || '').toLowerCase();\n    AppState.emailsFiltered = activeSearch\n      ? AppState.emails.filter(em =>\n          (em.subject || '').toLowerCase().includes(activeSearch) ||\n          (em.bodyPreview || '').toLowerCase().includes(activeSearch) ||\n          (em.fromName || em.fromAddress || '').toLowerCase().includes(activeSearch)\n        )\n      : [...AppState.emails];\n    renderEmailsList(AppState.emailsFiltered);\n    updateEmailsCount(AppState.emailsFiltered.length);\n    updateEmailPaginationUI(newEmails.length, newEmails.length < AppState.emailsPageSize);\n    logTelemetry('Emails load-more', `New: ${newEmails.length} | Total: ${AppState.emails.length} | Filtered: ${AppState.emailsFiltered.length}`, 'Success');\n  } catch(e) {\n    // Do NOT increment page on failure — next retry will correctly use the same skip value\n    if (btn) { btn.disabled = false; btn.textContent = '⬇️ Load More'; }\n    logTelemetry('Load More Emails', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [
+        "emailsfetch"
+      ],
+      "detected_operation_values": [
+        "read"
+      ],
+      "detected_mode_values": [
+        "read"
+      ],
+      "endpoint_ids": [
+        "E04"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        3918,
+        4045
+      ],
+      "callAPI_endpoints": [
+        "E05"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 3963,
+          "snippet": "{\n    action: 'emailtotaskassignment',\n    operation: 'createTaskFromEmail',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    payload: {\n      email: {\n        id: em?.id || '',\n        subject: em?.subject || title,\n        receivedDateTime: em?.receivedDateTime || new Date().toISOString(),\n        // P2-4: object form per schema (was bare string)\n        fromAddress: fromAddrObj,\n        webLink: em?.webLink || '',\n        conversationId: em?.conversationId || '',\n        internetMessageId: em?.internetMessageId || '',\n        bodyPreview: em?.bodyPreview || '',\n        bodyContent: em?.bodyContent || em?.body?.content || ''\n      },\n      task: {\n        StartDate: today,\n        // P2-4: ActivityID is the email message ID for email-sourced tasks\n        ActivityID: em?.id || '',\n        Title: title,\n        Description: em?.bodyPreview || title,\n        Status: 'New',\n        Category: category,\n        CategoryCode: catCode,\n        SubCategory: subcategory,\n        SubCategoryCode: subCatCode,\n        // P2-4: Categorization composite mirrors the bulk-assignment pattern\n        Categorization: category && subcategory ? `${category}-${subcategory}` : (category || ''),\n        PrimaryDSU: primaryDSU,\n        AssignedTo: assignee,\n        AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU,\n        // P2-4: Support fields populated from cascading category lookup\n        supportingAssignedTo: coassignee,\n        SupportAssignedTo: coassignee,\n        SupportAssignedToTitle: supportAssignedToTitle,\n        SupportDSU: supportDSU,\n        SupportDSUKey: supportDSU,\n        Priority: priority,\n        Timeline: timeline,\n        // P2-4: Use tomorrow as default acknowledgement/task due (was today,\n        // which is unworkable in practice). Server may override.\n        AckDue: tomorrow,\n        TaskDue: tomorrow,\n        AcknowledgementDueBy: tomorrow,\n        // Schema explicitly lists this typo'd field name (AcknolwedgementDueBy)\n        // — sending both for forward/backward compatibility.\n        AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: ccList,\n        ActionRequired: actionReq,\n        Comments: comments,\n        CreatedBy: AppState.currentUser.email,\n        AttachmentLink: em?.webLink || '',\n        // P2-4: Pre-reference ID for traceability\n        PreReferenceID: refIdStub\n      },\n      selection: { single: { ID: em?.id || '', RefIDD: '', Title: em?.subject || '' }, items: [] },\n      assignment: { type: 'emailtask' }\n    }\n  }"
+        }
+      ],
+      "source_code": "async function submitEmailTask() {\n  const em = AppState.selectedEmail;\n  const title = (document.getElementById('etask-title')?.value || '').trim();\n  const category = document.getElementById('etask-category')?.value || '';\n  const subcategory = document.getElementById('etask-subcategory')?.value || '';\n  const assignee = (document.getElementById('etask-assignee')?.value || '').trim();\n  const priority = document.getElementById('etask-priority')?.value || 'P3 (Normal)';\n  const comments = (document.getElementById('etask-comments')?.value || '').trim();\n  const coassignee = (document.getElementById('etask-coassignee')?.value || '').trim();\n  const actionReq = document.getElementById('etask-action-req')?.value || '';\n  const ccList = [..._etaskCCTags].join(';');\n\n  // Find category record and derive cascading defaults (P2-4: full alignment\n  // with the documented CREATE_EMAIL_TASK_ASSIGNMENT_TRIGGER_SCHEMA — mirrors\n  // the same default-derivation logic used by selectCategory() on the regular\n  // assignment screen, so category-driven fields land in the payload.)\n  const catRecord = AppState.categories.find(c => c.Category === category && (!subcategory || c.Subcategory === subcategory));\n  const catCode = String(catRecord?.['Category Code'] || '').trim();\n  const subCatCode = catRecord ? (catRecord['SubCategory Code'] || '') : '';\n  const primaryDSU = catRecord ? (catRecord['Default Primary Responsible'] || '') : '';\n  const supportDSU = catRecord ? (catRecord['Default Supporting Department/Unit'] || '') : '';\n  const timeline = catRecord ? (catRecord.Timeline || '') : '';\n  const dept = AppState.departments.find(d => d.DSU_KEY === primaryDSU);\n  const assignedToTitle = dept ? (dept.DSU_HeadTitle || assignee) : assignee;\n  const supportDept = supportDSU ? AppState.departments.find(d => d.DSU_KEY === supportDSU) : null;\n  const supportAssignedToTitle = supportDept ? (supportDept.DSU_HeadTitle || '') : '';\n  const today = new Date().toISOString().split('T')[0];\n  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];\n\n  // P2-4: Sender is required as an object per the schema; current AppState\n  // models it as a flat string from Microsoft Graph normalization. Reconstruct\n  // the canonical {name, address} shape, with safe fallbacks.\n  const fromAddrObj = (em && (em.fromAddress || em.fromName))\n    ? { address: em.fromAddress || em.from?.emailAddress?.address || '', name: em.fromName || em.from?.emailAddress?.name || '' }\n    : null;\n\n  // P2-4: Reference ID stub for traceability — server appends the SharePoint\n  // task numeric ID. Format mirrors the regular single-assignment flow.\n  const refIdStub = `${today.replace(/-/g, '')}-EML-${catCode || 'UNC'}--`;\n\n  const notifyEl = document.getElementById('modal-etask-preview-notify');\n  const confirmBtn = document.getElementById('etask-confirm-submit-btn');\n  if (confirmBtn) confirmBtn.disabled = true;\n  if (notifyEl) { notifyEl.className = 'notify-banner info show'; notifyEl.textContent = '⏳ Submitting task...'; }\n\n  const payload = {\n    action: 'emailtotaskassignment',\n    operation: 'createTaskFromEmail',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    payload: {\n      email: {\n        id: em?.id || '',\n        subject: em?.subject || title,\n        receivedDateTime: em?.receivedDateTime || new Date().toISOString(),\n        // P2-4: object form per schema (was bare string)\n        fromAddress: fromAddrObj,\n        webLink: em?.webLink || '',\n        conversationId: em?.conversationId || '',\n        internetMessageId: em?.internetMessageId || '',\n        bodyPreview: em?.bodyPreview || '',\n        bodyContent: em?.bodyContent || em?.body?.content || ''\n      },\n      task: {\n        StartDate: today,\n        // P2-4: ActivityID is the email message ID for email-sourced tasks\n        ActivityID: em?.id || '',\n        Title: title,\n        Description: em?.bodyPreview || title,\n        Status: 'New',\n        Category: category,\n        CategoryCode: catCode,\n        SubCategory: subcategory,\n        SubCategoryCode: subCatCode,\n        // P2-4: Categorization composite mirrors the bulk-assignment pattern\n        Categorization: category && subcategory ? `${category}-${subcategory}` : (category || ''),\n        PrimaryDSU: primaryDSU,\n        AssignedTo: assignee,\n        AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU,\n        // P2-4: Support fields populated from cascading category lookup\n        supportingAssignedTo: coassignee,\n        SupportAssignedTo: coassignee,\n        SupportAssignedToTitle: supportAssignedToTitle,\n        SupportDSU: supportDSU,\n        SupportDSUKey: supportDSU,\n        Priority: priority,\n        Timeline: timeline,\n        // P2-4: Use tomorrow as default acknowledgement/task due (was today,\n        // which is unworkable in practice). Server may override.\n        AckDue: tomorrow,\n        TaskDue: tomorrow,\n        AcknowledgementDueBy: tomorrow,\n        // Schema explicitly lists this typo'd field name (AcknolwedgementDueBy)\n        // — sending both for forward/backward compatibility.\n        AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: ccList,\n        ActionRequired: actionReq,\n        Comments: comments,\n        CreatedBy: AppState.currentUser.email,\n        AttachmentLink: em?.webLink || '',\n        // P2-4: Pre-reference ID for traceability\n        PreReferenceID: refIdStub\n      },\n      selection: { single: { ID: em?.id || '', RefIDD: '', Title: em?.subject || '' }, items: [] },\n      assignment: { type: 'emailtask' }\n    }\n  };\n\n  try {\n    const raw = await callAPI('E05', payload, 'Creating task from email...');\n    const data = parseResponse(raw);\n    const ref = data?.data?.referenceId || data?.data?.ReferenceID || '';\n    if (notifyEl) { notifyEl.className = 'notify-banner success show'; notifyEl.textContent = `✅ Task created successfully!${ref ? ' | Ref: ' + ref : ''}`; }\n    logTelemetry('Email Task Created', `Title: ${title} | Assignee: ${assignee}${coassignee ? ' | Co: ' + coassignee : ''}`, 'Success');\n    // Clear CC tags\n    _etaskCCTags.clear(); renderETaskCCTags();\n    setTimeout(() => { closeEmailTaskPreview(); closeEmailToTask(); }, 2000);\n  } catch(e) {\n    if (confirmBtn) confirmBtn.disabled = false;\n    if (notifyEl) { notifyEl.className = 'notify-banner error show'; notifyEl.textContent = `❌ Failed: ${e.message}`; }\n    logTelemetry('Email Task', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [
+        "emailtotaskassignment"
+      ],
+      "detected_operation_values": [
+        "createTaskFromEmail"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "endpoint_ids": [
+        "E05"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        4648,
+        4758
+      ],
+      "callAPI_endpoints": [
+        "E05"
+      ],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 4656,
+          "snippet": "{\n    action: 'singleassignment',\n    operation: 'create',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: a.type,\n    NewActivityTask: {\n      StartDate: today,\n      ActivityID: doc?.ID || '',\n      Title: doc?.Title || '',\n      Description: doc?.Description || '',\n      Status: 'New',\n      Category: a.selectedCategory,\n      CategoryCode: a.selectedCategoryCode,\n      SubCategory: a.selectedSubCategory,\n      SubCategoryCode: a.selectedSubCategoryCode,\n      PrimaryDSU: a.selectedPrimaryDSU,\n      AssignedTo: a.selectedAssignedTo,\n      AssignedToTitle: a.selectedAssignedToTitle,\n      AssignedDSU: a.selectedPrimaryDSU,\n      supportingAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedToTitle: a.selectedSupportAssignedToTitle,\n      SupportDSU: a.selectedSupportDSU,\n      SupportDSUKey: a.selectedSupportDSU,\n      AckDue: tomorrow,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDue: tomorrow,\n      TaskDueDate: tomorrow,\n      Timeline: a.selectedTimeline || 'N/A',\n      CopyTo: a.selectedCopyTo,\n      Priority: a.selectedPriority,\n      PreReferenceID: refId,\n      Categorization: a.selectedCategory + '-' + a.selectedSubCategory,\n      AttachmentLink: doc?.AttachmentLink || '',\n      Comments: a.selectedComments,\n      ActionRequired: a.selectedActionRequired || '',\n      CreatedBy: AppState.currentUser.email\n    },\n    Selected: { ID: doc?.ID || '', RefIDD: String(doc?.ID || ''), Title: doc?.Title || '' },\n    payload: {\n      task: {\n        StartDate: today,\n        ActivityID: doc?.ID,\n        Title: doc?.Title,\n        Category: a.selectedCategory,\n        CategoryCode: a.selectedCategoryCode,\n        SubCategory: a.selectedSubCategory,\n        SubCategoryCode: a.selectedSubCategoryCode,\n        AssignedTo: a.selectedAssignedTo,\n        AssignedToTitle: a.selectedAssignedToTitle,\n        AssignedDSU: a.selectedPrimaryDSU,\n        PrimaryDSU: a.selectedPrimaryDSU,\n        supportingAssignedTo: a.selectedSupportAssignedTo,\n        SupportDSU: a.selectedSupportDSU,\n        Priority: a.selectedPriority,\n        AcknowledgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: a.selectedCopyTo,\n        PreReferenceID: refId,\n        Comments: a.selectedComments,\n        ActionRequired: a.selectedActionRequired || '',\n        CreatedBy: AppState.currentUser.email\n      },\n      selection: { single: { ID: doc?.ID, RefIDD: String(doc?.ID || ''), Title: doc?.Title }, items: [] },\n      assignment: { type: a.type }\n    }\n  }"
+        }
+      ],
+      "source_code": "async function submitAssignment() {\n  const a = AppState.assignment;\n  const doc = a.sourceDoc;\n  const today = new Date().toISOString().split('T')[0];\n  const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate() + 1);\n  const tomorrow = tomorrowDate.toISOString().split('T')[0];\n  const refId = a.previewRefId || `${today.replace(/-/g,'')}-${doc?.ID}-${a.selectedCategoryCode}-${a.selectedSubCategoryCode}-`;\n\n  const payload = {\n    action: 'singleassignment',\n    operation: 'create',\n    mode: 'single',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: a.type,\n    NewActivityTask: {\n      StartDate: today,\n      ActivityID: doc?.ID || '',\n      Title: doc?.Title || '',\n      Description: doc?.Description || '',\n      Status: 'New',\n      Category: a.selectedCategory,\n      CategoryCode: a.selectedCategoryCode,\n      SubCategory: a.selectedSubCategory,\n      SubCategoryCode: a.selectedSubCategoryCode,\n      PrimaryDSU: a.selectedPrimaryDSU,\n      AssignedTo: a.selectedAssignedTo,\n      AssignedToTitle: a.selectedAssignedToTitle,\n      AssignedDSU: a.selectedPrimaryDSU,\n      supportingAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedTo: a.selectedSupportAssignedTo,\n      SupportAssignedToTitle: a.selectedSupportAssignedToTitle,\n      SupportDSU: a.selectedSupportDSU,\n      SupportDSUKey: a.selectedSupportDSU,\n      AckDue: tomorrow,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDue: tomorrow,\n      TaskDueDate: tomorrow,\n      Timeline: a.selectedTimeline || 'N/A',\n      CopyTo: a.selectedCopyTo,\n      Priority: a.selectedPriority,\n      PreReferenceID: refId,\n      Categorization: a.selectedCategory + '-' + a.selectedSubCategory,\n      AttachmentLink: doc?.AttachmentLink || '',\n      Comments: a.selectedComments,\n      ActionRequired: a.selectedActionRequired || '',\n      CreatedBy: AppState.currentUser.email\n    },\n    Selected: { ID: doc?.ID || '', RefIDD: String(doc?.ID || ''), Title: doc?.Title || '' },\n    payload: {\n      task: {\n        StartDate: today,\n        ActivityID: doc?.ID,\n        Title: doc?.Title,\n        Category: a.selectedCategory,\n        CategoryCode: a.selectedCategoryCode,\n        SubCategory: a.selectedSubCategory,\n        SubCategoryCode: a.selectedSubCategoryCode,\n        AssignedTo: a.selectedAssignedTo,\n        AssignedToTitle: a.selectedAssignedToTitle,\n        AssignedDSU: a.selectedPrimaryDSU,\n        PrimaryDSU: a.selectedPrimaryDSU,\n        supportingAssignedTo: a.selectedSupportAssignedTo,\n        SupportDSU: a.selectedSupportDSU,\n        Priority: a.selectedPriority,\n        AcknowledgementDueBy: tomorrow,\n        TaskDueDate: tomorrow,\n        CopyTo: a.selectedCopyTo,\n        PreReferenceID: refId,\n        Comments: a.selectedComments,\n        ActionRequired: a.selectedActionRequired || '',\n        CreatedBy: AppState.currentUser.email\n      },\n      selection: { single: { ID: doc?.ID, RefIDD: String(doc?.ID || ''), Title: doc?.Title }, items: [] },\n      assignment: { type: a.type }\n    }\n  };\n\n  try {\n    const submitBtn = document.getElementById('btn-submit-assignment');\n    if (submitBtn) submitBtn.disabled = true;\n    showNotify('assign-notify', '⏳ Submitting assignment...', 'info');\n    const raw = await callAPI('E05', payload, 'Creating assignment...');\n    const data = parseResponse(raw);\n    const taskId = data?.data?.taskId || data?.data?.task?.ID || '';\n    const fullRef = refId + (taskId || '');\n    showNotify('assign-notify', `✅ Assignment created! Reference: ${fullRef}`, 'success');\n    logTelemetry('Assignment Submitted', `Doc ${doc?.ID} → ${a.selectedAssignedTo} | Ref: ${fullRef}`, 'Success');\n    // Immediately update local AppState so gallery reflects new assignment without re-fetch\n    if (doc?.ID) {\n      [AppState.docs, AppState.docsFiltered].forEach(arr => {\n        const d = arr.find(x => x.ID === doc.ID);\n        if (d) {\n          d.AssignedTo = a.selectedAssignedTo;\n          d.AssignmentStatus = 'Assigned';\n          if (a.selectedCategory) d.Category = a.selectedCategory;\n        }\n      });\n      updateKPIs();\n    }\n    // After 2.5s, navigate back to docs\n    setTimeout(() => { resetAssignmentForm(); navigateTo('docs'); }, 2500);\n  } catch(e) {\n    const submitBtn = document.getElementById('btn-submit-assignment');\n    if (submitBtn) submitBtn.disabled = false;\n    showNotify('assign-notify', `❌ Submit failed: ${e.message}`, 'error');\n  }\n}",
+      "detected_action_values": [
+        "singleassignment"
+      ],
+      "detected_operation_values": [
+        "create"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "endpoint_ids": [
+        "E05"
+      ]
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        4891,
+        4999
+      ],
+      "callAPI_endpoints": [],
+      "subsidiary_actions": [],
+      "payload_objects": [
+        {
+          "name": "payload",
+          "line": 4917,
+          "snippet": "{\n    action: 'bulkassignment',\n    operation: 'create',\n    mode: 'bulk',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: 'bulkassignment',\n    NewActivityTask: {\n      StartDate: today,\n      Title: '',\n      Status: 'New',\n      Category: category,\n      CategoryCode: catCode,\n      SubCategory: subcategory,\n      SubCategoryCode: subCatCode,\n      PrimaryDSU: primaryDSU,\n      AssignedTo: assignee,\n      AssignedToTitle: assignedToTitle,\n      AssignedDSU: primaryDSU,\n      supportingAssignedTo: '',\n      SupportAssignedTo: '',\n      SupportDSU: '',\n      Priority: priority,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDueDate: tomorrow,\n      Comments: comments,\n      CreatedBy: AppState.currentUser.email,\n      Timeline: 'N/A',\n      Categorization: category + '-' + subcategory\n    },\n    SelectedItems: selectedItemsPayload,\n    payload: {\n      task: {\n        Category: category, CategoryCode: catCode, SubCategory: subcategory, SubCategoryCode: subCatCode,\n        PrimaryDSU: primaryDSU, AssignedTo: assignee, AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU, Priority: priority, AcknowledgementDueBy: tomorrow, AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow, Comments: comments, CreatedBy: AppState.currentUser.email\n      },\n      selection: { items: selectedItemsPayload },\n      assignment: { type: 'bulkassignment' }\n    }\n  }"
+        }
+      ],
+      "source_code": "async function executeBulkAssign() {\n  const mode = AppState.bulkConfirmMode;\n  const selectedItems = AppState.docs.filter(d => AppState.selectedDocs.has(d.ID));\n  const category = document.getElementById('bulk-category').value;\n  const subcategory = document.getElementById('bulk-subcategory').value;\n  const assignee = document.getElementById('bulk-assignee').value.trim();\n  const priority = document.getElementById('bulk-priority').value;\n  const comments = document.getElementById('bulk-comments').value.trim();\n\n  document.getElementById('bulk-confirm-proceed-btn').disabled = true;\n  closeBulkConfirmModal();\n\n  const catRecord = AppState.categories.find(c => c.Category === category && (!subcategory || c.Subcategory === subcategory));\n  const catCode = catRecord ? catRecord['Category Code'] : '';\n  const subCatCode = catRecord ? catRecord['SubCategory Code'] : '';\n  const primaryDSU = catRecord ? catRecord['Default Primary Responsible'] : '';\n  const dept = AppState.departments.find(d => d.DSU_KEY === primaryDSU);\n  const assignedToTitle = dept ? dept.DSU_HeadTitle : assignee;\n  const today = new Date().toISOString().split('T')[0];\n  const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate() + 1);\n  const tomorrow = tomorrowDate.toISOString().split('T')[0];\n\n  const selectedItemsPayload = selectedItems.map(d => ({\n    ID: d.ID, RefIDD: String(d.ID), Title: d.Title\n  }));\n\n  const payload = {\n    action: 'bulkassignment',\n    operation: 'create',\n    mode: 'bulk',\n    source: 'DGO_FAST_Track_WEB_OPS',\n    userEmail: AppState.currentUser.email,\n    method: 'POST',\n    device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },\n    AssignmentType: 'bulkassignment',\n    NewActivityTask: {\n      StartDate: today,\n      Title: '',\n      Status: 'New',\n      Category: category,\n      CategoryCode: catCode,\n      SubCategory: subcategory,\n      SubCategoryCode: subCatCode,\n      PrimaryDSU: primaryDSU,\n      AssignedTo: assignee,\n      AssignedToTitle: assignedToTitle,\n      AssignedDSU: primaryDSU,\n      supportingAssignedTo: '',\n      SupportAssignedTo: '',\n      SupportDSU: '',\n      Priority: priority,\n      AcknowledgementDueBy: tomorrow,\n      AcknolwedgementDueBy: tomorrow,\n      TaskDueDate: tomorrow,\n      Comments: comments,\n      CreatedBy: AppState.currentUser.email,\n      Timeline: 'N/A',\n      Categorization: category + '-' + subcategory\n    },\n    SelectedItems: selectedItemsPayload,\n    payload: {\n      task: {\n        Category: category, CategoryCode: catCode, SubCategory: subcategory, SubCategoryCode: subCatCode,\n        PrimaryDSU: primaryDSU, AssignedTo: assignee, AssignedToTitle: assignedToTitle,\n        AssignedDSU: primaryDSU, Priority: priority, AcknowledgementDueBy: tomorrow, AcknolwedgementDueBy: tomorrow,\n        TaskDueDate: tomorrow, Comments: comments, CreatedBy: AppState.currentUser.email\n      },\n      selection: { items: selectedItemsPayload },\n      assignment: { type: 'bulkassignment' }\n    }\n  };\n\n  try {\n    showNotify('bulk-notify', `⏳ Submitting bulk assignment (${mode})...`, 'info');\n    const endpointKey = mode === 'optimized' ? 'E07' : 'E06';\n    const raw = await callAPI(endpointKey, payload, `Bulk assigning ${selectedItems.length} items...`, false, 90000);\n    const data = parseResponse(raw);\n    // Treat any successful HTTP 2xx response (already validated in callAPI) as success\n    // Check explicit failure indicators in response body\n    const explicitFail = data?.ok === false || data?.ok === 'False' || data?.status === 'error';\n    if (!explicitFail) {\n      const resultSummary = data?.data?.results\n        ? ` | Results: ${data.data.results.filter(r => r.success !== false).length}/${selectedItems.length} succeeded`\n        : '';\n      showNotify('bulk-notify', `✅ Bulk assignment completed! ${selectedItems.length} items assigned to ${assignee}.${resultSummary}`, 'success');\n      logTelemetry('Bulk Assignment', `${selectedItems.length} items → ${assignee} | Mode: ${mode}`, 'Success');\n      // Immediately update local AppState for all assigned items so gallery reflects changes without re-fetch\n      selectedItems.forEach(item => {\n        [AppState.docs, AppState.docsFiltered].forEach(arr => {\n          const d = arr.find(x => x.ID === item.ID);\n          if (d) {\n            d.AssignedTo = assignee;\n            d.AssignmentStatus = 'Assigned';\n            if (category) d.Category = category;\n          }\n        });\n      });\n      updateKPIs();\n      AppState.selectedDocs.clear();\n      updateBulkSelectUI();\n      setTimeout(() => navigateTo('docs'), 2000);\n    } else {\n      showNotify('bulk-notify', `⚠️ Assignment completed with reported warnings. Check telemetry for details.`, 'warning');\n      logTelemetry('Bulk Assignment', `Completed with warnings: ${JSON.stringify(data).slice(0,100)}`, 'Warning');\n    }\n  } catch(e) {\n    showNotify('bulk-notify', `❌ Bulk assign failed: ${e.message}`, 'error');\n  }\n}",
+      "detected_action_values": [
+        "bulkassignment"
+      ],
+      "detected_operation_values": [
+        "create"
+      ],
+      "detected_mode_values": [
+        "bulk"
+      ],
+      "endpoint_ids": []
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        3101,
+        3158
+      ],
+      "callAPI_endpoints": [],
+      "subsidiary_actions": [
+        "flagDocument"
+      ],
+      "payload_objects": [],
+      "source_code": "async function submitFlagAction() {\n  const action = AppState._pendingFlagAction;\n  const doc = AppState.selectedDoc;\n  if (!action || !doc) return;\n  const flagInfo = FLAG_ACTION_MAP[action];\n  const comments = document.getElementById('modal-flag-comments').value.trim();\n  const submitBtn = document.getElementById('modal-flag-submit-btn');\n  submitBtn.disabled = true;\n\n  const notifyEl = document.getElementById('modal-flag-notify');\n  notifyEl.className = 'notify-banner info show';\n  notifyEl.textContent = '⏳ Submitting flag action...';\n\n  try {\n    // AC6: route through executeSubsidiaryAction dispatcher\n    const raw = await executeSubsidiaryAction('flagDocument', doc.ID, doc.Title, {\n      operation: 'update',\n      mode: 'single',\n      FlagAction: {\n        DocumentID: doc.ID,\n        DocumentTitle: doc.Title,\n        FlagType: flagInfo.type,\n        FlagLabel: flagInfo.label,\n        Comments: comments,\n        FlaggedBy: AppState.currentUser.email,\n        FlaggedByName: AppState.currentUser.name,\n        Timestamp: new Date().toISOString(),\n        StartDate: new Date().toISOString().split('T')[0]\n      },\n      payload: {\n        flag: {\n          DocumentID: doc.ID,\n          FlagType: flagInfo.type,\n          Comments: comments,\n          FlaggedBy: AppState.currentUser.email,\n          Timestamp: new Date().toISOString()\n        }\n      }\n    }, 'Submitting flag...');\n\n    const data = parseResponse(raw);\n    const flagOkVal = data?.ok;\n    const flagIsOk = flagOkVal === true || String(flagOkVal).toLowerCase() === 'true' || flagOkVal === undefined;\n    if (!flagIsOk) {\n      throw new Error(`Flow returned ok: ${flagOkVal} — ${data?.status?.message || 'unknown error'}`);\n    }\n    const flagRef = data?.data?.referenceId || data?.data?.ReferenceID || data?.data?.taskId || '';\n    notifyEl.className = 'notify-banner success show';\n    notifyEl.textContent = `✅ ${flagInfo.label} flagged successfully for: ${doc.Title}${flagRef ? ' | Ref: ' + flagRef : ''}`;\n    logTelemetry('Flag Action', `${flagInfo.type} on Doc ${doc.ID} — \"${doc.Title}\"${flagRef ? ' | Ref: ' + flagRef : ''}`, 'Success');\n    setTimeout(() => closeFlagModal(), 1800);\n  } catch(e) {\n    notifyEl.className = 'notify-banner error show';\n    notifyEl.textContent = `❌ Failed to submit flag: ${e.message}`;\n    submitBtn.disabled = false;\n    logTelemetry('Flag Action', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [],
+      "detected_operation_values": [
+        "update"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "endpoint_ids": []
+    },
+    {
+      "parameters": [],
+      "source_lines": [
+        3313,
+        3382
+      ],
+      "callAPI_endpoints": [],
+      "subsidiary_actions": [
+        "updateTask"
+      ],
+      "payload_objects": [],
+      "source_code": "async function submitTaskUpdate() {\n  const task = AppState.selectedTask;\n  if (!task) return;\n  const progress = document.getElementById('modal-task-progress').value;\n  const priority = document.getElementById('modal-task-priority').value;\n  const comments = document.getElementById('modal-task-comments').value.trim();\n  const notifyEl = document.getElementById('modal-task-update-notify');\n  const submitBtn = document.querySelector('#modal-task-update .modal-footer .btn-primary');\n  if (submitBtn) submitBtn.disabled = true;\n\n  notifyEl.className = 'notify-banner info show';\n  notifyEl.textContent = '⏳ Submitting update...';\n\n  try {\n    // AC6: route through executeSubsidiaryAction dispatcher\n    const raw = await executeSubsidiaryAction('updateTask', task.ID, task.Title, {\n      operation: 'update',\n      mode: 'single',\n      TaskUpdate: {\n        TaskID: task.ID,\n        TaskTitle: task.Title,\n        ReferenceID: task.Reference_ID || task.RefIDD || '',\n        Progress: progress || task.Progress,\n        Priority: priority || task.Priority,\n        Comments: comments,\n        UpdatedBy: AppState.currentUser.email,\n        UpdatedByName: AppState.currentUser.name,\n        UpdatedAt: new Date().toISOString(),\n        StartDate: new Date().toISOString().split('T')[0]\n      },\n      payload: {\n        task: {\n          TaskID: task.ID,\n          Progress: progress || task.Progress,\n          Priority: priority || task.Priority,\n          Comments: comments,\n          UpdatedBy: AppState.currentUser.email,\n          UpdatedAt: new Date().toISOString()\n        }\n      }\n    }, 'Updating task...');\n\n    const data = parseResponse(raw);\n    const updateOkVal = data?.ok;\n    const updateIsOk = updateOkVal === true || String(updateOkVal).toLowerCase() === 'true' || updateOkVal === undefined;\n    if (!updateIsOk) {\n      throw new Error(`Flow returned ok: ${updateOkVal} — ${data?.status?.message || 'unknown error'}`);\n    }\n    const updateRef = data?.data?.referenceId || data?.data?.ReferenceID || '';\n    notifyEl.className = 'notify-banner success show';\n    notifyEl.textContent = `✅ Task updated successfully!${updateRef ? ' | Ref: ' + updateRef : ''}`;\n    logTelemetry('Task Update', `Task ${task.ID} — Progress: ${progress} | Priority: ${priority}${updateRef ? ' | Ref: ' + updateRef : ''}`, 'Success');\n    // Update local state to reflect changes without full refetch\n    if (progress) AppState.selectedTask.Progress = progress;\n    if (priority) AppState.selectedTask.Priority = priority;\n    const taskInList = AppState.tasks.find(t => t.ID === task.ID);\n    if (taskInList) {\n      if (progress) taskInList.Progress = progress;\n      if (priority) taskInList.Priority = priority;\n    }\n    renderTaskDetail(AppState.selectedTask);\n    renderTasksGallery(AppState.tasksFiltered);\n    setTimeout(() => closeTaskUpdateModal(), 1500);\n  } catch(e) {\n    notifyEl.className = 'notify-banner error show';\n    notifyEl.textContent = `❌ Update failed: ${e.message}`;\n    if (submitBtn) submitBtn.disabled = false;\n    logTelemetry('Task Update', `Failed: ${e.message}`, 'Error');\n  }\n}",
+      "detected_action_values": [],
+      "detected_operation_values": [
+        "update"
+      ],
+      "detected_mode_values": [
+        "single"
+      ],
+      "endpoint_ids": []
+    }
+  ],
+  "call_sites": [
+    {
+      "endpoint": "E05",
+      "second_arg": "basePayload",
+      "line": 2693
+    },
+    {
+      "endpoint": "E01",
+      "second_arg": "payload",
+      "line": 2738
+    },
+    {
+      "endpoint": "E02",
+      "second_arg": "payload",
+      "line": 2823
+    },
+    {
+      "endpoint": "E03",
+      "second_arg": "payload",
+      "line": 3180
+    },
+    {
+      "endpoint": "E04",
+      "second_arg": "payload",
+      "line": 3438
+    },
+    {
+      "endpoint": "E04",
+      "second_arg": "payload",
+      "line": 3476
+    },
+    {
+      "endpoint": "E05",
+      "second_arg": "payload",
+      "line": 4032
+    },
+    {
+      "endpoint": "E05",
+      "second_arg": "payload",
+      "line": 4733
+    },
+    {
+      "endpoint": "E02",
+      "second_arg": "payload",
+      "line": 5333
+    },
+    {
+      "endpoint": "E03",
+      "second_arg": "payload",
+      "line": 5399
+    }
+  ],
+  "app_state": {
+    "source_lines": [
+      2082,
+      2172
+    ],
+    "top_level_keys": [
+      "currentUser",
+      "users",
+      "categories",
+      "departments",
+      "docs",
+      "docsFiltered",
+      "tasks",
+      "tasksFiltered",
+      "emails",
+      "emailsFiltered",
+      "selectedDoc",
+      "selectedTask",
+      "selectedEmail",
+      "selectedDocs",
+      "currentScreen",
+      "assignment",
+      "assigneeTab",
+      "emailTaskState",
+      "rt",
+      "telemetry",
+      "sidebarCollapsed",
+      "docsFilterRow",
+      "tasksFilterRow",
+      "emailsPage",
+      "emailsPageSize",
+      "emailsTotalKnown",
+      "bulkConfirmMode",
+      "_pendingFlagAction",
+      "docsPage",
+      "docsPageSize",
+      "docsTotalKnown",
+      "tasksPage",
+      "tasksPageSize",
+      "tasksTotalKnown",
+      "_fetching"
+    ]
+  },
+  "constants_source": {
+    "ENDPOINTS": {
+      "source_lines": [
+        2016,
+        2077
+      ],
+      "source_code": "const ENDPOINTS = {\n  E01: {\n    name: 'Fetch_References_and_Lookups_Data',\n    purpose: 'Fetch references + lookup datasets',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU'\n  },\n  E02: {\n    name: 'Get Docs',\n    purpose: 'Retrieve documents',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50'\n  },\n  E03: {\n    name: 'fetch tasks',\n    purpose: 'Fetch tasks list/data',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4'\n  },\n  E04: {\n    name: 'get emails',\n    purpose: 'Retrieve emails',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U'\n  },\n  E05: {\n    name: 'Deployed Create task',\n    purpose: 'Create a task (deployed flow)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  },\n  E06: {\n    name: 'bulk Assign direct',\n    purpose: 'Bulk assignment (direct)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE'\n  },\n  E07: {\n    name: 'optimized bulk assign',\n    purpose: 'Bulk assignment (optimized)',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4'\n  },\n  E08: {\n    name: 'Flag Document Action',\n    purpose: 'Flag document (DG Attention, Follow-Up, INT, UNC) — routes through E05 create-task flow with flagDocument action',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  },\n  E10: {\n    name: 'Update Task',\n    purpose: 'Update task progress, priority or add comments — routes through E05 create-task flow with updateTask action',\n    method: 'POST',\n    url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ'\n  },\n  E09: {\n    name: 'Send Email (Not Configured)',\n    purpose: 'Outbound email operations (compose, reply, forward) — PENDING PROVISIONING. No Power Automate flow deployed.',\n    method: 'POST',\n    url: ''\n  }\n}"
+    },
+    "AppState": {
+      "source_lines": [
+        2082,
+        2172
+      ],
+      "source_code": "const AppState = {\n  // User\n  currentUser: { email: '', name: '', role: 'Staff' },\n  // Reference data (from E01)\n  users: [],\n  categories: [],\n  departments: [],\n  // Working collections\n  docs: [],\n  docsFiltered: [],\n  tasks: [],\n  tasksFiltered: [],\n  emails: [],\n  emailsFiltered: [],\n  // Selection\n  selectedDoc: null,\n  selectedTask: null,\n  selectedEmail: null,\n  selectedDocs: new Set(), // For bulk selection\n  // Screen state\n  currentScreen: 'home',\n  // Assignment form state\n  assignment: {\n    type: 'newassignment',\n    sourceDoc: null,\n    selectedCategory: '',\n    selectedCategoryCode: '',\n    selectedSubCategory: '',\n    selectedSubCategoryCode: '',\n    selectedPrimaryDSU: '',\n    selectedAssignedTo: '',\n    selectedAssignedToTitle: '',\n    selectedSupportAssignedTo: '',\n    selectedSupportAssignedToTitle: '',\n    selectedSupportDSU: '',\n    selectedSupportDSUKey: '',\n    selectedCopyTo: '',\n    selectedInfoDSU1: '',\n    selectedInfoDSU2: '',\n    selectedInfoDSU3: '',\n    selectedTimeline: '',\n    selectedPriority: 'P3 (Normal)',\n    selectedActionRequired: '',\n    selectedComments: '',\n    mode: 'entry' // entry | comments | preview\n  },\n  // Assignee tab\n  assigneeTab: 'dept',\n  // Email-to-task\n  emailTaskState: {\n    selectedEmail: null,\n    assignee: '',\n    assigneeName: '',\n    assigneeDSU: ''\n  },\n  // Response track — P2-6: docs/tasks/emails are now read directly from the\n  // main AppState collections; only the matched-pairs index lives here since\n  // it's a derived view not stored elsewhere.\n  rt: {\n    activeTab: 'docs',\n    colMatchedDocs: [],\n    colDocEmailPairs: []\n  },\n  // Telemetry\n  telemetry: [],\n  // UI\n  sidebarCollapsed: false,\n  docsFilterRow: false,\n  tasksFilterRow: false,\n  // Email pagination\n  emailsPage: 0,\n  emailsPageSize: 50,\n  emailsTotalKnown: false,\n  // Bulk confirm pending\n  bulkConfirmMode: '',\n  // Flag action pending\n  _pendingFlagAction: null,\n  // Pagination state for docs and tasks\n  docsPage: 0,\n  docsPageSize: 100,\n  docsTotalKnown: false,\n  tasksPage: 0,\n  tasksPageSize: 100,\n  tasksTotalKnown: false,\n  // Concurrent-fetch guard: prevents duplicate in-flight requests per endpoint key\n  _fetching: {\n    E01: false, E02: false, E03: false, E04: false,\n    E05: false, E06: false, E07: false, E08: false,\n    E09: false, E10: false\n  }\n}"
+    },
+    "NAV_CONFIG": {
+      "source_lines": [
+        2177,
+        2203
+      ],
+      "source_code": "const NAV_CONFIG = {\n  // Admin (dgsregistry, dgs)\n  Admin: [\n    { id: 'home', label: 'Home', icon: 'home' },\n    { id: 'docs', label: 'Documents', icon: 'docs', badge: 'docs_unassigned' },\n    { id: 'tasks', label: 'Tasks', icon: 'tasks' },\n    { id: 'emails', label: 'Emails', icon: 'mail' },\n    { id: 'response-track', label: 'Response Track', icon: 'track' },\n    { id: 'telemetry', label: 'Telemetry', icon: 'chart' }\n  ],\n  // DGCEO (dg)\n  DGCEO: [\n    { id: 'home', label: 'Home', icon: 'home' },\n    { id: 'docs', label: 'Activities', icon: 'docs' },\n    { id: 'tasks', label: 'Tasks', icon: 'tasks' },\n    { id: 'emails', label: 'Emails', icon: 'mail' },\n    { id: 'response-track', label: 'Response Track', icon: 'track' },\n    { id: 'telemetry', label: 'Info', icon: 'chart' }\n  ],\n  // Default Staff\n  Staff: [\n    { id: 'home', label: 'Home', icon: 'home' },\n    { id: 'tasks', label: 'Tasks', icon: 'tasks' },\n    { id: 'emails', label: 'Emails', icon: 'mail' },\n    { id: 'telemetry', label: 'Info', icon: 'chart' }\n  ]\n}"
+    },
+    "SCREEN_TITLES": {
+      "source_lines": [
+        2404,
+        2413
+      ],
+      "source_code": "const SCREEN_TITLES = {\n  home: 'Home Dashboard',\n  docs: 'Documents & Activities',\n  assign: 'Activity Assignment',\n  tasks: 'Tasks Tracking',\n  emails: 'Email Client',\n  'response-track': 'Response Track',\n  'bulk-assign': 'Bulk Assignment',\n  telemetry: 'Telemetry & Settings'\n}"
+    },
+    "FLAG_ACTION_MAP": {
+      "source_lines": [
+        3070,
+        3075
+      ],
+      "source_code": "const FLAG_ACTION_MAP = {\n  dg: { label: '⚑ For DG Attention', type: 'DGAttention', color: 'var(--warning)' },\n  followup: { label: '📌 Follow-Up', type: 'FollowUp', color: 'var(--brand-secondary)' },\n  int: { label: 'INT — Internal Routing', type: 'INT', color: 'var(--accent-blue)' },\n  unc: { label: 'UNC — Urgent/No Comment', type: 'UNC', color: 'var(--error)' }\n}"
+    }
+  },
+  "parse_response_source": {
+    "name": "parseResponse",
+    "signature": "function parseResponse(raw)",
+    "parameters": [
+      "raw"
+    ],
+    "source_lines": [
+      2697,
+      2712
+    ],
+    "source_code": "function parseResponse(raw) {\n  // Handle double-stringified JSON (Power Automate sometimes returns JSON string)\n  let data = raw;\n  if (typeof data === 'string') {\n    try { data = JSON.parse(data); } catch {}\n  }\n  // If still string, might be double-stringified (PA flow serialisation artefact)\n  if (typeof data === 'string' && data.startsWith('\"')) {\n    try {\n      data = JSON.parse(data);\n      // Log a warning so operators can detect and fix PA flow serialisation issues\n      logTelemetry('parseResponse', 'Double-stringified JSON detected and unwrapped — check PA flow response serialisation', 'Warning', 0);\n    } catch {}\n  }\n  return data;\n}"
+  },
+  "callapi_source": {
+    "name": "callAPI",
+    "signature": "async function callAPI(endpointKey, payload, loaderMsg = 'Loading...', suppressLoader = false, timeoutMs = 30000)",
+    "parameters": [
+      "endpointKey",
+      "payload",
+      "loaderMsg = 'Loading...'",
+      "suppressLoader = false",
+      "timeoutMs = 30000"
+    ],
+    "source_lines": [
+      2616,
+      2666
+    ],
+    "source_code": "async function callAPI(endpointKey, payload, loaderMsg = 'Loading...', suppressLoader = false, timeoutMs = 30000) {\n  const ep = ENDPOINTS[endpointKey];\n  if (!ep) throw new Error(`Unknown endpoint: ${endpointKey}`);\n  // Concurrent-fetch guard: reject duplicate in-flight requests for the same endpoint key\n  if (AppState._fetching && AppState._fetching[endpointKey]) {\n    const skipMsg = `${ep.name}: duplicate request blocked — already in flight`;\n    logTelemetry(ep.name, skipMsg, 'Warning', 0);\n    throw new Error(skipMsg);\n  }\n  if (AppState._fetching) AppState._fetching[endpointKey] = true;\n  if (!suppressLoader) showLoader(loaderMsg);\n  const start = Date.now();\n  // Generate correlation ID for tracing (D-0009)\n  const correlationId = (typeof crypto !== 'undefined' && crypto.randomUUID)\n    ? crypto.randomUUID()\n    : Date.now().toString(36) + Math.random().toString(36).slice(2);\n  // AbortController with configurable timeout (D-0010, P1-5)\n  const controller = new AbortController();\n  const effectiveTimeout = Number(timeoutMs) > 0 ? Number(timeoutMs) : 30000;\n  const timeoutId = setTimeout(() => controller.abort(), effectiveTimeout);\n  try {\n    const resp = await fetch(ep.url, {\n      method: ep.method,\n      headers: { 'Content-Type': 'application/json', 'X-Correlation-ID': correlationId },\n      body: JSON.stringify({ ...payload, correlationId }),\n      signal: controller.signal\n    });\n    clearTimeout(timeoutId);\n    const durationMs = Date.now() - start;\n    if (!resp.ok) {\n      const errText = await resp.text();\n      logTelemetry(ep.name, `HTTP ${resp.status}: ${errText.slice(0, 100)} [cid:${correlationId.slice(0,8)}]`, 'Error', durationMs);\n      throw new Error(`HTTP ${resp.status}: ${errText.slice(0, 200)}`);\n    }\n    let data;\n    const text = await resp.text();\n    try { data = JSON.parse(text); } catch { data = text; }\n    logTelemetry(ep.name, `Success • ${typeof data === 'object' ? JSON.stringify(data).length : text.length} bytes [cid:${correlationId.slice(0,8)}]`, 'Success', durationMs);\n    setLastUpdated();\n    return data;\n  } catch(e) {\n    clearTimeout(timeoutId);\n    const durationMs = Date.now() - start;\n    const msg = e.name === 'AbortError' ? `Request timed out after ${Math.round(effectiveTimeout/1000)} seconds` : (e.message || 'Network error');\n    logTelemetry(ep.name, `${msg} [cid:${correlationId.slice(0,8)}]`, 'Error', durationMs);\n    throw new Error(msg);\n  } finally {\n    if (AppState._fetching) AppState._fetching[endpointKey] = false;\n    if (!suppressLoader) hideLoader();\n  }\n}"
+  },
+  "flow_related_form_controls": [
+    {
+      "tag": "input",
+      "id": "email-input",
+      "type": "email",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "254",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✅ View Tasks",
+      "onclick": "navigateTo('tasks')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "📧 View Emails",
+      "onclick": "navigateTo('emails')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "View all →",
+      "onclick": "navigateTo('tasks')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Fetch Docs",
+      "onclick": "fetchDocs()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "btn-show-filters",
+      "type": "",
+      "label_or_text": "🔽 Filters",
+      "onclick": "toggleDocsFilters()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "btn-bulk-assign",
+      "type": "",
+      "label_or_text": "👥 Bulk Assign Selected ( 0 )",
+      "onclick": "openBulkAssign()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "docs-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterDocs()",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "filter-assigned-to",
+      "type": "",
+      "label_or_text": "All Assignees",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Assignees"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "filter-category",
+      "type": "",
+      "label_or_text": "All Categories",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Categories"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "filter-status",
+      "type": "",
+      "label_or_text": "All Statuses",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Statuses"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "filter-assignment-status",
+      "type": "",
+      "label_or_text": "All Assignment Assigned Not Assigned Processed",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Assignment",
+        "Assigned",
+        "Not Assigned",
+        "Processed"
+      ]
+    },
+    {
+      "tag": "input",
+      "id": "filter-date-from",
+      "type": "date",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "filter-date-to",
+      "type": "date",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "filterDocs()",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕ Reset",
+      "onclick": "resetDocsFilters()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "➕ Assign",
+      "onclick": "openAssignmentFromDoc()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "⚑ DG Attention",
+      "onclick": "flagDocAction('dg')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "📌 Follow-Up",
+      "onclick": "flagDocAction('followup')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "INT",
+      "onclick": "flagDocAction('int')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "UNC",
+      "onclick": "flagDocAction('unc')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "New Assignment",
+      "onclick": "setAssignType('newassignment',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Re-Assignment",
+      "onclick": "setAssignType('reassignment',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "cat-clear-btn",
+      "type": "button",
+      "label_or_text": "✕",
+      "onclick": "clearField('category')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "cat-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterCatDropdown()",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "assignee-toggle-label",
+      "type": "button",
+      "label_or_text": "👤 Click to select Assignee",
+      "onclick": "toggleAssigneeDropdown()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "assignee-clear-btn",
+      "type": "button",
+      "label_or_text": "✕",
+      "onclick": "clearField('assignee')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "assignee-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterAssigneeList()",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "coassignee-toggle-label",
+      "type": "button",
+      "label_or_text": "👥 Click to select Co-Assignee (optional)",
+      "onclick": "toggleCoAssigneeDropdown()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "coassignee-clear-btn",
+      "type": "button",
+      "label_or_text": "✕",
+      "onclick": "clearField('coassignee')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "coassignee-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterCoAssigneeList()",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "cc-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterCCList()",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "priority-toggle-label",
+      "type": "button",
+      "label_or_text": "⭐ Priority: P3 (Normal)",
+      "onclick": "togglePriorityDropdown()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "priority-clear-btn",
+      "type": "button",
+      "label_or_text": "✕",
+      "onclick": "clearField('priority')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "🔴 P1 (High)",
+      "onclick": "setPriority('P1 (High)',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "🟡 P2 (Medium)",
+      "onclick": "setPriority('P2 (Medium)',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "🟢 P3 (Normal)",
+      "onclick": "setPriority('P3 (Normal)',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "⚪ P4 (Low)",
+      "onclick": "setPriority('P4 (Low)',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "action-req-label",
+      "type": "button",
+      "label_or_text": "🎯 Action Required: Not Set",
+      "onclick": "toggleActionReqDropdown()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "action-req-clear-btn",
+      "type": "button",
+      "label_or_text": "✕",
+      "onclick": "clearField('actionreq')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Review",
+      "onclick": "setActionReq('Review',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Approval",
+      "onclick": "setActionReq('Approval',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Information",
+      "onclick": "setActionReq('Information',this)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "textarea",
+      "id": "comments-textarea",
+      "type": "",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "2000",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Fetch Tasks",
+      "onclick": "fetchTasks()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "🔽 Filters",
+      "onclick": "toggleTaskFilters()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "tasks-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterTasks()",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "filter-task-status",
+      "type": "",
+      "label_or_text": "All Progress Not started In progress Completed Deferred",
+      "onclick": "",
+      "onchange": "filterTasks()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Progress",
+        "Not started",
+        "In progress",
+        "Completed",
+        "Deferred"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "filter-task-priority",
+      "type": "",
+      "label_or_text": "All Priority High Medium Normal Low N/A",
+      "onclick": "",
+      "onchange": "filterTasks()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "All Priority",
+        "High",
+        "Medium",
+        "Normal",
+        "Low",
+        "N/A"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "filter-task-classification",
+      "type": "",
+      "label_or_text": "(Fetch tasks to populate)",
+      "onclick": "",
+      "onchange": "filterTasks()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "(Fetch tasks to populate)"
+      ]
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕ Reset",
+      "onclick": "resetTaskFilters()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕",
+      "onclick": "closeTaskDetail()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "tasks-load-more-btn",
+      "type": "",
+      "label_or_text": "⬇️ Load More Tasks",
+      "onclick": "loadMoreTasks()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Fetch Emails",
+      "onclick": "fetchEmails()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "email-folder-select",
+      "type": "",
+      "label_or_text": "📥 Inbox 📤 Sent Items 📝 Drafts 🗑️ Deleted 📦 Archive",
+      "onclick": "",
+      "onchange": "fetchEmails()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "📥 Inbox",
+        "📤 Sent Items",
+        "📝 Drafts",
+        "🗑️ Deleted",
+        "📦 Archive"
+      ]
+    },
+    {
+      "tag": "input",
+      "id": "unread-only",
+      "type": "checkbox",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "fetchEmails()",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✉️ Compose",
+      "onclick": "showEmailStub('compose')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "emails-search",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterEmails()",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "email-load-more-btn",
+      "type": "",
+      "label_or_text": "⬇️ Load More",
+      "onclick": "loadMoreEmails()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "↩️ Reply",
+      "onclick": "showEmailStub('reply')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "↪️ Forward",
+      "onclick": "showEmailStub('forward')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "➕ Create Task",
+      "onclick": "openEmailToTask()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕ Cancel",
+      "onclick": "closeEmailToTask()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "etask-title",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "255",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "etask-category",
+      "type": "",
+      "label_or_text": "Select Category...",
+      "onclick": "",
+      "onchange": "onETaskCategoryChange()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "Select Category..."
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "etask-subcategory",
+      "type": "",
+      "label_or_text": "Select Sub-Category...",
+      "onclick": "",
+      "onchange": "applyETaskCategoryCascade()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "Select Sub-Category..."
+      ]
+    },
+    {
+      "tag": "input",
+      "id": "etask-assignee",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterEmailTaskUsers()",
+      "maxlength": "254",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "etask-priority",
+      "type": "",
+      "label_or_text": "P3 (Normal) P1 (High) P2 (Medium) P4 (Low)",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "P3 (Normal)",
+        "P1 (High)",
+        "P2 (Medium)",
+        "P4 (Low)"
+      ]
+    },
+    {
+      "tag": "input",
+      "id": "etask-coassignee",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterEmailTaskCoAssignee()",
+      "maxlength": "254",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "etask-cc",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterEmailTaskCC()",
+      "maxlength": "254",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "etask-action-req",
+      "type": "",
+      "label_or_text": "Not Set Review Approval Information",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "Not Set",
+        "Review",
+        "Approval",
+        "Information"
+      ]
+    },
+    {
+      "tag": "textarea",
+      "id": "etask-comments",
+      "type": "",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "2000",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "👁️ Preview Task",
+      "onclick": "previewEmailTask()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Cancel",
+      "onclick": "closeEmailToTask()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "input",
+      "id": "rt-search-input",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "rtSearchFilter(this.value)",
+      "maxlength": "100",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "bulk-category",
+      "type": "",
+      "label_or_text": "Select Category...",
+      "onclick": "",
+      "onchange": "onBulkCategoryChange()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "Select Category..."
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "bulk-subcategory",
+      "type": "",
+      "label_or_text": "Select Sub-Category...",
+      "onclick": "",
+      "onchange": "applyBulkCategoryCascade()",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "Select Sub-Category..."
+      ]
+    },
+    {
+      "tag": "input",
+      "id": "bulk-assignee",
+      "type": "text",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "filterBulkUsers()",
+      "maxlength": "254",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "bulk-priority",
+      "type": "",
+      "label_or_text": "P3 (Normal) P1 (High) P2 (Medium) P4 (Low)",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "P3 (Normal)",
+        "P1 (High)",
+        "P2 (Medium)",
+        "P4 (Low)"
+      ]
+    },
+    {
+      "tag": "textarea",
+      "id": "bulk-comments",
+      "type": "",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "📤 Bulk Assign (Direct)",
+      "onclick": "submitBulkAssign('direct')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "⚡ Optimized Assign",
+      "onclick": "submitBulkAssign('optimized')",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "🔄 Reload Reference Data",
+      "onclick": "fetchLookups(false, true)",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕",
+      "onclick": "closeFlagModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "textarea",
+      "id": "modal-flag-comments",
+      "type": "",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "2000",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Cancel",
+      "onclick": "closeFlagModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "modal-flag-submit-btn",
+      "type": "",
+      "label_or_text": "✅ Submit Flag",
+      "onclick": "submitFlagAction()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕",
+      "onclick": "closeTaskUpdateModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "select",
+      "id": "modal-task-progress",
+      "type": "",
+      "label_or_text": "— Select — Not started In progress Completed Deferred",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "— Select —",
+        "Not started",
+        "In progress",
+        "Completed",
+        "Deferred"
+      ]
+    },
+    {
+      "tag": "select",
+      "id": "modal-task-priority",
+      "type": "",
+      "label_or_text": "P3 (Normal) P1 (High) P2 (Medium) P4 (Low)",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": [
+        "P3 (Normal)",
+        "P1 (High)",
+        "P2 (Medium)",
+        "P4 (Low)"
+      ]
+    },
+    {
+      "tag": "textarea",
+      "id": "modal-task-comments",
+      "type": "",
+      "label_or_text": "",
+      "onclick": "",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "2000",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "Cancel",
+      "onclick": "closeTaskUpdateModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "📤 Submit Update",
+      "onclick": "submitTaskUpdate()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕",
+      "onclick": "closeEmailTaskPreview()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✏️ Edit",
+      "onclick": "closeEmailTaskPreview()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "etask-confirm-submit-btn",
+      "type": "",
+      "label_or_text": "📤 Confirm & Submit",
+      "onclick": "submitEmailTask()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "✕",
+      "onclick": "closeBulkConfirmModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "",
+      "type": "",
+      "label_or_text": "❌ Cancel",
+      "onclick": "closeBulkConfirmModal()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    },
+    {
+      "tag": "button",
+      "id": "bulk-confirm-proceed-btn",
+      "type": "",
+      "label_or_text": "✅ Confirm & Assign",
+      "onclick": "executeBulkAssign()",
+      "onchange": "",
+      "oninput": "",
+      "maxlength": "",
+      "options": []
+    }
+  ],
+  "ui_handler_to_controls_map": {
+    "navigateTo": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✅ View Tasks",
+        "onclick": "navigateTo('tasks')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "📧 View Emails",
+        "onclick": "navigateTo('emails')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "View all →",
+        "onclick": "navigateTo('tasks')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "fetchDocs": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Fetch Docs",
+        "onclick": "fetchDocs()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "toggleDocsFilters": [
+      {
+        "tag": "button",
+        "id": "btn-show-filters",
+        "type": "",
+        "label_or_text": "🔽 Filters",
+        "onclick": "toggleDocsFilters()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "openBulkAssign": [
+      {
+        "tag": "button",
+        "id": "btn-bulk-assign",
+        "type": "",
+        "label_or_text": "👥 Bulk Assign Selected ( 0 )",
+        "onclick": "openBulkAssign()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterDocs": [
+      {
+        "tag": "input",
+        "id": "docs-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterDocs()",
+        "maxlength": "100",
+        "options": []
+      },
+      {
+        "tag": "select",
+        "id": "filter-assigned-to",
+        "type": "",
+        "label_or_text": "All Assignees",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Assignees"
+        ]
+      },
+      {
+        "tag": "select",
+        "id": "filter-category",
+        "type": "",
+        "label_or_text": "All Categories",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Categories"
+        ]
+      },
+      {
+        "tag": "select",
+        "id": "filter-status",
+        "type": "",
+        "label_or_text": "All Statuses",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Statuses"
+        ]
+      },
+      {
+        "tag": "select",
+        "id": "filter-assignment-status",
+        "type": "",
+        "label_or_text": "All Assignment Assigned Not Assigned Processed",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Assignment",
+          "Assigned",
+          "Not Assigned",
+          "Processed"
+        ]
+      },
+      {
+        "tag": "input",
+        "id": "filter-date-from",
+        "type": "date",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "input",
+        "id": "filter-date-to",
+        "type": "date",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "filterDocs()",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "resetDocsFilters": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕ Reset",
+        "onclick": "resetDocsFilters()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "openAssignmentFromDoc": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "➕ Assign",
+        "onclick": "openAssignmentFromDoc()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "flagDocAction": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "⚑ DG Attention",
+        "onclick": "flagDocAction('dg')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "📌 Follow-Up",
+        "onclick": "flagDocAction('followup')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "INT",
+        "onclick": "flagDocAction('int')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "UNC",
+        "onclick": "flagDocAction('unc')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "setAssignType": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "New Assignment",
+        "onclick": "setAssignType('newassignment',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Re-Assignment",
+        "onclick": "setAssignType('reassignment',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "clearField": [
+      {
+        "tag": "button",
+        "id": "cat-clear-btn",
+        "type": "button",
+        "label_or_text": "✕",
+        "onclick": "clearField('category')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "assignee-clear-btn",
+        "type": "button",
+        "label_or_text": "✕",
+        "onclick": "clearField('assignee')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "coassignee-clear-btn",
+        "type": "button",
+        "label_or_text": "✕",
+        "onclick": "clearField('coassignee')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "priority-clear-btn",
+        "type": "button",
+        "label_or_text": "✕",
+        "onclick": "clearField('priority')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "action-req-clear-btn",
+        "type": "button",
+        "label_or_text": "✕",
+        "onclick": "clearField('actionreq')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterCatDropdown": [
+      {
+        "tag": "input",
+        "id": "cat-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterCatDropdown()",
+        "maxlength": "100",
+        "options": []
+      }
+    ],
+    "toggleAssigneeDropdown": [
+      {
+        "tag": "button",
+        "id": "assignee-toggle-label",
+        "type": "button",
+        "label_or_text": "👤 Click to select Assignee",
+        "onclick": "toggleAssigneeDropdown()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterAssigneeList": [
+      {
+        "tag": "input",
+        "id": "assignee-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterAssigneeList()",
+        "maxlength": "100",
+        "options": []
+      }
+    ],
+    "toggleCoAssigneeDropdown": [
+      {
+        "tag": "button",
+        "id": "coassignee-toggle-label",
+        "type": "button",
+        "label_or_text": "👥 Click to select Co-Assignee (optional)",
+        "onclick": "toggleCoAssigneeDropdown()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterCoAssigneeList": [
+      {
+        "tag": "input",
+        "id": "coassignee-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterCoAssigneeList()",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterCCList": [
+      {
+        "tag": "input",
+        "id": "cc-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterCCList()",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "togglePriorityDropdown": [
+      {
+        "tag": "button",
+        "id": "priority-toggle-label",
+        "type": "button",
+        "label_or_text": "⭐ Priority: P3 (Normal)",
+        "onclick": "togglePriorityDropdown()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "setPriority": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🔴 P1 (High)",
+        "onclick": "setPriority('P1 (High)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🟡 P2 (Medium)",
+        "onclick": "setPriority('P2 (Medium)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🟢 P3 (Normal)",
+        "onclick": "setPriority('P3 (Normal)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "⚪ P4 (Low)",
+        "onclick": "setPriority('P4 (Low)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "P1": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🔴 P1 (High)",
+        "onclick": "setPriority('P1 (High)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "P2": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🟡 P2 (Medium)",
+        "onclick": "setPriority('P2 (Medium)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "P3": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🟢 P3 (Normal)",
+        "onclick": "setPriority('P3 (Normal)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "P4": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "⚪ P4 (Low)",
+        "onclick": "setPriority('P4 (Low)',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "toggleActionReqDropdown": [
+      {
+        "tag": "button",
+        "id": "action-req-label",
+        "type": "button",
+        "label_or_text": "🎯 Action Required: Not Set",
+        "onclick": "toggleActionReqDropdown()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "setActionReq": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Review",
+        "onclick": "setActionReq('Review',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Approval",
+        "onclick": "setActionReq('Approval',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Information",
+        "onclick": "setActionReq('Information',this)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "fetchTasks": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Fetch Tasks",
+        "onclick": "fetchTasks()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "toggleTaskFilters": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🔽 Filters",
+        "onclick": "toggleTaskFilters()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterTasks": [
+      {
+        "tag": "input",
+        "id": "tasks-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterTasks()",
+        "maxlength": "100",
+        "options": []
+      },
+      {
+        "tag": "select",
+        "id": "filter-task-status",
+        "type": "",
+        "label_or_text": "All Progress Not started In progress Completed Deferred",
+        "onclick": "",
+        "onchange": "filterTasks()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Progress",
+          "Not started",
+          "In progress",
+          "Completed",
+          "Deferred"
+        ]
+      },
+      {
+        "tag": "select",
+        "id": "filter-task-priority",
+        "type": "",
+        "label_or_text": "All Priority High Medium Normal Low N/A",
+        "onclick": "",
+        "onchange": "filterTasks()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "All Priority",
+          "High",
+          "Medium",
+          "Normal",
+          "Low",
+          "N/A"
+        ]
+      },
+      {
+        "tag": "select",
+        "id": "filter-task-classification",
+        "type": "",
+        "label_or_text": "(Fetch tasks to populate)",
+        "onclick": "",
+        "onchange": "filterTasks()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "(Fetch tasks to populate)"
+        ]
+      }
+    ],
+    "resetTaskFilters": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕ Reset",
+        "onclick": "resetTaskFilters()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeTaskDetail": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕",
+        "onclick": "closeTaskDetail()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "loadMoreTasks": [
+      {
+        "tag": "button",
+        "id": "tasks-load-more-btn",
+        "type": "",
+        "label_or_text": "⬇️ Load More Tasks",
+        "onclick": "loadMoreTasks()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "fetchEmails": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Fetch Emails",
+        "onclick": "fetchEmails()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "select",
+        "id": "email-folder-select",
+        "type": "",
+        "label_or_text": "📥 Inbox 📤 Sent Items 📝 Drafts 🗑️ Deleted 📦 Archive",
+        "onclick": "",
+        "onchange": "fetchEmails()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "📥 Inbox",
+          "📤 Sent Items",
+          "📝 Drafts",
+          "🗑️ Deleted",
+          "📦 Archive"
+        ]
+      },
+      {
+        "tag": "input",
+        "id": "unread-only",
+        "type": "checkbox",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "fetchEmails()",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "showEmailStub": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✉️ Compose",
+        "onclick": "showEmailStub('compose')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "↩️ Reply",
+        "onclick": "showEmailStub('reply')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "↪️ Forward",
+        "onclick": "showEmailStub('forward')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "filterEmails": [
+      {
+        "tag": "input",
+        "id": "emails-search",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterEmails()",
+        "maxlength": "100",
+        "options": []
+      }
+    ],
+    "loadMoreEmails": [
+      {
+        "tag": "button",
+        "id": "email-load-more-btn",
+        "type": "",
+        "label_or_text": "⬇️ Load More",
+        "onclick": "loadMoreEmails()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "openEmailToTask": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "➕ Create Task",
+        "onclick": "openEmailToTask()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeEmailToTask": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕ Cancel",
+        "onclick": "closeEmailToTask()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Cancel",
+        "onclick": "closeEmailToTask()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "onETaskCategoryChange": [
+      {
+        "tag": "select",
+        "id": "etask-category",
+        "type": "",
+        "label_or_text": "Select Category...",
+        "onclick": "",
+        "onchange": "onETaskCategoryChange()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "Select Category..."
+        ]
+      }
+    ],
+    "applyETaskCategoryCascade": [
+      {
+        "tag": "select",
+        "id": "etask-subcategory",
+        "type": "",
+        "label_or_text": "Select Sub-Category...",
+        "onclick": "",
+        "onchange": "applyETaskCategoryCascade()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "Select Sub-Category..."
+        ]
+      }
+    ],
+    "filterEmailTaskUsers": [
+      {
+        "tag": "input",
+        "id": "etask-assignee",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterEmailTaskUsers()",
+        "maxlength": "254",
+        "options": []
+      }
+    ],
+    "filterEmailTaskCoAssignee": [
+      {
+        "tag": "input",
+        "id": "etask-coassignee",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterEmailTaskCoAssignee()",
+        "maxlength": "254",
+        "options": []
+      }
+    ],
+    "filterEmailTaskCC": [
+      {
+        "tag": "input",
+        "id": "etask-cc",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterEmailTaskCC()",
+        "maxlength": "254",
+        "options": []
+      }
+    ],
+    "previewEmailTask": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "👁️ Preview Task",
+        "onclick": "previewEmailTask()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "rtSearchFilter": [
+      {
+        "tag": "input",
+        "id": "rt-search-input",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "rtSearchFilter(this.value)",
+        "maxlength": "100",
+        "options": []
+      }
+    ],
+    "onBulkCategoryChange": [
+      {
+        "tag": "select",
+        "id": "bulk-category",
+        "type": "",
+        "label_or_text": "Select Category...",
+        "onclick": "",
+        "onchange": "onBulkCategoryChange()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "Select Category..."
+        ]
+      }
+    ],
+    "applyBulkCategoryCascade": [
+      {
+        "tag": "select",
+        "id": "bulk-subcategory",
+        "type": "",
+        "label_or_text": "Select Sub-Category...",
+        "onclick": "",
+        "onchange": "applyBulkCategoryCascade()",
+        "oninput": "",
+        "maxlength": "",
+        "options": [
+          "Select Sub-Category..."
+        ]
+      }
+    ],
+    "filterBulkUsers": [
+      {
+        "tag": "input",
+        "id": "bulk-assignee",
+        "type": "text",
+        "label_or_text": "",
+        "onclick": "",
+        "onchange": "",
+        "oninput": "filterBulkUsers()",
+        "maxlength": "254",
+        "options": []
+      }
+    ],
+    "submitBulkAssign": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "📤 Bulk Assign (Direct)",
+        "onclick": "submitBulkAssign('direct')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "⚡ Optimized Assign",
+        "onclick": "submitBulkAssign('optimized')",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "fetchLookups": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "🔄 Reload Reference Data",
+        "onclick": "fetchLookups(false, true)",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeFlagModal": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕",
+        "onclick": "closeFlagModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Cancel",
+        "onclick": "closeFlagModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "submitFlagAction": [
+      {
+        "tag": "button",
+        "id": "modal-flag-submit-btn",
+        "type": "",
+        "label_or_text": "✅ Submit Flag",
+        "onclick": "submitFlagAction()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeTaskUpdateModal": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕",
+        "onclick": "closeTaskUpdateModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "Cancel",
+        "onclick": "closeTaskUpdateModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "submitTaskUpdate": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "📤 Submit Update",
+        "onclick": "submitTaskUpdate()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeEmailTaskPreview": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕",
+        "onclick": "closeEmailTaskPreview()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✏️ Edit",
+        "onclick": "closeEmailTaskPreview()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "submitEmailTask": [
+      {
+        "tag": "button",
+        "id": "etask-confirm-submit-btn",
+        "type": "",
+        "label_or_text": "📤 Confirm & Submit",
+        "onclick": "submitEmailTask()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "closeBulkConfirmModal": [
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "✕",
+        "onclick": "closeBulkConfirmModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      },
+      {
+        "tag": "button",
+        "id": "",
+        "type": "",
+        "label_or_text": "❌ Cancel",
+        "onclick": "closeBulkConfirmModal()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ],
+    "executeBulkAssign": [
+      {
+        "tag": "button",
+        "id": "bulk-confirm-proceed-btn",
+        "type": "",
+        "label_or_text": "✅ Confirm & Assign",
+        "onclick": "executeBulkAssign()",
+        "onchange": "",
+        "oninput": "",
+        "maxlength": "",
+        "options": []
+      }
+    ]
+  },
+  "implementation_recommendations": [
+    "Use endpoint_registry as the authoritative endpoint inventory for migration or testing.",
+    "Use logical_operations for AI agent task planning because it normalizes shared dispatcher flows and aliases.",
+    "Use function_registry.source_code and payload_objects_full_snippets for exact implementation rebuilding.",
+    "Use source.sha256 to verify the manifest matches the uploaded HTML before implementation.",
+    "Treat E05 as a dispatcher for create assignment, email-to-task, flagDocument, and updateTask operations.",
+    "Treat E08 and E10 as logical endpoint aliases using the same underlying workflow URL as E05.",
+    "Treat E09 as a declared but unprovisioned outbound email endpoint."
+  ]
+}

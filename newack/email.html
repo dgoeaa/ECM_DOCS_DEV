@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NITDA • Email Preview</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="config.js"></script>
+</head>
+<body class="dgo">
+  <div class="app-grid">
+    
+    <!-- Left Panel: Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">N</div>
+        <div>
+          <div class="brand-title">NITDA AckFlow</div>
+          <div class="brand-sub">Preview Console</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">Daily Operations</a>
+        <a href="#" class="nav-item active">Preview Mode</a>
+      </nav>
+      <div class="sidebar-foot" style="padding: 16px; border-top: 1px solid var(--border-default);">
+        <a href="dashboard.html" class="btn btn-ghost" style="width: 100%; display: flex; justify-content: center;">Back to Workspace</a>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <main class="main">
+      <header class="header">
+        <div class="header-title">
+          <div class="header-crumb">Payload Verify</div>
+          <h1>System Notification Stage</h1>
+        </div>
+      </header>
+
+      <div class="canvas">
+        <div class="container" style="max-width: 720px;">
+          
+          <div class="card" style="box-shadow: var(--shadow-md);">
+            <!-- Email Header -->
+            <div style="background: var(--nitda-deep-green-soft); border-bottom: 1px solid var(--border-default); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+              <span class="badge badge-ok">Transmission Draft</span>
+              <span style="font-size: 11px; font-weight: 600; color: var(--nitda-deep-green);">Official Directive</span>
+            </div>
+
+            <!-- Email Envelope Metadata -->
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-default); background: var(--bg-subtle);">
+              <div style="display: grid; gap: 8px;">
+                <div><span style="color: var(--ink-400); font-weight: 600;">From:</span> <strong style="color: var(--ink-900);">NITDA Compliance Operations &lt;noreply@nitda.gov.ng&gt;</strong></div>
+                <div><span style="color: var(--ink-400); font-weight: 600;">To:</span> <strong style="color: var(--ink-900);">Compliance Officer Representative</strong></div>
+                <div><span style="color: var(--ink-400); font-weight: 600;">Subject:</span> <strong id="subject" style="color: var(--nitda-deep-green);">Action Required: Please Acknowledge</strong></div>
+              </div>
+            </div>
+
+            <!-- Email HTML Mockup Frame -->
+            <div style="padding: 32px; background: white;">
+              <p style="font-size: 14px; margin-bottom: 16px; color: var(--nitda-black);">Attention Compliance Representative,</p>
+              
+              <p style="font-size: 14px; margin-bottom: 16px; color: var(--nitda-black); line-height: 1.6;">
+                This notification officially records a mandate from the National Information Technology Development Agency (NITDA). 
+                You are required to verify and acknowledge implementation of directive:
+              </p>
+              
+              <div style="background: var(--bg-subtle); border-left: 4px solid var(--nitda-deep-green); padding: 16px; margin: 20px 0; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+                <strong id="taskTitle" style="font-size: 14px; color: var(--nitda-deep-green);">Compliance Directive Document</strong>
+                <div style="font-size: 11px; color: var(--ink-400); margin-top: 4px;" id="taskRef">Reference ID: [taskId]</div>
+              </div>
+
+              <p style="font-size: 14px; margin-bottom: 24px; color: var(--nitda-black); line-height: 1.6;">
+                Please click the unique payload button below to formally submit your verification back to the NITDA compliance registry.
+              </p>
+
+              <!-- Central CTA button -->
+              <div style="margin-bottom: 32px; text-align: center;">
+                <button id="cta" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                  I Acknowledge & Confirm Directive
+                </button>
+                <div style="margin-top: 12px;">
+                  <span style="font-size: 11px; color: var(--ink-400); font-family: var(--font-mono);">
+                    Secure Destination: <span id="linkTarget" style="color: var(--nitda-smart-green-deep);">ack.html?taskId=...</span>
+                  </span>
+                </div>
+              </div>
+
+              <hr style="border: 0; border-top: 1px solid var(--border-default); margin-bottom: 20px;" />
+              
+              <div style="font-size: 11px; color: var(--ink-400); text-align: center; line-height: 1.5;">
+                © 2026 National Information Technology Development Agency (NITDA).<br />
+                Federal Republic of Nigeria. Security Key Hash Assigned automatically.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const id = params.get("taskId") || "NITDA-REG-0481";
+    
+    const taskTitleEl = document.getElementById('taskTitle');
+    const taskRefEl = document.getElementById('taskRef');
+    const subjectEl = document.getElementById('subject');
+    const cta = document.getElementById('cta');
+    const linkTarget = document.getElementById('linkTarget');
+
+    function fill() {
+      // Prioritize the shared fallback store, then sessionStorage, then standard defaults
+      const localTaskObj = AckFlowStore.getTask(id);
+      const title = localTaskObj ? localTaskObj.title : (sessionStorage.getItem(`task_title_${id}`) || 'Compliance Directive Directive');
+      
+      taskTitleEl.textContent = title;
+      taskRefEl.textContent = `Reference ID: ${id}`;
+      subjectEl.textContent = `Action Required: Please Acknowledge Directive ${id}`;
+      linkTarget.textContent = `ack.html?taskId=${id}`;
+    }
+
+    cta.addEventListener('click', () => {
+      location.href = `ack.html?taskId=${encodeURIComponent(id)}`;
+    });
+
+    fill();
+  </script>
+</body>
+</html>
