@@ -1,6 +1,8 @@
 import { State } from './state.js';
 import { AuditLog } from './audit-log.js';
 import { Roles, RoleList, Permissions, canAccess as canAccessSubject } from '../config/rbac.config.js';
+import { isAuthEnforced } from '../config/auth.config.js';
+import { getIdentity } from './auth.js';
 
 export const BOOTSTRAP_ADMIN_EMAIL = 'dgsregistry@nitda.gov.ng';
 
@@ -62,6 +64,16 @@ export function normalizeUserRecord(user={}, profile={}){
 }
 
 export function getCurrentUser(state=State.get()){
+  // Enforced posture: identity and role come from the validated token, never from local
+  // state. This is what closes the viewer -> systemAdmin escalation: editing localStorage
+  // no longer influences the effective role, because the role is not read from there.
+  if(isAuthEnforced()){
+    const id=getIdentity();
+    if(!id.email || !id.role){
+      return normalizeUserRecord({id:'unauthenticated',email:id.email||'',fullName:id.name||'',role:'viewer',persona:'general',status:'unregistered'},{});
+    }
+    return {...normalizeUserRecord({id:id.email,email:id.email,fullName:id.name,role:id.role,persona:roleToPersona(id.role),status:'active'},{}), registered:true, verified:true, source:'token-claims'};
+  }
   const profile=state.profile||{};
   const users=Array.isArray(state.users)?state.users:[];
   const email=normalizeEmail(profile.email);

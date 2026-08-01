@@ -11,11 +11,12 @@
   "scripts": {
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "serve:portal": "http-server ECM_ActivityHub_Portal -p 8080 --cors -c-1 --silent",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:auth && npm run test:smoke",
+    "test:auth": "node tests/auth-posture.test.mjs",
     "test:imports": "node tests/check-imports.mjs",
+    "test:links": "node scripts/check-links.mjs",
     "test:secrets": "node tests/check-secrets.mjs",
-    "test:smoke": "playwright test",
-    "test:links": "node scripts/check-links.mjs"
+    "test:smoke": "playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

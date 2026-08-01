@@ -28,6 +28,11 @@ jobs:
       - name: Check every relative import resolves
         run: node tests/check-imports.mjs
 
+      # Asserts the auth layer is inert (development unchanged) AND that the enforced
+      # posture blocks anonymous requests and ignores local role tampering. No browser.
+      - name: Check authentication postures
+        run: node tests/auth-posture.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest
