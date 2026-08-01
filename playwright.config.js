@@ -2,6 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  // Playwright's default testMatch globs **/*.test.* as well as **/*.spec.*, which would
+  // pick up the plain-Node suites in tests/ (auth-posture.test.mjs), import them, and run
+  // their top-level code — including process.exit(), which silently truncates the smoke
+  // run. Restrict Playwright to .spec.js so the two kinds of test cannot collide.
+  testMatch: '**/*.spec.js',
   timeout: 60_000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

@@ -30,7 +30,7 @@ Layered on top is a **credential-exposure problem materially worse than the one 
 | Build integrity | **Failed** | 13 required modules absent; app cannot boot | ✅ **Passing** |
 | Quality gate / CI | **Absent** | No `tests/`, no `.github/`; 6 of 8 npm scripts cannot run | ✅ **Built** |
 | Security — secrets | **Critical** | 22 live SAS signatures in tracked files at HEAD | 🔴 Unchanged |
-| Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated | 🔴 Unchanged |
+| Security — authn/authz | **Critical** | No authentication; privilege escalation demonstrated | 🟡 **Provisioned, inert** |
 | Presentation / theming | **Degraded** | Dark theme unreadable; high-contrast theme inert | ✅ **Working** |
 | Documentation accuracy | **Poor** | README describes a repository layout that does not exist here | ✅ **Corrected** |
 
@@ -248,7 +248,7 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 |---|---|---|---|
 | G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | ✅ **Fixed** — `7204da7` |
 | G-03 | 22 live SAS signatures in 16 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
-| G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🔴 **Open** — needs an identity provider + backend work |
+| G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🟡 **Provisioned, inert** — client half complete and tested; server half outstanding. See `AUTHENTICATION_CONTRACT.md` |
 | G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | ✅ **Fixed** — `d728f79`, `ef0e390` (bundle manifest retired, not restored) |
 | G-05 | Dark theme renders content unreadable | **High** | ✅ **Fixed** — `1176d1d` |
 | G-06 | High-contrast theme inert; WCAG claim unsupported | **High** | ✅ **Fixed** — `1176d1d` |

@@ -16,7 +16,9 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
    **Rotate every one of them in Power Automate.** Deleting the files revokes nothing, and neither does rewriting history. Rotation must come first. `npm run test:secrets` lists the affected files; `tests/secrets-baseline.txt` tracks them.
 
-2. **The R11.6 runtime has no authentication.** It sends no `Authorization` header; caller identity travels as a plain `userEmail` field read from `localStorage`. Editing one storage key escalates a read-only viewer to `systemAdmin`. Client-side RBAC is a UX affordance only — **every Power Automate flow must derive identity and role from a server-issued token and ignore what the client asserts.**
+2. **Authentication is provisioned but INERT.** The platform is in development; the auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
+
+   Activation is a configuration event, not a development one: set `auth.enabled: true`, supply tenant configuration, and implement the server obligations. See **[`AUTHENTICATION_CONTRACT.md`](AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
 
 Both items are open. See G-03 and G-04 of the capability assessment.
 
@@ -74,6 +76,7 @@ Requires Node >= 20. See [`tests/README.md`](tests/README.md) for the design.
 npm test              # import checker + secret ratchet + smoke suite
 npm run test:imports  # static ES-module graph check (no browser, ~1s)
 npm run test:secrets  # fails on a NEW SAS signature in a tracked file
+npm run test:auth     # asserts both authentication postures
 npm run test:smoke    # Playwright smoke suite
 npm run test:links    # linkinator crawl of both entry points
 ```
@@ -130,13 +133,15 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 .
 ├── index.html                          Root runtime entry (+ boot watchdog)
 ├── assets/                             Shared SVG assets
-├── config/                             Platform configuration modules (30 files)
+├── config/                             Platform configuration modules (31 files)
+│   ├── auth.config.js                  Auth switch — inert until release
 │   ├── config.example.js               Documents the endpoint key structure
 │   ├── endpoints.config.js             Reads from window.DGO_CONFIG.endpoints
 │   ├── rbac.config.js                  Roles, permissions, route access
 │   ├── routes.config.js                The 25 declared routes
 │   └── workflow-clarity.config.js      Visible workspaces vs guided internal routes
-├── core/                               Boot, router, state, services (56 files)
+├── core/                               Boot, router, state, services (57 files)
+│   └── auth.js                         Token acquisition, identity, request gating
 ├── modules/                            Route modules, lazy-loaded (25 files)
 ├── shared/                             Shell, components, design-system adapter
 ├── styles/                             CSS @layer cascade
@@ -146,6 +151,7 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 ├── newack/                             Acknowledgement flow prototype
 ├── tests/
 │   ├── README.md                       Suite design and the secrets ratchet
+│   ├── auth-posture.test.mjs           Inert + enforced posture assertions
 │   ├── check-imports.mjs               Static module-graph check
 │   ├── check-secrets.mjs               SAS signature ratchet
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
@@ -153,6 +159,7 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 ├── scripts/check-links.mjs             Link / asset checker
 ├── .github/workflows/ci.yml            CI
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
+├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations
 ├── AUDIT.md                            Repository audit record (see its correction note)
 ├── CAPABILITY_ASSESSMENT_R11.6.md      Runtime capability assessment and gap analysis
 ├── REPOSITORY_AUDIT.md                 Repository-wide security/data audit
