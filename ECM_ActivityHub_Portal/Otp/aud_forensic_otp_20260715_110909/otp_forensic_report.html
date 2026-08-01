@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Otp | Forensic Audit Report</title>
+<style>
+:root{--p:#05583B;--a:#17B255;--bg:#F8FAF9;--card:#fff;--line:#DDE7E1;--txt:#13231C;}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--txt);}
+header{padding:28px 36px;background:linear-gradient(135deg,var(--p),#0B2A1F);color:#fff;}
+main{padding:28px 36px;display:grid;gap:24px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 10px 28px rgba(10,30,20,.05);}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;}
+.stat{background:#F1F7F4;border-radius:12px;padding:16px;}
+.stat b{display:block;font-size:28px;color:var(--p);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;}
+.ok{color:#047857;font-weight:800}.bad{color:#B91C1C;font-weight:800}
+</style>
+</head>
+<body>
+<header><h1>Forensic Platform State Audit</h1><p>/storage/emulated/0/Otp</p></header>
+<main>
+<section class="card grid">
+<div class="stat"><span>Files</span><b>5</b></div>
+<div class="stat"><span>Directories</span><b>1</b></div>
+<div class="stat"><span>Symlinks</span><b>0</b></div>
+<div class="stat"><span>Total Bytes</span><b>34,817</b></div>
+<div class="stat"><span>Skipped</span><b>1</b></div>
+<div class="stat"><span>Errors</span><b>0</b></div>
+</section>
+<section class="card"><h2>Validation</h2><p class="ok">Embedded content validation: PASS (0 failures)</p></section>
+<section class="card"><h2>Outputs</h2><pre>{
+  &quot;state&quot;: &quot;/storage/emulated/0/Otp/aud_forensic_otp_20260715_110909/otp_state.forensic.json&quot;,
+  &quot;summary&quot;: &quot;/storage/emulated/0/Otp/aud_forensic_otp_20260715_110909/otp_summary.forensic.json&quot;,
+  &quot;aiIndex&quot;: &quot;/storage/emulated/0/Otp/aud_forensic_otp_20260715_110909/otp_ai_index.json&quot;,
+  &quot;volumes&quot;: &quot;/storage/emulated/0/Otp/aud_forensic_otp_20260715_110909/otp_volumes&quot;,
+  &quot;volumeIndex&quot;: &quot;/storage/emulated/0/Otp/aud_forensic_otp_20260715_110909/otp_volumes/otp_volume_index.json&quot;
+}</pre></section>
+<section class="card"><h2>File Manifest</h2><table><thead><tr><th>Path</th><th>Bytes</th><th>Encoding</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>Web - OTP Generate__08584175007902694452984266574CU189__trigger_input_schema.json</code></td><td>1,411</td><td>Text</td><td><code>11515eeced18faf8...</code></td></tr><tr><td><code>Web - OTP Generate__08584175007902694452984266574CU189__varResponse.json</code></td><td>690</td><td>Text</td><td><code>1d4ff79d8fe7b3b0...</code></td></tr><tr><td><code>Web - OTP Verify__08584174969813823253701007179CU168__trigger_input_schema.json</code></td><td>1,591</td><td>Text</td><td><code>ed4821bbeb34ba6f...</code></td></tr><tr><td><code>Web - OTP Verify__08584174969813823253701007179CU168__varResponse.json</code></td><td>534</td><td>Text</td><td><code>52649e7713f85817...</code></td></tr><tr><td><code>precision_auditor_v4_forensic.py</code></td><td>30,591</td><td>Text</td><td><code>523aa6f27ce5c039...</code></td></tr></tbody></table></section>
+<section class="card"><h2>Skipped Ledger</h2><table><thead><tr><th>Path</th><th>Reason</th><th>Pattern</th></tr></thead><tbody><tr><td><code>aud_forensic_otp_20260715_110909</code></td><td>current_export_output_dir</td><td>aud_forensic_otp_20260715_110909</td></tr></tbody></table></section>
+<section class="card"><h2>Error Ledger</h2><table><thead><tr><th>Path</th><th>Stage</th><th>Message</th></tr></thead><tbody><tr><td colspan='3'>None</td></tr></tbody></table></section>
+</main>
+</body>
+</html>

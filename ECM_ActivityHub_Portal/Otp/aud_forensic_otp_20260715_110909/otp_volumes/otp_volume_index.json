@@ -1,0 +1,17 @@
+{
+  "schema": "forensic-platform-volume-index/v1",
+  "generatedAt": "2026-07-15T10:09:09Z",
+  "volumeDirectory": "otp_volumes",
+  "targetChunkBytes": 512000,
+  "volumeCount": 1,
+  "volumes": [
+    {
+      "part": 1,
+      "fileName": "otp_vol_001.json",
+      "fileCount": 5,
+      "firstPath": "Web - OTP Generate__08584175007902694452984266574CU189__trigger_input_schema.json",
+      "lastPath": "precision_auditor_v4_forensic.py"
+    }
+  ],
+  "note": "Volumes are partitioned by complete file objects. No file content is truncated."
+}

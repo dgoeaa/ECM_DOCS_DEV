@@ -1,0 +1,39 @@
+{
+  "summary": {
+    "schema": "forensic-platform-state/v1",
+    "rootName": "Otp",
+    "rootPath": "/storage/emulated/0/Otp",
+    "generatedAt": "2026-07-15T10:09:09Z",
+    "totalDirectories": 1,
+    "totalFiles": 5,
+    "totalSymlinks": 0,
+    "totalBytes": 34817,
+    "textFiles": 5,
+    "binaryFiles": 0,
+    "skippedCount": 1,
+    "errorCount": 0,
+    "chunkSizeTargetBytes": 512000,
+    "scanPolicy": {
+      "followSymlinks": false,
+      "excludeHidden": false,
+      "ignoreGlobs": [],
+      "currentOutputDirExcluded": true
+    }
+  },
+  "validation": {
+    "validatedAt": "2026-07-15T10:09:09Z",
+    "fileEntriesChecked": 5,
+    "failureCount": 0,
+    "ok": true,
+    "failures": []
+  },
+  "skipped": [
+    {
+      "path": "aud_forensic_otp_20260715_110909",
+      "reason": "current_export_output_dir",
+      "pattern": "aud_forensic_otp_20260715_110909",
+      "timestamp": "2026-07-15T10:09:09Z"
+    }
+  ],
+  "errors": []
+}
