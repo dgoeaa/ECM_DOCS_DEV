@@ -1,0 +1,140 @@
+{
+  "policy_id": "universal_filename_policy",
+  "title": "Universal Filename Policy",
+  "version": "v1.0",
+  "effective_date": "2026-06-16",
+  "status": "approved",
+  "owner": "Document Control / Operations",
+  "purpose": "This policy establishes one universal filename standard for documents, records, reports, templates, and shared artifacts so files remain readable, sortable, system-safe, automation-friendly, and consistent across teams, devices, repositories, and time.",
+  "canonical_pattern": "subject_document_type[_descriptor][_v#][_yyyy-mm-dd]",
+  "validation_regex": "^[a-z0-9]+(?:_[a-z0-9]+)*(?:_v[0-9]+(?:_[0-9]+)?)?(?:_[0-9]{4}-[0-9]{2}-[0-9]{2})?$",
+  "allowed_characters": {
+    "letters": "a-z",
+    "numbers": "0-9",
+    "separator": "_",
+    "date_hyphen_exception": "Hyphens are allowed only inside the final ISO date token yyyy-mm-dd"
+  },
+  "token_order": [
+    {
+      "name": "subject",
+      "required": true,
+      "description": "Primary project, client, process, system, or topic"
+    },
+    {
+      "name": "document_type",
+      "required": true,
+      "description": "Standard type such as policy, guide, report, audit, requirements, template"
+    },
+    {
+      "name": "descriptor",
+      "required": false,
+      "description": "Short qualifier only when needed"
+    },
+    {
+      "name": "version",
+      "required": false,
+      "pattern": "v[0-9]+(?:_[0-9]+)?"
+    },
+    {
+      "name": "date",
+      "required": false,
+      "pattern": "yyyy-mm-dd",
+      "position": "terminal"
+    }
+  ],
+  "required_rules": [
+    "lowercase_only",
+    "underscore_separators",
+    "subject_first",
+    "approved_document_type",
+    "optional_descriptor_only_if_needed",
+    "version_suffix_if_controlled",
+    "date_suffix_if_used",
+    "no_spaces",
+    "no_prohibited_punctuation",
+    "no_vague_terms"
+  ],
+  "forbidden_terms": [
+    "final",
+    "latest",
+    "new",
+    "misc",
+    "updated",
+    "use_this_one"
+  ],
+  "approved_document_types": [
+    "brief",
+    "proposal",
+    "requirements",
+    "specification",
+    "policy",
+    "procedure",
+    "guide",
+    "report",
+    "analysis",
+    "audit",
+    "plan",
+    "roadmap",
+    "minutes",
+    "summary",
+    "contract",
+    "invoice",
+    "presentation",
+    "template",
+    "checklist",
+    "register",
+    "log"
+  ],
+  "normalization_pipeline": [
+    "trim whitespace",
+    "convert to lowercase",
+    "replace spaces and separators with underscores",
+    "remove prohibited punctuation",
+    "collapse duplicate underscores",
+    "map terms to approved document type vocabulary when possible",
+    "append version if applicable",
+    "append terminal date if applicable",
+    "validate against regex"
+  ],
+  "examples": {
+    "approved": [
+      "unified_hub_requirements_hybrid",
+      "unified_hub_requirements_hybrid_v1",
+      "unified_hub_requirements_hybrid_v1_2026-06-16",
+      "ai_session_operating_rules_v1",
+      "system_directive_architecture_audit_v1_2026-06-16",
+      "client_proposal_v3_2026-06-16",
+      "security_audit_v2",
+      "meeting_minutes_v1_2026-06-16"
+    ],
+    "prohibited": [
+      "Unified Hub Business Requirements Document (BRD) / Functional Requirements Document (FRD) Hybrid",
+      "AI session mandatory operating rules FINAL",
+      "SYSTEM DIRECTIVE: SYSTEMATIC ARCHITECTURE AND STRUCTURAL AUDIT",
+      "document_new_latest_final2",
+      "project plan draft!!.docx"
+    ],
+    "session_normalized": [
+      {
+        "input": "Unified_Hub_Business Requirements Document (BRD) / Functional Requirements Document (FRD) Hybrid",
+        "output": "unified_hub_requirements_hybrid"
+      },
+      {
+        "input": "AI session mandatory operating rules",
+        "output": "ai_session_mandatory_operating_rules"
+      },
+      {
+        "input": "SYSTEM DIRECTIVE: SYSTEMATIC ARCHITECTURE AND STRUCTURAL AUDIT",
+        "output": "system_directive_systematic_architecture_structural_audit"
+      }
+    ]
+  },
+  "machine_validation": {
+    "pass_condition": "Filename matches validation_regex and contains no forbidden terms.",
+    "fail_actions": [
+      "reject save or publish action",
+      "return validation error with rule explanation",
+      "offer normalized suggestion based on tokenized input"
+    ]
+  }
+}

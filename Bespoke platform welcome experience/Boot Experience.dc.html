@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<!-- @template name="DGO Boot & Welcome Experience" description="Bespoke boot/loading sequence for the DGO Digital Ops platform resolving into sign-in, OTP verification, and a personalized success state." -->
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/colors_and_type.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.primitive.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.semantic.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.theme-light.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.component.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/reset.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/base.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/components.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/styles.css">
+<script src="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/_ds_bundle.js"></script>
+<style>
+  @font-face{font-family:"Cascadia Mono";src:url("fonts/CascadiaMono-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+  html,body{margin:0;height:100%;background:var(--nitda-deep-green)}
+  @keyframes dgoSpin{to{transform:rotate(360deg)}}
+  @keyframes dgoRise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes dgoRingGlow{0%,100%{filter:drop-shadow(0 0 0px rgba(23,178,85,.0))}50%{filter:drop-shadow(0 0 10px rgba(23,178,85,.55))}}
+  @keyframes dgoShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+  @keyframes dgoPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .dgo-i{width:16px;height:16px;stroke-width:2}
+  input::placeholder{color:var(--nitda-ink-400)}
+  input:focus{outline:none;border-color:var(--nitda-smart-green) !important;box-shadow:0 0 0 3px rgba(23,178,85,.18)}
+  .dgo-otp-box:focus{border-color:var(--nitda-smart-green) !important;box-shadow:0 0 0 3px rgba(23,178,85,.18)}
+</style>
+</helmet>
+
+<div style="position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--nitda-deep-green);font-family:'Outfit','Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+
+  <!-- ================= BOOT LAYER ================= -->
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;background:radial-gradient(120% 120% at 50% 20%,var(--nitda-deep-green-80) 0%,var(--nitda-deep-green) 46%,var(--nitda-deep-green-deep) 100%);opacity:{{ bootOpacity }};pointer-events:{{ bootPointer }};transition:opacity 650ms ease, transform 800ms cubic-bezier(.3,0,0,1);transform:{{ bootTransform }}">
+
+    <div style="position:absolute;inset:0;pointer-events:none;opacity:.5">
+      <div style="position:absolute;top:-140px;left:-140px;width:420px;height:420px;border-radius:50%;border:1px solid rgba(255,255,255,.06)"></div>
+      <div style="position:absolute;bottom:-180px;right:-160px;width:520px;height:520px;border-radius:50%;border:1px solid rgba(255,255,255,.06)"></div>
+    </div>
+
+    <div style="position:relative;width:176px;height:176px;display:grid;place-items:center">
+      <svg width="176" height="176" viewBox="0 0 176 176" style="position:absolute;inset:0;transform:rotate(-90deg)">
+        <circle cx="88" cy="88" r="78" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="4"></circle>
+        <circle cx="88" cy="88" r="78" fill="none" stroke="var(--nitda-smart-green)" stroke-width="4" stroke-linecap="round"
+          stroke-dasharray="{{ ringCircumference }}" stroke-dashoffset="{{ ringOffset }}"
+          style="transition:stroke-dashoffset 160ms linear;animation:{{ ringGlowAnim }}"></circle>
+      </svg>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <sc-if value="{{ isComplete }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px;stroke-width:2.4;color:var(--nitda-smart-green);animation:dgoRise 260ms ease"><path d="M20 6 9 17l-5-5"/></svg>
+        </sc-if>
+        <sc-if value="{{ isNotComplete }}" hint-placeholder-val="{{ true }}">
+          <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:34px;color:#fff;letter-spacing:-0.02em">{{ progressDisplay }}</span>
+          <span style="font-size:10px;font-weight:700;letter-spacing:.16em;color:rgba(255,255,255,.55);text-transform:uppercase">Booting</span>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:26px;letter-spacing:-0.01em;color:#fff">DG<span style="color:var(--nitda-smart-green)">O</span> Digital Ops</div>
+      <div style="font-size:10.5px;letter-spacing:.18em;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase">An Initiative of NITDA</div>
+    </div>
+
+    <div style="width:420px;max-width:82vw;display:flex;flex-direction:column;gap:0;min-height:96px">
+      <sc-for list="{{ completedStepsShown }}" as="step" hint-placeholder-count="0">
+        <div style="display:flex;align-items:center;gap:9px;padding:4px 0;opacity:.45;animation:dgoRise 260ms ease">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke-width:2.6;color:var(--nitda-smart-green);flex:none"><path d="M20 6 9 17l-5-5"/></svg>
+          <span style="font-family:'Cascadia Mono',ui-monospace,monospace;font-size:12px;color:rgba(255,255,255,.75)">{{ step }}</span>
+        </div>
+      </sc-for>
+      <sc-if value="{{ isNotComplete }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:9px;padding:4px 0;animation:dgoRise 260ms ease">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;stroke-width:2.6;color:#fff;flex:none;animation:dgoSpin 900ms linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          <span style="font-family:'Cascadia Mono',ui-monospace,monospace;font-size:12.5px;color:#fff;font-weight:600">{{ currentStepLabel }}</span>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="display:flex;justify-content:center;padding:0 24px;min-height:36px">
+      <span style="font-size:12.5px;color:rgba(255,255,255,.5);text-align:center;max-width:520px">{{ currentTip }}</span>
+    </div>
+  </div>
+
+  <!-- ================= LOGIN LAYER ================= -->
+  <div style="position:absolute;inset:0;display:grid;grid-template-columns:44% 56%;opacity:{{ loginOpacity }};pointer-events:{{ loginPointer }};transition:opacity 700ms ease 150ms, transform 800ms cubic-bezier(.3,0,0,1) 150ms;transform:{{ loginTransform }}">
+
+    <div style="position:relative;overflow:hidden;background:radial-gradient(120% 120% at 15% 10%,var(--nitda-deep-green-80) 0%,var(--nitda-deep-green) 50%,var(--nitda-deep-green-deep) 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px">
+      <div style="position:absolute;top:-120px;right:-140px;width:380px;height:380px;border-radius:50%;border:1px solid rgba(255,255,255,.07)"></div>
+      <div style="position:absolute;bottom:-200px;left:-160px;width:480px;height:480px;border-radius:50%;border:1px solid rgba(255,255,255,.07)"></div>
+
+      <div style="display:flex;align-items:center;gap:12px;position:relative">
+        <svg width="38" height="38" viewBox="0 0 56 56" aria-hidden="true" style="flex:none">
+          <circle cx="28" cy="28" r="20" fill="none" stroke="var(--nitda-smart-green)" stroke-width="4"></circle>
+          <circle cx="28" cy="28" r="6" fill="#fff"></circle>
+          <circle cx="48" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle>
+          <circle cx="8" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;line-height:1">
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;color:#fff">DG<span style="color:var(--nitda-smart-green)">O</span> Digital Ops</span>
+          <span style="font-size:9.5px;letter-spacing:.14em;font-weight:600;color:rgba(255,255,255,.55);margin-top:4px;text-transform:uppercase">An Initiative of NITDA</span>
+        </div>
+      </div>
+
+      <div style="position:relative;max-width:380px">
+        <div style="font-family:'Outfit',sans-serif;font-weight:600;font-size:24px;line-height:1.35;color:#fff;letter-spacing:-0.01em">Streamlining public sector correspondence, one reference at a time.</div>
+        <div style="margin-top:16px;height:3px;width:44px;background:var(--nitda-smart-green);border-radius:99px"></div>
+      </div>
+
+      <div style="position:relative;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.45)">
+        <span>DGO Platform v2.4.1</span>
+        <span>{{ liveDateLabel }}</span>
+      </div>
+    </div>
+
+    <div style="background:var(--nitda-ink-50);display:flex;flex-direction:column;justify-content:center;padding:64px;overflow-y:auto">
+      <div style="width:100%;max-width:380px;margin:0 auto;display:flex;flex-direction:column;gap:28px">
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--nitda-smart-green-deep)">{{ greetingWord }}</span>
+            <span style="font-size:11.5px;color:var(--nitda-ink-500);font-family:'Cascadia Mono',ui-monospace,monospace">{{ liveTimeLabel }}</span>
+          </div>
+          <h1 style="margin:0;font-family:'Outfit',sans-serif;font-weight:700;font-size:27px;letter-spacing:-0.02em;color:var(--nitda-ink-900)">{{ userName }}</h1>
+          <div style="margin-top:5px;font-size:13.5px;color:var(--nitda-ink-600)">{{ userRole }} · Enter your email or phone to receive a one-time code</div>
+        </div>
+
+        <form style="display:flex;flex-direction:column;gap:16px" onSubmit="{{ handleSubmit }}">
+          <div style="display:inline-flex;background:var(--nitda-ink-100);border-radius:8px;padding:3px;gap:2px;align-self:flex-start">
+            <button type="button" onClick="{{ setChannelEmail }}" style="height:32px;padding:0 14px;border-radius:6px;border:none;cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Outfit',sans-serif;background:{{ emailTabBg }};color:{{ emailTabColor }}">Email</button>
+            <button type="button" onClick="{{ setChannelSms }}" style="height:32px;padding:0 14px;border-radius:6px;border:none;cursor:pointer;font-size:12.5px;font-weight:600;font-family:'Outfit',sans-serif;background:{{ smsTabBg }};color:{{ smsTabColor }}">Phone (SMS)</button>
+          </div>
+
+          <div class="dgo-field">
+            <span class="dgo-field__label">{{ identifierLabel }}</span>
+            <input class="dgo-input" type="text" placeholder="{{ identifierPlaceholder }}" value="{{ identifier }}" onChange="{{ onIdentifierChange }}"></input>
+          </div>
+
+          <label class="dgo-check">
+            <input type="checkbox" checked="{{ remember }}" onChange="{{ toggleRemember }}"></input>
+            Remember this device
+          </label>
+
+          <button type="submit" disabled="{{ sendDisabled }}" class="dgo-btn dgo-btn--primary dgo-btn--block" style="gap:9px;font-family:'Outfit',sans-serif">
+            <sc-if value="{{ signingIn }}" hint-placeholder-val="{{ false }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;stroke-width:2.4;animation:dgoSpin 800ms linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              <span>Sending code…</span>
+            </sc-if>
+            <sc-if value="{{ notSigningIn }}" hint-placeholder-val="{{ true }}">
+              <span>Send Verification Code</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;stroke-width:2.2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </sc-if>
+          </button>
+        </form>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;height:1px;background:var(--nitda-ink-200)"></div>
+          <span style="font-size:11.5px;color:var(--nitda-ink-400)">or</span>
+          <div style="flex:1;height:1px;background:var(--nitda-ink-200)"></div>
+        </div>
+
+        <button type="button" onClick="{{ handleSSO }}" class="dgo-btn dgo-btn--secondary dgo-btn--block" style="gap:9px;font-family:'Outfit',sans-serif">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dgo-i" style="color:var(--nitda-deep-green)"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          Continue with NITDA SSO (skip OTP)
+        </button>
+
+        <div style="text-align:center;font-size:11.5px;color:var(--nitda-ink-400)">© {{ currentYear }} National Information Technology Development Agency</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= OTP LAYER ================= -->
+  <div style="position:absolute;inset:0;display:grid;grid-template-columns:44% 56%;opacity:{{ otpOpacity }};pointer-events:{{ otpPointer }};transition:opacity 700ms ease 150ms, transform 800ms cubic-bezier(.3,0,0,1) 150ms;transform:{{ otpTransform }}">
+
+    <div style="position:relative;overflow:hidden;background:radial-gradient(120% 120% at 15% 10%,var(--nitda-deep-green-80) 0%,var(--nitda-deep-green) 50%,var(--nitda-deep-green-deep) 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px">
+      <div style="position:absolute;top:-120px;right:-140px;width:380px;height:380px;border-radius:50%;border:1px solid rgba(255,255,255,.07)"></div>
+      <div style="display:flex;align-items:center;gap:12px;position:relative">
+        <svg width="38" height="38" viewBox="0 0 56 56" aria-hidden="true" style="flex:none">
+          <circle cx="28" cy="28" r="20" fill="none" stroke="var(--nitda-smart-green)" stroke-width="4"></circle>
+          <circle cx="28" cy="28" r="6" fill="#fff"></circle>
+          <circle cx="48" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle>
+          <circle cx="8" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle>
+        </svg>
+        <div style="display:flex;flex-direction:column;line-height:1">
+          <span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:17px;color:#fff">DG<span style="color:var(--nitda-smart-green)">O</span> Digital Ops</span>
+          <span style="font-size:9.5px;letter-spacing:.14em;font-weight:600;color:rgba(255,255,255,.55);margin-top:4px;text-transform:uppercase">An Initiative of NITDA</span>
+        </div>
+      </div>
+      <div style="position:relative;max-width:380px">
+        <div style="font-family:'Outfit',sans-serif;font-weight:600;font-size:22px;line-height:1.35;color:#fff;letter-spacing:-0.01em">Two-factor verification keeps every dispatch accountable.</div>
+        <div style="margin-top:16px;height:3px;width:44px;background:var(--nitda-smart-green);border-radius:99px"></div>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,.45)">
+        <span>DGO Platform v2.4.1</span>
+        <span>{{ liveDateLabel }}</span>
+      </div>
+    </div>
+
+    <div style="background:var(--nitda-ink-50);display:flex;flex-direction:column;justify-content:center;padding:64px;overflow-y:auto">
+      <div style="width:100%;max-width:380px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+
+        <div>
+          <button type="button" onClick="{{ backToLogin }}" style="display:flex;align-items:center;gap:6px;background:none;border:none;padding:0;margin-bottom:16px;cursor:pointer;color:var(--nitda-ink-500);font-size:12.5px;font-weight:600">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dgo-i"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back
+          </button>
+          <h1 style="margin:0;font-family:'Outfit',sans-serif;font-weight:700;font-size:25px;letter-spacing:-0.02em;color:var(--nitda-ink-900)">Verify it's you</h1>
+          <div style="margin-top:6px;font-size:13.5px;color:var(--nitda-ink-600)">Enter the 6-digit code sent to <strong style="color:var(--nitda-ink-900)">{{ maskedDestination }}</strong></div>
+        </div>
+
+        <div style="display:flex;gap:9px;animation:{{ otpShakeAnim }}">
+          <sc-for list="{{ otpBoxes }}" as="box" hint-placeholder-count="6">
+            <input class="dgo-input dgo-otp-box" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" value="{{ box.value }}" onChange="{{ box.onChange }}" onKeyDown="{{ box.onKeyDown }}" onPaste="{{ box.onPaste }}" ref="{{ box.refCb }}"
+              style="width:100%;height:54px;padding:0;text-align:center;font-size:21px;font-weight:700;font-family:'Outfit',sans-serif;border-color:{{ otpBorderColor }}"></input>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ otpError }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:7px;color:var(--nitda-coa-red);font-size:12.5px;font-weight:600;margin-top:-8px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Incorrect code — please try again.
+          </div>
+        </sc-if>
+
+        <button type="button" onClick="{{ verifyOtp }}" disabled="{{ verifyDisabled }}" class="dgo-btn dgo-btn--primary dgo-btn--block" style="gap:9px;font-family:'Outfit',sans-serif">
+          <sc-if value="{{ verifying }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;stroke-width:2.4;animation:dgoSpin 800ms linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <span>Verifying…</span>
+          </sc-if>
+          <sc-if value="{{ notVerifying }}" hint-placeholder-val="{{ true }}">
+            <span>Verify &amp; Continue</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;stroke-width:2.2"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          </sc-if>
+        </button>
+
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;color:var(--nitda-ink-500)">
+          <sc-if value="{{ canResend }}" hint-placeholder-val="{{ false }}">
+            <span>Didn't get a code?</span>
+            <button type="button" onClick="{{ resendCode }}" style="background:none;border:none;padding:0;cursor:pointer;color:var(--nitda-deep-green);font-weight:600;font-size:12.5px">Resend code</button>
+          </sc-if>
+          <sc-if value="{{ cannotResend }}" hint-placeholder-val="{{ true }}">
+            <span>Resend code in {{ resendSeconds }}s</span>
+          </sc-if>
+        </div>
+
+        <div style="text-align:center">
+          <button type="button" onClick="{{ toggleChannel }}" style="background:none;border:none;padding:0;cursor:pointer;color:var(--nitda-ink-500);font-size:12px;text-decoration:underline">{{ channelSwitchLabel }}</button>
+        </div>
+
+        <sc-if value="{{ justResent }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;font-size:12px;color:var(--nitda-smart-green-deep);font-weight:600">A new code has been sent to {{ maskedDestination }}.</div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VERIFIED LAYER ================= -->
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:var(--nitda-ink-50);opacity:{{ verifiedOpacity }};pointer-events:{{ verifiedPointer }};transition:opacity 700ms ease 150ms;transform:{{ verifiedTransform }}">
+    <div style="width:72px;height:72px;border-radius:50%;background:var(--nitda-smart-green);display:grid;place-items:center;animation:dgoPop 420ms ease">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:36px;height:36px;color:#fff;stroke-width:3"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:23px;color:var(--nitda-ink-900)">Identity verified</div>
+    <div style="font-size:13.5px;color:var(--nitda-ink-600);max-width:340px;text-align:center">Welcome, {{ userName }}. Your session is secured with two-factor authentication.</div>
+    <a href="templates/app-shell/AppShell.dc.html" class="dgo-btn dgo-btn--primary" style="margin-top:10px;text-decoration:none;gap:9px;font-family:'Outfit',sans-serif">Continue to Daily Operations <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+    <button type="button" onClick="{{ restart }}" style="background:none;border:none;color:var(--nitda-ink-500);font-size:12px;cursor:pointer;margin-top:2px">Restart demo</button>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;userName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Aisha Bello&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;userRole&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Deputy Director, Registry&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bootDuration&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:6,&quot;min&quot;:3,&quot;max&quot;:12,&quot;step&quot;:1,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+
+const STEPS = [
+  "Establishing secure session…",
+  "Verifying platform credentials…",
+  "Loading registry modules…",
+  "Syncing correspondence index…",
+  "Preparing Daily Operations workspace…",
+  "Finalizing environment…"
+];
+const TIPS = [
+  "Tip: Press ⌘K anywhere to search references, tasks, and people instantly.",
+  "Tip: FastTrack SLA flags items nearing their deadline automatically.",
+  "Tip: The Signature Chamber batches items awaiting your approval.",
+  "Tip: Switch personas from the sidebar without signing out.",
+  "Tip: Records Archive keeps a full audit trail of every dispatch."
+];
+const RING_R = 78;
+const RING_C = 2 * Math.PI * RING_R;
+const EMPTY_OTP = ['', '', '', '', '', ''];
+
+function maskEmail(email) {
+  const [user, domain] = email.split('@');
+  if (!domain) return email;
+  const visible = user.slice(0, 2);
+  return visible + '•'.repeat(Math.max(user.length - 2, 3)) + '@' + domain;
+}
+function maskPhone(phone) {
+  return phone.slice(0, 4) + ' ••• ' + phone.slice(-3);
+}
+
+class Component extends DCLogic {
+  state = {
+    phase: 'boot',
+    elapsed: 0,
+    total: (this.props.bootDuration ?? 6) * 1000,
+    stepIndex: 0,
+    completedSteps: [],
+    tipIndex: 0,
+    now: new Date(),
+    identifier: '',
+    remember: true,
+    signingIn: false,
+    otpDigits: EMPTY_OTP.slice(),
+    otpError: false,
+    verifying: false,
+    resendSeconds: 30,
+    justResent: false,
+    channel: 'email'
+  };
+  _otpRefs = [];
+
+  componentDidMount() {
+    this.startBootTimer();
+    this._tipTimer = setInterval(() => {
+      this.setState(s => ({ tipIndex: (s.tipIndex + 1) % TIPS.length }));
+    }, 2600);
+    this._clockTimer = setInterval(() => this.setState({ now: new Date() }), 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._bootTimer);
+    clearInterval(this._tipTimer);
+    clearInterval(this._clockTimer);
+    clearInterval(this._resendTimer);
+  }
+
+  startBootTimer() {
+    clearInterval(this._bootTimer);
+    const tickMs = 90;
+    this._bootTimer = setInterval(() => {
+      this.setState(s => {
+        if (s.phase !== 'boot') return null;
+        const elapsed = Math.min(s.elapsed + tickMs, s.total);
+        const sliceLen = s.total / STEPS.length;
+        let stepIndex = Math.min(Math.floor(elapsed / sliceLen), STEPS.length - 1);
+        let completedSteps = s.completedSteps;
+        if (stepIndex > s.stepIndex) {
+          completedSteps = s.completedSteps.concat(STEPS.slice(s.stepIndex, stepIndex));
+        }
+        if (elapsed >= s.total) {
+          clearInterval(this._bootTimer);
+          completedSteps = STEPS.slice();
+          setTimeout(() => this.setState({ phase: 'login' }), 550);
+        }
+        return { elapsed, stepIndex, completedSteps };
+      });
+    }, tickMs);
+  }
+
+  startResendTimer() {
+    clearInterval(this._resendTimer);
+    this.setState({ resendSeconds: 30 });
+    this._resendTimer = setInterval(() => {
+      this.setState(s => {
+        if (s.resendSeconds <= 1) { clearInterval(this._resendTimer); return { resendSeconds: 0 }; }
+        return { resendSeconds: s.resendSeconds - 1 };
+      });
+    }, 1000);
+  }
+
+  setOtpDigit(i, raw) {
+    const digit = raw.replace(/[^0-9]/g, '').slice(-1);
+    this.setState(s => {
+      const arr = s.otpDigits.slice();
+      arr[i] = digit;
+      return { otpDigits: arr, otpError: false };
+    }, () => { if (digit && this._otpRefs[i + 1]) this._otpRefs[i + 1].focus(); });
+  }
+
+  onOtpKeyDown(i, e) {
+    if (e.key === 'Backspace' && !this.state.otpDigits[i] && this._otpRefs[i - 1]) this._otpRefs[i - 1].focus();
+  }
+
+  onOtpPaste(e) {
+    e.preventDefault();
+    const digits = (e.clipboardData.getData('text') || '').replace(/[^0-9]/g, '').slice(0, 6).split('');
+    if (!digits.length) return;
+    const arr = EMPTY_OTP.slice();
+    digits.forEach((d, i) => { arr[i] = d; });
+    this.setState({ otpDigits: arr, otpError: false }, () => {
+      const idx = Math.min(digits.length, 5);
+      if (this._otpRefs[idx]) this._otpRefs[idx].focus();
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const progress = Math.min(100, Math.round((s.elapsed / s.total) * 100));
+    const offset = RING_C * (1 - progress / 100);
+    const phase = s.phase;
+
+    const hour = s.now.getHours();
+    const greetingWord = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    const liveDateLabel = s.now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const liveTimeLabel = s.now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    const defaultEmail = (this.props.userName ?? 'Aisha Bello').toLowerCase().replace(/\s+/g, '.').replace(/\.+/g, '.') + '@nitda.gov.ng';
+    const identifierTrimmed = s.identifier.trim();
+    const maskedDestination = s.channel === 'sms'
+      ? maskPhone(identifierTrimmed || '+2348012345678')
+      : maskEmail(identifierTrimmed.includes('@') ? identifierTrimmed : defaultEmail);
+
+    const otpComplete = s.otpDigits.every(d => d !== '');
+
+    return {
+      bootOpacity: phase === 'boot' ? 1 : 0,
+      bootPointer: phase === 'boot' ? 'auto' : 'none',
+      bootTransform: phase === 'boot' ? 'scale(1)' : 'scale(1.04)',
+      loginOpacity: phase === 'login' ? 1 : 0,
+      loginPointer: phase === 'login' ? 'auto' : 'none',
+      loginTransform: phase === 'login' ? 'scale(1)' : 'scale(0.98)',
+      otpOpacity: phase === 'otp' ? 1 : 0,
+      otpPointer: phase === 'otp' ? 'auto' : 'none',
+      otpTransform: phase === 'otp' ? 'scale(1)' : 'scale(0.98)',
+      verifiedOpacity: phase === 'verified' ? 1 : 0,
+      verifiedPointer: phase === 'verified' ? 'auto' : 'none',
+      verifiedTransform: phase === 'verified' ? 'scale(1)' : 'scale(0.98)',
+
+      ringCircumference: RING_C,
+      ringOffset: offset,
+      ringGlowAnim: progress >= 100 ? 'dgoRingGlow 1400ms ease infinite' : 'none',
+      progressDisplay: progress + '%',
+      isComplete: phase !== 'boot' || progress >= 100,
+      isNotComplete: phase === 'boot' && progress < 100,
+      completedStepsShown: s.completedSteps.slice(-3),
+      currentStepLabel: STEPS[s.stepIndex] ?? STEPS[STEPS.length - 1],
+      currentTip: TIPS[s.tipIndex],
+      tipIndex: s.tipIndex,
+
+      userName: this.props.userName ?? 'Aisha Bello',
+      userRole: this.props.userRole ?? 'Deputy Director, Registry',
+      greetingWord,
+      liveDateLabel,
+      liveTimeLabel,
+      currentYear: s.now.getFullYear(),
+
+      identifier: s.identifier,
+      onIdentifierChange: (e) => this.setState({ identifier: e.target.value }),
+      identifierLabel: s.channel === 'sms' ? 'Phone number' : 'Staff email or ID',
+      identifierPlaceholder: s.channel === 'sms' ? '+234 801 234 5678' : 'a.bello@nitda.gov.ng',
+      emailTabBg: s.channel === 'email' ? '#fff' : 'transparent',
+      emailTabColor: s.channel === 'email' ? 'var(--nitda-deep-green)' : 'var(--nitda-ink-500)',
+      smsTabBg: s.channel === 'sms' ? '#fff' : 'transparent',
+      smsTabColor: s.channel === 'sms' ? 'var(--nitda-deep-green)' : 'var(--nitda-ink-500)',
+      setChannelEmail: () => this.setState({ channel: 'email' }),
+      setChannelSms: () => this.setState({ channel: 'sms' }),
+      remember: s.remember,
+      toggleRemember: () => this.setState(st => ({ remember: !st.remember })),
+
+      signingIn: s.signingIn,
+      notSigningIn: !s.signingIn,
+      sendDisabled: s.signingIn || !identifierTrimmed,
+      handleSubmit: (e) => {
+        e.preventDefault();
+        if (s.signingIn || !this.state.identifier.trim()) return;
+        this.setState({ signingIn: true });
+        setTimeout(() => {
+          this.setState({ signingIn: false, phase: 'otp', otpDigits: EMPTY_OTP.slice(), otpError: false });
+          this.startResendTimer();
+        }, 1100);
+      },
+      handleSSO: () => {
+        this.setState({ signingIn: true });
+        setTimeout(() => this.setState({ signingIn: false, phase: 'verified' }), 1100);
+      },
+
+      maskedDestination,
+      otpBoxes: s.otpDigits.map((d, i) => ({
+        key: i,
+        value: d,
+        onChange: (e) => this.setOtpDigit(i, e.target.value),
+        onKeyDown: (e) => this.onOtpKeyDown(i, e),
+        onPaste: (e) => this.onOtpPaste(e),
+        refCb: (el) => { this._otpRefs[i] = el; }
+      })),
+      otpError: s.otpError,
+      otpShakeAnim: s.otpError ? 'dgoShake 380ms ease' : 'none',
+      otpBorderColor: s.otpError ? 'var(--nitda-coa-red)' : '',
+      verifying: s.verifying,
+      notVerifying: !s.verifying,
+      verifyDisabled: !otpComplete || s.verifying,
+      verifyOtp: () => {
+        const code = this.state.otpDigits.join('');
+        if (code.length < 6 || this.state.verifying) return;
+        this.setState({ verifying: true, otpError: false });
+        setTimeout(() => {
+          if (code === '000000') {
+            this.setState({ verifying: false, otpError: true, otpDigits: EMPTY_OTP.slice() });
+            if (this._otpRefs[0]) this._otpRefs[0].focus();
+          } else {
+            clearInterval(this._resendTimer);
+            this.setState({ verifying: false, phase: 'verified' });
+          }
+        }, 900);
+      },
+      canResend: s.resendSeconds <= 0,
+      cannotResend: s.resendSeconds > 0,
+      resendSeconds: s.resendSeconds,
+      resendCode: () => {
+        if (this.state.resendSeconds > 0) return;
+        this.setState({ otpDigits: EMPTY_OTP.slice(), justResent: true });
+        this.startResendTimer();
+        if (this._otpRefs[0]) this._otpRefs[0].focus();
+        setTimeout(() => this.setState({ justResent: false }), 2200);
+      },
+      justResent: s.justResent,
+      channelSwitchLabel: s.channel === 'email' ? 'Send code via SMS instead' : 'Send code via email instead',
+      toggleChannel: () => {
+        this.setState(st => ({ channel: st.channel === 'email' ? 'sms' : 'email', otpDigits: EMPTY_OTP.slice(), justResent: true }));
+        this.startResendTimer();
+        setTimeout(() => this.setState({ justResent: false }), 2200);
+      },
+      backToLogin: () => {
+        clearInterval(this._resendTimer);
+        this.setState({ phase: 'login', otpDigits: EMPTY_OTP.slice(), otpError: false });
+      },
+      restart: () => {
+        clearInterval(this._resendTimer);
+        this.setState({
+          phase: 'boot', elapsed: 0, stepIndex: 0, completedSteps: [],
+          signingIn: false, otpDigits: EMPTY_OTP.slice(), otpError: false, identifier: ''
+        });
+        this.startBootTimer();
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

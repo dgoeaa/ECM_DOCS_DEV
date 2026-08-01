@@ -1,0 +1,133 @@
+/* ============================================================
+   DGO Design System v2.0 — Component Tokens
+   Per-component bindings. Themes/density override here.
+   ============================================================ */
+
+:root {
+  /* ---------- Button ---------- */
+  --dgo-btn-radius:           var(--dgo-radius-control);
+  --dgo-btn-fw:               var(--dgo-wt-600);
+  --dgo-btn-tracking:         var(--dgo-tr-normal);
+  --dgo-btn-h-sm:             32px;
+  --dgo-btn-h-md:             40px;
+  --dgo-btn-h-lg:             48px;
+  --dgo-btn-px-sm:            var(--dgo-s-3);
+  --dgo-btn-px-md:            var(--dgo-s-4);
+  --dgo-btn-px-lg:            var(--dgo-s-5);
+
+  /* ---------- Input ---------- */
+  --dgo-input-radius:         var(--dgo-radius-control);
+  --dgo-input-h:              40px;
+  --dgo-input-px:             var(--dgo-s-3);
+  --dgo-input-bg:             var(--dgo-color-surface-page);
+  --dgo-input-bg-disabled:    var(--dgo-color-surface-muted);
+  --dgo-input-border:         var(--dgo-color-border-strong);
+  --dgo-input-border-hover:   var(--dgo-color-border-stronger);
+  --dgo-input-border-focus:   var(--dgo-color-action-primary);
+  --dgo-input-border-error:   var(--dgo-color-danger-strong-bg);
+  --dgo-input-placeholder:    var(--dgo-color-fg-subtle);
+
+  /* ---------- Card ---------- */
+  --dgo-card-bg:              var(--dgo-color-surface-raised);
+  --dgo-card-border:          var(--dgo-color-border-default);
+  --dgo-card-radius:          var(--dgo-radius-card);
+  --dgo-card-pad:             var(--dgo-s-5);
+  --dgo-card-shadow:          var(--dgo-elevation-card);
+  --dgo-card-shadow-hover:    var(--dgo-elevation-raised);
+
+  /* ---------- Badge / pill ---------- */
+  --dgo-badge-radius:         var(--dgo-r-pill);
+  --dgo-badge-h:              22px;
+  --dgo-badge-px:             var(--dgo-s-2);
+  --dgo-badge-fs:             var(--dgo-size-12);
+  --dgo-badge-fw:             var(--dgo-wt-600);
+  --dgo-badge-tracking:       var(--dgo-tr-normal);
+
+  /* ---------- Tag (square) ---------- */
+  --dgo-tag-radius:           var(--dgo-r-4);
+  --dgo-tag-h:                24px;
+
+  /* ---------- Alert / Banner ---------- */
+  --dgo-alert-radius:         var(--dgo-radius-control);
+  --dgo-alert-pad:            var(--dgo-s-4);
+  --dgo-alert-border-w:       1px;
+
+  /* ---------- Modal / Drawer ---------- */
+  --dgo-modal-radius:         var(--dgo-radius-frame);
+  --dgo-modal-pad:            var(--dgo-s-6);
+  --dgo-modal-w:              560px;
+  --dgo-modal-w-lg:           800px;
+  --dgo-modal-shadow:         var(--dgo-elevation-modal);
+  --dgo-drawer-w:             400px;
+
+  /* ---------- Popover / Tooltip ---------- */
+  --dgo-popover-radius:       var(--dgo-radius-card);
+  --dgo-popover-pad:          var(--dgo-s-3);
+  --dgo-popover-shadow:       var(--dgo-elevation-popover);
+  --dgo-tooltip-bg:           var(--dgo-ink-900);
+  --dgo-tooltip-fg:           var(--dgo-ink-0);
+  --dgo-tooltip-radius:       var(--dgo-r-6);
+
+  /* ---------- Table ---------- */
+  --dgo-table-row-h:          44px;
+  --dgo-table-cell-px:        var(--dgo-s-3);
+  --dgo-table-header-bg:      var(--dgo-color-surface-sunken);
+  --dgo-table-header-fg:      var(--dgo-color-fg-muted);
+  --dgo-table-row-hover:      var(--dgo-green-50);
+  --dgo-table-border:         var(--dgo-color-border-default);
+
+  /* ---------- Sidebar / Topbar ---------- */
+  --dgo-sidebar-w:            260px;
+  --dgo-sidebar-w-collapsed:  68px;
+  --dgo-sidebar-bg:           var(--dgo-color-surface-inverse);
+  --dgo-sidebar-fg:           rgba(255,255,255,0.82);
+  --dgo-topbar-h:             64px;
+  --dgo-topbar-bg:            var(--dgo-color-surface-page);
+  --dgo-topbar-border:        var(--dgo-color-border-default);
+
+  /* ---------- Tabs ---------- */
+  --dgo-tabs-indicator-h:     2px;
+  --dgo-tabs-indicator:       var(--dgo-color-action-accent);
+
+  /* ---------- Pagination ---------- */
+  --dgo-pagination-h:         36px;
+  --dgo-pagination-radius:    var(--dgo-radius-control);
+
+  /* ---------- Progress ---------- */
+  --dgo-progress-h:           6px;
+  --dgo-progress-track:       var(--dgo-color-surface-sunken);
+  --dgo-progress-fill:        var(--dgo-color-action-primary);
+
+  /* ---------- Skeleton ---------- */
+  --dgo-skeleton-base:        var(--dgo-ink-50);
+  --dgo-skeleton-shine:       var(--dgo-ink-100);
+
+  /* ---------- Code ---------- */
+  --dgo-code-bg:              var(--dgo-color-surface-sunken);
+  --dgo-code-fg:              var(--dgo-green-900);
+  --dgo-kbd-bg:               var(--dgo-color-surface-page);
+  --dgo-kbd-border:           var(--dgo-color-border-strong);
+
+  /* ---------- Command Palette (v2.1) ---------- */
+  --dgo-cmdk-w:               clamp(320px, 90vw, 640px); /* @kind spacing */
+  --dgo-cmdk-bg:              var(--dgo-color-surface-raised);
+  --dgo-cmdk-border:          var(--dgo-color-border-default);
+  --dgo-cmdk-radius:          var(--dgo-radius-frame);
+  --dgo-cmdk-shadow:          var(--dgo-elevation-modal);
+  --dgo-cmdk-pad:             var(--dgo-s-2);
+  --dgo-cmdk-input-h:         48px;
+  --dgo-cmdk-input-fs:        var(--dgo-type-body-lg);
+  --dgo-cmdk-input-bg:        transparent;
+  --dgo-cmdk-item-h:          44px;
+  --dgo-cmdk-item-pad:        var(--dgo-s-3);
+  --dgo-cmdk-item-radius:     var(--dgo-radius-control);
+  --dgo-cmdk-item-fs:         var(--dgo-type-body);
+  --dgo-cmdk-item-bg:         transparent;
+  --dgo-cmdk-item-bg-active:  var(--dgo-green-50);
+  --dgo-cmdk-item-fg-active:  var(--dgo-color-fg-strong);
+  --dgo-cmdk-meta-fg:         var(--dgo-color-fg-muted);
+  --dgo-cmdk-group-label-fs:  var(--dgo-size-12);
+  --dgo-cmdk-group-label-fg:  var(--dgo-color-fg-muted);
+  --dgo-cmdk-backdrop-bg:     var(--dgo-color-surface-overlay);
+  --dgo-cmdk-z:               var(--dgo-z-modal);
+}

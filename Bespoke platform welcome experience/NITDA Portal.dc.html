@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<!-- @template name="NITDA Intelligent Portal" description="Public-facing NITDA portal — home, guided document submission, tracking, support and settings, fully NITDA-branded and responsive." -->
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/colors_and_type.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.primitive.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.semantic.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.theme-light.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.theme-dark.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.component.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/tokens/tokens.density.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/reset.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/base.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/layout.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/dgo-design-system/styles/components.css">
+<link rel="stylesheet" href="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/styles.css">
+<script src="_ds/nitda-design-system-019ddcd9-a7c2-72b6-9389-5f8171e90f2b/_ds_bundle.js"></script>
+<style>
+html,body{margin:0;min-height:100%}
+a{text-decoration:none}
+::selection{background:var(--nitda-smart-green-40);color:var(--nitda-deep-green)}
+@keyframes nitdaFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.nitda-view{animation:nitdaFade 320ms var(--ease-standard)}
+input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none;border-color:var(--nitda-smart-green) !important;box-shadow:0 0 0 3px rgba(23,178,85,.2)}
+@media (max-width:880px){
+  [data-dgo="desktop-nav"]{display:none !important}
+  [data-dgo="menu-btn"]{display:inline-flex !important}
+  [data-dgo="tagline"]{display:none !important}
+}
+@media (max-width:900px){
+  [data-dgo="split-2col"]{grid-template-columns:1fr !important}
+  [data-dgo="hero-grid"]{grid-template-columns:1fr !important}
+}
+@media (max-width:640px){
+  [data-dgo="hero-card"]{padding:28px 20px !important}
+  [data-dgo="display-h1"]{font-size:32px !important}
+  [data-dgo="stepper"]{gap:6px !important}
+  [data-dgo="stepper-label"]{display:none !important}
+}
+@media print{
+  header,footer,[data-dgo="desktop-nav"],[data-dgo="menu-btn"]{display:none !important}
+}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg-subtle);color:var(--fg-default);font-family:var(--font-sans)" data-theme="{{ resolvedTheme }}">
+<a href="#main" class="dgo-skip-link">Skip to content</a>
+
+<header style="position:sticky;top:0;z-index:100;background:var(--nitda-deep-green);box-shadow:var(--shadow-md)">
+  <div style="max-width:1240px;margin:0 auto;min-height:64px;padding:8px 20px;display:flex;align-items:center;gap:8px">
+    <button type="button" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;padding:6px 0;flex:none">
+      <svg width="34" height="34" viewBox="0 0 56 56" aria-hidden="true" style="flex:none"><circle cx="28" cy="28" r="20" fill="none" stroke="var(--nitda-smart-green)" stroke-width="4"></circle><circle cx="28" cy="28" r="6" fill="#fff"></circle><circle cx="48" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle><circle cx="8" cy="28" r="2.4" fill="var(--nitda-smart-green)"></circle></svg>
+      <span style="display:flex;flex-direction:column;line-height:1.2;text-align:left">
+        <span style="font-family:var(--font-display);font-weight:700;font-size:15.5px;letter-spacing:-0.01em;color:#fff">NITDA Intelligent Portal</span>
+        <span data-dgo="tagline" style="font-size:10.5px;color:rgba(255,255,255,.6)">Submission &middot; Tracking &middot; Support</span>
+      </span>
+    </button>
+
+    <nav data-dgo="desktop-nav" aria-label="Primary" style="margin-left:auto;display:flex;align-items:center;gap:2px">
+      <button type="button" onClick="{{ goHome }}" aria-current="{{ homeCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.8)">Home</button>
+      <button type="button" onClick="{{ goSubmit }}" aria-current="{{ submitCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.8)">Submit</button>
+      <button type="button" onClick="{{ goTrack }}" aria-current="{{ trackCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.8)">Track</button>
+      <button type="button" onClick="{{ goSupport }}" aria-current="{{ supportCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.8)">Support</button>
+      <button type="button" onClick="{{ goSettings }}" aria-current="{{ settingsCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.8)">Settings</button>
+      <a href="NITDA Operations Hub.dc.html" style="display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;margin-left:10px;border-radius:6px;background:rgba(255,255,255,.14);color:#fff;font-size:13px;font-weight:600">Operations Hub<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg></a>
+      <button type="button" onClick="{{ cycleTheme }}" title="Theme: {{ themeIcon }}" aria-label="Toggle theme" style="width:36px;height:36px;border-radius:8px;display:grid;place-items:center;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.75);margin-left:6px">
+        <sc-if value="{{ themeIsSun }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></sc-if>
+        <sc-if value="{{ themeIsMoon }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></sc-if>
+      </button>
+    </nav>
+
+    <button data-dgo="menu-btn" type="button" onClick="{{ toggleNav }}" aria-label="Toggle menu" style="display:none;margin-left:auto;width:40px;height:40px;border-radius:8px;background:none;border:none;color:#fff;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h16"></path></svg>
+    </button>
+  </div>
+
+  <sc-if value="{{ mobileNavOpen }}" hint-placeholder-val="{{ false }}">
+    <nav aria-label="Mobile" style="display:flex;flex-direction:column;gap:2px;padding:8px 16px 16px;background:var(--nitda-deep-green-deep);border-top:1px solid rgba(255,255,255,.12)">
+      <button type="button" onClick="{{ goHome }}" aria-current="{{ homeCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.85);min-block-size:44px">Home</button>
+      <button type="button" onClick="{{ goSubmit }}" aria-current="{{ submitCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.85);min-block-size:44px">Submit a Document</button>
+      <button type="button" onClick="{{ goTrack }}" aria-current="{{ trackCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.85);min-block-size:44px">Track a Request</button>
+      <button type="button" onClick="{{ goSupport }}" aria-current="{{ supportCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.85);min-block-size:44px">Support</button>
+      <button type="button" onClick="{{ goSettings }}" aria-current="{{ settingsCurrent }}" class="dgo-sidebar__item" style="color:rgba(255,255,255,.85);min-block-size:44px">Settings</button>
+      <a href="NITDA Operations Hub.dc.html" class="dgo-sidebar__item" style="color:#fff;background:rgba(255,255,255,.1);margin-top:4px;min-block-size:44px">Operations Hub</a>
+    </nav>
+  </sc-if>
+</header>
+
+<main id="main" style="flex:1 1 auto;width:100%">
+<div style="max-width:1160px;margin:0 auto;padding:32px 20px 72px;display:flex;flex-direction:column;gap:28px">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<section data-screen-label="Home" class="nitda-view" style="display:flex;flex-direction:column;gap:24px">
+  <div data-dgo="hero-grid" style="display:grid;grid-template-columns:1.4fr .9fr;gap:20px">
+    <div data-dgo="hero-card" class="dgo-card dgo-card--raised" style="padding:44px;display:flex;flex-direction:column;gap:16px;justify-content:center">
+      <span class="overline" style="display:inline-flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:var(--nitda-smart-green);display:inline-block"></span>Intelligent correspondence services</span>
+      <h1 data-dgo="display-h1" style="margin:0;font-size:42px">One portal.<br>Every document.<br>Clear progress.</h1>
+      <p class="body-lg" style="color:var(--fg-muted);max-width:48ch;margin:0">Submit official documents, validate details before transmission, track workflow progress, download receipts, request assistance, and enter the secured operations hub.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+        <button type="button" onClick="{{ goSubmit }}" class="dgo-btn dgo-btn--primary dgo-btn--lg">Start a submission</button>
+        <button type="button" onClick="{{ goTrack }}" class="dgo-btn dgo-btn--secondary dgo-btn--lg">Track a request</button>
+        <a href="NITDA Operations Hub.dc.html" class="dgo-btn dgo-btn--tertiary dgo-btn--lg">Open Operations Hub</a>
+      </div>
+    </div>
+    <aside class="dgo-card" style="display:flex;flex-direction:column;gap:12px">
+      <h2 style="margin:0">Quick access</h2>
+      <button type="button" onClick="{{ goSubmit }}" style="display:flex;flex-direction:column;gap:3px;text-align:left;padding:12px;border-radius:8px;background:var(--bg-subtle);border:1px solid var(--border-default);cursor:pointer"><b style="font-size:13.5px;color:var(--fg-default)">Document submission</b><span class="caption">Guided form, preview and secure upload</span></button>
+      <button type="button" onClick="{{ goTrack }}" style="display:flex;flex-direction:column;gap:3px;text-align:left;padding:12px;border-radius:8px;background:var(--bg-subtle);border:1px solid var(--border-default);cursor:pointer"><b style="font-size:13.5px;color:var(--fg-default)">Rich tracking</b><span class="caption">Status, officer, timeline and notes</span></button>
+      <button type="button" onClick="{{ goSupport }}" style="display:flex;flex-direction:column;gap:3px;text-align:left;padding:12px;border-radius:8px;background:var(--bg-subtle);border:1px solid var(--border-default);cursor:pointer"><b style="font-size:13.5px;color:var(--fg-default)">Technical support</b><span class="caption">Submit a traceable assistance request</span></button>
+      <div class="dgo-alert dgo-alert--success" style="margin-top:4px"><span class="dgo-alert__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M20 6 9 17l-5-5"></path></svg></span><span class="dgo-alert__body">Production endpoints configured</span></div>
+    </aside>
+  </div>
+
+  <div class="dgo-grid dgo-grid--4">
+    <div class="dgo-metric"><span class="dgo-metric__label">Upload limit</span><span class="dgo-metric__value">10 MB</span></div>
+    <div class="dgo-metric"><span class="dgo-metric__label">Accepted formats</span><span class="dgo-metric__value">9</span></div>
+    <div class="dgo-metric"><span class="dgo-metric__label">Review before send</span><span class="dgo-metric__value">2-step</span></div>
+    <div class="dgo-metric"><span class="dgo-metric__label">External dependencies</span><span class="dgo-metric__value">0</span></div>
+  </div>
+
+  <div class="dgo-grid dgo-grid--3">
+    <div class="dgo-card"><h3>Submit securely</h3><p class="body-sm" style="color:var(--fg-muted);margin:0">Validate sender information, document category, reference metadata and attachment before sending.</p></div>
+    <div class="dgo-card"><h3>Track transparently</h3><p class="body-sm" style="color:var(--fg-muted);margin:0">See the latest workflow stage, responsible office, update time and response notes.</p></div>
+    <div class="dgo-card"><h3>Operate intelligently</h3><p class="body-sm" style="color:var(--fg-muted);margin:0">Authorised staff manage tasks, correspondence and approvals from the secured Operations Hub.</p></div>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSubmit }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Submit a Document" class="nitda-view" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div><h2 style="margin:0">Submit a new document</h2><p class="body-sm" style="color:var(--fg-muted);margin:4px 0 0">Complete the guided workflow. Nothing is transmitted until you confirm the preview.</p></div>
+    <span class="dgo-pill dgo-pill--info">Secure transfer</span>
+  </div>
+
+  <div data-dgo="stepper" class="dgo-stepper">
+    <div class="dgo-stepper__step" data-state="{{ step1State }}"><span class="dgo-stepper__bullet">1</span><span data-dgo="stepper-label">Details</span></div>
+    <div class="dgo-stepper__line"></div>
+    <div class="dgo-stepper__step" data-state="{{ step2State }}"><span class="dgo-stepper__bullet">2</span><span data-dgo="stepper-label">Confirm</span></div>
+    <div class="dgo-stepper__line"></div>
+    <div class="dgo-stepper__step" data-state="{{ step3State }}"><span class="dgo-stepper__bullet">3</span><span data-dgo="stepper-label">Receipt</span></div>
+  </div>
+
+  <div data-dgo="split-2col" style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;align-items:start">
+    <div class="dgo-card">
+
+      <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+        <form onSubmit="{{ reviewSubmit }}" style="display:flex;flex-direction:column;gap:16px">
+          <div class="dgo-grid dgo-grid--2">
+            <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Full name / organisation</span><input class="dgo-input" value="{{ senderName }}" onChange="{{ onSenderName }}" maxlength="160"></input></div>
+            <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Email address</span><input class="dgo-input" type="email" value="{{ senderEmail }}" onChange="{{ onSenderEmail }}" maxlength="254"></input></div>
+            <div class="dgo-field"><span class="dgo-field__label">Telephone</span><input class="dgo-input" type="tel" value="{{ senderPhone }}" onChange="{{ onSenderPhone }}" maxlength="40"></input></div>
+            <div class="dgo-field"><span class="dgo-field__label">Organisation / MDA</span><input class="dgo-input" value="{{ organisation }}" onChange="{{ onOrganisation }}" maxlength="180"></input></div>
+            <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Document / service type</span><select class="dgo-select__field" value="{{ documentType }}" onChange="{{ onDocumentType }}"><option value="">Select type</option><option>Incoming Correspondence</option><option>IT Project Clearance</option><option>Data Protection Audit</option><option>Service Provider Registration</option><option>Policy / Memorandum</option><option>General Inquiry</option></select></div>
+            <div class="dgo-field"><span class="dgo-field__label">Priority</span><select class="dgo-select__field" value="{{ priority }}" onChange="{{ onPriority }}"><option>Normal</option><option>Urgent</option><option>High</option></select></div>
+            <div class="dgo-field"><span class="dgo-field__label">Sender reference</span><input class="dgo-input" value="{{ senderRef }}" onChange="{{ onSenderRef }}" maxlength="100"></input></div>
+            <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Subject</span><input class="dgo-input" value="{{ subject }}" onChange="{{ onSubject }}" maxlength="240"></input></div>
+          </div>
+          <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Description / instruction</span><textarea class="dgo-textarea" rows="5" maxlength="4000" value="{{ description }}" onChange="{{ onDescription }}"></textarea></div>
+
+          <div class="dgo-field">
+            <span class="dgo-field__label dgo-field__label--req">Primary document</span>
+            <sc-if value="{{ noFile }}" hint-placeholder-val="{{ true }}">
+              <div style="position:relative;{{ dropZoneStyle }}">
+                <div style="pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:26px 14px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px;color:var(--nitda-deep-green)"><path d="M12 16V4"></path><path d="m7 9 5-5 5 5"></path><path d="M5 16v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"></path></svg>
+                  <span style="font-weight:600;font-size:13.5px">Drag and drop, or click to browse</span>
+                  <span class="caption">PDF, Word, Excel, PowerPoint, PNG or JPG &middot; up to 10 MB</span>
+                </div>
+                <input type="file" onChange="{{ onFileInputChange }}" onDrop="{{ onDropFile }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%"></input>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasFile }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border-default);border-radius:10px;background:var(--bg-subtle);flex-wrap:wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;color:var(--nitda-deep-green);flex:none"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"></path><path d="M14 2v6h6"></path></svg>
+                <div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ fileName }}</div><div class="caption">{{ fileMeta }}</div></div>
+                <label class="dgo-btn dgo-btn--sm dgo-btn--secondary" style="position:relative">Change<input type="file" onChange="{{ onFileInputChange }}" style="position:absolute;inset:0;opacity:0;cursor:pointer"></input></label>
+                <button type="button" onClick="{{ removeFile }}" class="dgo-btn dgo-btn--sm dgo-btn--ghost">Remove</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasFileError }}" hint-placeholder-val="{{ false }}"><span class="dgo-field__error" style="margin-top:6px">{{ fileError }}</span></sc-if>
+          </div>
+
+          <sc-if value="{{ hasSubmitError }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--danger">{{ submitError }}</div></sc-if>
+          <button type="submit" class="dgo-btn dgo-btn--primary dgo-btn--lg dgo-btn--block">Review submission</button>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <h3 style="margin:0">Confirm submission details</h3>
+          <p class="caption" style="margin:0 0 8px">Review carefully. Confirming will transmit this document for processing.</p>
+          <sc-for list="{{ previewRows }}" as="row" hint-placeholder-count="10">
+            <div style="display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--border-default);font-size:13.5px">
+              <span style="color:var(--fg-muted);flex:none;min-width:140px">{{ row.k }}</span>
+              <span style="text-align:right;font-weight:500;word-break:break-word">{{ row.v }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <button type="button" onClick="{{ editSubmit }}" class="dgo-btn dgo-btn--secondary" disabled="{{ submitting }}">Edit</button>
+            <button type="button" onClick="{{ confirmSubmit }}" class="dgo-btn dgo-btn--primary" disabled="{{ submitting }}" data-loading="{{ submitting }}">Confirm and transmit</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div class="dgo-alert dgo-alert--success" style="margin-bottom:8px"><span class="dgo-alert__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M20 6 9 17l-5-5"></path></svg></span><span class="dgo-alert__body">Submission received. Tracking ID: <strong>{{ receiptId }}</strong></span></div>
+          <h3 style="margin:0">Submission receipt</h3>
+          <sc-for list="{{ receiptRows }}" as="row" hint-placeholder-count="7">
+            <div style="display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--border-default);font-size:13.5px">
+              <span style="color:var(--fg-muted);flex:none;min-width:140px">{{ row.k }}</span>
+              <span style="text-align:right;font-weight:500;word-break:break-word">{{ row.v }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <button type="button" onClick="{{ printReceipt }}" class="dgo-btn dgo-btn--secondary">Print receipt</button>
+            <button type="button" onClick="{{ newSubmission }}" class="dgo-btn dgo-btn--primary">Start a new submission</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <aside class="dgo-card">
+      <h3 style="margin:0 0 10px">Recent activity</h3>
+      <sc-for list="{{ recentShown }}" as="a" hint-placeholder-count="0">
+        <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-default);font-size:12.5px">
+          <span style="font-weight:600">{{ a.type }}</span>
+          <span style="color:var(--fg-muted);text-align:right">{{ a.reference }} &middot; {{ a.whenLabel }}</span>
+        </div>
+      </sc-for>
+      <sc-if value="{{ noRecent }}" hint-placeholder-val="{{ true }}"><p class="caption" style="margin:8px 0 0">No activity recorded yet in this browser.</p></sc-if>
+    </aside>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isTrack }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Track a Request" class="nitda-view" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div><h2 style="margin:0">Track an existing request</h2><p class="body-sm" style="color:var(--fg-muted);margin:4px 0 0">Use the same email address supplied during submission.</p></div>
+    <span class="dgo-pill dgo-pill--info">Live workflow response</span>
+  </div>
+  <div data-dgo="split-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+    <div class="dgo-card">
+      <form onSubmit="{{ reviewTrack }}" style="display:flex;flex-direction:column;gap:16px">
+        <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Submission email</span><input class="dgo-input" type="email" value="{{ trackEmail }}" onChange="{{ onTrackEmail }}" disabled="{{ trackIsConfirm }}"></input></div>
+        <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Tracking ID</span><input class="dgo-input" style="font-family:var(--font-mono)" value="{{ trackingId }}" onChange="{{ onTrackingId }}" disabled="{{ trackIsConfirm }}" placeholder="NITDA/2026/000482"></input></div>
+        <sc-if value="{{ hasTrackFormError }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--danger">{{ trackFormErrorMsg }}</div></sc-if>
+        <sc-if value="{{ trackIsConfirm }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--info">Confirm tracking ID {{ trackingId }} for {{ trackEmail }}.</div></sc-if>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <sc-if value="{{ trackIsForm }}" hint-placeholder-val="{{ true }}"><button type="submit" class="dgo-btn dgo-btn--primary">Review details</button></sc-if>
+          <sc-if value="{{ trackIsConfirm }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ editTrack }}" class="dgo-btn dgo-btn--secondary" disabled="{{ trackLoading }}">Edit</button>
+            <button type="button" onClick="{{ confirmTrack }}" class="dgo-btn dgo-btn--primary" disabled="{{ trackLoading }}" data-loading="{{ trackLoading }}">Confirm and check</button>
+          </sc-if>
+          <sc-if value="{{ trackIsResult }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ newTrack }}" class="dgo-btn dgo-btn--secondary">Track another request</button></sc-if>
+        </div>
+      </form>
+    </div>
+
+    <div class="dgo-card">
+      <h3 style="margin:0 0 10px">Request status</h3>
+      <sc-if value="{{ trackFound }}" hint-placeholder-val="{{ false }}">
+        <span class="dgo-pill dgo-pill--routed" style="margin-bottom:10px">{{ trackStage }}</span>
+        <sc-for list="{{ trackResultRows }}" as="row" hint-placeholder-count="6">
+          <div style="display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--border-default);font-size:13.5px">
+            <span style="color:var(--fg-muted);flex:none;min-width:130px">{{ row.k }}</span>
+            <span style="text-align:right;font-weight:500;word-break:break-word">{{ row.v }}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ hasTimeline }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;display:flex;flex-direction:column">
+            <sc-for list="{{ timelineEvents }}" as="ev" hint-placeholder-count="3">
+              <div style="display:flex;gap:12px;padding:8px 0">
+                <span style="flex:none;width:9px;height:9px;border-radius:50%;background:var(--nitda-smart-green);margin-top:5px"></span>
+                <div><div style="font-weight:600;font-size:13px">{{ ev.stage }}</div><div class="caption" style="margin-top:2px">{{ ev.meta }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </sc-if>
+      <sc-if value="{{ trackNotFound }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--danger">{{ trackNotFoundMsg }}</div></sc-if>
+      <sc-if value="{{ trackIsForm }}" hint-placeholder-val="{{ true }}"><div class="dgo-empty" style="padding:36px 12px"><span class="dgo-empty__body">No request has been retrieved in this session.</span></div></sc-if>
+      <sc-if value="{{ trackIsConfirm }}" hint-placeholder-val="{{ false }}"><div class="dgo-empty" style="padding:36px 12px"><span class="dgo-empty__body">Confirm the details to retrieve the latest workflow response.</span></div></sc-if>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSupport }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Support" class="nitda-view" style="display:flex;flex-direction:column;gap:20px">
+  <div data-dgo="split-2col" style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start">
+    <div class="dgo-card">
+      <h2 style="margin:0 0 6px">Technical support</h2>
+      <p class="body-sm" style="color:var(--fg-muted);margin:0 0 16px">Send a structured request to the configured workflow.</p>
+      <form onSubmit="{{ submitSupport }}" style="display:flex;flex-direction:column;gap:16px">
+        <div class="dgo-grid dgo-grid--2">
+          <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Name</span><input class="dgo-input" value="{{ supportName }}" onChange="{{ onSupportName }}" maxlength="160"></input></div>
+          <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Email</span><input class="dgo-input" type="email" value="{{ supportEmail }}" onChange="{{ onSupportEmail }}" maxlength="254"></input></div>
+          <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Category</span><select class="dgo-select__field" value="{{ supportCategory }}" onChange="{{ onSupportCategory }}"><option>Submission issue</option><option>Tracking issue</option><option>Access / OTP issue</option><option>Technical error</option><option>General question</option></select></div>
+          <div class="dgo-field"><span class="dgo-field__label">Related tracking ID</span><input class="dgo-input" value="{{ supportTracking }}" onChange="{{ onSupportTracking }}" maxlength="120"></input></div>
+        </div>
+        <div class="dgo-field"><span class="dgo-field__label dgo-field__label--req">Message</span><textarea class="dgo-textarea" rows="7" maxlength="4000" value="{{ supportMessage }}" onChange="{{ onSupportMessage }}"></textarea></div>
+        <sc-if value="{{ supportStatusOk }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--success">{{ supportStatusMsg }}</div></sc-if>
+        <sc-if value="{{ supportStatusErr }}" hint-placeholder-val="{{ false }}"><div class="dgo-alert dgo-alert--danger">{{ supportStatusMsg }}</div></sc-if>
+        <button type="submit" class="dgo-btn dgo-btn--primary" disabled="{{ supportSubmitting }}" data-loading="{{ supportSubmitting }}" style="align-self:flex-start">Send support request</button>
+      </form>
+    </div>
+    <aside class="dgo-card" style="display:flex;flex-direction:column;gap:16px">
+      <div><h3 style="margin:0 0 6px">Before you submit</h3><p class="body-sm" style="color:var(--fg-muted);margin:0">Include the tracking ID, exact error message, the action attempted, and the approximate time. Do not include passwords or OTP values.</p></div>
+      <div><h3 style="margin:0 0 6px">Privacy</h3><p class="body-sm" style="color:var(--fg-muted);margin:0">Only information required to diagnose and resolve the request should be submitted.</p></div>
+    </aside>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Settings" class="nitda-view" style="display:flex;flex-direction:column;gap:20px">
+  <div data-dgo="split-2col" style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start">
+    <div class="dgo-card">
+      <h2 style="margin:0 0 6px">Portal settings</h2>
+      <p class="body-sm" style="color:var(--fg-muted);margin:0 0 16px">Production defaults are retained. Valid overrides are stored only in this browser.</p>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="dgo-field"><span class="dgo-field__label">Submission / support endpoint</span><input class="dgo-input" style="font-family:var(--font-mono);font-size:12px" value="{{ cfgSubmit }}" onChange="{{ onCfgSubmit }}"></input></div>
+        <div class="dgo-field"><span class="dgo-field__label">Tracking endpoint</span><input class="dgo-input" style="font-family:var(--font-mono);font-size:12px" value="{{ cfgTrack }}" onChange="{{ onCfgTrack }}"></input></div>
+        <div class="dgo-field"><span class="dgo-field__label">Operations endpoint</span><input class="dgo-input" style="font-family:var(--font-mono);font-size:12px" value="{{ cfgOps }}" onChange="{{ onCfgOps }}"></input></div>
+        <div class="dgo-grid dgo-grid--2">
+          <div class="dgo-field"><span class="dgo-field__label">Theme</span><select class="dgo-select__field" value="{{ cfgTheme }}" onChange="{{ onCfgTheme }}"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+          <div class="dgo-field"><span class="dgo-field__label">Timeout (seconds)</span><input class="dgo-input" type="number" min="10" max="180" value="{{ cfgTimeout }}" onChange="{{ onCfgTimeout }}"></input></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" onClick="{{ saveCfg }}" class="dgo-btn dgo-btn--primary">Save locally</button>
+          <button type="button" onClick="{{ resetCfg }}" class="dgo-btn dgo-btn--secondary">Restore production defaults</button>
+          <button type="button" onClick="{{ exportCfg }}" class="dgo-btn dgo-btn--secondary">Export configuration</button>
+        </div>
+      </div>
+    </div>
+    <aside class="dgo-card">
+      <h3 style="margin:0 0 10px">Runtime status</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="width:8px;height:8px;border-radius:50%;background:{{ statusDotColor }}"></span>
+        <span style="font-size:13px;font-weight:600">{{ statusText }}</span>
+      </div>
+      <p class="body-sm" style="color:var(--fg-muted);margin:0">This portal is standalone HTML, CSS and JavaScript with no CDN, package manager, build process or server runtime dependency.</p>
+    </aside>
+  </div>
+</section>
+</sc-if>
+
+</div>
+</main>
+
+<footer style="margin-top:auto;background:var(--nitda-deep-green-deep);color:rgba(255,255,255,.7);padding:22px 20px;text-align:center;font-size:12.5px">National Information Technology Development Agency &middot; Secure Digital Services &middot; {{ currentYear }}</footer>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:24px;right:24px;left:24px;max-width:360px;margin-left:auto;background:var(--nitda-ink-900);color:#fff;padding:14px 18px;border-radius:10px;box-shadow:var(--shadow-lg);font-size:13px;z-index:1200;animation:nitdaFade 220ms ease">{{ toastMsg }}</div>
+</sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PROD_CFG = {
+  submit: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ff7714c11a74fa4a876f8f6a79b64d2/triggers/manual/paths/invoke",
+  track: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca0bafc172114e0bb4853c135246654c/triggers/manual/paths/invoke",
+  ops: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ff7714c11a74fa4a876f8f6a79b64d2/triggers/manual/paths/invoke",
+  theme: 'system', timeout: 60
+};
+const ALLOWED_EXT = new Set(['pdf','doc','docx','xls','xlsx','ppt','pptx','png','jpg','jpeg']);
+const REC_KEY = 'nitda_portal_records';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const BLANK_FORM = { senderName:'', senderEmail:'', senderPhone:'', organisation:'', documentType:'', priority:'Normal', senderRef:'', subject:'', description:'' };
+const BLANK_SUPPORT = { name:'', email:'', category:'Submission issue', tracking:'', message:'' };
+
+function fmtBytes(n){ return (n/1048576).toFixed(2)+' MB'; }
+function fmtDT(d){ return new Date(d).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function timeAgo(iso){
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.round(diff/60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return m + ' min ago';
+  const h = Math.round(m/60);
+  if (h < 24) return h + 'h ago';
+  return Math.round(h/24) + 'd ago';
+}
+function genId(){ return 'NITDA/' + new Date().getFullYear() + '/' + Math.floor(100000+Math.random()*899999); }
+function genRef(){ return 'SUP-' + Math.floor(10000+Math.random()*89999); }
+function getRecords(){ try { return JSON.parse(localStorage.getItem(REC_KEY)||'{}'); } catch(e){ return {}; } }
+function saveRecordEntry(id, rec){ const all = getRecords(); all[id] = rec; try { localStorage.setItem(REC_KEY, JSON.stringify(all)); } catch(e){} }
+function ensureSeed(){
+  const all = getRecords();
+  if (Object.keys(all).length) return;
+  const now = Date.now();
+  all['NITDA/2026/000482'] = {
+    email: 'demo@nitda.gov.ng',
+    subject: 'Request for .gov.ng Domain Clearance \u2014 Ministry of Youth Development',
+    stage: 'Routing', officer: 'Registry Desk \u2014 B. Yusuf',
+    updated: new Date(now - 6*3600000).toISOString(),
+    notes: 'Forwarded to the Standards and Certification Department for technical review.',
+    timeline: [
+      { stage: 'Received at Central Registry', at: now - 72*3600000 },
+      { stage: 'Triaged and logged', at: now - 70*3600000 },
+      { stage: 'Routed to Standards Department', at: now - 6*3600000 }
+    ]
+  };
+  try { localStorage.setItem(REC_KEY, JSON.stringify(all)); } catch(e){}
+}
+
+class Component extends DCLogic {
+  state = {
+    view: 'home', mobileNavOpen: false, theme: this.props.initialTheme ?? 'system',
+    submitStep: 1, form: {...BLANK_FORM}, file: null, fileError: '', dragOver: false,
+    submitting: false, submitError: '', receipt: null,
+    trackPhase: 'form', trackEmail: '', trackingId: '', trackLoading: false, trackResult: null, trackError: '',
+    support: {...BLANK_SUPPORT}, supportSubmitting: false, supportStatus: null,
+    cfg: {...PROD_CFG, theme: this.props.initialTheme ?? 'system'},
+    recent: [], toast: { show: false, msg: '' }
+  };
+
+  componentDidMount() {
+    ensureSeed();
+    try {
+      const theme = localStorage.getItem('nitda_portal_theme');
+      const cfgRaw = JSON.parse(localStorage.getItem('nitda_portal_config') || 'null');
+      const recent = JSON.parse(localStorage.getItem('nitda_portal_activity') || '[]');
+      this.setState(s => ({
+        theme: theme || s.theme,
+        cfg: cfgRaw ? { ...s.cfg, ...cfgRaw } : s.cfg,
+        recent: Array.isArray(recent) ? recent : []
+      }));
+    } catch(e) {}
+    this._mq = window.matchMedia('(prefers-color-scheme: dark)');
+    this._onMq = () => this.forceUpdate();
+    this._mq.addEventListener('change', this._onMq);
+  }
+  componentWillUnmount() {
+    if (this._mq) this._mq.removeEventListener('change', this._onMq);
+    clearTimeout(this._toastT);
+  }
+
+  setView(v) { this.setState({ view: v, mobileNavOpen: false }); window.scrollTo(0,0); }
+  toggleNav() { this.setState(s => ({ mobileNavOpen: !s.mobileNavOpen })); }
+  showToast(msg) { clearTimeout(this._toastT); this.setState({ toast: { show: true, msg } }); this._toastT = setTimeout(() => this.setState({ toast: { show: false, msg: '' } }), 3200); }
+  pushActivity(entry) {
+    const list = [{ ...entry, at: new Date().toISOString() }, ...this.state.recent].slice(0, 8);
+    this.setState({ recent: list });
+    try { localStorage.setItem('nitda_portal_activity', JSON.stringify(list)); } catch(e) {}
+  }
+  setTheme(v) { this.setState({ theme: v }); try { localStorage.setItem('nitda_portal_theme', v); } catch(e) {} }
+  cycleTheme() { const order = ['light','dark','system']; const next = order[(order.indexOf(this.state.theme)+1)%3]; this.setTheme(next); }
+
+  setField(k, v) { this.setState(s => ({ form: { ...s.form, [k]: v } })); }
+  validateFile(f) {
+    const ext = (f.name.split('.').pop() || '').toLowerCase();
+    const maxBytes = (this.props.uploadLimitMb ?? 10) * 1024 * 1024;
+    if (!ALLOWED_EXT.has(ext)) return 'That file type is not accepted. Use PDF, Word, Excel, PowerPoint, PNG or JPG.';
+    if (f.size > maxBytes) return 'The selected file exceeds the ' + (this.props.uploadLimitMb ?? 10) + ' MB limit.';
+    return '';
+  }
+  onFile(f) { const err = this.validateFile(f); this.setState({ file: err ? null : { name: f.name, size: f.size, type: f.type }, fileError: err }); }
+  onFileInputChange(e) { const f = e.target.files[0]; if (f) this.onFile(f); e.target.value=''; }
+  onDropFile(e) { e.preventDefault(); this.setState({ dragOver: false }); const f = e.dataTransfer.files[0]; if (f) this.onFile(f); }
+  onDragOver(e) { e.preventDefault(); this.setState({ dragOver: true }); }
+  onDragLeave(e) { e.preventDefault(); this.setState({ dragOver: false }); }
+  removeFile() { this.setState({ file: null, fileError: '' }); }
+
+  reviewSubmit(e) {
+    e.preventDefault();
+    const f = this.state.form;
+    if (!f.senderName.trim() || !EMAIL_RE.test(f.senderEmail) || !f.documentType || !f.subject.trim() || !f.description.trim()) {
+      this.setState({ submitError: 'Complete all required fields marked with an asterisk.' }); return;
+    }
+    if (!this.state.file) { this.setState({ submitError: 'Attach a primary document to continue.' }); return; }
+    this.setState({ submitStep: 2, submitError: '' });
+  }
+  editSubmit() { this.setState({ submitStep: 1 }); }
+  confirmSubmit() {
+    this.setState({ submitting: true });
+    setTimeout(() => {
+      const { form, file } = this.state;
+      const id = genId();
+      saveRecordEntry(id, {
+        email: form.senderEmail, subject: form.subject, stage: 'Received', officer: 'Central Registry \u2014 Intake Desk',
+        updated: new Date().toISOString(), notes: 'Submission received and logged. Awaiting triage.',
+        timeline: [{ stage: 'Submitted via public portal', at: Date.now() }]
+      });
+      const receipt = { trackingId: id, date: fmtDT(new Date()), ...form, fileName: file.name };
+      this.pushActivity({ type: 'Submission', reference: id, subject: form.subject });
+      this.setState({ submitting: false, submitStep: 3, receipt });
+      this.showToast('Document submitted successfully.');
+    }, 1200);
+  }
+  newSubmission() { this.setState({ submitStep: 1, form: {...BLANK_FORM}, file: null, fileError: '', receipt: null, submitError: '' }); }
+  printReceipt() { window.print(); }
+
+  setTrackField(k,v) { this.setState({ [k]: v }); }
+  reviewTrack(e) {
+    e.preventDefault();
+    if (!EMAIL_RE.test(this.state.trackEmail) || !this.state.trackingId.trim()) { this.setState({ trackError: 'Enter the email used at submission and a valid tracking ID.' }); return; }
+    this.setState({ trackPhase: 'confirm', trackError: '' });
+  }
+  editTrack() { this.setState({ trackPhase: 'form' }); }
+  confirmTrack() {
+    this.setState({ trackLoading: true });
+    setTimeout(() => {
+      const all = getRecords();
+      const id = this.state.trackingId.trim();
+      const rec = all[id];
+      if (rec && rec.email.toLowerCase() === this.state.trackEmail.trim().toLowerCase()) {
+        this.pushActivity({ type: 'Tracking', reference: id, subject: rec.stage });
+        this.setState({ trackLoading: false, trackPhase: 'result', trackResult: { id, ...rec }, trackError: '' });
+      } else {
+        this.setState({ trackLoading: false, trackPhase: 'result', trackResult: null, trackError: 'No matching workflow record was found for that email address and tracking ID.' });
+      }
+    }, 900);
+  }
+  newTrack() { this.setState({ trackPhase: 'form', trackEmail: '', trackingId: '', trackResult: null, trackError: '' }); }
+
+  setSupportField(k,v) { this.setState(s => ({ support: { ...s.support, [k]: v } })); }
+  submitSupport(e) {
+    e.preventDefault();
+    const s = this.state.support;
+    if (!s.name.trim() || !EMAIL_RE.test(s.email) || !s.message.trim()) { this.setState({ supportStatus: { type: 'error', msg: 'Complete all required fields marked with an asterisk.' } }); return; }
+    this.setState({ supportSubmitting: true, supportStatus: null });
+    setTimeout(() => {
+      const ref = genRef();
+      this.pushActivity({ type: 'Support', reference: ref, subject: s.category });
+      this.setState({ supportSubmitting: false, supportStatus: { type: 'ok', msg: 'Support request sent. Reference: ' + ref }, support: {...BLANK_SUPPORT} });
+    }, 1000);
+  }
+
+  setCfgField(k,v) { this.setState(s => ({ cfg: { ...s.cfg, [k]: v } })); }
+  saveCfg() {
+    const c = this.state.cfg;
+    const valid = [c.submit, c.track, c.ops].every(u => /^https:\/\//i.test(u));
+    if (!valid) { this.showToast('Endpoints must be valid HTTPS URLs.'); return; }
+    try { localStorage.setItem('nitda_portal_config', JSON.stringify(c)); } catch(e) {}
+    this.setTheme(c.theme);
+    this.showToast('Settings saved locally.');
+  }
+  resetCfg() { this.setState({ cfg: {...PROD_CFG} }); try { localStorage.removeItem('nitda_portal_config'); } catch(e) {} this.setTheme('system'); this.showToast('Production defaults restored.'); }
+  exportCfg() {
+    const blob = new Blob([JSON.stringify(this.state.cfg, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nitda-portal-config.json'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const resolvedTheme = s.theme === 'system' ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light') : s.theme;
+    const hasFile = !!s.file;
+    const previewRows = hasFile ? [
+      ['Sender', s.form.senderName], ['Email', s.form.senderEmail], ['Phone', s.form.senderPhone || 'Not provided'],
+      ['Organisation', s.form.organisation || 'Not provided'], ['Service type', s.form.documentType], ['Priority', s.form.priority],
+      ['Sender reference', s.form.senderRef || 'Not provided'], ['Subject', s.form.subject], ['Description', s.form.description],
+      ['Attachment', s.file.name + ' \u00b7 ' + fmtBytes(s.file.size)]
+    ].map(([k,v]) => ({ k, v })) : [];
+    const receiptRows = s.receipt ? [
+      ['Tracking ID', s.receipt.trackingId], ['Submitted', s.receipt.date], ['Sender', s.receipt.senderName],
+      ['Email', s.receipt.senderEmail], ['Subject', s.receipt.subject], ['Attachment', s.receipt.fileName], ['Status', 'Submitted \u2014 awaiting triage']
+    ].map(([k,v]) => ({ k, v })) : [];
+    const trackResultRows = s.trackResult ? [
+      ['Tracking ID', s.trackResult.id], ['Current stage', s.trackResult.stage], ['Last updated', fmtDT(s.trackResult.updated)],
+      ['Assigned officer / unit', s.trackResult.officer], ['Subject', s.trackResult.subject], ['Notes', s.trackResult.notes]
+    ].map(([k,v]) => ({ k, v })) : [];
+    const timelineEvents = s.trackResult ? s.trackResult.timeline.map(ev => ({ stage: ev.stage, meta: fmtDT(ev.at) })) : [];
+    const recentShown = s.recent.slice(0,5).map(a => ({ type: a.type, reference: a.reference, whenLabel: timeAgo(a.at) }));
+    const cfgAllValid = [s.cfg.submit, s.cfg.track, s.cfg.ops].every(u => /^https:\/\//i.test(u));
+
+    return {
+      resolvedTheme, currentYear: new Date().getFullYear(),
+      isHome: s.view==='home', isSubmit: s.view==='submit', isTrack: s.view==='track', isSupport: s.view==='support', isSettings: s.view==='settings',
+      homeCurrent: s.view==='home' ? 'page' : '', submitCurrent: s.view==='submit' ? 'page' : '', trackCurrent: s.view==='track' ? 'page' : '', supportCurrent: s.view==='support' ? 'page' : '', settingsCurrent: s.view==='settings' ? 'page' : '',
+      goHome: () => this.setView('home'), goSubmit: () => this.setView('submit'), goTrack: () => this.setView('track'), goSupport: () => this.setView('support'), goSettings: () => this.setView('settings'),
+      mobileNavOpen: s.mobileNavOpen, toggleNav: () => this.toggleNav(),
+      themeIcon: resolvedTheme === 'dark' ? 'dark' : 'light', themeIsMoon: resolvedTheme === 'dark', themeIsSun: resolvedTheme !== 'dark', cycleTheme: () => this.cycleTheme(),
+
+      isStep1: s.submitStep===1, isStep2: s.submitStep===2, isStep3: s.submitStep===3,
+      step1State: s.submitStep===1?'current':(s.submitStep>1?'done':''),
+      step2State: s.submitStep===2?'current':(s.submitStep>2?'done':''), step3State: s.submitStep===3?'current':'',
+      senderName: s.form.senderName, onSenderName: (e)=>this.setField('senderName', e.target.value),
+      senderEmail: s.form.senderEmail, onSenderEmail: (e)=>this.setField('senderEmail', e.target.value),
+      senderPhone: s.form.senderPhone, onSenderPhone: (e)=>this.setField('senderPhone', e.target.value),
+      organisation: s.form.organisation, onOrganisation: (e)=>this.setField('organisation', e.target.value),
+      documentType: s.form.documentType, onDocumentType: (e)=>this.setField('documentType', e.target.value),
+      priority: s.form.priority, onPriority: (e)=>this.setField('priority', e.target.value),
+      senderRef: s.form.senderRef, onSenderRef: (e)=>this.setField('senderRef', e.target.value),
+      subject: s.form.subject, onSubject: (e)=>this.setField('subject', e.target.value),
+      description: s.form.description, onDescription: (e)=>this.setField('description', e.target.value),
+      hasFile, noFile: !hasFile, fileName: s.file ? s.file.name : '', fileMeta: s.file ? fmtBytes(s.file.size) : '',
+      hasFileError: !!s.fileError, fileError: s.fileError,
+      dropZoneStyle: 'border:2px dashed ' + (s.fileError ? 'var(--nitda-danger)' : (s.dragOver ? 'var(--nitda-smart-green)' : 'var(--border-strong)')) + ';border-radius:12px;background:' + (s.dragOver ? 'var(--nitda-smart-green-40)' : 'var(--bg-subtle)') + ';transition:all 150ms ease',
+      onFileInputChange: (e)=>this.onFileInputChange(e), onDropFile: (e)=>this.onDropFile(e), onDragOver: (e)=>this.onDragOver(e), onDragLeave: (e)=>this.onDragLeave(e), removeFile: ()=>this.removeFile(),
+      hasSubmitError: !!s.submitError, submitError: s.submitError,
+      reviewSubmit: (e)=>this.reviewSubmit(e), editSubmit: ()=>this.editSubmit(), confirmSubmit: ()=>this.confirmSubmit(), newSubmission: ()=>this.newSubmission(), printReceipt: ()=>this.printReceipt(),
+      submitting: s.submitting,
+      previewRows, receiptRows, receiptId: s.receipt ? s.receipt.trackingId : '',
+      noRecent: recentShown.length===0, recentShown,
+
+      trackIsForm: s.trackPhase==='form', trackIsConfirm: s.trackPhase==='confirm', trackIsResult: s.trackPhase==='result',
+      trackEmail: s.trackEmail, onTrackEmail: (e)=>this.setTrackField('trackEmail', e.target.value),
+      trackingId: s.trackingId, onTrackingId: (e)=>this.setTrackField('trackingId', e.target.value),
+      hasTrackFormError: !!s.trackError && s.trackPhase==='form', trackFormErrorMsg: s.trackPhase==='form' ? s.trackError : '',
+      reviewTrack: (e)=>this.reviewTrack(e), editTrack: ()=>this.editTrack(), confirmTrack: ()=>this.confirmTrack(), newTrack: ()=>this.newTrack(),
+      trackLoading: s.trackLoading,
+      trackFound: !!s.trackResult, trackNotFound: s.trackPhase==='result' && !s.trackResult,
+      trackResultRows, timelineEvents, hasTimeline: timelineEvents.length>0, trackStage: s.trackResult ? s.trackResult.stage : '', trackNotFoundMsg: s.trackPhase==='result' ? s.trackError : '',
+
+      supportName: s.support.name, onSupportName: (e)=>this.setSupportField('name', e.target.value),
+      supportEmail: s.support.email, onSupportEmail: (e)=>this.setSupportField('email', e.target.value),
+      supportCategory: s.support.category, onSupportCategory: (e)=>this.setSupportField('category', e.target.value),
+      supportTracking: s.support.tracking, onSupportTracking: (e)=>this.setSupportField('tracking', e.target.value),
+      supportMessage: s.support.message, onSupportMessage: (e)=>this.setSupportField('message', e.target.value),
+      submitSupport: (e)=>this.submitSupport(e), supportSubmitting: s.supportSubmitting,
+      supportStatusOk: !!(s.supportStatus && s.supportStatus.type==='ok'), supportStatusErr: !!(s.supportStatus && s.supportStatus.type==='error'), supportStatusMsg: s.supportStatus ? s.supportStatus.msg : '',
+
+      cfgSubmit: s.cfg.submit, onCfgSubmit: (e)=>this.setCfgField('submit', e.target.value),
+      cfgTrack: s.cfg.track, onCfgTrack: (e)=>this.setCfgField('track', e.target.value),
+      cfgOps: s.cfg.ops, onCfgOps: (e)=>this.setCfgField('ops', e.target.value),
+      cfgTheme: s.cfg.theme, onCfgTheme: (e)=>this.setCfgField('theme', e.target.value),
+      cfgTimeout: s.cfg.timeout, onCfgTimeout: (e)=>this.setCfgField('timeout', +e.target.value),
+      saveCfg: ()=>this.saveCfg(), resetCfg: ()=>this.resetCfg(), exportCfg: ()=>this.exportCfg(),
+      statusDotColor: cfgAllValid ? 'var(--nitda-smart-green)' : 'var(--nitda-danger)',
+      statusText: cfgAllValid ? 'All production endpoints are configured' : 'One or more endpoints need attention',
+
+      toastShow: s.toast.show, toastMsg: s.toast.msg
+    };
+  }
+}
+</script>
+</body>
+</html>

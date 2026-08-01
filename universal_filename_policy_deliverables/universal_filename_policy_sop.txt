@@ -1,0 +1,55 @@
+UNIVERSAL FILENAME POLICY — STANDARD OPERATING PROCEDURE (SOP)
+Version: v1.0
+Effective date: 2026-06-16
+Owner: Document Control / Operations
+
+Purpose
+This SOP defines the mandatory method for naming files so they remain clear, sortable, system-safe, and consistent.
+
+Mandatory filename pattern
+subject_document_type[_descriptor][_v#][_yyyy-mm-dd]
+
+Validation regex
+^[a-z0-9]+(?:_[a-z0-9]+)*(?:_v[0-9]+(?:_[0-9]+)?)?(?:_[0-9]{4}-[0-9]{2}-[0-9]{2})?$
+
+Rules
+1. Use lowercase only.
+2. Use underscores between words.
+3. Use letters a-z and numbers 0-9. Hyphens are allowed only within the final ISO date token.
+4. Put the primary subject or project first.
+5. Use a standard document type term such as policy, procedure, guide, report, audit, requirements, proposal, plan, minutes, checklist, template, register, log, or analysis.
+6. Add an optional descriptor only when it adds meaning.
+7. Use versions as v1, v2, v3, etc. Minor versions may use v1_1, v1_2.
+8. If a date is included, place it last and format it as yyyy-mm-dd.
+9. Do not use spaces, slashes, colons, brackets, quotes, or other prohibited punctuation.
+10. Do not use vague words such as final, latest, new, misc, updated, or use_this_one.
+
+Procedure
+1. Identify the file subject.
+2. Select the standard document type.
+3. Add a short descriptor only if necessary.
+4. Add the version if the file is controlled or revised.
+5. Add the date last only if operationally useful.
+6. Validate the result against the regex.
+7. Save and publish the file using the approved filename.
+
+Approved examples
+- unified_hub_requirements_hybrid
+- unified_hub_requirements_hybrid_v1
+- ai_session_operating_rules_v1
+- meeting_minutes_v1_2026-06-16
+- security_audit_v2
+
+Prohibited examples
+- Unified Hub Business Requirements Document (BRD) / Functional Requirements Document (FRD) Hybrid
+- AI session mandatory operating rules FINAL
+- SYSTEM DIRECTIVE: SYSTEMATIC ARCHITECTURE AND STRUCTURAL AUDIT
+- document_new_latest_final2
+
+Current canonical examples from this session
+- unified_hub_requirements_hybrid
+- ai_session_mandatory_operating_rules
+- system_directive_systematic_architecture_structural_audit
+
+Compliance statement
+All documents created, revised, shared, uploaded, archived, or automated under this standard must comply with this policy unless a documented exception is approved by the file owner or document control authority.

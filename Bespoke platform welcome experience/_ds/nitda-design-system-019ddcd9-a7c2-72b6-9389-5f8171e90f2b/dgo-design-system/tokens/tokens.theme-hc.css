@@ -1,0 +1,75 @@
+/* ============================================================
+   DGO v2.0 — Theme: High-Contrast
+   Activated by [data-theme="hc"].
+   Targets WCAG 2.2 AAA where possible.
+   ============================================================ */
+
+[data-theme="hc"] {
+  --dgo-paper:                #FFFFFF;
+  --dgo-paper-raised:         #FFFFFF;
+  --dgo-paper-sunken:         #F5F4F4;
+
+  --dgo-color-surface-page:   #FFFFFF;
+  --dgo-color-surface-raised: #FFFFFF;
+  --dgo-color-surface-sunken: #F0EFEF;
+  --dgo-color-surface-muted:  #FFFFFF;
+  --dgo-color-surface-inverse:#000000;
+
+  /* Text — pushed to black/white */
+  --dgo-color-fg-default:     #000000;
+  --dgo-color-fg-strong:      #000000;
+  --dgo-color-fg-muted:       #2D2C2C;
+  --dgo-color-fg-subtle:      #4A4849;
+  --dgo-color-fg-on-brand:    #FFFFFF;
+  --dgo-color-fg-link:        #022819;
+  --dgo-color-fg-link-hover:  #000000;
+
+  /* Borders — high contrast */
+  --dgo-color-border-default: #000000;
+  --dgo-color-border-strong:  #000000;
+  --dgo-color-border-stronger:#000000;
+
+  /* Action — deepest greens */
+  --dgo-color-action-primary:        #022819;
+  --dgo-color-action-primary-hover:  #000000;
+  --dgo-color-action-primary-press:  #000000;
+  --dgo-color-action-accent:         #0A5828;
+  --dgo-color-action-danger:         #780820;
+
+  /* Status — bold colors, dark text */
+  --dgo-color-status-pending-bg:    #FBF1D8;
+  --dgo-color-status-pending-fg:    #5A3F00;
+  --dgo-color-status-routed-bg:     #E6F0F8;
+  --dgo-color-status-routed-fg:     #054871;
+  --dgo-color-status-replied-bg:    #C2EED2;
+  --dgo-color-status-replied-fg:    #07401D;
+  --dgo-color-status-action-bg:     #FBE7EB;
+  --dgo-color-status-action-fg:     #780820;
+  --dgo-color-status-draft-bg:      #CFE3D8;
+  --dgo-color-status-draft-fg:      #022819;
+  --dgo-color-status-archived-bg:   #E8E6E7;
+  --dgo-color-status-archived-fg:   #000000;
+  --dgo-color-status-escalated-bg:  #780820;
+  --dgo-color-status-escalated-fg:  #FFFFFF;
+
+  /* Components */
+  --dgo-card-border:       #000000;
+  --dgo-input-border:      #000000;
+  --dgo-input-border-hover:#000000;
+  --dgo-table-border:      #000000;
+
+  /* Focus — thicker, black-and-yellow stack */
+  --dgo-focus-ring: 0 0 0 2px #FFFFFF, 0 0 0 6px #000000, 0 0 0 9px #E1A100;
+
+  color-scheme: light;
+}
+
+/* When the OS asks for forced colors, lean on system colors */
+@media (forced-colors: active) {
+  :root {
+    --dgo-color-action-primary: ButtonText;
+    --dgo-color-border-default: CanvasText;
+    --dgo-color-fg-default: CanvasText;
+    --dgo-color-fg-link: LinkText;
+  }
+}

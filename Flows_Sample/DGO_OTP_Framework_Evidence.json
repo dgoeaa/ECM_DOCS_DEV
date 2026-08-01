@@ -1,0 +1,24 @@
+{
+  "otp_endpoints": [
+    "OTP_GENERATE",
+    "OTP_VERIFY"
+  ],
+  "endpoint_family": "F6",
+  "login_uses": [
+    "API.callAPI(OTP_GENERATE)",
+    "API.callAPI(OTP_VERIFY)",
+    "Persona.setSession"
+  ],
+  "component": "shared/components/pf-otp-modal.js",
+  "bulk_assignment_requires_otp": true,
+  "endpoint_contract_otp_required_for": [
+    "BULK_ASSIGNMENT",
+    "BULK_ASSIGNMENT_DIRECT"
+  ],
+  "validator_has_requireOtp": true,
+  "error_router_otp_kinds": [
+    "OTP_REQUIRED",
+    "OTP_INVALID",
+    "OTP_EXPIRED"
+  ]
+}

@@ -1,0 +1,330 @@
+/* ============================================================
+   DGO · Command Palette  (v2.1)
+   ------------------------------------------------------------
+   Keyboard-first launcher. WAI-ARIA APG 1.2 combobox-with-
+   aria-activedescendant pattern. Tab closes the palette (see
+   docs/components/command-palette.md §9).
+
+   Layer:        dgo-component
+   Namespace:    .dgo-cmdk* (BEM)
+   Depends on:   tokens/tokens.primitive.css
+                 tokens/tokens.semantic.css
+                 tokens/tokens.component.css      (--dgo-cmdk-* block)
+                 tokens/tokens.density.css
+                 styles/base.css                  (dgo-visually-hidden,
+                                                   focus-ring var)
+   No hard-coded colors, sizes, or durations — every value is a var().
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Backdrop + state machine
+   ------------------------------------------------------------ */
+.dgo-cmdk-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--dgo-cmdk-z, var(--dgo-z-modal));
+  display: grid;
+  place-items: start center;
+  padding-block-start: 14vh;
+  padding-inline: var(--dgo-s-4);
+  background: var(--dgo-cmdk-backdrop-bg, var(--dgo-color-surface-overlay));
+  animation: dgo-fade-in var(--dgo-motion-enter);
+}
+.dgo-cmdk-backdrop[data-state="closed"] { display: none; }
+.dgo-cmdk-backdrop[data-state="closing"] { animation: dgo-fade-out var(--dgo-motion-exit) forwards; }
+
+/* ------------------------------------------------------------
+   Dialog
+   ------------------------------------------------------------ */
+.dgo-cmdk {
+  inline-size: 100%;
+  max-inline-size: var(--dgo-cmdk-w, clamp(320px, 90vw, 640px));
+  max-block-size: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--dgo-cmdk-bg, var(--dgo-color-surface-raised));
+  border: 1px solid var(--dgo-cmdk-border, var(--dgo-color-border-default));
+  border-radius: var(--dgo-cmdk-radius, var(--dgo-r-10));
+  box-shadow: var(--dgo-cmdk-shadow, var(--dgo-elevation-modal, var(--dgo-shadow-5)));
+  overflow: clip;
+  animation: dgo-cmdk-in var(--dgo-motion-enter);
+}
+.dgo-cmdk-backdrop[data-state="closing"] .dgo-cmdk {
+  animation: dgo-cmdk-out var(--dgo-motion-exit) forwards;
+}
+
+/* Inline variant — no backdrop, no focus trap, no animation */
+.dgo-cmdk--inline {
+  position: relative;
+  animation: none;
+  max-block-size: none;
+}
+
+/* ------------------------------------------------------------
+   Search row
+   ------------------------------------------------------------ */
+.dgo-cmdk__search {
+  display: flex;
+  align-items: center;
+  gap: var(--dgo-s-3);
+  padding-inline: var(--dgo-s-4);
+  block-size: var(--dgo-cmdk-input-h, 48px);
+  border-block-end: 1px solid var(--dgo-color-border-default);
+  background: var(--dgo-cmdk-input-bg, transparent);
+}
+.dgo-cmdk__search-icon {
+  flex: none;
+  inline-size: 20px; block-size: 20px;
+  color: var(--dgo-color-fg-muted);
+  fill: none; stroke: currentColor; stroke-width: 1.75;
+}
+.dgo-cmdk__input {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  block-size: 100%;
+  border: 0;
+  outline: 0;            /* the focus surface is the active descendant — see §10 */
+  background: transparent;
+  color: var(--dgo-color-fg-strong);
+  font-family: var(--dgo-family-sans, inherit);
+  font-size: var(--dgo-cmdk-input-fs, var(--dgo-type-body-lg));
+  line-height: var(--dgo-lh-130, 1.3);
+  caret-color: var(--dgo-color-action-primary);
+}
+.dgo-cmdk__input::placeholder {
+  color: var(--dgo-color-fg-subtle);
+  font-weight: var(--dgo-wt-400);
+}
+.dgo-cmdk__input::-webkit-search-cancel-button { display: none; }
+.dgo-cmdk__hint {
+  flex: none;
+  font-size: var(--dgo-size-12, 12px);
+  color: var(--dgo-color-fg-subtle);
+  font-family: var(--dgo-family-mono, ui-monospace, monospace);
+  letter-spacing: var(--dgo-tr-normal);
+  user-select: none;
+}
+
+/* ------------------------------------------------------------
+   Listbox
+   ------------------------------------------------------------ */
+.dgo-cmdk__listbox {
+  list-style: none;
+  margin: 0;
+  padding: var(--dgo-cmdk-pad, var(--dgo-s-2));
+  overflow-y: auto;
+  max-block-size: 40vh;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dgo-color-border-strong) transparent;
+}
+.dgo-cmdk--inline .dgo-cmdk__listbox { max-block-size: none; }
+.dgo-cmdk__listbox::-webkit-scrollbar { inline-size: 8px; }
+.dgo-cmdk__listbox::-webkit-scrollbar-thumb {
+  background: var(--dgo-color-border-strong);
+  border-radius: 999px;
+}
+
+/* Group */
+.dgo-cmdk__group { list-style: none; padding: 0; margin: 0; }
+.dgo-cmdk__group + .dgo-cmdk__group { margin-block-start: var(--dgo-s-2); }
+.dgo-cmdk__group > ul { list-style: none; padding: 0; margin: 0; }
+.dgo-cmdk__group-label {
+  font-family: var(--dgo-family-sans, inherit);
+  font-size: var(--dgo-cmdk-group-label-fs, var(--dgo-size-12));
+  font-weight: var(--dgo-wt-600);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dgo-cmdk-group-label-fg, var(--dgo-color-fg-muted));
+  padding-inline: var(--dgo-cmdk-item-pad, var(--dgo-s-3));
+  padding-block: var(--dgo-s-2);
+  margin: 0;
+}
+
+/* Item */
+.dgo-cmdk__item {
+  display: flex;
+  align-items: center;
+  gap: var(--dgo-s-3);
+  min-block-size: var(--dgo-cmdk-item-h, 44px);
+  padding-inline: var(--dgo-cmdk-item-pad, var(--dgo-s-3));
+  padding-block: var(--dgo-s-2);
+  border-radius: var(--dgo-cmdk-item-radius, var(--dgo-r-4));
+  color: var(--dgo-color-fg-strong);
+  font-size: var(--dgo-cmdk-item-fs, var(--dgo-type-body, var(--dgo-size-14)));
+  cursor: pointer;
+  user-select: none;
+  background: var(--dgo-cmdk-item-bg, transparent);
+  transition: background var(--dgo-motion-state, var(--dgo-dur-fast) var(--dgo-ease-standard));
+}
+.dgo-cmdk__item:hover { background: var(--dgo-color-surface-muted, var(--dgo-color-fg-on-accent)); }
+.dgo-cmdk__item[aria-selected="true"] {
+  background: var(--dgo-cmdk-item-bg-active, var(--dgo-color-action-primary-soft, var(--dgo-green-100)));
+  color: var(--dgo-cmdk-item-fg-active, var(--dgo-color-fg-strong));
+}
+.dgo-cmdk__item[aria-selected="true"] .dgo-cmdk__item-icon { color: var(--dgo-color-action-primary); }
+.dgo-cmdk__item[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.dgo-cmdk__item:active { transform: scale(0.99); transition-duration: var(--dgo-dur-instant, 50ms); }
+
+.dgo-cmdk__item-icon {
+  flex: none;
+  inline-size: 18px; block-size: 18px;
+  color: var(--dgo-color-fg-muted);
+  fill: none; stroke: currentColor; stroke-width: 1.75;
+}
+.dgo-cmdk__item-label {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  font-weight: var(--dgo-wt-500);
+  text-wrap: pretty;
+  line-height: var(--dgo-lh-150, 1.5);
+}
+.dgo-cmdk__item-label mark {
+  background: transparent;
+  color: var(--dgo-color-action-primary);
+  font-weight: var(--dgo-wt-700);
+  padding: 0;
+}
+.dgo-cmdk__item-meta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dgo-s-1, 4px);
+  color: var(--dgo-cmdk-meta-fg, var(--dgo-color-fg-muted));
+  font-size: var(--dgo-size-12, 12px);
+}
+
+/* Empty + footer */
+.dgo-cmdk__empty {
+  padding: var(--dgo-s-6) var(--dgo-s-4);
+  text-align: center;
+  color: var(--dgo-color-fg-muted);
+  font-size: var(--dgo-type-body, var(--dgo-size-14));
+}
+.dgo-cmdk__empty strong {
+  display: block;
+  color: var(--dgo-color-fg-strong);
+  font-weight: var(--dgo-wt-600);
+  margin-block-end: var(--dgo-s-1, 4px);
+}
+.dgo-cmdk__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--dgo-s-3);
+  padding: var(--dgo-s-2) var(--dgo-s-4);
+  border-block-start: 1px solid var(--dgo-color-border-default);
+  background: var(--dgo-color-surface-muted, transparent);
+  font-size: var(--dgo-size-12, 12px);
+  color: var(--dgo-color-fg-muted);
+}
+.dgo-cmdk__footer-hint { display: inline-flex; gap: var(--dgo-s-2); align-items: center; flex-wrap: wrap; }
+.dgo-cmdk__footer-brand {
+  font-family: var(--dgo-family-sans, inherit);
+  font-weight: var(--dgo-wt-600);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dgo-color-fg-subtle);
+  font-size: 10px;
+}
+
+/* ------------------------------------------------------------
+   Loading + error
+   ------------------------------------------------------------ */
+.dgo-cmdk[data-loading="true"] .dgo-cmdk__listbox { pointer-events: none; }
+.dgo-cmdk__loading-row {
+  display: block;
+  block-size: var(--dgo-cmdk-item-h, 44px);
+  margin: var(--dgo-s-1, 4px) 0;
+  border-radius: var(--dgo-cmdk-item-radius, var(--dgo-r-4));
+}
+.dgo-cmdk[data-error="true"] .dgo-cmdk__listbox { display: none; }
+.dgo-cmdk__error {
+  padding: var(--dgo-s-4);
+}
+
+/* ------------------------------------------------------------
+   Keyframes
+   ------------------------------------------------------------ */
+@keyframes dgo-cmdk-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dgo-cmdk-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-8px) scale(0.98); }
+}
+@keyframes dgo-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ------------------------------------------------------------
+   Density
+   The compact rebinds of --dgo-cmdk-input-h / -item-h / -item-pad
+   live in tokens/tokens.density.css under the [data-density="compact"]
+   root scope, so they register as proper density-scoped tokens
+   (custom properties belong on a :root / [data-*] scope, not a
+   component selector).
+   ------------------------------------------------------------ */
+
+/* ------------------------------------------------------------
+   Theme overrides — high-contrast
+   ------------------------------------------------------------ */
+[data-theme="hc"] .dgo-cmdk {
+  border-width: 2px;
+  border-color: var(--dgo-color-fg-strong);
+}
+[data-theme="hc"] .dgo-cmdk__input {
+  border-block-end: 2px solid var(--dgo-color-fg-strong);
+}
+[data-theme="hc"] .dgo-cmdk__item[aria-selected="true"] {
+  background: var(--dgo-color-action-primary);
+  color: var(--dgo-color-fg-on-accent, #fff);
+  outline: 2px solid var(--dgo-color-fg-strong);
+  outline-offset: -2px;
+}
+
+/* ------------------------------------------------------------
+   Forced-colours fallback (Windows HC, OS-level)
+   ------------------------------------------------------------ */
+@media (forced-colors: active) {
+  .dgo-cmdk {
+    border: 2px solid CanvasText;
+    box-shadow: none;
+    background: Canvas;
+  }
+  .dgo-cmdk__search { border-block-end: 2px solid CanvasText; }
+  .dgo-cmdk__input { color: CanvasText; }
+  .dgo-cmdk__item[aria-selected="true"] {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .dgo-cmdk__item[aria-selected="true"] .dgo-cmdk__item-icon { color: HighlightText; }
+  .dgo-cmdk__item-meta { color: GrayText; }
+}
+
+/* ------------------------------------------------------------
+   Reduced-motion fallback
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .dgo-cmdk,
+  .dgo-cmdk-backdrop,
+  .dgo-cmdk-backdrop[data-state="closing"] .dgo-cmdk,
+  .dgo-cmdk-backdrop[data-state="closing"] {
+    animation: none;
+  }
+  .dgo-cmdk__item { transition: none; }
+  .dgo-cmdk__item:active { transform: none; }
+}
+
+/* ------------------------------------------------------------
+   RTL — the dialog is symmetric; nothing to flip except the
+   item chevron used by submenu-bearing rows.
+   ------------------------------------------------------------ */
+[dir="rtl"] .dgo-cmdk__item-chevron[data-rtl-flip] { transform: scaleX(-1); }
