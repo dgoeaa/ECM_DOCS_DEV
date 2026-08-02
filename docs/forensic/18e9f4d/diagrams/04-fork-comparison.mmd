@@ -1,0 +1,57 @@
+%% Diagram 4 - Variant and fork comparison at 18e9f4d
+%% Source-of-truth conclusion is stated where one exists, and marked INDETERMINATE where not.
+flowchart TB
+
+  subgraph DS["DESIGN SYSTEM - 12 common files, 2 identical, 10 diverged"]
+    direction TB
+    ROOTDS["styles/dgo-design-system/<br/>18 files"]
+    PORTDS["document-portal/ds/<br/>forked copy"]
+
+    SHARED["BYTE-IDENTICAL - 2<br/>tokens.component.css<br/>tokens.density.css"]
+    DIVERGED["DIVERGED - 10<br/>base / colors_and_type / components<br/>layout / reset / tokens.primitive<br/>tokens.semantic / theme-dark<br/>theme-hc / theme-light"]
+    ONLYROOT["ROOT ONLY - 4<br/>brand-type.css<br/>platform-authority.css<br/>tokens.enhanced.css<br/>tokens.legacy-bridge.css"]
+    ONLYPORT["PORTAL ONLY - 7<br/>ds.css / command-palette.css<br/>sprite.svg / CascadiaMono woff2<br/>3 NITDA logo PNGs"]
+
+    ROOTDS --- SHARED --- PORTDS
+    ROOTDS --- DIVERGED --- PORTDS
+    ROOTDS --- ONLYROOT
+    PORTDS --- ONLYPORT
+  end
+
+  VERDICT1[["SOURCE OF TRUTH: INDETERMINATE - OQ-2<br/>The two copies were NEVER identical in this repository.<br/>They differed at their respective 'Add files via upload'<br/>commits 5a0a93a and 501bc42, 11 minutes apart.<br/>No common ancestor exists here to measure drift from."]]
+  DS --> VERDICT1
+
+  subgraph APPS["FEATURE LAYER - root modules vs ActivityHub"]
+    direction TB
+    RM["ROOT modules/ - 25 files<br/>one mount(el) per route<br/>render + fetch + govern in ONE module<br/>25/25 import governed-actions.js<br/>14/25 import core/api.js"]
+    AHL["ACTIVITYHUB - LAYERED<br/>views/pages/*.js - 19, render from Store only<br/>services/*.js - 13, fetch and mutate<br/>controllers/actions.js - orchestrates<br/>core/router.js - route + authz predicate<br/>views/router.js - view dispatcher"]
+  end
+
+  PAIR["NAME PAIRING - 10 of 19 pages share a service name<br/>ai approvals briefs decisions inbox<br/>kpi meetings minutes projects tasks<br/>service-only 3: bootstrap correspondence ops<br/>page-only 9: admin audit dashboard directory<br/>inward notfound notifications outward reports"]
+  AHL --- PAIR
+
+  VERDICT2[["NOT DUPLICATION - LAYERING.<br/>No page imports its same-named service.<br/>All 13 services are imported by<br/>controllers/actions.js. The 9 page-only<br/>names are read-only views with no service.<br/>The two routers have disjoint responsibilities."]]
+  PAIR --> VERDICT2
+
+  VERDICT3[["ARCHITECTURAL DIVERGENCE IS REAL<br/>Root collapses render+fetch+govern into one module.<br/>ActivityHub separates them across four layers.<br/>Neither imports the other. No shared component code.<br/>Only config/rbac.config.js is genuinely shared -<br/>and only with proxy/, not between the two UIs."]]
+  RM --> VERDICT3
+  AHL --> VERDICT3
+
+  subgraph DEL["document-portal_Central_NITDA_ - DELETED"]
+    DEL1["Deleted in 776d26c<br/>41 files"]
+    DEL2["At coexistence 994c262:<br/>26 byte-identical to document-portal/<br/>15 divergent"]
+    DEL3["At 177d992 and at 18e9f4d:<br/>41 of 41 match the DELETED variant"]
+    DEL1 --> DEL2 --> DEL3
+  end
+
+  VERDICT4[["THE COMMIT RECORDED A DELETION<br/>BUT PERFORMED A REPLACEMENT.<br/>The surviving document-portal/ carries the<br/>NITDA variant's content under the original name.<br/>Hashes CONFIRMED; intent INFERRED - no commit<br/>message states the replacement."]]
+  DEL --> VERDICT4
+
+  classDef same fill:#1E6B47,stroke:#0F3A26,color:#ffffff
+  classDef div  fill:#A0601A,stroke:#6B3F11,color:#ffffff
+  classDef ind  fill:#57655E,stroke:#3A443E,color:#ffffff
+  classDef ok   fill:#2B6280,stroke:#1C4054,color:#ffffff
+  class SHARED same
+  class DIVERGED,ONLYROOT,ONLYPORT div
+  class VERDICT1 ind
+  class VERDICT2,VERDICT3,VERDICT4 ok
