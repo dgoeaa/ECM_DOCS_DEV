@@ -6,9 +6,9 @@
 > [`proxy/`](proxy/) — complete and tested, but NOT YET DEPLOYED.** Until it is deployed
 > and the clients are pointed at it, nothing below is enforced: the client can only decline
 > to send a request, never prevent one.
-> Everything in `core/auth.js` and `config/auth.config.js` is preparation. Until the
-> obligations in §2 are implemented in the backend, **no control in this platform is
-> enforced** — the client can only decline to send a request, never prevent one.
+>
+> Everything in `core/auth.js`, `ECM_ActivityHub_Portal/js/core/auth.js` and `config/auth.config.js`
+> is preparation. `proxy/` is the enforcement, and it is not yet running.
 
 ---
 
@@ -50,7 +50,7 @@ Power Automate HTTP triggers cannot validate a JWT properly on their own. The re
 ## 3. Activation procedure
 
 1. **Register an app** in Entra ID. Note tenant id and client id. Define app roles matching `config/rbac.config.js`: `systemAdmin`, `userAdmin`, `executive`, `director`, `operator`, `viewer`.
-2. **Stand up the proxy** implementing §2, in front of the Power Automate flows.
+2. **Deploy the proxy** from [`proxy/`](proxy/) in front of the Power Automate flows, moving the signed URLs into its environment. See [`proxy/README.md`](proxy/README.md).
 3. **Inject configuration at deploy time** — never commit it:
 
 ```js
