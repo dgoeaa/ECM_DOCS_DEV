@@ -131,6 +131,34 @@ test.describe('DGO R11.6 root runtime', () => {
     expect(mirrors.shell, 'data-theme must not be mirrored onto <dgo-shell>').toBeNull();
   });
 
+  test('the welcome overlay is driven by design tokens, not hardcoded literals', async ({ page }) => {
+    // The overlay is the first surface a user sees and used to be the only one that
+    // ignored the active theme: its eight --wel-* names were literals, so light, dark
+    // and high-contrast all painted identically. They now resolve from platform tokens.
+    await page.goto('/index.html', { waitUntil: 'networkidle' });
+    await page.waitForSelector('.dgo-wel', { timeout: 15_000 });
+
+    const sample = async theme =>
+      page.evaluate(t => {
+        document.documentElement.dataset.theme = t;
+        const el = document.querySelector('.dgo-wel');
+        const root = getComputedStyle(document.documentElement);
+        return {
+          bg: getComputedStyle(el).backgroundColor,
+          token: root.getPropertyValue('--dgo-color-surface-brand').trim(),
+        };
+      }, theme);
+
+    const light = await sample('light');
+    const hc = await sample('hc');
+
+    // High contrast overrides --dgo-color-surface-brand, so the overlay must move with it.
+    // Dark deliberately keeps green-700, so light and dark are expected to match — asserting
+    // they differ would encode a design decision the platform never made.
+    expect(hc.bg, 'high-contrast must repaint the welcome overlay').not.toBe(light.bg);
+    expect(hc.token, 'high-contrast must override the brand surface token').not.toBe(light.token);
+  });
+
   test('?skipWelcome=1 reaches the shell without the welcome overlay', async ({ page }) => {
     await page.goto('/index.html?skipWelcome=1', { waitUntil: 'networkidle' });
     await expect.poll(() => page.evaluate(() => window.__DGO_BOOTED__ === true), { timeout: 15_000 }).toBe(true);
