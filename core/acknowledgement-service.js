@@ -8,6 +8,9 @@ import { AcknowledgementFlowConfig } from '../config/acknowledgement-flow.config
 
 const now = () => new Date().toISOString();
 const text = v => String(v ?? '').trim();
+/** HTML-escape. `text()` normalises whitespace only and is also used for non-HTML fields
+ *  (recipient address, subject), so escaping belongs at the HTML interpolation site. */
+const h = v => String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const lower = v => text(v).toLowerCase();
 function taskKey(t){ return [t?.id,t?.taskId,t?.referenceId,t?.RefIDD,t?.Reference_ID,t?.AssignmentID,t?.DGOPID].map(text).filter(Boolean); }
 export function findAcknowledgementTask(state=State.get(), key=''){
@@ -49,7 +52,12 @@ export function buildAcknowledgementNotification(task, payload){
   const due = text(task.due || task.DueDate || task.dueDate || '');
   const priority = text(task.priority || task.Priority?.Value || task.Priority || '');
   const category = text(task.category || task.Category || '');
-  const body = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:18px"><div style="max-width:640px;margin:auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden"><div style="background:#05583B;color:#fff;padding:14px 18px;text-align:center"><h2 style="margin:0">Task Acknowledgment Confirmation</h2></div><div style="padding:16px"><p>Your task <b>${title}</b> has been acknowledged by <b>${payload.actorName}</b>.</p><table style="width:100%;border-collapse:collapse"><tr><th align="left">Reference</th><td>${payload.referenceId}</td></tr><tr><th align="left">Category</th><td>${category}</td></tr><tr><th align="left">Assigned To</th><td>${assignedTo}</td></tr><tr><th align="left">Priority</th><td>${priority}</td></tr><tr><th align="left">Due Date</th><td>${due}</td></tr><tr><th align="left">Acknowledged Time</th><td>${payload.acknowledgedTime}</td></tr><tr><th align="left">Acknowledged By</th><td>${payload.actorName} &lt;${payload.actorEmail}&gt;</td></tr></table></div><div style="padding:12px 16px;background:#f9fafb;color:#6b7280;font-size:12px">DGO Digital OPS acknowledgement evidence</div></div></body></html>`;
+  // HTML-escape every interpolation. `text()` only trims, and several of these fields
+  // originate in deep-link query parameters (config/deeplink.config.js preserveQueryParams
+  // -> State.deepLinkContext -> resolveAcknowledgementActor), so raw interpolation let a
+  // crafted link inject markup into an official acknowledgement email that the platform
+  // itself sends to the assignee and CCs to the registry.
+  const body = `<!doctype html><html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:18px"><div style="max-width:640px;margin:auto;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden"><div style="background:#05583B;color:#fff;padding:14px 18px;text-align:center"><h2 style="margin:0">Task Acknowledgment Confirmation</h2></div><div style="padding:16px"><p>Your task <b>${h(title)}</b> has been acknowledged by <b>${h(payload.actorName)}</b>.</p><table style="width:100%;border-collapse:collapse"><tr><th align="left">Reference</th><td>${h(payload.referenceId)}</td></tr><tr><th align="left">Category</th><td>${h(category)}</td></tr><tr><th align="left">Assigned To</th><td>${h(assignedTo)}</td></tr><tr><th align="left">Priority</th><td>${h(priority)}</td></tr><tr><th align="left">Due Date</th><td>${h(due)}</td></tr><tr><th align="left">Acknowledged Time</th><td>${h(payload.acknowledgedTime)}</td></tr><tr><th align="left">Acknowledged By</th><td>${h(payload.actorName)} &lt;${h(payload.actorEmail)}&gt;</td></tr></table></div><div style="padding:12px 16px;background:#f9fafb;color:#6b7280;font-size:12px">DGO Digital OPS acknowledgement evidence</div></div></body></html>`;
   return Object.freeze({ to: assignedTo, cc: 'dgsregistry@nitda.gov.ng', subject: `Task Acknowledged: ${title} (${payload.taskId})`, body, format:'html' });
 }
 

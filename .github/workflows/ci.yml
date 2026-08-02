@@ -32,6 +32,11 @@ jobs:
       - name: Check governance spine
         run: node tests/governance.test.mjs
 
+      # Output encoding at every generated-markup boundary. Written as negative controls:
+      # removing an escaper fails the matching case rather than passing silently.
+      - name: Check output encoding
+        run: node tests/output-encoding.test.mjs
+
       # Asserts the auth layer is inert (development unchanged) AND that the enforced
       # posture blocks anonymous requests and ignores local role tampering.
       - name: Check authentication postures

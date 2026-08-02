@@ -17,7 +17,12 @@ async function boot(){
     for(const [id,load] of Object.entries(modules)) Router.register(id, async el => (await load()).mount(el));
     const s=State.get(); document.documentElement.dataset.theme=s.settings.theme; document.documentElement.dataset.density=s.settings.density; const wel=await import('./welcome-experience.js'); await wel.WelcomeExperience.run();
     await import('../shared/shell.js'); const rel=await import('../shared/relationship-runtime.js'); const welcome=await import('../shared/welcome-runtime.js'); rel.installRelationshipInterceptors(document); host.replaceChildren(document.createElement('dgo-shell')); const dl=await import('./deeplink-resolver.js'); const oq=await import('./offline-action-queue.js'); oq.OfflineActionQueue.installOnlineRetry(); requestAnimationFrame(()=>{dl.DeepLinkResolver.resolveInitial(); welcome.launchWelcome();}); window.__DGO_BOOTED__=true; loadRuntimeData().catch(e=>{ const message=String(e?.message||e||''); console.warn('[DGO DATA]', message); const s=State.get(); State.patch({runtime:{...s.runtime,lastLoad:{ok:false,offline:true,at:new Date().toISOString(),message},lastWarnings:[...(s.runtime?.lastWarnings||[]),message].slice(-10)}},{module:'boot',action:'data-load-deferred',event:'audit:data-load-deferred'}); });
-  }catch(e){ console.error('[DGO BOOT]',e); host.innerHTML=`<div class="fatal"><h1>DGO could not start</h1><pre>${String(e.stack||e)}</pre></div>`; }
+  }catch(e){ console.error('[DGO BOOT]',e);
+    // Escape before display. core/router.js already does this for the equivalent value;
+    // boot did not, leaving an unescaped path into innerHTML for any error whose message
+    // embeds caller-influenced text.
+    const safe=String(e.stack||e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    host.innerHTML=`<div class="fatal"><h1>DGO could not start</h1><pre>${safe}</pre></div>`; }
 }
 // Only auto-boot in a browser; keeps the entrypoint importable in non-browser diagnostic contexts.
 if (typeof document !== 'undefined' && typeof window !== 'undefined') boot();
