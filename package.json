@@ -9,7 +9,9 @@
     "node": ">=20"
   },
   "scripts": {
+    "go": "node scripts/setup-local.mjs && npm start",
     "serve:portal": "http-server ECM_ActivityHub_Portal -p 8080 --cors -c-1 --silent",
+    "setup": "node scripts/setup-local.mjs",
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "start:proxy": "node proxy/src/server.js",
     "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:auth && npm run test:proxy && npm run test:smoke",
