@@ -485,3 +485,70 @@ I did not act on these because:
 3. **It is a multi-day design program, not a remediation pass**, and it needs your judgement on the target layout.
 
 **Recommendation.** Take UI-001 now — it is small, isolated, and the register names the exact fix (operator summary card first, technical payload collapsed behind a disclosure). Then, before touching the other 13, add rendered-appearance coverage so the work is verifiable. Doing the layout work first and the coverage second inverts the risk.
+
+---
+
+## 12. Intake architecture — intended vs as-built
+
+**Stated intent.** The root platform is the system of record. It receives correspondence from at least three channels — physical documents scanned and uploaded, email, and the document portal (externally facing) — plus other sources. Root and its related internal services are for internal use.
+
+Assessed against that intent, **the root platform has a working intake path for one of its three named channels.**
+
+### 12.1 Channel-by-channel
+
+| Channel | Intended | As-built | Verdict |
+|---|---|---|---|
+| **Email** | Intake into root | `FETCH_ALL` populates `state.emails`; `modules/lookup.js:26` and `modules/correspondence-email.js` render them; "Create task from email" posts to `EMAIL_RELATED_TASK`; `modules/activities.js:89` pulls attachments via `FETCH_EMAIL_ATTACHMENTS` | ✅ **Implemented** |
+| **Scanned / physical** | Intake into root | **No upload path exists.** The only `type="file"` in the entire root platform is `modules/settings.js`, `accept="application/json"`, importing an activities array. Correspondence is created by typing metadata into a form (`modules/correspondence.js:31`) — subject, sender, contact, dates, category. The record carries `channel:'Document'` but no document. | ⚠️ **Metadata only** |
+| **Document portal** | External intake into root | **Absent end to end.** No shared code, no shared flow, no shared state. Root's channel vocabulary is `Document`, `Email`, `Registry` — there is no `Portal` value. | ❌ **Absent** |
+| **Other / internal** | — | `newack/` posts to a fourth, equally disjoint flow | ⚠️ **Fragmented** |
+
+### 12.2 The decisive evidence — four applications, twelve flows, zero shared
+
+| Application | Workflow GUIDs |
+|---|---|
+| Root platform | `ff455c68`, `818ec405`, `37642ba3`, `3931e2ff`, `85c556f1`, `4a250f97`, `6b3bad30`, `1154b50e`, `7e71fffe` |
+| document-portal | `1ff7714c`, `ca0bafc1`, `3fc71cc2` |
+| newack | `02a3a70f` |
+
+**The intersection is empty.** The portal's three flows are read by no root endpoint, and root's nine flows are called by no portal code. Combined with §2.3 (no shared modules, CSS, import graph, iframe or postMessage), there is no channel — client-side or server-side — by which a portal submission can become a root correspondence record.
+
+This upgrades the earlier D-H1 finding. I previously described the portal's write-only design as making it a local simulation. Against the stated intent it is worse than that: **the portal is the one deliberately external-facing channel, and it is the one with no path into the system of record.** A citizen submission is written to the submitter's own `localStorage`, posted to a flow nothing reads, and is invisible to the platform that is supposed to own it.
+
+### 12.3 What the attachment model tells us — **this part is coherent**
+
+Root never handles file bytes, and that is a design decision rather than an omission. Documents are referenced, not carried:
+
+```js
+attachmentLink: c.attachmentLink || c.AttachmentLink || c.Link || c.webUrl || c.documentUrl || ''
+```
+
+`webUrl` / `documentUrl` are SharePoint shapes. The implied architecture is sound: **documents live in SharePoint; root holds governance metadata and a link.** The `DGO_SHAREPOINT_RUNTIME_PACKAGE` in the reference snapshot (10 lists, target site `…/sites/NITDADGO-EAAACTIVITYTRACKING`) is the other half of exactly this design.
+
+So the scanned-document gap is narrower than "no upload". It is: **nothing in root initiates, tracks or reconciles that upload.** A registry clerk scanning a letter must put it into SharePoint by some route outside the platform, then separately type a correspondence record, and hope the two meet. There is no correlation between the record and the file, no receipt, and no way for the platform to report an unmatched scan.
+
+### 12.4 Consequences
+
+1. **The system of record is not the system of receipt.** Root can only govern what already reached SharePoint or a mailbox. Two of the three declared channels bypass it.
+2. **Portal submissions cannot be assigned, tracked, acknowledged or archived** — the entire governed lifecycle in `modules/` is unreachable for externally-submitted correspondence.
+3. **SLA claims on the portal are unbacked.** `track.html` shows a working-day SLA meter against a due date computed locally, for a request no internal system has seen.
+4. **`REFERENCE_SNAPSHOT_REVIEW.md` A-1 compounds this.** Even the channels that *are* wired send the nested envelope the flows cannot read, so several root calls already return `200 OK` with empty data.
+
+### 12.5 Options, with a recommendation
+
+**These are architecture decisions, not defects to patch, so I am presenting them rather than choosing.**
+
+| # | Option | What it means | Effort | Assessment |
+|---|---|---|---|---|
+| **A** | **Portal posts to a root intake contract** | Add an `INTAKE_SUBMISSION` contract in `config/endpoints.config.js`, a `Portal` channel in the correspondence vocabulary, and point `PF.ENDPOINTS.submission` at it via the proxy. The portal stops owning state and becomes a submission client. | ~1 week | **Recommended.** Smallest change that makes the stated architecture true. It also retires D-C1 — signed URLs leave the browser entirely — and gives external submissions the full governed lifecycle. |
+| **B** | **Flow-level bridge** | Leave both clients alone; add a Power Automate flow that writes portal submissions into the same SharePoint lists root reads. | ~3 days | Faster, and invisible to both codebases. But it leaves the portal as a second system of record and does nothing about D-C1 or D-C2. A staging post, not a destination. |
+| **C** | **Formally separate them** | Declare the portal a standalone public service with its own backend, and integrate later or never. | ~1 day | Honest and cheap, but it concedes that external correspondence never enters the platform that is meant to govern it. Only defensible if the portal is not on the delivery roadmap. |
+| **D** | **Add scan intake to root** | A registry upload workspace: file → SharePoint via the proxy → correspondence record created with the link already attached. | ~1 week | **Recommended alongside A.** Closes the second missing channel and makes `channel:'Document'` mean something. Independent of the portal decision. |
+
+**Recommended path: A then D**, in that order — A closes the externally-facing gap and a Critical security finding in the same change, and D closes the internal one. B is the right choice only if the portal must keep working during a longer migration.
+
+**Prerequisite for all four:** fix the envelope mismatch (`REFERENCE_SNAPSHOT_REVIEW.md` A-1/A-2) first. Building new intake on a transport that silently returns empty results would make the new path look broken for reasons that have nothing to do with it.
+
+### 12.6 Limitation on this section
+
+I have assessed intent against code. I cannot see the SharePoint tenant, the Power Automate environment, or any deployed instance, so I cannot rule out that a flow-level bridge (option B) **already exists** outside this repository and joins the portal's three flows to root's lists. Nothing in the repository references one, and the flow definition I examined contains no such path — but the repository is not the whole system. **If such a bridge exists, §12.2's conclusion holds for the codebase but not for the platform, and this section should be re-read with that correction.**
