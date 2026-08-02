@@ -1,6 +1,6 @@
 # DGO Digital Operations — Status Report
 
-**As at** 2 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (**private**) · **main** `c8b917a`
+**As at** 2 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (**private**) · **main** `aa94f2a`
 **Interactive view:** architecture and status console — current vs target state, filterable finding register
 
 ---
@@ -19,10 +19,11 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 | CI | **Did not exist** | Green on every run |
 | Tracked files / size | 400 · 51 MB | 266 · 19 MB |
 | Broken references | 1 | **0** |
-| Authentication | Absent, undocumented | Provisioned, inert, contracted, tested |
+| Authentication | Absent, undocumented | Provisioned on both apps; server enforcement implemented in `proxy/` |
+| ECM Portal identity | Hardcoded, role switchable in-browser | Closed — F-001 … F-005 |
 | Repository visibility | **Public** | **Private** |
 
-**Findings: 15 raised · 9 closed · 3 partial · 3 open.**
+**Findings: 15 raised · 12 closed · 3 partial · 0 open.**
 
 ---
 
@@ -32,10 +33,12 @@ Every claim below is reproducible from `main`.
 
 ```
 npm test
-  imports   167 modules reachable · 0 broken edges           ✅
-  secrets   2 baselined files · no new signatures            ✅
-  auth      inert 11/11 · enforced 14/14                     ✅
-  smoke     6/6 (boot, a11y, 25 routes, themes, portal)      ✅
+  imports      168 modules reachable · 0 broken edges        ✅
+  secrets      2 baselined files · no new signatures         ✅
+  governance   63/63 ownership, RBAC, idempotency, audit     ✅
+  auth         38/38 across both postures, both apps         ✅
+  proxy        66/66 incl. token-forgery attack cases        ✅
+  smoke        6/6 boot, a11y, 25 routes, themes, portal     ✅
 CI          green on all runs
 ```
 
@@ -62,20 +65,20 @@ CI          green on all runs
 | ID | Finding | Done | Outstanding |
 |---|---|---|---|
 | **G-03** | 22 SAS signatures in tracked files | Reduced to 4 signatures in 2 files; ratchet blocks new ones | **Rotate all 22 in Power Automate.** Deleting files revoked nothing |
-| **G-04** | No authentication; privilege escalation demonstrated | Client half complete, inert, contracted, 25 assertions in CI | **Server enforcement** — `AUTHENTICATION_CONTRACT.md` §2 |
-| **G-08** | Quality gate | Imports, secrets, auth, smoke | **Governance spine has no tests**; no rendered-appearance coverage |
+| **G-04** | No authentication; privilege escalation demonstrated | Client half complete on both apps; **server half implemented and tested in `proxy/`** (66 assertions) | **Deployment** — stand up the proxy, register the Entra app, point the clients at it |
+| **G-08** | Quality gate | Imports, secrets, governance, auth, proxy, smoke — 6 suites | **No rendered-appearance coverage**; the `overrides` cascade debt stays unmeasured |
 
-### Open — 3
+### Open — 0
 
-All three are the same defect class in the **ECM Activity Hub Portal**, documented since the first audit and verified still present:
+The three ECM Activity Hub Portal findings open since the first audit are closed, along with two Medium ones in the same files:
 
-| ID | Finding | Location |
+| ID | Finding | Resolution |
 |---|---|---|
-| **F-001** | Production identity hardcoded in client state | `js/core/store.js:5` — `dgceo@nitda.gov.ng`, role `DGCEO` |
-| **F-002** | In-browser role switch | `js/controllers/actions.js:38-42` — flips `DGCEO` ⇄ `COS` |
-| **F-003** | Request envelope trusts browser claims | `js/api/client.js:5-10` — `user` and `role` from `Store.auth` |
-
-**This is the most defensible thing to fix next.** The runtime is protected; its sibling app in the same repository is not, and the pattern to apply is already built and proven.
+| **F-001** | Production identity hardcoded in client state | Neutral development placeholder; ignored entirely once enforced |
+| **F-002** | In-browser role switch | Refused when enforced |
+| **F-003** | Request envelope trusts browser claims | `user`/`role` dropped; Bearer attached; routed via proxy |
+| **F-004** | Privileged navigation rendered unconditionally | Filtered by `canOpen()`; empty sections omitted |
+| **F-005** | Router had no authorization predicate | `ROUTE_ROLES` + explicit denial page |
 
 ---
 
@@ -83,10 +86,10 @@ All three are the same defect class in the **ECM Activity Hub Portal**, document
 
 | Risk | Severity | Standing |
 |---|---|---|
-| No server-side enforcement anywhere | **High** | Open. Every governance control is advisory until the proxy exists. |
-| ECM Portal identity fully client-controlled | **High** | Open. `F-001`/`F-002`/`F-003`. |
+| No server-side enforcement **running** | **High** | Implementation complete in `proxy/`; every control stays advisory until it is deployed. |
 | 22 pilot signatures unrotated | **Low** | Pilot-only endpoints, repository private. Rotate at convenience. |
-| Governance spine untested | **Medium** | A refactor could gut it and CI would stay green. |
+| Governance spine untested | — | **Closed.** 63 assertions, verified by negative control. |
+| ECM Portal identity client-controlled | — | **Closed.** F-001 … F-005. |
 | `overrides` cascade debt unmeasured | **Low** | Documented in `styles/index.css`. |
 
 **Materially reduced this period:** the repository is private, so the personal-data exposure and public credential readability are closed. The signatures still warrant rotation, but the urgency is gone.
@@ -99,6 +102,8 @@ All three are the same defect class in the **ECM Activity Hub Portal**, document
 |---|---|
 | **PR #1** `ff6122c` | Runtime repair (13 configs), theming fix, boot watchdog, welcome params, quality gate, CI, structural remediation |
 | **PR #2** `84318cc` | Dormant authentication: config, service, request wiring, server-authoritative identity, contract, Diagnostics panel, 25 assertions |
+| **PR #3** `aa94f2a` | ECM Portal auth parity (F-001 … F-005), governance spine coverage (63 assertions), accessibility verified |
+| *pending* | Authenticating proxy — the server half of G-04, 66 assertions |
 
 **Three audits produced:** runtime capability assessment (G-nn), repository security and data audit (R-nn), forensic structural audit with a four-tier disposition register.
 
@@ -120,15 +125,15 @@ Ordered so each step de-risks the next.
 
 | # | Step | Owner |
 |---|---|---|
-| 1 | **ECM Portal auth parity** — closes `F-001`/`F-002`/`F-003` | In-repository |
-| 2 | **Governance spine test coverage** — protect the main asset | In-repository |
-| 3 | **Accessibility completion** — duplicate `<h1>`, contrast pass | In-repository |
+| 1 | ~~ECM Portal auth parity~~ — **done**, PR #3 | — |
+| 2 | ~~Governance spine coverage~~ — **done**, 63 assertions | — |
+| 3 | ~~Accessibility~~ — **verified clean**, no change required | — |
 | 4 | **Rotate 22 pilot signatures** | Power Automate |
 | 5 | **Register Entra ID application** — six app roles | Tenant administration |
-| 6 | **Stand up the authenticating proxy** — `AUTHENTICATION_CONTRACT.md` §2 | Infrastructure |
+| 6 | **Deploy the authenticating proxy** — implementation ready in `proxy/`, needs a host and the signed URLs moved into its environment | Infrastructure |
 | 7 | **Activate** — set `auth.enabled`, supply tenant config, verify | Configuration |
 
-Steps 1–3 are executable now. Steps 4–6 need decisions outside the repository. **Step 7 is a configuration event, not a development one** — that was the point of provisioning authentication dormant.
+Steps 1–3 are complete. Steps 4–6 need decisions and infrastructure outside the repository; the proxy's **code** is done, only its deployment remains. **Step 7 is a configuration event, not a development one** — that was the point of provisioning authentication dormant.
 
 ---
 
