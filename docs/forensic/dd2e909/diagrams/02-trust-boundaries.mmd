@@ -1,0 +1,92 @@
+%% Diagram 2 — Trust boundaries at dd2e909
+%% Principal assertion: the proxy sits BESIDE the request path, not on it.
+%% Red edges are bypass paths that reach Power Automate with no control in between.
+%% Each boundary is annotated with the validation actually observed, or "none observed".
+
+graph LR
+
+  subgraph EXT["External inputs"]
+    URL["URL query + hash<br/>location.search / location.hash<br/>15 files / 30 hits"]
+    LS["localStorage<br/>14 files / 26 hits"]
+    SS["sessionStorage<br/>4 files / 8 hits"]
+    RESP["fetch() responses<br/>9 files / 13 hits"]
+    FORM["Form input<br/>+ file upload"]
+    PM["postMessage<br/>1 file / 1 hit"]
+    SWC["Service worker cache<br/>document-portal/sw.js<br/>NOT ANALYSED — Phase 3"]
+  end
+
+  subgraph B1["Boundary: root platform (browser)"]
+    DLR["core/deeplink-resolver.js<br/>allow-list of 19 params<br/>+ 256-char cap"]
+    ST["core/state.js"]
+    RG["router.js:2<br/>canCurrentUserAccess()<br/>ROUTE GUARD"]
+    AA["action-authority.js<br/>executeOwnedAction — THROWS<br/>CLIENT-SIDE CHECK"]
+    CA["confirmAction<br/>VISUAL-ONLY"]
+    ESC["core/ui.js esc()<br/>&amp; &lt; &gt; &quot; &#39;"]
+  end
+
+  subgraph B2["Boundary: document-portal (browser)"]
+    PFV["URL params → .value<br/>+ whitelist validation<br/>VERIFIED CLEAN"]
+    PFE["PF.esc()<br/>same 5 characters"]
+    PFS["PF.store<br/>localStorage = system of record"]
+    PFA["Staff sign-in<br/>sessionStorage<br/>CLIENT-SIDE CHECK"]
+  end
+
+  subgraph SINKS["DOM sinks — 104 innerHTML / 39 files"]
+    IH1["modules/ 31<br/>core/ 6 · shared/ 5"]
+    IH2["document-portal/ 58"]
+    IH3["newack/ 2 — NOT TRACED"]
+    IFR1["iframe srcdoc sandbox=''<br/>correspondence-email.js:28,30<br/>SAFE"]
+    IFR2["iframe srcdoc<br/>sandbox='allow-same-origin'<br/>lookup.js:26 — scripts blocked"]
+    IFR3["iframe srcdoc NO SANDBOX<br/>shared/components.js:42<br/>LATENT — 0 callers"]
+    IFR4["iframe src bare sandbox<br/>+ no-referrer<br/>activities.js:61 — SAFE"]
+  end
+
+  subgraph PRX["proxy/ — server side, NOT IN PATH"]
+    JWT["jwt.js<br/>ALGS allow-list, no HS*/none<br/>sig + iss + aud + exp + nbf<br/>kty agreement"]
+    AZ["authorize.js<br/>roleFromClaims — token only<br/>authorize — fails closed<br/>stripAssertedIdentity"]
+    HD["handler.js<br/>401 before 403 before forward<br/>no bypass path"]
+  end
+
+  PA[("Power Automate<br/>HTTP triggers<br/>22 SAS signatures in history<br/>4 live-shaped at HEAD")]
+
+  URL --> DLR --> ST
+  LS --> ST
+  RESP --> ST
+  ST --> RG --> AA --> ESC --> IH1
+  CA -.->|"no authorization value"| AA
+  RESP --> IFR1
+  RESP --> IFR2
+  RESP --> IFR4
+  IFR3 -.->|"no caller — CONFIRMED-ABSENT"| SINKS
+
+  URL --> PFV --> PFE --> IH2
+  LS --> PFS --> PFE
+  SS --> PFA
+  FORM --> PFS
+  SWC -.->|"precaches js/data.js<br/>+ admin.html"| B2
+  PM --> B1
+
+  AA -->|"core/data-client.js:21-27"| DEC{"isAuthEnforced()<br/>&& proxyBaseUrl ?<br/><br/>DEFAULT: false"}
+  DEC -->|"true — never, by default"| HD
+  HD --> JWT --> AZ --> PA
+  DEC ==>|"FALSE — actual path<br/>signed URL direct"| PA
+
+  PFS ==>|"PF.flow — 3 signed URLs<br/>NO PROXY CODE PATH"| PA
+  IH3 ==>|"newack API_GET — 1 signed URL<br/>NO PROXY CODE PATH"| PA
+
+  NOTE["No CSP · No SRI · No frame-ancestors<br/>No Permissions-Policy<br/>CONFIRMED-ABSENT in all 11 entry points"]
+  NOTE -.-> B1
+  NOTE -.-> B2
+
+  classDef bypass stroke:#c8102e,stroke-width:4px,color:#fff,fill:#4a1420
+  classDef safe fill:#0d3b26,stroke:#17b255,color:#fff
+  classDef latent fill:#3a2f0b,stroke:#b8860b,color:#fff
+  classDef unknown fill:#2b2b2b,stroke:#888,stroke-dasharray:5 5,color:#fff
+  classDef ext fill:#1c2733,stroke:#5b7a99,color:#fff
+
+  class PA bypass
+  class JWT,AZ,HD,IFR1,IFR4,PFV safe
+  class IFR3,IFR2 latent
+  class SWC,IH3 unknown
+  class URL,LS,SS,RESP,FORM,PM ext
+  class NOTE bypass
