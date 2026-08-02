@@ -6,9 +6,18 @@
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
-      {"path": "document-portal/js/data.js", "lines": "25-27"},
-      {"path": "newack/config.js", "lines": "4"},
-      {"path": "ECM_DOCS_DEV.zip", "lines": "n/a — 31 signatures across 18 of 837 members"}
+      {
+        "path": "document-portal/js/data.js",
+        "lines": "25-27"
+      },
+      {
+        "path": "newack/config.js",
+        "lines": "4"
+      },
+      {
+        "path": "ECM_DOCS_DEV.zip",
+        "lines": "n/a \u2014 31 signatures across 18 of 837 members"
+      }
     ],
     "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool.",
     "remediation": "Rotate all 31 signatures in Power Automate before deleting any file; deletion revokes nothing."
@@ -20,10 +29,22 @@
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
-      {"path": "core/data-client.js", "lines": "21-27"},
-      {"path": "config/auth.config.js", "lines": "28"},
-      {"path": "config/auth.config.js", "lines": "76-77"},
-      {"path": "ECM_ActivityHub_Portal/js/api/client.js", "lines": "6-10"}
+      {
+        "path": "core/data-client.js",
+        "lines": "21-27"
+      },
+      {
+        "path": "config/auth.config.js",
+        "lines": "28"
+      },
+      {
+        "path": "config/auth.config.js",
+        "lines": "76-77"
+      },
+      {
+        "path": "ECM_ActivityHub_Portal/js/api/client.js",
+        "lines": "6-10"
+      }
     ],
     "impact": "Route guards, ownership assertions and active-user checks all execute in the browser while requests go directly to signed Power Automate URLs, so the implemented server-side RBAC protects nothing as configured.",
     "remediation": "Set auth.enabled and proxyBaseUrl at deploy time and restrict the flows to the proxy's egress address."
@@ -35,8 +56,14 @@
     "confidence": "confirmed-present",
     "scope": "docportal",
     "files": [
-      {"path": "document-portal/js/core.js", "lines": "277-298"},
-      {"path": "newack/config.js", "lines": "4"}
+      {
+        "path": "document-portal/js/core.js",
+        "lines": "277-298"
+      },
+      {
+        "path": "newack/config.js",
+        "lines": "4"
+      }
     ],
     "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement.",
     "remediation": "Add proxy-aware endpoint resolution to both trees, or retire them."
@@ -48,8 +75,14 @@
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
-      {"path": "tests/check-secrets.mjs", "lines": "50"},
-      {"path": "scripts/setup-local.mjs", "lines": "52"}
+      {
+        "path": "tests/check-secrets.mjs",
+        "lines": "50"
+      },
+      {
+        "path": "scripts/setup-local.mjs",
+        "lines": "52"
+      }
     ],
     "impact": "The repository's principal credential control has an unstated blind spot covering 87% of its bytes; a new signature added inside the archive passes CI silently.",
     "remediation": "Extend the scanner to archive members, or remove the archive from the tree."
@@ -61,8 +94,14 @@
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
-      {"path": "package.json", "lines": "15"},
-      {"path": ".devcontainer/devcontainer.json", "lines": "10"}
+      {
+        "path": "package.json",
+        "lines": "15"
+      },
+      {
+        "path": ".devcontainer/devcontainer.json",
+        "lines": "10"
+      }
     ],
     "impact": "The archive, both credential-bearing config files, all application source and every audit document are directly fetchable from any host running the project's own start command.",
     "remediation": "Define a deployment artefact and serve only that path."
@@ -73,7 +112,12 @@
     "severity": "high",
     "confidence": "confirmed-present",
     "scope": "activityhub",
-    "files": [{"path": "ECM_ActivityHub_Portal/js/core/config.js", "lines": "6-13"}],
+    "files": [
+      {
+        "path": "ECM_ActivityHub_Portal/js/core/config.js",
+        "lines": "6-13"
+      }
+    ],
     "impact": "On a fresh clone or any deployment lacking the git-ignored config.local.js, every API request carrying correspondence payloads is sent to a third-party-controlled origin that is not a NITDA domain.",
     "remediation": "Default API_URL to an empty string so the SPA falls back to its documented DEMO mode instead of a live third-party host."
   },
@@ -83,7 +127,12 @@
     "severity": "high",
     "confidence": "confirmed-present",
     "scope": "activityhub",
-    "files": [{"path": "ECM_ActivityHub_Portal/index.html", "lines": "11,43"}],
+    "files": [
+      {
+        "path": "ECM_ActivityHub_Portal/index.html",
+        "lines": "11,43"
+      }
+    ],
     "impact": "Whoever controls the lucide package, unpkg, or cdn.tailwindcss.com can execute arbitrary JavaScript in the portal's origin with access to its localStorage and session.",
     "remediation": "Pin exact versions with integrity hashes, or vendor both locally as the root platform already does."
   },
@@ -93,7 +142,16 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "tests/check-secrets.mjs", "lines": "5-16"}, {"path": "tests/secrets-baseline.txt", "lines": "1-2"}],
+    "files": [
+      {
+        "path": "tests/check-secrets.mjs",
+        "lines": "5-16"
+      },
+      {
+        "path": "tests/secrets-baseline.txt",
+        "lines": "1-2"
+      }
+    ],
     "impact": "The baseline suppression is documented and defensible, but it removes any forcing function on rotation.",
     "remediation": "Time-box the baseline so the build fails after a rotation deadline."
   },
@@ -103,7 +161,12 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "172-174"}],
+    "files": [
+      {
+        "path": "FORENSIC_ROOT_PLATFORM_AUDIT.md",
+        "lines": "172-174"
+      }
+    ],
     "impact": "Quoting a live credential to evidence its exposure spreads it; the ratchet detected and failed the build correctly.",
     "remediation": "Never quote a credential verbatim in documentation; redact to [REDACTED]."
   },
@@ -113,7 +176,16 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "styles/dgo-design-system/", "lines": "16 files"}, {"path": "document-portal/ds/", "lines": "19 files"}],
+    "files": [
+      {
+        "path": "styles/dgo-design-system/",
+        "lines": "16 files"
+      },
+      {
+        "path": "document-portal/ds/",
+        "lines": "19 files"
+      }
+    ],
     "impact": "Token changes must be made twice and nothing detects divergence; both trees are single-import snapshots so neither has authority from this repository's history.",
     "remediation": "Nominate one tree authoritative and add a CI drift check over the shared token files."
   },
@@ -123,7 +195,12 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "newack",
-    "files": [{"path": "tests/secrets-baseline.txt", "lines": "2"}],
+    "files": [
+      {
+        "path": "tests/secrets-baseline.txt",
+        "lines": "2"
+      }
+    ],
     "impact": "791 lines across three HTML pages holding a live-shaped credential, with no owner, no tests and no consumer.",
     "remediation": "Retire the tree, or give it an owner, tests and a proxy-aware endpoint path."
   },
@@ -133,7 +210,16 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "docportal",
-    "files": [{"path": "document-portal/sw.js", "lines": "1-49"}, {"path": "document-portal/manifest.webmanifest", "lines": "n/a"}],
+    "files": [
+      {
+        "path": "document-portal/sw.js",
+        "lines": "1-49"
+      },
+      {
+        "path": "document-portal/manifest.webmanifest",
+        "lines": "n/a"
+      }
+    ],
     "impact": "A tree shaped for hosting, with a service worker and PWA manifest, that nothing in the repository loads or verifies.",
     "remediation": "Add the five pages to the smoke suite."
   },
@@ -143,7 +229,12 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "root",
-    "files": [{"path": "shared/components.js", "lines": "42"}],
+    "files": [
+      {
+        "path": "shared/components.js",
+        "lines": "42"
+      }
+    ],
     "impact": "Escaping protects the srcdoc attribute boundary but not the content, so any future caller passing email HTML would get same-origin script execution.",
     "remediation": "Add sandbox=\"\" to match the sibling iframes, or delete the unused export."
   },
@@ -153,7 +244,12 @@
     "severity": "medium",
     "confidence": "confirmed-absent",
     "scope": "cross",
-    "files": [{"path": "index.html", "lines": "1-61"}],
+    "files": [
+      {
+        "path": "index.html",
+        "lines": "1-61"
+      }
+    ],
     "impact": "No defence in depth against injection or clickjacking in the repository; deploy-time headers are indeterminate.",
     "remediation": "Adopt default-src 'self'; only one inline script exists, at index.html:26-59."
   },
@@ -163,7 +259,12 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": ".devcontainer/devcontainer.json", "lines": "7-16"}],
+    "files": [
+      {
+        "path": ".devcontainer/devcontainer.json",
+        "lines": "7-16"
+      }
+    ],
     "impact": "One click from clone to serving 31 credentials over HTTP, with no step that warns or excludes.",
     "remediation": "Serve a restricted path in the container and remove onAutoForward openBrowser."
   },
@@ -173,7 +274,16 @@
     "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "docportal",
-    "files": [{"path": "document-portal/sw.js", "lines": "5-19"}, {"path": "document-portal/sw.js", "lines": "31-49"}],
+    "files": [
+      {
+        "path": "document-portal/sw.js",
+        "lines": "5-19"
+      },
+      {
+        "path": "document-portal/sw.js",
+        "lines": "31-49"
+      }
+    ],
     "impact": "Credentials persist durably in Cache Storage after the tab closes, the operations console works offline, and rotating the signatures will strand returning visitors on dead endpoints until the CACHE constant is bumped.",
     "remediation": "Remove js/data.js and admin.html from SHELL, and bump CACHE as part of any rotation."
   },
@@ -183,7 +293,20 @@
     "severity": "medium",
     "confidence": "confirmed-absent",
     "scope": "cross",
-    "files": [{"path": "tests/smoke.spec.js", "lines": "52-172"}, {"path": "scripts/check-links.mjs", "lines": "44-45"}, {"path": "tests/check-imports.mjs", "lines": "28"}],
+    "files": [
+      {
+        "path": "tests/smoke.spec.js",
+        "lines": "52-172"
+      },
+      {
+        "path": "scripts/check-links.mjs",
+        "lines": "44-45"
+      },
+      {
+        "path": "tests/check-imports.mjs",
+        "lines": "28"
+      }
+    ],
     "impact": "The two highest-risk trees are the two least verified; no test loads any of their eight HTML pages.",
     "remediation": "Add page-load and output-encoding tests for both trees."
   },
@@ -193,7 +316,12 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "docportal",
-    "files": [{"path": "document-portal/ds/tokens/tokens.theme-dark.css", "lines": "n/a — 3,096 vs 4,237 bytes"}],
+    "files": [
+      {
+        "path": "document-portal/ds/tokens/tokens.theme-dark.css",
+        "lines": "n/a \u2014 3,096 vs 4,237 bytes"
+      }
+    ],
     "impact": "The portal's dark and high-contrast themes are materially less complete than the root platform's.",
     "remediation": "Reconcile against whichever design system tree is nominated authoritative."
   },
@@ -203,7 +331,12 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "tests/check-imports.mjs", "lines": "28"}],
+    "files": [
+      {
+        "path": "tests/check-imports.mjs",
+        "lines": "28"
+      }
+    ],
     "impact": "Two of five application trees are structurally invisible to the module-graph check, and nothing else covers them.",
     "remediation": "Add a classic-script reachability check for both trees."
   },
@@ -214,11 +347,26 @@
     "confidence": "confirmed-present",
     "scope": "root",
     "files": [
-      {"path": "modules/settings.js", "lines": "7,056 chars on one line"},
-      {"path": "modules/diagnostics.js", "lines": "5,181"},
-      {"path": "modules/registry.js", "lines": "4,995"},
-      {"path": "modules/correspondence.js", "lines": "4,379"},
-      {"path": "core/welcome-experience.js", "lines": "4,337"}
+      {
+        "path": "modules/settings.js",
+        "lines": "7,056 chars on one line"
+      },
+      {
+        "path": "modules/diagnostics.js",
+        "lines": "5,181"
+      },
+      {
+        "path": "modules/registry.js",
+        "lines": "4,995"
+      },
+      {
+        "path": "modules/correspondence.js",
+        "lines": "4,379"
+      },
+      {
+        "path": "core/welcome-experience.js",
+        "lines": "4,337"
+      }
     ],
     "impact": "Line-range citation loses precision, git blame and diffs are unusable at statement level, and review is impractical.",
     "remediation": "Reformat to conventional line lengths."
@@ -229,7 +377,16 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "root",
-    "files": [{"path": "modules/reports.js", "lines": "n/a"}, {"path": "modules/statistics.js", "lines": "n/a"}],
+    "files": [
+      {
+        "path": "modules/reports.js",
+        "lines": "n/a"
+      },
+      {
+        "path": "modules/statistics.js",
+        "lines": "n/a"
+      }
+    ],
     "impact": "Downgraded from the Phase 1 provisional rating: with the proxy out of the request path the ownership guard is a UX and audit control, not a security boundary.",
     "remediation": "Wrap both call sites in executeOwnedAction for audit consistency."
   },
@@ -239,7 +396,12 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "root",
-    "files": [{"path": "modules/lookup.js", "lines": "26"}],
+    "files": [
+      {
+        "path": "modules/lookup.js",
+        "lines": "26"
+      }
+    ],
     "impact": "allow-scripts is absent so scripts cannot execute, but the same-origin grant is unnecessary for rendering an email body.",
     "remediation": "Use sandbox=\"\" as the sibling correspondence-email iframes do."
   },
@@ -249,7 +411,12 @@
     "severity": "low",
     "confidence": "confirmed-absent",
     "scope": "cross",
-    "files": [{"path": ".github/workflows/ci.yml", "lines": "1-95"}],
+    "files": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "lines": "1-95"
+      }
+    ],
     "impact": "CI runs four test-only jobs with contents:read permission and no deploy step, so nothing ships by automation and which trees are deployed is indeterminate.",
     "remediation": "Define a deployment workflow with an explicit artefact allow-list."
   },
@@ -259,7 +426,12 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "n/a"}],
+    "files": [
+      {
+        "path": "FORENSIC_ROOT_PLATFORM_AUDIT.md",
+        "lines": "n/a"
+      }
+    ],
     "impact": "The only occurrence of Content-Security-Policy anywhere in the repository is inside a document discussing it, which invites readers to believe the control exists.",
     "remediation": "Mark absent controls explicitly as absent in the prose."
   },
@@ -269,8 +441,74 @@
     "severity": "low",
     "confidence": "confirmed-present",
     "scope": "cross",
-    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "n/a"}],
+    "files": [
+      {
+        "path": "FORENSIC_ROOT_PLATFORM_AUDIT.md",
+        "lines": "n/a"
+      }
+    ],
     "impact": "The engagement brief's own export counted this prose as source and pre-seeded an incorrect sink baseline of one occurrence each.",
     "remediation": "Exclude documentation from any automated source inventory."
+  },
+  {
+    "id": "F-025",
+    "title": "ECM Activity Hub and the proxy authorize in disjoint role vocabularies; activation requires two hand-maintained claim mappings with no test asserting agreement",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [
+      {
+        "path": "ECM_ActivityHub_Portal/js/core/router.js",
+        "lines": "12-16"
+      },
+      {
+        "path": "ECM_ActivityHub_Portal/js/core/auth.js",
+        "lines": "21,32,102"
+      },
+      {
+        "path": "config/rbac.config.js",
+        "lines": "n/a \u2014 systemAdmin/userAdmin/executive/director/operator/viewer"
+      },
+      {
+        "path": "proxy/src/authorize.js",
+        "lines": "10"
+      }
+    ],
+    "impact": "The portal guards on SystemAdmin/DGCEO/COS while the proxy authorizes against config/rbac.config.js, which contains none of those names; configuring the portal to the server vocabulary makes /admin, /audit and /directory unreachable for every principal.",
+    "remediation": "Derive ROUTE_ROLES from config/rbac.config.js so both sides share one vocabulary, and add a test asserting the two claim mappings agree."
+  },
+  {
+    "id": "F-026",
+    "title": "Only 3 of 18 ECM Activity Hub routes carry any role restriction",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [
+      {
+        "path": "ECM_ActivityHub_Portal/js/core/router.js",
+        "lines": "12-16,27-31"
+      }
+    ],
+    "impact": "Approvals, decisions, minutes and 12 other routes are open to any authenticated principal, and no document states an intended route-privilege model.",
+    "remediation": "Declare the intended per-route privilege model and extend ROUTE_ROLES to cover it."
+  },
+  {
+    "id": "F-027",
+    "title": "Generated devIdentity.role is 'Officer', a value present in neither role vocabulary",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [
+      {
+        "path": "scripts/setup-local.mjs",
+        "lines": "127"
+      },
+      {
+        "path": "ECM_ActivityHub_Portal/js/core/store.js",
+        "lines": "15,17"
+      }
+    ],
+    "impact": "The shipped development identity carries a role name no guard in either application recognises; inert-only, so the effect is cosmetic.",
+    "remediation": "Emit a role drawn from the vocabulary the portal actually guards on."
   }
 ]
