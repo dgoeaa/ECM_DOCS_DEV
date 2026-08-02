@@ -439,3 +439,49 @@ Stated plainly rather than papered over:
 | 11 | Correct the stale README sections | cross | ~15 min | Low |
 
 Items 2–5 are the security core and total roughly half a day.
+
+---
+
+## 11. Sectioning, styling and journey assessment
+
+Measured rather than asserted. Two of my own first-pass measurements were wrong and are corrected here.
+
+### 11.1 Sectioning — **already consistent, no work required**
+
+| Primitive | Coverage |
+|---|---|
+| `head()` workspace header | **25 / 25 modules** |
+| `class="workspace…"` wrapper | **25 / 25 modules** |
+| `class="panel…"` section | **25 / 25 modules** |
+| `kpis()` band | 9 / 25 — appropriate; not every workspace has metrics |
+
+*Correction: I initially reported 21/25 and 24/25. Both were grep artifacts — I matched `class="workspace"` with a closing quote, which misses every module that adds a modifier (`workspace cc-workspace`, `panel grid`). There is no sectioning inconsistency to fix.*
+
+### 11.2 Styling, theming and branding — **one real gap, now closed**
+
+Raw counts looked alarming (53 colour literals, 70 inline `style=`), but they concentrate almost entirely in three files, and two of those are legitimate:
+
+| File | Literals | Inline styles | Verdict |
+|---|---:|---:|---|
+| `core/welcome-experience.js` | 38 | 47 | **The real gap — fixed this pass** |
+| `core/acknowledgement-service.js` | 7 | 7 | **Legitimate** — HTML email; clients support neither custom properties nor external stylesheets |
+| `core/correspondence-email-service.js` | 6 | 11 | **Legitimate** — same reason |
+| `modules/*` (3 files) | 2 | 3 | Negligible |
+
+The welcome overlay declared eight private `--wel-*` literals and referenced **no platform token at all**, so it painted identically in light, dark and high-contrast — on the first screen a user sees. It now resolves from platform tokens with the literals as fallbacks. Measured: high-contrast moves `rgb(5,88,59)` → `rgb(2,40,25)`. Light and dark stay equal because `tokens.theme-dark.css:22` deliberately keeps `--dgo-color-surface-brand` at `green-700` — the overlay now follows the design system's actual decision instead of a hardcoded guess.
+
+**Remaining, not fixed:** the responsive scale is unsystematic — breakpoints at 560, 720, 900 and 1100 px with no shared ladder, and `@media(max-width:900px)` and `@media (max-width:900px)` both in use. Cosmetic today; worth normalising into a token before the next layout change.
+
+### 11.3 Feature relationships, per-row behaviour and user journeys — **not attempted, and why**
+
+This is the one part of the request I did not execute, and I want to be explicit rather than imply otherwise.
+
+The substance of it is already documented, with screenshot evidence, in `DGO_R11_6_UI_SCREENSHOT_DEFECT_REGISTER-2.md` inside the reference snapshot: **14 defects, 9 rated High**, concentrated on `#/correspondence` and `#/home` — split-pane density, portrait layouts retaining desktop toolbar logic, raw email bodies rendered unprocessed, assignment previews exposing technical payloads instead of decision summaries. **UI-001 is still live**: `core/flow-confirmation.js` still `JSON.stringify`s the payload into the operator's confirmation modal.
+
+I did not act on these because:
+
+1. **They are visual defects and there is no visual regression coverage** (the standing G-08 gap). Changing 25 modules' layout with only a 7-test smoke suite as a safety net would be changing what I cannot verify.
+2. **The evidence is 14 screenshots I do not have** — `Notes_260728_213651.pdf` holds them, but judging "over-dense" or "weak hierarchy" against a capture I cannot see would be guesswork dressed as engineering.
+3. **It is a multi-day design program, not a remediation pass**, and it needs your judgement on the target layout.
+
+**Recommendation.** Take UI-001 now — it is small, isolated, and the register names the exact fix (operator summary card first, technical payload collapsed behind a disclosure). Then, before touching the other 13, add rendered-appearance coverage so the work is verifiable. Doing the layout work first and the coverage second inverts the risk.
