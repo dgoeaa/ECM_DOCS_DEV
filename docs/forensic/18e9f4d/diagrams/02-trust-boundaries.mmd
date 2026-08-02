@@ -1,0 +1,69 @@
+%% Diagram 2 - Trust boundaries at 18e9f4d
+%% Each boundary is labelled with the validation OBSERVED, or "none observed".
+%% Edges marked BYPASS are the point of this diagram.
+flowchart LR
+
+  subgraph INPUTS["EXTERNAL INPUTS"]
+    URL["URL query + hash"]
+    FORM["Form input"]
+    FILE["File upload"]
+    API["Power Automate responses"]
+    LS["localStorage / sessionStorage"]
+    CDN["Third-party CDN<br/>cdn.tailwindcss.com<br/>unpkg.com/lucide@latest"]
+  end
+
+  subgraph BND["BOUNDARIES - validation observed"]
+    DL["core/deeplink-resolver.js<br/>route from CONFIG not input<br/>VALIDATED"]
+    ESCROOT["core/ui.js esc()<br/>149 calls / 35 innerHTML sites<br/>VALIDATED"]
+    ESCPF["document-portal PF.esc()<br/>VALIDATED"]
+    NOESC["newack/<br/>NO ESCAPER EXISTS<br/>none observed"]
+    STATE["core/state.js hydrate()<br/>schema merge only<br/>role is user-editable<br/>none observed"]
+    SW["document-portal/sw.js:33<br/>GET + same-origin only<br/>VALIDATED"]
+    CSP["CSP meta<br/>index.html + 6 document-portal pages ONLY<br/>ActivityHub + newack: none observed"]
+    SRI["Subresource Integrity<br/>CONFIRMED-ABSENT repo-wide"]
+  end
+
+  subgraph GUARD["AUTHORIZATION"]
+    RTR["core/router.js<br/>canCurrentUserAccess()<br/>client-side check"]
+    AHRTR["ActivityHub js/core/router.js:21<br/>returns TRUE while auth inert<br/>none observed"]
+    GOV["core/governed-actions.js<br/>executeOwnedAction()<br/>client-side check"]
+    PRX["proxy/ authorize.js + jwt.js<br/>JWT verified, role from claims<br/>PROXY-ENFORCED"]
+  end
+
+  subgraph SINKS["SINKS AND PRIVILEGED ACTIONS"]
+    IH["innerHTML - 104 sites"]
+    NAV["window.open / href"]
+    WRITE["Governed writes<br/>assignment, dispatch, archive, email"]
+  end
+
+  PA[("Power Automate<br/>SAS-signed triggers")]
+
+  URL --> DL --> STATE
+  FORM --> ESCROOT
+  FILE --> ESCPF
+  API --> ESCROOT --> IH
+  API --> ESCPF --> IH
+  API ==>|"S-1 UNESCAPED"| NOESC ==> IH
+  LS --> STATE --> RTR
+  CDN ==>|"no SRI, no CSP on that page"| IH
+
+  STATE --> GOV --> WRITE
+  RTR --> WRITE
+  AHRTR ==>|"BYPASS: /admin /audit /directory open by default"| WRITE
+
+  WRITE -.->|"only if auth.enabled === true"| PRX
+  PRX -.-> PA
+  WRITE ==>|"BYPASS - DEFAULT PATH: root, ActivityHub, document-portal, newack"| PA
+
+  ESCROOT --> NAV
+  CSP -.->|"does not cover"| CDN
+  SRI -.->|"absent"| CDN
+
+  classDef bad  fill:#8E1B28,stroke:#5C0F18,color:#ffffff
+  classDef warn fill:#A0601A,stroke:#6B3F11,color:#ffffff
+  classDef ok   fill:#1E6B47,stroke:#0F3A26,color:#ffffff
+  classDef ext  fill:#2B6280,stroke:#1C4054,color:#ffffff
+  class DL,ESCROOT,ESCPF,SW,PRX ok
+  class NOESC,AHRTR bad
+  class STATE,CSP,SRI warn
+  class PA,CDN ext
