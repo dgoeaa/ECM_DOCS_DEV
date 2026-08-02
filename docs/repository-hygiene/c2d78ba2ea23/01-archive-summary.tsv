@@ -1,0 +1,2 @@
+archive	size	sha256	file_count	total_uncompressed_size	contains_source	contains_secrets	contains_duplicate_repo_copy	referenced_by_build_deploy	classification	secret_hits	duplicate_hits
+ECM_DOCS_DEV.zip	16783981	745eb2fd09a3b9eb8b48734de0603ddf988f096e5c73cebf3a45281f58794182	837	76424660	yes	yes	yes	no direct build/deploy reference found in package/scripts/proxy/config search	REVIEW - archive with embedded source/secrets	18	240

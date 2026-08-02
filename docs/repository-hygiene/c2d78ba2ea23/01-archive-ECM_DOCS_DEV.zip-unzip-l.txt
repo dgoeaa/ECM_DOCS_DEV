@@ -1,0 +1,843 @@
+Archive:  /home/runner/work/ECM_DOCS_DEV/ECM_DOCS_DEV/ECM_DOCS_DEV.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     8330  2026-07-30 23:54   DGO_Targets_Platform/AUDIT.md
+     4977  2026-07-30 23:54   DGO_Targets_Platform/CONTRIBUTING.md
+     1146  2026-07-30 23:54   DGO_Targets_Platform/index.html
+    63368  2026-07-30 23:54   DGO_Targets_Platform/package-lock.json
+      940  2026-07-30 23:54   DGO_Targets_Platform/package.json
+      755  2026-07-30 23:54   DGO_Targets_Platform/playwright.config.js
+    11879  2026-07-30 23:54   DGO_Targets_Platform/README.md
+     1730  2026-07-30 23:54   DGO_Targets_Platform/scripts/check-links.mjs
+      493  2026-07-30 23:54   DGO_Targets_Platform/shared/accessibility.js
+    12139  2026-07-30 23:54   DGO_Targets_Platform/shared/components.js
+     5664  2026-07-30 23:54   DGO_Targets_Platform/shared/design-system-adapter.js
+     3746  2026-07-30 23:54   DGO_Targets_Platform/shared/figma-uiux-runtime.js
+     3628  2026-07-30 23:54   DGO_Targets_Platform/shared/relationship-runtime.js
+    14000  2026-07-30 23:54   DGO_Targets_Platform/shared/shell.js
+     7897  2026-07-30 23:54   DGO_Targets_Platform/shared/welcome-runtime.js
+      620  2026-07-30 23:54   DGO_Targets_Platform/shared/workspace-guide.js
+    76849  2026-07-30 23:54   DGO_Targets_Platform/styles/app.css
+     3012  2026-07-30 23:54   DGO_Targets_Platform/styles/index.css
+     1967  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/index.html
+     1100  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/config.example.js
+     1389  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/powerAutomateClient.js
+     1370  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/README.md
+    28820  2026-06-16 20:41   DGO_Targets_References/Business Requirements Document (BRD)  Functional Requirements Document (FRD) Hybrid.txt
+    40098  2026-05-13 04:00   DGO_Targets_References/HTML_Preview_Render_Platinum_Pro_Build_v2.0.html
+    28827  2026-05-13 03:32   DGO_Targets_References/HTML_PREVIEW_RENDERER.html
+   194078  2026-07-02 04:43   DGO_Targets_References/NITDA_DGCEO_DOCOPS_EXEC_UI_PROD_v13_fixed_dropdowns_actions_responsive.html
+    17736  2026-07-31 02:27   DGO_Targets_References/DGCEO_DataModel_Architecture (1).md
+   186792  2026-07-30 11:51   DGO_Targets_References/NITDA_operations_manifest_ai_ready_UNREDACTED-1.json
+   332433  2026-07-27 02:28   DGO_Targets_References/DGO_SHAREPOINT_PROVISIONING_COMPLETE_MACHINE_EXTRACTION-4.json
+   352380  2026-07-21 00:40   DGO_Targets_References/Bespoke platform welcome experience (5).zip
+     5473  2026-06-14 16:09   DGO_Targets_References/CLient_Proxy_App_Backend (1).zip
+      644  2026-07-30 23:54   DGO_Targets_Platform/assets/dgo-logo.svg
+      329  2026-07-30 23:54   DGO_Targets_Platform/assets/dgo-mark.svg
+     2968  2026-07-30 23:54   DGO_Targets_Platform/tools/expand_bundle.py
+     8625  2026-07-30 23:54   DGO_Targets_Platform/tools/rebuild_bundle.py
+    10115  2026-07-30 23:54   DGO_Targets_Platform/tools/test_payload_contract.py
+        0  2026-08-01 02:03   DGO_Targets_Platform/My_Handy_DevTools/
+     5499  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/base.css
+     4989  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/brand-type.css
+     8817  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/colors_and_type.css
+    39791  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/components.css
+     3263  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/layout.css
+    10288  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/platform-authority.css
+     1129  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/reset.css
+      690  2026-07-15 11:07   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/Web - OTP Generate__08584175007902694452984266574CU189__varResponse.json
+     1411  2026-07-15 11:07   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/Web - OTP Generate__08584175007902694452984266574CU189__trigger_input_schema.json
+      534  2026-07-15 11:06   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/Web - OTP Verify__08584174969813823253701007179CU168__varResponse.json
+     1591  2026-07-15 11:06   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/Web - OTP Verify__08584174969813823253701007179CU168__trigger_input_schema.json
+    13891  2026-07-30 23:54   DGO_Targets_Platform/modules/acknowledgment.js
+    24719  2026-07-30 23:54   DGO_Targets_Platform/modules/activities.js
+     7129  2026-07-30 23:54   DGO_Targets_Platform/modules/approvals.js
+     3960  2026-07-30 23:54   DGO_Targets_Platform/modules/archive.js
+     4184  2026-07-30 23:54   DGO_Targets_Platform/modules/assistant.js
+     8354  2026-07-30 23:54   DGO_Targets_Platform/modules/bulk-assignment.js
+     2658  2026-07-30 23:54   DGO_Targets_Platform/modules/comments.js
+    11982  2026-07-30 23:54   DGO_Targets_Platform/modules/correspondence-email.js
+    20698  2026-07-30 23:54   DGO_Targets_Platform/modules/correspondence.js
+     7173  2026-07-30 23:54   DGO_Targets_Platform/modules/diagnostics.js
+     9654  2026-07-30 23:54   DGO_Targets_Platform/modules/dispatch.js
+    16698  2026-07-30 23:54   DGO_Targets_Platform/modules/ecm-erp-charter.js
+    11639  2026-07-30 23:54   DGO_Targets_Platform/modules/executive.js
+     9803  2026-07-30 23:54   DGO_Targets_Platform/modules/fasttrack.js
+     4435  2026-07-30 23:54   DGO_Targets_Platform/modules/home.js
+    14107  2026-07-30 23:54   DGO_Targets_Platform/modules/lookup.js
+     4810  2026-07-30 23:54   DGO_Targets_Platform/modules/operator-hud.js
+     6328  2026-07-30 23:54   DGO_Targets_Platform/modules/orchestrator.js
+    11488  2026-07-30 23:54   DGO_Targets_Platform/modules/registry.js
+     8677  2026-07-30 23:54   DGO_Targets_Platform/modules/reports.js
+    11086  2026-07-30 23:54   DGO_Targets_Platform/modules/response-tracking.js
+     7804  2026-07-30 23:54   DGO_Targets_Platform/modules/settings.js
+    15388  2026-07-30 23:54   DGO_Targets_Platform/modules/single-assignment.js
+     9839  2026-07-30 23:54   DGO_Targets_Platform/modules/statistics.js
+     9035  2026-07-30 23:54   DGO_Targets_Platform/modules/user-admin.js
+     3112  2026-08-01 00:36   DGO_Targets_Platform/document-portal/404.html
+     6539  2026-08-01 00:36   DGO_Targets_Platform/document-portal/README.md
+     7034  2026-08-01 00:36   DGO_Targets_Platform/document-portal/admin.html
+      262  2026-08-01 00:36   DGO_Targets_Platform/document-portal/favicon.svg
+    13540  2026-08-01 00:36   DGO_Targets_Platform/document-portal/index.html
+      736  2026-08-01 00:36   DGO_Targets_Platform/document-portal/manifest.webmanifest
+    26099  2026-08-01 00:36   DGO_Targets_Platform/document-portal/portal.css
+       67  2026-08-01 00:36   DGO_Targets_Platform/document-portal/robots.txt
+      381  2026-08-01 00:36   DGO_Targets_Platform/document-portal/sitemap.xml
+    14159  2026-08-01 00:36   DGO_Targets_Platform/document-portal/submit.html
+    12807  2026-08-01 00:36   DGO_Targets_Platform/document-portal/support.html
+     2130  2026-08-01 00:36   DGO_Targets_Platform/document-portal/sw.js
+     7754  2026-08-01 00:36   DGO_Targets_Platform/document-portal/track.html
+    10934  2026-07-30 23:54   DGO_Targets_Platform/core/acknowledgement-service.js
+     2364  2026-07-30 23:54   DGO_Targets_Platform/core/action-authority.js
+     1501  2026-07-30 23:54   DGO_Targets_Platform/core/action-runtime.js
+    16779  2026-07-30 23:54   DGO_Targets_Platform/core/activity-parity.js
+     1751  2026-07-30 23:54   DGO_Targets_Platform/core/api.js
+     3254  2026-07-30 23:54   DGO_Targets_Platform/core/archive.js
+    10446  2026-07-30 23:54   DGO_Targets_Platform/core/assignment-cascade.js
+     9376  2026-07-30 23:54   DGO_Targets_Platform/core/assignment-payload.js
+     1431  2026-07-30 23:54   DGO_Targets_Platform/core/audit-log.js
+     3692  2026-07-30 23:54   DGO_Targets_Platform/core/boot.js
+     2893  2026-07-30 23:54   DGO_Targets_Platform/core/cache-manager.js
+     2004  2026-07-30 23:54   DGO_Targets_Platform/core/contracts.js
+    10739  2026-07-30 23:54   DGO_Targets_Platform/core/correspondence-email-service.js
+     3996  2026-07-30 23:54   DGO_Targets_Platform/core/current-user.js
+     2723  2026-07-30 23:54   DGO_Targets_Platform/core/data-client.js
+     5338  2026-07-30 23:54   DGO_Targets_Platform/core/data-loader.js
+      955  2026-07-30 23:54   DGO_Targets_Platform/core/data-reconciler.js
+     2869  2026-07-30 23:54   DGO_Targets_Platform/core/data-selectors.js
+     2046  2026-07-30 23:54   DGO_Targets_Platform/core/deeplink-resolver.js
+     1616  2026-07-30 23:54   DGO_Targets_Platform/core/directorate-scope.js
+     2880  2026-07-30 23:54   DGO_Targets_Platform/core/dispatch-service.js
+     5898  2026-07-30 23:54   DGO_Targets_Platform/core/domain.js
+     4687  2026-07-30 23:54   DGO_Targets_Platform/core/endpoint-registry.js
+     7093  2026-07-30 23:54   DGO_Targets_Platform/core/enterprise-domain.js
+     8930  2026-07-30 23:54   DGO_Targets_Platform/core/entity-store.js
+     1853  2026-07-30 23:54   DGO_Targets_Platform/core/errors.js
+     1157  2026-07-30 23:54   DGO_Targets_Platform/core/export-bundle.js
+     1725  2026-07-30 23:54   DGO_Targets_Platform/core/fetch-manager.js
+     2275  2026-07-30 23:54   DGO_Targets_Platform/core/flow-confirmation.js
+     5078  2026-07-30 23:54   DGO_Targets_Platform/core/focus-trap.js
+      748  2026-07-30 23:54   DGO_Targets_Platform/core/governed-actions.js
+     1039  2026-07-30 23:54   DGO_Targets_Platform/core/idempotency.js
+     2405  2026-07-30 23:54   DGO_Targets_Platform/core/lifecycle.js
+     2306  2026-07-30 23:54   DGO_Targets_Platform/core/loading-state.js
+     1201  2026-07-30 23:54   DGO_Targets_Platform/core/metrics-service.js
+     6679  2026-07-30 23:54   DGO_Targets_Platform/core/nitda-module-adapter.js
+     2072  2026-07-30 23:54   DGO_Targets_Platform/core/offline-action-queue.js
+     1746  2026-07-30 23:54   DGO_Targets_Platform/core/otp-service.js
+     1941  2026-07-30 23:54   DGO_Targets_Platform/core/pending-queue.js
+     1651  2026-07-30 23:54   DGO_Targets_Platform/core/performance-monitor.js
+     2247  2026-07-30 23:54   DGO_Targets_Platform/core/platform-provisioner.js
+     1059  2026-07-30 23:54   DGO_Targets_Platform/core/query-store.js
+     2699  2026-07-30 23:54   DGO_Targets_Platform/core/receipt-ledger.js
+     1119  2026-07-30 23:54   DGO_Targets_Platform/core/render-budget.js
+     4388  2026-07-30 23:54   DGO_Targets_Platform/core/report-export-service.js
+      970  2026-07-30 23:54   DGO_Targets_Platform/core/retention.js
+     1481  2026-07-30 23:54   DGO_Targets_Platform/core/router.js
+     1138  2026-07-30 23:54   DGO_Targets_Platform/core/security-actions.js
+     2838  2026-07-30 23:54   DGO_Targets_Platform/core/source-views.js
+     3397  2026-07-30 23:54   DGO_Targets_Platform/core/state.js
+     1378  2026-07-30 23:54   DGO_Targets_Platform/core/support-service.js
+     1805  2026-07-30 23:54   DGO_Targets_Platform/core/ui-interactions.js
+      820  2026-07-30 23:54   DGO_Targets_Platform/core/ui-state.js
+     7498  2026-07-30 23:54   DGO_Targets_Platform/core/ui.js
+    24370  2026-07-30 23:54   DGO_Targets_Platform/core/welcome-experience.js
+     1583  2026-07-30 23:54   DGO_Targets_Platform/core/write-manager.js
+     7658  2026-07-02 02:46   DGO_Targets_References/newack/ack.html
+     2636  2026-07-02 02:46   DGO_Targets_References/newack/config.js
+     6379  2026-07-02 02:46   DGO_Targets_References/newack/email.html
+     7897  2026-07-02 02:46   DGO_Targets_References/newack/index.html
+     7035  2026-07-02 02:46   DGO_Targets_References/newack/styles.css
+    35384  2026-07-02 02:46   DGO_Targets_References/newack/unified-hub-ackflow.html
+  4824150  2026-06-29 21:14   DGO_Targets_References/Consolidated_Design_System_References/dgo_brand_state.json
+  7759878  2026-06-29 22:10   DGO_Targets_References/Consolidated_Design_System_References/main_design_state.json
+  1457284  2026-06-29 21:44   DGO_Targets_References/Consolidated_Design_System_References/dgo-design-s_state.json
+     4316  2026-07-18 10:49   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_R11_5_0_UI_Provisioning_Execution_Report.md
+  6898734  2026-07-18 10:49   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime_state.forensic.json
+   821783  2026-07-18 10:49   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime.zip
+  6877213  2026-07-18 10:30   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime_state.forensic.json
+     9740  2026-07-18 10:30   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_R11_4_0_Data_Alignment_Execution_Report.md
+   814079  2026-07-18 10:30   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime.zip
+     1023  2026-07-30 23:54   DGO_Targets_Platform/config/acknowledgement-flow.config.js
+     8119  2026-07-30 23:54   DGO_Targets_Platform/config/action-ownership.config.js
+    20851  2026-07-30 23:54   DGO_Targets_Platform/config/action-routing.config.js
+     2808  2026-07-30 23:54   DGO_Targets_Platform/config/activity-parity.config.js
+      621  2026-07-30 23:54   DGO_Targets_Platform/config/app.config.js
+     3808  2026-07-30 23:54   DGO_Targets_Platform/config/assignment-cascade.config.js
+     1309  2026-07-30 23:54   DGO_Targets_Platform/config/browser-certification.config.js
+      725  2026-07-30 23:54   DGO_Targets_Platform/config/cache-policy.config.js
+     3087  2026-07-30 23:54   DGO_Targets_Platform/config/config.example.js
+     4532  2026-07-30 23:54   DGO_Targets_Platform/config/correspondence-email-templates.config.js
+     1322  2026-07-30 23:54   DGO_Targets_Platform/config/deeplink.config.js
+     4764  2026-07-30 23:54   DGO_Targets_Platform/config/dynamic-actions.config.js
+     5881  2026-07-30 23:54   DGO_Targets_Platform/config/endpoints.config.js
+     1303  2026-07-30 23:54   DGO_Targets_Platform/config/fetch-policy.config.js
+     6494  2026-07-30 23:54   DGO_Targets_Platform/config/module-boundaries.config.js
+      605  2026-07-30 23:54   DGO_Targets_Platform/config/nav.config.js
+     3976  2026-07-30 23:54   DGO_Targets_Platform/config/navigation-relationships.config.js
+      284  2026-07-30 23:54   DGO_Targets_Platform/config/performance-budget.config.js
+    17456  2026-07-30 23:54   DGO_Targets_Platform/config/platform-provisioning.config.js
+     1524  2026-07-30 23:54   DGO_Targets_Platform/config/priority.config.js
+     2284  2026-07-30 23:54   DGO_Targets_Platform/config/product-definition.config.json
+     3804  2026-07-30 23:54   DGO_Targets_Platform/config/rbac.config.js
+      445  2026-07-30 23:54   DGO_Targets_Platform/config/receipt-ledger.config.js
+     3340  2026-07-30 23:54   DGO_Targets_Platform/config/routes.config.js
+     4089  2026-07-30 23:54   DGO_Targets_Platform/config/source-routing.config.js
+     1285  2026-07-30 23:54   DGO_Targets_Platform/config/source-views.config.js
+      755  2026-07-30 23:54   DGO_Targets_Platform/config/state-schema.config.js
+     1061  2026-07-30 23:54   DGO_Targets_Platform/config/support-routing.config.js
+     2684  2026-07-30 23:54   DGO_Targets_Platform/config/welcome-experience.config.js
+     7322  2026-07-30 23:54   DGO_Targets_Platform/config/workflow-clarity.config.js
+     1068  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/main.js
+     2970  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/ARCHITECTURE_DECISIONS.md
+     1336  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/CHANGE_CONTROL.md
+     1545  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/CODING_STANDARDS.md
+     3571  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/FLOW_CONTRACT.md
+     1231  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/FLOW_REGISTRY_TEMPLATE.md
+     3892  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/FOLDER_STRUCTURE.md
+     2792  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/GUIDING_PRINCIPLES.md
+     3210  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/IMPLEMENTATION_ROADMAP.md
+     5500  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/MASTER_BLUEPRINT.md
+     3840  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/MODULE_CONTRACT.md
+     1073  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/MODULE_REGISTRY_TEMPLATE.md
+     1748  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/OPERATIONS_RUNBOOK.md
+     1990  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/README.md
+     2004  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/RELEASE_CHECKLIST.md
+     1750  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/RISK_REGISTER.md
+     2892  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/SECURITY_GOVERNANCE.md
+     3465  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/SPA_MIGRATION_PLAN.md
+     2437  2026-06-29 18:21   DGO_Targets_References/platform-architecture-pack/TESTING_PLAN.md
+    11982  2026-06-26 16:53   DGO_Targets_References/platform-architecture-pack/precision_auditor_v3.py
+     2809  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_one_page_memo.pdf
+     2995  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_sop.md
+     2381  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_sop.txt
+     5683  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_team_handbook.pdf
+    38946  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_word_version.docx
+     4247  2026-06-16 20:15   DGO_Targets_References/universal_filename_policy_deliverables/universal_filename_policy_ai_machine_usage.json
+    10423  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/controllers/actions.js
+    10767  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/colors_and_type.css
+      722  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/ds.css
+     1112  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/api/client.js
+      991  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/events/bindings.js
+    18043  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/admin-panels.js
+    35026  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/admin.js
+    29931  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/core.js
+    23709  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/data.js
+     7582  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/home.js
+    14116  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/icons.js
+    23690  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/submit.js
+    16067  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/support.js
+    18174  2026-08-01 00:36   DGO_Targets_Platform/document-portal/js/track.js
+      328  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/ai.js
+      991  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/approvals.js
+     1270  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/bootstrap.js
+     1916  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/briefs.js
+     2343  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/correspondence.js
+     1059  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/decisions.js
+     1694  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/inbox.js
+      457  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/kpi.js
+     1867  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/meetings.js
+     1967  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/minutes.js
+     1686  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/ops.js
+      818  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/projects.js
+     1844  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/services/tasks.js
+     2332  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/core/config.js
+      931  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/core/router.js
+     2878  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/core/store.js
+     5786  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.component.css
+     1285  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.density.css
+     1094  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.enhanced.css
+     3062  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.legacy-bridge.css
+     8820  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.primitive.css
+     7077  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.semantic.css
+     4237  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.theme-dark.css
+     3159  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.theme-hc.css
+      729  2026-07-30 23:54   DGO_Targets_Platform/styles/dgo-design-system/tokens/tokens.theme-light.css
+      848  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/utils/fn.js
+      359  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/utils/toast.js
+     3871  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_forensic_report.html
+    41934  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_state.forensic.json
+      936  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_summary.forensic.json
+     2179  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_ai_index.json
+     1647  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_run_receipt.json
+     1242  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/header.js
+     1894  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/layout.js
+     1980  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/router.js
+     3235  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/sidebar.js
+    31379  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/HTML_Email_Template_Task_Assogment_for_Selected_Email_(For tasks created based on received email).html
+    13591  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/HTML_Email_Template_Bulk_v1.html
+    10292  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/HTML_Email_Template_Single_Task_Assignment.html
+    13196  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/HTML_Email_Template_Bulk_v2.html
+    10819  2026-04-23 21:35   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE-1.zip
+    20806  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_non_unique_templates.zip
+    22900  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_unique_templates.zip
+     3934  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/data/demo.js
+     8017  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/icons/sprite.svg
+   143932  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/fonts/CascadiaMono-Regular.woff2
+ 23407544  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Copy of - Fetch_All_Data_&_References_Matrix-POST__08584201914788160149253197884CU95__flow_run_record.json
+        2  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/triggerBody_Fetch_References_and_Lookups_Data_Response.txt
+    99935  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Compose_Standard_Respons_Fetch_References_and_Lookups_Data_Response.txt
+    99935  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_References_and_Lookups_Data - POST__08584199632313684394774780458CU49__varResponse.json
+    26925  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_References_and_Lookups_Data - POST__08584199632313684394774780458CU49__full_definition.json
+     1221  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_References_and_Lookups_Data - POST__08584199632313684394774780458CU49__trigger_input_schema.json
+     3073  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_References_and_Lookups_Data - POST__08584199632313684394774780458CU49__flow_run_record_schema.json
+  2412210  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Emails_POST__08584199631612442806937288301CU192__flow_run_record.json
+     3073  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Emails_POST__08584199631612442806937288301CU192__flow_run_record_schema.json
+     1543  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Emails_POST__08584199631612442806937288301CU192__trigger_input_schema.json
+    24821  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Emails_POST__08584199631612442806937288301CU192__full_definition.json
+   773084  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Emails_POST__08584199631612442806937288301CU192__varResponse.json
+     1221  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631580572304667585520CU253__trigger_input_schema.json
+    23499  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631580572304667585520CU253__full_definition.json
+     3073  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631580572304667585520CU253__flow_run_record_schema.json
+   929873  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631580572304667585520CU253__flow_run_record.json
+   120215  2026-06-16 22:05   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631580572304667585520CU253__varResponse.json
+       34  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/triggerBody_Fetch_Tasks_POST.txt
+   120215  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Compose_Standard_Respons_Fetch_Tasks_POST.txt
+   689902  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631700378132855087091CU174__flow_run_record.json
+     3073  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631700378132855087091CU174__flow_run_record_schema.json
+     1221  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631700378132855087091CU174__trigger_input_schema.json
+    23499  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631700378132855087091CU174__full_definition.json
+   120215  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_Tasks_POST__08584199631700378132855087091CU174__varResponse.json
+   400932  2026-06-16 22:06   DGO_Targets_References/Flows/Flow/Fetch_References_and_Lookups_Data - POST__08584199632313684394774780458CU49__flow_run_record.json
+   561571  2026-07-29 21:03   DGO_Targets_References/Flows/Flow/Dynamic_Multi-Actions__08584162519225125704688467311CU186__flow_run_record.json
+    35137  2026-07-15 17:36   DGO_Targets_References/Flows/Flow/DGO_OTP_Framework_Evidence.md
+      523  2026-07-15 17:36   DGO_Targets_References/Flows/Flow/DGO_OTP_Framework_Evidence.json
+     2730  2026-07-31 16:48   DGO_Targets_References/Flows/Flow/Deployed Bulk Task Assignment_Create Task__08584160940563880480924374615CU64__trigger_input_schema.json
+   408220  2026-07-31 16:48   DGO_Targets_References/Flows/Flow/Deployed Bulk Task Assignment_Create Task__08584160940563880480924374615CU64__flow_run_record.json
+     2730  2026-07-29 15:50   DGO_Targets_References/Flows/Flow/Deployed - Create Task__08584163567415046851552846639CU194__trigger_input_schema.json
+      363  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/logo/mark.svg
+      890  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/logo/nitda-endorsed.svg
+     5786  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.component.css
+     1285  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.density.css
+     8731  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.primitive.css
+     7088  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.semantic.css
+     3096  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.theme-dark.css
+     2575  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.theme-hc.css
+      753  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/tokens/tokens.theme-light.css
+     1873  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/CORRECTIVE_EXECUTION_REPORT.md
+     9740  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DATA_ALIGNMENT_EXECUTION_REPORT.md
+     2731  2026-07-18 01:14   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/EXECUTION_REPORT.md
+      578  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/README.md
+    25348  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/SHA256SUMS.json
+     1989  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/UI_CONFIGURATION_TRACE.json
+     4316  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/UI_PROVISIONING_EXECUTION_REPORT.md
+     2573  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system-migration-r11.2.json
+     3162  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/endpoint-configuration-r11.2.1.json
+     1419  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/index.html
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/precision_auditor_v4_forensic.py
+      551  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/runtime-package-manifest.json
+     4566  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/styles/base.css
+    39333  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/styles/components.css
+     3252  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/styles/layout.css
+     1152  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/styles/reset.css
+     1873  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/CORRECTIVE_EXECUTION_REPORT.md
+     9740  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DATA_ALIGNMENT_EXECUTION_REPORT.md
+     2731  2026-07-18 01:14   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/EXECUTION_REPORT.md
+      578  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/README.md
+    25048  2026-07-18 09:22   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/SHA256SUMS.json
+     2573  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system-migration-r11.2.json
+     3162  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/endpoint-configuration-r11.2.1.json
+     1419  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/index.html
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/precision_auditor_v4_forensic.py
+      645  2026-07-18 09:22   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/runtime-package-manifest.json
+     7602  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_Templates_Reconfigured_StrictlyFrom_Attached_4Options/Option2_Reconfigured_HeroTiles.html
+     6111  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_Templates_Reconfigured_StrictlyFrom_Attached_4Options/Option3_Reconfigured_MinimalChips.html
+     9642  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_Templates_Reconfigured_StrictlyFrom_Attached_4Options/Option1_Reconfigured_AccentRail.html
+     6587  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_Templates_Reconfigured_StrictlyFrom_Attached_4Options/Option4_Reconfigured_PatternReceipt.html
+    16516  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/01__Scope_Assignment_Email__Compose__NITDA_Assignment_Notification.html
+    12860  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/02__Scope_2__6__Action_required_NITDA.html
+     7505  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/03__Scope_2___1__NITDA_Assignment_Notification.html
+     8810  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/04__Scope_2___3__Action_required_NITDA.html
+    10336  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/05__Scope_2___4__Action_required_NITDA.html
+    16516  2026-03-09 08:59   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/html_files/06__Scope_2___5__NITDA_Assignment_Notification.html
+     1425  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/admin.js
+     1293  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/ai.js
+     1985  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/approvals.js
+     1401  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/audit.js
+     2242  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/briefs.js
+     2472  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/dashboard.js
+     1476  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/decisions.js
+     1346  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/directory.js
+     3495  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/inbox.js
+     2161  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/inward.js
+     1253  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/kpi.js
+     2614  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/meetings.js
+     2191  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/minutes.js
+      190  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/notfound.js
+     1738  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/notifications.js
+     2115  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/outward.js
+     2368  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/projects.js
+      942  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/reports.js
+     2267  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/pages/tasks.js
+     6651  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-status-under-review.html
+     8587  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-document-submitted-for-review-v01.html
+    12176  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-submission-received.html
+     7535  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-submission-alert-v02.html
+     9789  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-nitda-official-receipt-v01.html
+     7535  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-submission-alert-v01.html
+    11677  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-nitda-acknowledgment-slip-v01.html
+     9824  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-nitda-official-receipt-v03.html
+     6266  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-status-closed-v02.html
+    11677  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-nitda-acknowledgment-slip-v02.html
+     8585  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-document-submitted-for-review-v02.html
+     6747  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-status-actioned.html
+     8574  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-document-assigned-v01.html
+     9787  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-nitda-official-receipt-v02.html
+     6266  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-status-closed-v01.html
+     8577  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-document-submitted-for-review-v03.html
+     8545  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_digital_hub_email_templates_branded/nitda-digital-hub-new-document-assigned-v02.html
+      548  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/09_weekly_executive_briefing_template.html
+      528  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/11_orchestrator_v2_full_repost.html
+      536  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/04_process_map_workflow_visualization.html
+      548  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/12_email_to_task_mobile_app.html
+      562  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/14_canvas_replica_standalone.html
+      536  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/02_orchestrator_v2_full.html
+      548  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/15_dgceo_executive_hub_react.html
+      524  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/07_digital_ops_portal_dashboard.html
+      540  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/03_orchestrator_v2_simplified.html
+      526  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/17_document_assignments_debugged_spa.html
+      584  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/10_digital_operations_portal_minimal_deeplink.html
+      538  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/06_enterprise_task_document_portal.html
+      556  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/01_nitda_digital_ops_portal_full.html
+      552  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/13_task_flow_manager_mobile_tailwind.html
+      572  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/05_nitda_intelligent_portal_spa.html
+     2518  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/manifest.json
+     1026  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/README.txt
+      578  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/08_dgceo_correspondence_decision_hub.html
+      550  2026-04-23 06:20   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/nitda_html_bundle_TEMPLATE/16_document_task_portal_execution_lock_v3_1.html
+     7321  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/status_update_in_review.html
+     7059  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/status_update_actioned.html
+     6509  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/internal_assignment.html
+     5721  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/new_submission_internal.html
+     7029  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/status_update_closed.html
+     6958  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/support_ticket_acknowledgment.html
+     9320  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/status_update_awaiting_response.html
+     8034  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/internal_support_request.html
+     9467  2026-04-17 18:54   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/NITDA_All_Templates_Full/submission_confirmation.html
+    19736  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/components/modals.js
+     3151  2026-07-30 23:54   DGO_Targets_Platform/ECM_ActivityHub_Portal/js/views/components/ui.js
+     1457  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/api.js
+     2044  2026-07-18 07:23   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/boot.js
+      366  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/browser-certification.js
+     1634  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/contracts.js
+     3600  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/data-loader.js
+     5186  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/domain.js
+     1268  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/router.js
+     1678  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/state.js
+      820  2026-07-18 09:45   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/ui-state.js
+     1922  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/core/ui.js
+      354  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/scripts/serve.py
+      644  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/assets/dgo-logo.svg
+      329  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/assets/dgo-mark.svg
+      537  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_volumes/otp_volume_index.json
+    40359  2026-07-15 11:09   DGO_Targets_Platform/ECM_ActivityHub_Portal/Otp/aud_forensic_otp_20260715_110909/otp_volumes/otp_vol_001.json
+     3382  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/acknowledgment.js
+     4681  2026-07-18 09:46   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/activities.js
+     4501  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/approvals.js
+     2041  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/assistant.js
+     1800  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/bulk-assignment.js
+     2407  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/comments.js
+     5267  2026-07-18 09:48   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/correspondence.js
+     2524  2026-07-18 09:47   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/diagnostics.js
+     3001  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/dispatch.js
+     2179  2026-07-18 09:45   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/executive.js
+     1586  2026-07-18 09:45   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/fasttrack.js
+     2724  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/home.js
+     3699  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/lookup.js
+     1738  2026-07-18 09:45   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/operator-hud.js
+     3304  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/orchestrator.js
+     3629  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/registry.js
+     3286  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/reports.js
+     3615  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/response-tracking.js
+     3475  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/settings.js
+     3935  2026-07-18 09:47   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/single-assignment.js
+     1545  2026-07-18 09:45   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/statistics.js
+     4115  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/modules/user-admin.js
+      539  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/docs/CHANGELOG.md
+    20537  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/docs/IMPLEMENTATION_REPORT.md
+      424  2026-07-18 09:46   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/app.config.js
+      451  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/browser-certification.config.js
+     1514  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/dynamic-actions.config.js
+     9128  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/endpoints.config.js
+      909  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/nav.config.js
+     2042  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/rbac.config.js
+     2883  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/config/routes.config.js
+      644  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/assets/dgo-logo.svg
+      329  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/assets/dgo-mark.svg
+    11685  2026-08-01 00:36   DGO_Targets_Platform/document-portal/ds/styles/components/command-palette.css
+     2770  2026-02-15 00:38   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/Html email task template/universal_task_digest_wrapper-1.html
+    11789  2026-02-15 00:37   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/Html email task template/universal_task_card-1.html
+      767  2026-02-15 00:37   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/Html email task template/universal_task_digest_row.html
+     7237  2026-02-15 00:38   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/Html email task template/universal_task_letter-1.html
+      767  2026-02-15 00:38   DGO_Targets_References/HTML_OPS_Standard_Email_Templates/Html email task template/universal_task_digest_row-1.html
+      391  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/browser-certification.html
+      603  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/content-governance-contract.mjs
+     1081  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/data-contract-integration.mjs
+     1279  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/design-system-authority-contract.mjs
+     1215  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/endpoint-configuration-contract.mjs
+     1186  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/regression-r11.3.mjs
+      541  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/route-contract.mjs
+      181  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/run-all.sh
+      405  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/static-validation.mjs
+      868  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/viewport-containment-contract.mjs
+    14400  2026-07-18 09:47   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/app.css
+      912  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/tokens.css
+      429  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/app.config.js
+      451  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/browser-certification.config.js
+     1514  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/dynamic-actions.config.js
+     9128  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/endpoints.config.js
+      909  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/nav.config.js
+     2042  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/rbac.config.js
+     2883  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/config/routes.config.js
+      569  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/shared/generic-module.js
+     9529  2026-07-18 09:46   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/shared/shell.js
+     1457  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/api.js
+     2044  2026-07-18 07:23   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/boot.js
+      366  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/browser-certification.js
+     1634  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/contracts.js
+     3600  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/data-loader.js
+     5186  2026-07-18 09:21   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/domain.js
+     1268  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/router.js
+     1678  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/state.js
+     1922  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/core/ui.js
+      569  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/shared/generic-module.js
+     7857  2026-07-18 07:23   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/shared/shell.js
+     3376  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/acknowledgment.js
+     4038  2026-07-18 07:23   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/activities.js
+     4501  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/approvals.js
+     2015  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/assistant.js
+     1800  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/bulk-assignment.js
+     2407  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/comments.js
+     5243  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/correspondence.js
+     1013  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/diagnostics.js
+     3001  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/dispatch.js
+      484  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/executive.js
+      472  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/fasttrack.js
+     2724  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/home.js
+     3699  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/lookup.js
+      470  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/operator-hud.js
+     3304  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/orchestrator.js
+     3629  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/registry.js
+     3286  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/reports.js
+     3615  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/response-tracking.js
+     3475  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/settings.js
+     2336  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/single-assignment.js
+      466  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/statistics.js
+     4115  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/modules/user-admin.js
+    12485  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/app.css
+      912  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/tokens.css
+      391  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/browser-certification.html
+      603  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/content-governance-contract.mjs
+     1081  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/data-contract-integration.mjs
+     1279  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/design-system-authority-contract.mjs
+     1215  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/endpoint-configuration-contract.mjs
+     1186  2026-07-18 07:24   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/regression-r11.3.mjs
+      541  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/route-contract.mjs
+      181  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/run-all.sh
+      405  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/static-validation.mjs
+      868  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/viewport-containment-contract.mjs
+      354  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/scripts/serve.py
+      856  2026-07-18 01:14   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/scripts/__pycache__/serve.cpython-312.pyc
+      965  2026-06-15 01:37   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_GENERATE/Web - OTP Generate__08584202058736633188274709906CU174__varResponse.json
+    29255  2026-06-15 01:37   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_GENERATE/Web - OTP Generate__08584202058736633188274709906CU174__full_definition.json
+     1411  2026-06-15 01:37   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_GENERATE/Web - OTP Generate__08584202058736633188274709906CU174__trigger_input_schema.json
+     3073  2026-06-15 01:37   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_GENERATE/Web - OTP Generate__08584202058736633188274709906CU174__flow_run_record_schema.json
+   114136  2026-06-15 01:36   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_GENERATE/Web - OTP Generate__08584202058736633188274709906CU174__flow_run_record.json
+     3073  2026-06-15 01:34   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_VERIFY/Web - OTP Verify__08584202058708887835754078979CU170__flow_run_record_schema.json
+   111562  2026-06-15 01:34   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_VERIFY/Web - OTP Verify__08584202058708887835754078979CU170__flow_run_record.json
+    28533  2026-06-15 01:34   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_VERIFY/Web - OTP Verify__08584202058708887835754078979CU170__full_definition.json
+      968  2026-06-15 01:34   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_VERIFY/Web - OTP Verify__08584202058708887835754078979CU170__varResponse.json
+     1591  2026-06-15 01:34   DGO_Targets_References/Flows/Flow/OTP_FLOWS/OTP_VERIFY/Web - OTP Verify__08584202058708887835754078979CU170__trigger_input_schema.json
+      539  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/docs/CHANGELOG.md
+    20537  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/docs/IMPLEMENTATION_REPORT.md
+  4645589  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/tests/fixtures/fetch-all.sample.json
+     6606  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/CHANGELOG.md
+    12608  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/CONTRIBUTING.md
+   261758  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/DGO Design System v2.1 - Standalone.html
+     9438  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/GOVERNANCE.md
+    23805  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/INTEGRATION.md
+     3590  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/LICENSE
+     5829  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/MIGRATION.md
+    10894  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/README.md
+   141736  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/index.html
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/precision_auditor_v4_forensic.py
+    10146  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/platform-authority.css
+     5786  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.component.css
+     1285  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.density.css
+     1094  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.enhanced.css
+     8731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.primitive.css
+     6781  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.semantic.css
+     3096  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.theme-dark.css
+     2597  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.theme-hc.css
+      753  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/styles/revised-dgo/tokens.theme-light.css
+  4645589  2026-07-18 09:20   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/tests/fixtures/fetch-all.sample.json
+     6606  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/CHANGELOG.md
+    12608  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/CONTRIBUTING.md
+   261758  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/DGO Design System v2.1 - Standalone.html
+     9438  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/GOVERNANCE.md
+    23805  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/INTEGRATION.md
+     3590  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/LICENSE
+     5829  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/MIGRATION.md
+    10894  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/README.md
+   141736  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/index.html
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/precision_auditor_v4_forensic.py
+    10146  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/platform-authority.css
+     5786  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.component.css
+     1285  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.density.css
+     1094  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.enhanced.css
+     8731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.primitive.css
+     6781  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.semantic.css
+     3096  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.theme-dark.css
+     2597  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.theme-hc.css
+      753  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/styles/revised-dgo/tokens.theme-light.css
+    15328  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/coverage/technical-coverage.json
+      856  2026-07-18 01:14   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/scripts/__pycache__/serve.cpython-312.pyc
+    15445  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/00-foundations.md
+    11638  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/01-tokens.md
+    16248  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/02-color.md
+    12473  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/03-typography.md
+     8225  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/04-spacing-grid.md
+     8080  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/05-iconography.md
+    10738  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/06-motion.md
+    10594  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/07-elevation.md
+    25561  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/08-accessibility.md
+    18443  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/09-i18n-rtl.md
+    21273  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/10-content-voice.md
+    13274  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/11-component-template.md
+    26631  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/12-anti-patterns.md
+     2302  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/13-complete-implementation.md
+     7667  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/scripts/dgo-runtime.js
+    11352  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/GUIDELINES.md
+     6183  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/INDEX.md
+     5213  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/README.md
+    16982  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/components.css
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/precision_auditor_v4_forensic.py
+    10226  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/tokens.css
+     5786  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.component.css
+     1285  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.density.css
+     1094  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.enhanced.css
+     8731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.primitive.css
+     6781  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.semantic.css
+     3096  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.theme-dark.css
+     2597  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.theme-hc.css
+      753  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tokens/tokens.theme-light.css
+     4566  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/base.css
+    39333  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components.css
+     9416  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/enhancements.css
+     3252  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/layout.css
+     1152  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/reset.css
+      934  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/tools/validate_technical.py
+     4566  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/base.css
+    39333  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components.css
+     9416  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/enhancements.css
+     3252  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/layout.css
+     1152  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/reset.css
+    15328  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/coverage/technical-coverage.json
+     5786  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.component.css
+     1285  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.density.css
+     1094  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.enhanced.css
+     8731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.primitive.css
+     6781  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.semantic.css
+     3096  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.theme-dark.css
+     2597  2026-07-18 01:13   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.theme-hc.css
+      753  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tokens/tokens.theme-light.css
+     7667  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/scripts/dgo-runtime.js
+      934  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/tools/validate_technical.py
+      751  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/logo/horizontal.svg
+      363  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/logo/mark.svg
+      890  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/logo/nitda-endorsed.svg
+      694  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/logo/stacked.svg
+      761  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/logo/white-out.svg
+    11352  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/GUIDELINES.md
+     6183  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/INDEX.md
+     5213  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/README.md
+    16982  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/components.css
+    30591  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/precision_auditor_v4_forensic.py
+    10226  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/tokens.css
+     8017  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/icons/sprite.svg
+      751  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/logo/horizontal.svg
+      363  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/logo/mark.svg
+      890  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/logo/nitda-endorsed.svg
+      694  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/logo/stacked.svg
+      761  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/assets/logo/white-out.svg
+     8017  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/assets/icons/sprite.svg
+    15445  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/00-foundations.md
+    11638  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/01-tokens.md
+    16248  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/02-color.md
+    12473  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/03-typography.md
+     8225  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/04-spacing-grid.md
+     8080  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/05-iconography.md
+    10738  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/06-motion.md
+    10594  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/07-elevation.md
+    25561  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/08-accessibility.md
+    18443  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/09-i18n-rtl.md
+    21273  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/10-content-voice.md
+    13274  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/11-component-template.md
+    26631  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/12-anti-patterns.md
+     2302  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/13-complete-implementation.md
+     6374  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/alert.md
+     6158  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/avatar.md
+     7954  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/badge.md
+     7647  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/breadcrumb.md
+    19789  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/button.md
+     6310  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/card.md
+    14739  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/checkbox-radio.md
+    33538  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/command-palette.md
+     5479  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/empty-state.md
+     5700  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/filter-bar.md
+    23362  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/input.md
+     5899  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/kbd-code.md
+    18082  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/menu.md
+     6023  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/metric.md
+    24381  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/modal.md
+     5922  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/progress.md
+    13728  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/search.md
+    14211  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/select.md
+    16733  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/sidebar.md
+     5471  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/skeleton.md
+    15944  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/stepper-pagination.md
+    15632  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/switch.md
+    26188  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/table.md
+    20175  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/tabs.md
+    20035  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/toast.md
+    21957  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/tooltip-popover.md
+     6665  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/docs/components/topbar.md
+    13970  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/examples/app-shell.html
+    13970  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/examples/app-shell.html
+      316  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/endorsement.svg
+      531  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-horizontal.svg
+      248  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-mark.svg
+      530  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-stacked.svg
+      545  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-white-out.svg
+     6703  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logos.html
+     3388  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/brand-logo.html
+     2209  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-primary.html
+     2122  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-semantic.html
+     1463  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-status.html
+     2382  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-alerts.html
+     2055  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-badges.html
+     2153  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-buttons.html
+     1876  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-cards.html
+     1769  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-inputs.html
+     1905  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-modals.html
+     2590  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-navigation.html
+     1797  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-tables.html
+     2259  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/elevation.html
+     2477  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/radius.html
+     2446  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/spacing.html
+     2036  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/typography.html
+      316  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/endorsement.svg
+      531  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-horizontal.svg
+      248  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-mark.svg
+      530  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-stacked.svg
+      545  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logo-white-out.svg
+     6703  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/assets/logos.html
+     3388  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/brand-logo.html
+     2209  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-primary.html
+     2122  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-semantic.html
+     1463  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/colors-status.html
+     2382  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-alerts.html
+     2055  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-badges.html
+     2153  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-buttons.html
+     1876  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-cards.html
+     1769  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-inputs.html
+     1905  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-modals.html
+     2590  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-navigation.html
+     1797  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/components-tables.html
+     2259  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/elevation.html
+     2477  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/radius.html
+     2446  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/spacing.html
+     2036  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/preview/typography.html
+    10212  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/email_templates/index.html
+    49653  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/dashboard/design-canvas.jsx
+    15442  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/dashboard/index.html
+    49653  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/dashboard/design-canvas.jsx
+    15442  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/dashboard/index.html
+     3352  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/_index.css
+     1028  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/_utilities.css
+     2378  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/alert.css
+     1703  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/avatar.css
+     4161  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/badge.css
+     1177  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/breadcrumb.css
+     4974  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/button.css
+     2325  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/card.css
+     1286  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/checkbox-radio.css
+    11685  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/command-palette.css
+     1206  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/empty-state.css
+     1466  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/filter-bar.css
+     3797  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/input.css
+     1731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/kbd-code.css
+     1874  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/menu.css
+     1785  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/metric.css
+     2692  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/modal.css
+     2051  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/progress.css
+     1454  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/search.css
+     1384  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/select.css
+     2705  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/sidebar.css
+     1234  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/skeleton.css
+     2940  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/stepper-pagination.css
+     1757  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/switch.css
+     2151  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/table.css
+     1651  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/tabs.css
+     1509  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/toast.css
+     1385  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/tooltip-popover.css
+     1060  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/styles/components/topbar.css
+    10212  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/DGO_Digital_Operations_R11_5_0_UI_Provisioned_Runtime/design-system/dgo-complete/dgo_digital_ops/ui_kits/email_templates/index.html
+     3352  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/_index.css
+     1028  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/_utilities.css
+     2378  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/alert.css
+     1703  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/avatar.css
+     4161  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/badge.css
+     1177  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/breadcrumb.css
+     4974  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/button.css
+     2325  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/card.css
+     1286  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/checkbox-radio.css
+    11685  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/command-palette.css
+     1206  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/empty-state.css
+     1466  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/filter-bar.css
+     3797  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/input.css
+     1731  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/kbd-code.css
+     1874  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/menu.css
+     1785  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/metric.css
+     2692  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/modal.css
+     2051  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/progress.css
+     1454  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/search.css
+     1384  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/select.css
+     2705  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/sidebar.css
+     1234  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/skeleton.css
+     2940  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/stepper-pagination.css
+     1757  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/switch.css
+     2151  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/table.css
+     1651  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/tabs.css
+     1509  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/toast.css
+     1385  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/tooltip-popover.css
+     1060  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/styles/components/topbar.css
+     6374  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/alert.md
+     6158  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/avatar.md
+     7954  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/badge.md
+     7647  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/breadcrumb.md
+    19789  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/button.md
+     6310  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/card.md
+    14739  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/checkbox-radio.md
+    33538  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/command-palette.md
+     5479  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/empty-state.md
+     5700  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/filter-bar.md
+    23362  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/input.md
+     5899  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/kbd-code.md
+    18082  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/menu.md
+     6023  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/metric.md
+    24381  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/modal.md
+     5922  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/progress.md
+    13728  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/search.md
+    14211  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/select.md
+    16733  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/sidebar.md
+     5471  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/skeleton.md
+    15944  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/stepper-pagination.md
+    15632  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/switch.md
+    26188  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/table.md
+    20175  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/tabs.md
+    20035  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/toast.md
+    21957  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/tooltip-popover.md
+     6665  2026-07-18 01:12   DGO_Targets_Platform/ECM_ActivityHub_Portal/Folder 5/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/DGO_Digital_Operations_R11_4_0_Contract_Aligned_Runtime/design-system/dgo-complete/docs/components/topbar.md
+---------                     -------
+ 76424660                     838 files

@@ -1,0 +1,19 @@
+item	status	examples
+root runtime	present	.gitignore, AUDIT.md, AUTHENTICATION_CONTRACT.md
+core	present	core/acknowledgement-service.js, core/action-authority.js, core/action-runtime.js
+config	present	config/acknowledgement-flow.config.js, config/action-ownership.config.js, config/action-routing.config.js
+modules	present	modules/acknowledgment.js, modules/activities.js, modules/approvals.js
+shared	present	shared/accessibility.js, shared/components.js, shared/design-system-adapter.js
+styles	present	styles/app.css, styles/dgo-design-system/base.css, styles/dgo-design-system/brand-type.css
+ECM_ActivityHub_Portal	present	ECM_ActivityHub_Portal/README.md, ECM_ActivityHub_Portal/config.example.js, ECM_ActivityHub_Portal/index.html
+document-portal	present	document-portal/404.html, document-portal/README.md, document-portal/admin.html
+newack	present	newack/ack.html, newack/config.js, newack/email.html
+proxy	present	proxy/README.md, proxy/src/authorize.js, proxy/src/config.js
+tests	present	tests/README.md, tests/auth-posture.test.mjs, tests/check-imports.mjs
+scripts	present	scripts/check-links.mjs, scripts/setup-local.mjs
+assets	present	assets/dgo-mark.svg
+universal_filename_policy_deliverables	present	universal_filename_policy_deliverables/universal_filename_policy_ai_machine_usage.json, universal_filename_policy_deliverables/universal_filename_policy_one_page_memo.pdf, universal_filename_policy_deliverables/universal_filename_policy_sop.md
+ECM_DOCS_DEV.zip	present	ECM_DOCS_DEV.zip
+root-level audit/documentation markdown files	present	AUDIT.md, AUTHENTICATION_CONTRACT.md, CAPABILITY_ASSESSMENT_R11.6.md, CONTRIBUTING.md, FORENSIC_REPOSITORY_AUDIT.md, PLATFORM_DOCUMENTATION.md, README.md, REPOSITORY_AUDIT.md, STATUS_REPORT.md
+proxy implementation	present	proxy/README.md, proxy/src/authorize.js, proxy/src/config.js, proxy/src/handler.js, proxy/src/jwt.js
+test suite	present	tests/README.md, tests/auth-posture.test.mjs, tests/check-imports.mjs, tests/check-secrets.mjs, tests/governance.test.mjs

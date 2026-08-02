@@ -1,0 +1,2 @@
+$ rg -n --hidden --glob '!docs/repository-hygiene/**' 'ECM_DOCS_DEV\.zip|\.zip|\.tar|\.tgz|\.7z' package.json scripts proxy config tests .github README.md AUDIT.md CAPABILITY_ASSESSMENT_R11.6.md STATUS_REPORT.md REPOSITORY_AUDIT.md FORENSIC_REPOSITORY_AUDIT.md
+> (no matches)
