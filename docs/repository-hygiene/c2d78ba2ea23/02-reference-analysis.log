@@ -1,0 +1,4 @@
+$ python3 Phase 1 reference analyzer over docs/repository-hygiene/c2d78ba2ea23/inventory.json using structural import/src/href/url parsing plus limited doc/test/script mention scans
+> scope_commit=c2d78ba2ea23 tracked_files=294 text_files=286 edges=2050
+> runtime_roots=12 test_roots=5 script_roots=5
+> structural edges are separated from doc/test/script mentions; sig= values are redacted in generated evidence.
