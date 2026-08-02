@@ -9,10 +9,11 @@
     "node": ">=20"
   },
   "scripts": {
-    "start": "http-server . -p 8080 --cors -c-1 --silent",
     "serve:portal": "http-server ECM_ActivityHub_Portal -p 8080 --cors -c-1 --silent",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:auth && npm run test:smoke",
+    "start": "http-server . -p 8080 --cors -c-1 --silent",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:auth && npm run test:smoke",
     "test:auth": "node tests/auth-posture.test.mjs",
+    "test:governance": "node tests/governance.test.mjs",
     "test:imports": "node tests/check-imports.mjs",
     "test:links": "node scripts/check-links.mjs",
     "test:secrets": "node tests/check-secrets.mjs",

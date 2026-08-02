@@ -86,6 +86,17 @@ if (POSTURE === 'inert') {
     auth.getIdentity().source === 'local-profile');
   check('identity is not marked verified', auth.getIdentity().verified === false);
 
+  // ── ECM Activity Hub Portal — parity (AUDIT.md F-001/F-002/F-003)
+  const pAuth = await import('../ECM_ActivityHub_Portal/js/core/auth.js');
+  const pStore = { auth: { user: { email: 'dev@localhost', name: 'Dev', role: 'Officer' } } };
+  check('portal: auth disabled by default', pAuth.isAuthEnforced() === false);
+  check('portal: no Authorization header', Object.keys(await pAuth.authHeaders()).length === 0);
+  check('portal: client may assert identity (envelope unchanged)', pAuth.clientMayAssertIdentity() === true);
+  check('portal: role switch still permitted in development', pAuth.roleSwitchAllowed() === true);
+  check('portal: identity comes from the local store', pAuth.getIdentity(pStore).source === 'local-store');
+  check('portal: no production identity is hardcoded', !JSON.stringify(
+    (await import('../ECM_ActivityHub_Portal/js/core/store.js')).Store.auth).includes('dgceo@nitda.gov.ng'));
+
   const posture = cfg.authPosture();
   check('posture reports "development"', posture.posture === 'development');
   check('posture warns that controls are NOT enforced', /INERT/.test(posture.warning));
@@ -159,6 +170,27 @@ if (POSTURE === 'enforced') {
   let unmappedThrew = false;
   try { await auth.ensureAuthenticated('governed'); } catch { unmappedThrew = true; }
   check('an unmapped role is DENIED rather than defaulted', unmappedThrew);
+
+  // ── ECM Activity Hub Portal — enforced parity
+  const pAuth = await import('../ECM_ActivityHub_Portal/js/core/auth.js');
+  check('portal: auth enabled', pAuth.isAuthEnforced() === true);
+  check('portal: client may NOT assert identity — user/role dropped from envelope',
+    pAuth.clientMayAssertIdentity() === false);
+  check('portal: in-browser role switch is REFUSED (F-002)', pAuth.roleSwitchAllowed() === false);
+  let pThrew = false;
+  try { await pAuth.ensureAuthenticated({}, 'governed'); } catch { pThrew = true; }
+  check('portal: unauthenticated governed call is BLOCKED', pThrew);
+  pAuth.registerTokenProvider(async () => ({
+    token: fakeJwt({ preferred_username: 'officer@nitda.gov.ng', roles: ['DGO.Officer'] }),
+    expiresAt: Date.now() + 3_600_000 }));
+  await pAuth.getAccessToken();
+  check('portal: Authorization Bearer attached',
+    /^Bearer /.test((await pAuth.authHeaders()).Authorization || ''));
+  const tampered = { auth: { user: { email: 'officer@nitda.gov.ng', role: 'DGCEO' } } };
+  check('portal: tampering with Store does NOT change the effective role (F-001/F-003)',
+    pAuth.getIdentity(tampered).role !== 'DGCEO');
+  check('portal: identity derives from token claims',
+    pAuth.getIdentity(tampered).source === 'token-claims');
 }
 
 console.log(`\n${failures.length ? '❌' : '✅'} ${passed} passed, ${failures.length} failed`);

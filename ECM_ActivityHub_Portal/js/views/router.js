@@ -1,5 +1,5 @@
 import { Store } from "../core/store.js";
-import { renderNotFound } from "./pages/notfound.js";
+import { renderNotFound, renderDenied } from "./pages/notfound.js";
 import { renderDashboard } from "./pages/dashboard.js";
 import { renderInbox } from "./pages/inbox.js";
 import { renderInward } from "./pages/inward.js";
@@ -40,6 +40,7 @@ export function renderRoute() {
     case "/directory": return renderDirectory();
     case "/admin": return renderAdmin();
     case "/ai": return renderAi();
+    case "/denied": return renderDenied();
     default: return renderNotFound();
   }
 }
