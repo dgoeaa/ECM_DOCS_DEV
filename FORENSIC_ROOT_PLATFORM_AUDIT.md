@@ -169,11 +169,16 @@ Consequences, all following directly:
 
 ```js
 PF.ENDPOINTS = {
-  submission: 'https://…/workflows/1ff7714c…/triggers/manual/paths/invoke?…&sig=jVUOseIHw17BG3tMiZfBMCEVSN1a65vOSLtsKURgr98',
-  tracking:   'https://…/workflows/ca0bafc1…/triggers/manual/paths/invoke?…&sig=Yef7pmj6yGBRszqaS9BT7gosu2gYlaheAfqhmSgAJuo',
-  support:    'https://…/workflows/3fc71cc2…/triggers/manual/paths/invoke?…&sig=FUeporOryvRDWA7z561j4LsLY4ey3YjUsgUCIqhEzyU'
+  submission: 'https://…/workflows/1ff7714c…/triggers/manual/paths/invoke?…&sig=[REDACTED]',
+  tracking:   'https://…/workflows/ca0bafc1…/triggers/manual/paths/invoke?…&sig=[REDACTED]',
+  support:    'https://…/workflows/3fc71cc2…/triggers/manual/paths/invoke?…&sig=[REDACTED]'
 };
 ```
+
+> **Signatures redacted.** An earlier revision of this document quoted all three verbatim.
+> That reproduced the credential into a third tracked file and tripped `check-secrets.mjs`,
+> which correctly failed the build. Quoting a live credential to evidence its exposure
+> spreads it. The workflow GUIDs are retained because they are identifiers, not secrets.
 
 **Failure narrative.** `data.js` is a plain `<script>` fetched by every browser that opens any portal page. A SAS-signed Power Automate URL is a bearer credential — possession alone authorises invoking the flow. Anyone who loads the page, or reads the repository, can invoke all three flows directly and without limit. `sw.js:18` additionally precaches `js/data.js`, so the credentials persist in the browser cache after the page is closed.
 
