@@ -1,0 +1,74 @@
+%% Diagram 3 - Build and deployment flow at 18e9f4d
+%% There is NO build step. Every served file is a tracked file.
+%% INDETERMINATE steps are marked; no deploy target is evidenced in-repo.
+flowchart TB
+
+  subgraph SRC["SOURCE TREES - all tracked, none generated"]
+    R["index.html + core/ + modules/<br/>+ config/ + shared/ + styles/"]
+    DP["document-portal/ - 42 files"]
+    AH["ECM_ActivityHub_Portal/ - 53 files"]
+    NA["newack/ - 5 files - ORPHANED"]
+    PX["proxy/ - 7 files - SERVER-SIDE"]
+    ZIP["ECM_DOCS_DEV.zip - 16.99 MB<br/>31 SAS signatures / 18 members<br/>+ UNREDACTED manifest"]
+  end
+
+  subgraph SETUP["npm run setup - scripts/setup-local.mjs"]
+    UNZ["unzip -p ECM_DOCS_DEV.zip<br/>DGO_Targets_References/<br/>NITDA_operations_manifest_ai_ready_UNREDACTED-1.json"]
+    MAP["MAP E01..E07 -> 11 of 19 contract keys<br/>incl. every write-side contract"]
+    OUT1["config/config.local.js<br/>git-ignored OUTPUT"]
+    OUT2["ECM_ActivityHub_Portal/config.local.js<br/>git-ignored OUTPUT"]
+    UNZ --> MAP --> OUT1
+    MAP --> OUT2
+  end
+
+  ZIP ==>|"ESCALATED: committed INPUT<br/>gitignore covers output only"| UNZ
+
+  subgraph SERVE["LOCAL SERVING - http-server, no bundler"]
+    S1["npm start<br/>http-server . -p 8080<br/>SERVES THE WHOLE REPO ROOT"]
+    S2["npm run serve:portal<br/>ActivityHub only"]
+    S3["npm run start:proxy<br/>MANUAL, never invoked by go/start"]
+  end
+
+  R --> S1
+  DP --> S1
+  AH --> S1
+  NA ==>|"orphan reachable at /newack/"| S1
+  ZIP -->|"served as a static file"| S1
+  AH --> S2
+  PX --> S3
+  OUT1 -.->|"read at runtime by index.html"| R
+  OUT2 -.-> AH
+
+  subgraph CI[".github/workflows/ci.yml - 4 jobs"]
+    J1["imports GATING<br/>check-imports + governance<br/>+ auth-posture + proxy.test"]
+    J2["smoke GATING - needs imports<br/>playwright, 16 tests"]
+    J3["links NON-GATING<br/>continue-on-error: true"]
+    J4["secrets<br/>exits 0 on baselined exposure"]
+  end
+
+  SRC --> CI
+  J1 --> J2
+
+  subgraph COV["TEST COVERAGE BY TREE"]
+    C1["root: smoke 5 + imports + governance"]
+    C2["document-portal: smoke 10"]
+    C3["ActivityHub: smoke 1 - index.html ONLY"]
+    C4["proxy: 67 assertions, isolated"]
+    C5["newack: NONE"]
+  end
+
+  J2 --> C1
+  J2 --> C2
+  J2 --> C3
+  J1 --> C4
+  NA -.->|"no import check, no link check,<br/>no smoke test"| C5
+
+  DEPLOY[["DEPLOY TARGET<br/>INDETERMINATE - OQ-14<br/>no Pages workflow, no host config,<br/>no deploy step anywhere in-repo"]]
+  CI -.->|"publishes NOTHING<br/>only a failure-only playwright report"| DEPLOY
+
+  classDef bad  fill:#8E1B28,stroke:#5C0F18,color:#ffffff
+  classDef warn fill:#A0601A,stroke:#6B3F11,color:#ffffff
+  classDef ind  fill:#57655E,stroke:#3A443E,color:#ffffff
+  class ZIP,UNZ,NA,C5 bad
+  class J3,J4,S1 warn
+  class DEPLOY ind
