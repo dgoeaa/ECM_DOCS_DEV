@@ -45,13 +45,40 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 ---
 
-## Run locally
+## Run it
+
+### Option A — in the browser, nothing installed (recommended)
+
+On GitHub: **Code → Codespaces → Create codespace on main**.
+
+It installs dependencies, wires the pilot endpoints and starts the server by itself.
+When port 8080 forwards, the platform opens. No terminal, no Node, no local clone —
+works from a tablet or phone.
+
+### Option B — on your own machine
+
+Needs Node 20 or newer.
+
+**One command:**
 
 ```bash
-git clone https://github.com/dgoeaa/ECM_DOCS_DEV.git
-cd ECM_DOCS_DEV
-npm install
-npm start
+npm install && npm run go
+```
+
+`npm run go` wires the pilot endpoints and starts the server. Nothing else to configure.
+
+It recovers the Power Automate endpoints from the archived operations manifest in
+`ECM_DOCS_DEV.zip` and writes `config/config.local.js` and
+`ECM_ActivityHub_Portal/config.local.js` — both git-ignored, so nothing is committed.
+It never overwrites an existing config unless you pass `--force`.
+
+Authentication stays **inert** for local testing: no sign-in, no token, identity from the
+local profile. Exactly as the pilot has always behaved.
+
+```bash
+npm run setup            # wire config only
+npm run setup -- --force # rewrite after rotating signatures
+npm start                # serve
 ```
 
 Then open:
