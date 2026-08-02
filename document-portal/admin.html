@@ -2,6 +2,19 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
+<!-- Content Security Policy.
+     Delivered as <meta> because the portal is a static deployment with no header control
+     (GitHub Pages and equivalents). Two consequences are deliberate and documented:
+       · frame-ancestors is IGNORED in a meta CSP, so clickjacking protection still needs a
+         real `Content-Security-Policy: frame-ancestors 'none'` (or X-Frame-Options) header
+         at the edge. See document-portal/README.md § Deployment headers.
+       · script-src/style-src keep 'unsafe-inline' because every page carries an inline
+         theme bootstrap and inline style attributes. That is weaker than a nonce/hash
+         policy; it still removes third-party script origins, which is the vector that
+         matters for a page that posts citizen submissions to a workflow endpoint.
+     connect-src is the exfiltration control: only Power Automate origins are reachable. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.api.powerplatform.com https://*.logic.azure.com; manifest-src 'self'; worker-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Operations console — NITDA Intelligent Portal</title>
 <meta name="description" content="Staff console for triage, assignment, decisions and service-level performance across the NITDA document registry.">
@@ -50,13 +63,20 @@
 <div class="pf-wrap" style="max-width:520px">
 <div class="dgo-stack dgo-stack--5">
 <div class="dgo-stack dgo-stack--3">
-<p class="pf-eyebrow"><span class="pf-eyebrow__dot"></span>Restricted area</p>
+<p class="pf-eyebrow"><span class="pf-eyebrow__dot"></span>Registry operations</p>
 <h1 class="pf-title">Operations console</h1>
-<p class="pf-lead">Triage, assignment, decisions and service-level performance for the document registry. Sign in with your directorate account.</p>
+<p class="pf-lead">Triage, assignment, decisions and service-level performance for the document registry.</p>
 </div>
 <div class="pf-panel">
-<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-lock"></use></svg><h2 class="pf-panel__title">Staff sign-in</h2></div>
+<div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-lock"></use></svg><h2 class="pf-panel__title">Open the console</h2></div>
 <div class="pf-panel__body">
+<div class="dgo-alert dgo-alert--warning" id="gateNotice" hidden>
+<span class="dgo-alert__icon"><svg class="icon-sm" aria-hidden="true"><use href="#i-warning"></use></svg></span>
+<div class="dgo-alert__body">
+<div class="dgo-alert__title">Demonstration console — not an authenticated area</div>
+<p style="margin:0">This build has no server. Every record shown here is stored in this browser only, and this gate selects a role rather than verifying an identity. Do not treat anything in this console as an access control. Real staff authentication runs behind the authenticating proxy.</p>
+</div>
+</div>
 <form id="signIn" class="dgo-stack dgo-stack--4" novalidate>
 <div class="dgo-field">
 <label class="dgo-field__label dgo-field__label--req" for="user">Username</label>
@@ -72,12 +92,12 @@
 </div>
 <div class="pf-panel__foot">
 <div class="dgo-stack dgo-stack--2">
-<span class="dgo-field__label">Demonstration accounts — select one to fill the form</span>
+<span class="dgo-field__label" id="accountsHint">Select the role to open the console with.</span>
 <div class="dgo-cluster dgo-cluster--2" id="demoAccounts"></div>
 </div>
 </div>
 </div>
-<p class="pf-note">Activity in this console is written to the audit trail. Access is limited to registry and directorate staff; every action is attributable to the signed-in account.</p>
+<p class="pf-note">Actions in this console are written to the local audit trail so the citizen-facing tracking page and the console never disagree. That trail is a record of what was done in this browser — it is not an attribution of a verified identity.</p>
 </div>
 </div>
 </section>
@@ -122,6 +142,7 @@
 </div></footer>
 
 <script src="js/icons.js"></script>
+<script src="config.local.js" onerror="void 0"></script>
 <script src="js/data.js"></script>
 <script src="js/core.js"></script>
 <script src="js/admin-panels.js"></script>

@@ -1,4 +1,35 @@
 export const esc = v => String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+// URL sink guard.
+//
+// esc() makes a value safe to place INSIDE an attribute — it cannot break out of the
+// quotes. It does nothing about the SCHEME, and href/src are scheme-sensitive sinks:
+// `javascript:alert(1)` and `data:text/html,…` survive escaping untouched and execute on
+// click. Attachment links, preview URLs and document links all arrive from Power Automate
+// responses, so the platform must not assume the backend only ever returns http(s).
+//
+// Allow-list, not deny-list: anything that is not an http(s) URL, a protocol-relative URL,
+// a same-document hash route or a site-relative path resolves to '#'. mailto:/tel: are
+// permitted because the correspondence surfaces legitimately emit them.
+const SAFE_SCHEME = /^(https?:|mailto:|tel:)/i;
+export function safeUrl(value, fallback='#'){
+  const raw = String(value ?? '').trim();
+  if (!raw) return fallback;
+  // Strip whitespace and C0/C1 control characters first: "java\tscript:" and
+  // "java\nscript:" are parsed as a javascript: URL by browsers but defeat a naive prefix
+  // test. Entity decoding has already happened by the time a value reaches an attribute,
+  // so the embedded tab/newline form is the one that actually gets through.
+  const probe = raw.replace(/[\s\u0000-\u001F\u007F-\u009F]/g, '');
+  if (probe.startsWith('#') || probe.startsWith('/') || probe.startsWith('./') || probe.startsWith('../')) return raw;
+  if (SAFE_SCHEME.test(probe)) return raw;
+  // No scheme and not obviously relative — could be `foo.pdf` (fine) or `javascript:…`
+  // written with an entity. Anything carrying a colon before the first slash is refused.
+  const colon = probe.indexOf(':'), slash = probe.indexOf('/');
+  if (colon === -1 || (slash !== -1 && slash < colon)) return raw;
+  return fallback;
+}
+/** Escaped, scheme-checked value for direct interpolation into href="…" / src="…". */
+export const safeHref = (value, fallback='#') => esc(safeUrl(value, fallback));
 const jsonEsc = s => String(s).replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 const labelize = k => String(k).replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim();
 function flattenPreview(obj, prefix=''){ const out={}; for(const [k,v] of Object.entries(obj||{})){ if(v===null||v===undefined||v==='') continue; if(Array.isArray(v)){ if(v.length) out[prefix+labelize(k)]=v.every(x=>typeof x!=='object')?v.join(', '):`${v.length} item(s)`; } else if(typeof v==='object'){ Object.assign(out, flattenPreview(v, prefix+labelize(k)+' · ')); } else out[prefix+labelize(k)]=v; } return out; }
@@ -40,7 +71,7 @@ export const badge = (text, tone='') => { const t=_pillTone(text,tone); return `
 export const emptyState = (title, body) => `<div class="empty dgo-empty"><h2 class="dgo-empty__title">${esc(title)}</h2><p>${esc(body)}</p></div>`;
 export const chips = (items, active, attr='data-chip') => `<div class="chips">${items.map(i=>`<button type="button" class="chip dgo-chip ${i.value===active?'active':''}" ${attr}="${esc(i.value)}">${esc(i.label)}</button>`).join('')}</div>`;
 export const table = (cols, rows, rowAttr) => rows.length
-  ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr>${cols.map(c=>`<th>${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr ${rowAttr?rowAttr(r):''}>${cols.map(c=>`<td>${c.render?c.render(r):esc(r[c.key]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
+  ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr>${cols.map(c=>`<th scope="col">${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr ${rowAttr?rowAttr(r):''}>${cols.map(c=>`<td>${c.render?c.render(r):esc(r[c.key]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`
   : emptyState('No records', 'Nothing to show for the current filter.');
 export const listItem = (r, active, title, meta, id) => `<div class="list-item dgo-card ${active?'active':''}" data-ref="${esc(id)}"><h4>${esc(title)}</h4><div class="meta">${esc(meta)}</div></div>`;
 

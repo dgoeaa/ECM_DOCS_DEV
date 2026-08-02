@@ -43,7 +43,7 @@ function render(el) {
       <div class="eyebrow panel-eyebrow">Pilot User Enrollment</div>
       ${userForm(editing, actor)}</div>
     <div class="panel"><div class="eyebrow panel-eyebrow">Users and Assignments</div>
-      ${users.length ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr><th>Name</th><th>Email</th><th>Directorate</th><th>Role</th><th>Persona</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+      ${users.length ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Directorate</th><th scope="col">Role</th><th scope="col">Persona</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>
         ${capRows(users, RenderBudget.tableRows).map(x => `<tr class="${editing?.id === x.id ? 'row-active' : ''}"><td>${esc(x.fullName || '—')}</td><td>${esc(x.email)}</td><td>${esc(x.directorate || '—')}</td><td>${esc(RoleList.find(r => r.id === x.role)?.label || x.role)}</td><td>${esc(x.persona||RolePersonaMap[x.role]||'general')}</td><td><span class="pill ${x.status === 'disabled' ? 'danger' : 'ok'}">${esc(x.status||'active')}</span></td>
         <td><button class="btn ghost compact" data-edit="${esc(x.id)}">Edit</button> <button class="btn ghost compact" data-disable="${esc(x.id)}" ${x.status === 'disabled' ? 'disabled' : ''}>Disable</button></td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty"><h2>No users configured</h2><p>Create the first pilot user with the form.</p></div>'}

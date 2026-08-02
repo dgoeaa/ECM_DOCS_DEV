@@ -216,6 +216,55 @@ group("Endpoint contracts — core/endpoint-registry.js");
     all.entries.every(e => !/sig=[A-Za-z0-9_-]{20,}/.test(e.target || "")));
 }
 
+// ── URL sink guard — core/ui.js safeUrl()
+//
+// esc() stops attribute breakout; it does NOT stop a scheme. Attachment links, preview
+// URLs and document links all arrive from Power Automate responses, so every href/src in
+// the modules must run through safeUrl(). These cases lock the allow-list in place: the
+// tab/newline variants are the ones that defeat a naive `startsWith("javascript:")` test.
+console.log("\n── URL sink guard — core/ui.js safeUrl()");
+{
+  const { safeUrl } = await import("../core/ui.js");
+  const ALLOWED = [
+    "https://nitda.gov.ng/doc.pdf", "http://x/y", "HTTPS://X/Y",
+    "mailto:registry@nitda.gov.ng", "tel:+2347000006483",
+    "/reports/x.pdf", "./a.pdf", "../a.pdf", "#/lookup", "report 2024.pdf",
+  ];
+  const REFUSED = [
+    "javascript:alert(1)", "JaVaScRiPt:alert(1)",
+    "java\tscript:alert(1)", "java\nscript:alert(1)", "  javascript:alert(1)",
+    "data:text/html,<script>alert(1)</script>", "vbscript:msgbox(1)",
+    "file:///etc/passwd", "", null, undefined,
+  ];
+  for (const u of ALLOWED) check(`safeUrl allows ${JSON.stringify(u)}`, safeUrl(u) === u);
+  for (const u of REFUSED) check(`safeUrl refuses ${JSON.stringify(u)}`, safeUrl(u) === "#", String(safeUrl(u)));
+  check("safeUrl honours a custom fallback", safeUrl("javascript:x", "about:blank") === "about:blank");
+}
+
+// ── Table semantics — every column header must carry scope="col"
+//
+// A <th> without scope leaves screen-reader users with no column association on a
+// 9-column registry table. The shared builder emits it; the hand-rolled tables in the
+// modules have to keep pace, so assert across the tree rather than in one place.
+console.log("\n── Table semantics — th[scope]");
+{
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  const dirs = ["modules", "core", "shared"];
+  const offenders = [];
+  for (const d of dirs) {
+    for (const file of fs.readdirSync(path.join(root, d))) {
+      if (!file.endsWith(".js")) continue;
+      const rel = `${d}/${file}`;
+      const text = fs.readFileSync(path.join(root, d, file), "utf8");
+      const bare = text.match(/<th(?=[\s>])(?![^>]*\bscope=)[^>]*>/g);
+      if (bare) offenders.push(`${rel} (${bare.length})`);
+    }
+  }
+  check("no <th> is emitted without scope", offenders.length === 0, offenders.join(", "));
+}
+
 console.log(`\n${failures.length ? "❌" : "✅"} ${passed} passed, ${failures.length} failed`);
 if (failures.length) { failures.forEach(f => console.error(`   · ${f}`)); process.exit(1); }
 process.exit(0);

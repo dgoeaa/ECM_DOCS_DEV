@@ -2,6 +2,19 @@
 <html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
+<!-- Content Security Policy.
+     Delivered as <meta> because the portal is a static deployment with no header control
+     (GitHub Pages and equivalents). Two consequences are deliberate and documented:
+       · frame-ancestors is IGNORED in a meta CSP, so clickjacking protection still needs a
+         real `Content-Security-Policy: frame-ancestors 'none'` (or X-Frame-Options) header
+         at the edge. See document-portal/README.md § Deployment headers.
+       · script-src/style-src keep 'unsafe-inline' because every page carries an inline
+         theme bootstrap and inline style attributes. That is weaker than a nonce/hash
+         policy; it still removes third-party script origins, which is the vector that
+         matters for a page that posts citizen submissions to a workflow endpoint.
+     connect-src is the exfiltration control: only Power Automate origins are reachable. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.api.powerplatform.com https://*.logic.azure.com; manifest-src 'self'; worker-src 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Submit a document — NITDA Intelligent Portal</title>
 <meta name="description" content="Guided four-step submission for clearance applications, compliance filings, strategies, reports and correspondence.">
@@ -184,6 +197,7 @@
 </div></footer>
 
 <script src="js/icons.js"></script>
+<script src="config.local.js" onerror="void 0"></script>
 <script src="js/data.js"></script>
 <script src="js/core.js"></script>
 <script src="js/submit.js"></script>

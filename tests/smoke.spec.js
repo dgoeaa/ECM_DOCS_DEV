@@ -13,7 +13,11 @@ import { test, expect } from '@playwright/test';
 const EXTERNAL = [/fonts\.googleapis\.com/, /fonts\.gstatic\.com/, /cdn\.tailwindcss\.com/, /unpkg\.com/];
 
 /** Optional, git-ignored, expected to 404 on a clean checkout. */
-const OPTIONAL_404 = [/\/config\/config\.local\.js$/, /\/ECM_ActivityHub_Portal\/config\.local\.js$/];
+const OPTIONAL_404 = [
+  /\/config\/config\.local\.js$/,
+  /\/ECM_ActivityHub_Portal\/config\.local\.js$/,
+  /\/document-portal\/config\.local\.js$/,
+];
 
 const isExternal = url => EXTERNAL.some(re => re.test(url));
 const isOptional = url => OPTIONAL_404.some(re => re.test(url));
@@ -145,5 +149,92 @@ test.describe('ECM Activity Hub Portal', () => {
     expect(response?.status()).toBe(200);
     expect(w.badResponses, 'same-origin 4xx/5xx').toEqual([]);
     expect(w.pageErrors, 'uncaught page errors').toEqual([]);
+  });
+});
+
+
+/**
+ * document-portal — the citizen-facing surface.
+ *
+ * This suite previously covered the root runtime and the Activity Hub and NOTHING ELSE,
+ * so the portal that accepts public document submissions had zero automated coverage:
+ * every page, the submission flow, the tracking flow and the operations console could
+ * break — or ship a credential — without a single test going red.
+ *
+ * The security assertions here are regression guards, not style checks. Each one
+ * corresponds to a defect that was actually present in the tree.
+ */
+test.describe('NITDA document portal', () => {
+  const PAGES = ['index.html', 'submit.html', 'track.html', 'support.html', 'admin.html', '404.html'];
+
+  for (const page_ of PAGES) {
+    test(`${page_} loads and mounts without same-origin failures`, async ({ page }) => {
+      const w = watch(page);
+      const response = await page.goto(`/document-portal/${page_}`, { waitUntil: 'networkidle' });
+      expect(response?.status()).toBe(200);
+      // PF.shell() removes #nojs on DOMContentLoaded; its absence proves the runtime ran.
+      await expect(page.locator('#nojs')).toHaveCount(0);
+      // Sectioning contract: one main landmark and one skip link on EVERY page. 404.html
+      // was the page that had neither, which is exactly why this is asserted per page.
+      await expect(page.locator('#main')).toHaveCount(1);
+      await expect(page.locator('a.pf-skip[href="#main"]')).toHaveCount(1);
+      expect(w.badResponses, 'same-origin 4xx/5xx').toEqual([]);
+      expect(w.pageErrors, 'uncaught page errors').toEqual([]);
+      expect(w.consoleErrors, 'console errors').toEqual([]);
+    });
+  }
+
+  // A SAS signature is a bearer credential. Three of them were served in plaintext from
+  // js/data.js to every anonymous visitor; they now come from a git-ignored config.
+  test('serves no Power Automate SAS signature to an anonymous visitor', async ({ page }) => {
+    const leaks = [];
+    page.on('response', async r => {
+      if (!r.url().includes('/document-portal/')) return;
+      const type = r.headers()['content-type'] || '';
+      if (!/javascript|html|json/.test(type)) return;
+      const body = await r.text().catch(() => '');
+      if (/sig=[A-Za-z0-9_-]{20,}/.test(body)) leaks.push(new URL(r.url()).pathname);
+    });
+    await page.goto('/document-portal/index.html', { waitUntil: 'networkidle' });
+    await page.goto('/document-portal/admin.html', { waitUntil: 'networkidle' });
+    expect(leaks, 'assets leaking a SAS signature').toEqual([]);
+  });
+
+  // The console gate is not an authentication boundary and must not publish credentials
+  // or imply that it enforces anything.
+  test('operations console ships no credential and states what it is', async ({ page }) => {
+    await page.goto('/document-portal/admin.html', { waitUntil: 'networkidle' });
+    const staff = await page.evaluate(() => (window.PF?.STAFF || []).map(s => s.pass ?? null));
+    expect(staff.length, 'console roles are defined').toBeGreaterThan(0);
+    expect(staff.every(p => p === null || p === undefined), 'no password in shipped source').toBe(true);
+    await expect(page.locator('#gateNotice')).toBeVisible();
+    await expect(page.locator('#signIn')).toBeHidden();
+  });
+
+  test('every page carries a Content-Security-Policy and a referrer policy', async ({ page }) => {
+    for (const page_ of PAGES) {
+      await page.goto(`/document-portal/${page_}`, { waitUntil: 'domcontentloaded' });
+      const meta = await page.evaluate(() => ({
+        csp: document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.content || '',
+        ref: document.querySelector('meta[name="referrer"]')?.content || '',
+      }));
+      expect(meta.csp, `${page_} CSP`).toContain("default-src 'self'");
+      expect(meta.csp, `${page_} blocks plugin content`).toContain("object-src 'none'");
+      expect(meta.ref, `${page_} referrer policy`).toBe('strict-origin-when-cross-origin');
+    }
+  });
+
+  test('a submission can be tracked end to end', async ({ page }) => {
+    await page.goto('/document-portal/track.html', { waitUntil: 'networkidle' });
+    // The seeded registry installs on first read; a seeded id must resolve.
+    const seeded = await page.evaluate(() => {
+      const all = window.PF.store.all();
+      return all.length ? { id: all[0].id, email: all[0].email } : null;
+    });
+    expect(seeded, 'seeded records installed').not.toBeNull();
+    await page.fill('#trackId', seeded.id);
+    await page.fill('#trackEmail', seeded.email);
+    await page.click('#lookup button[type="submit"]');
+    await expect(page.locator('#trackOut')).toContainText(seeded.id, { timeout: 10_000 });
   });
 });

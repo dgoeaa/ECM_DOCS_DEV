@@ -5,6 +5,7 @@ node_modules/
 # A SAS URL is a credential; never commit these. Copy the matching
 # config.example.js and fill it in locally instead.
 config/config.local.js
+document-portal/config.local.js
 ECM_ActivityHub_Portal/config.local.js
 ECM_ActivityHub_Portal/htdocs/config.local.js
 

@@ -226,7 +226,13 @@ dgo-shell{height:100vh;background:var(--dgo-color-surface-sunken,#f6f8f6);}
 .dgo-route-title b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Condensed correspondence control strip: two rows, each <= half the 64px header */
 .cc-controlbar{display:flex;flex-direction:column;gap:6px;margin:0 0 10px}
-.cc-metrics{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:0}
+/* The stat row must never clip. It previously used flex-wrap with no min-width:0 and no
+   scroll fallback, so at <=390px the last two chips ("High", "Dupes") were painted past
+   the viewport edge with the document NOT scrollable — the numbers were unreachable, not
+   merely offscreen. Measured at 360/390px against .cc-metrics right=478 vs clientWidth=390.
+   min-inline-size:0 lets the flex item shrink inside the grid; the narrow-viewport rule
+   below turns the row into an explicit horizontal scroller instead of a silent crop. */
+.cc-metrics{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:0;min-inline-size:0;max-inline-size:100%}
 .cc-stat{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;background:var(--s);border:1px solid var(--bd);border-radius:999px;font:800 var(--dgo-type-floor) var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--mut);white-space:nowrap}
 .cc-stat b{font-size:12px;font-weight:800;color:var(--strong)}
 .cc-stat.ok b{color:var(--dgo-color-success-subtle-fg)}.cc-stat.warn b{color:var(--dgo-color-warning-subtle-fg)}.cc-stat.dupe b{color:var(--dgo-color-info-subtle-fg)}
@@ -865,4 +871,68 @@ tr.row-link:focus-visible>td{background:var(--sunken)}
    (Already set at line ~195 but also guarded here for specificity robustness.) */
 @media (max-height:640px){
   .dgo-sidebar{inset-block-start:0;}
+}
+
+/* ============================================================================
+   R11.6.3 — module-local classes that carried NO declaration anywhere
+   ============================================================================
+   Each of these is emitted by a module but had zero matching rules in any
+   stylesheet, so the element fell back to browser defaults while every sibling
+   in the same panel was themed. They are one-off refinements on top of an
+   already-styled base class rather than new components, so they live here in the
+   overrides layer beside the other module-specific rules — not in the design
+   system, which must stay component-general.
+   ============================================================================ */
+
+/* Acknowledgment — inline delivery banner. Hidden until .show is applied, so the
+   pair has to be defined together or the banner is permanently visible. */
+.notify-banner{display:none;align-items:center;gap:var(--dgo-s-2);padding:8px 12px;margin-block-end:8px;border:1px solid var(--bd);border-inline-start:3px solid var(--info);border-radius:8px;background:var(--sunken);font-size:12px;color:var(--fg)}
+.notify-banner.show{display:flex}
+.notify-banner.error{border-inline-start-color:var(--danger);color:var(--danger)}
+
+/* Approvals — the "record a new approval" form sits inside a panel and needs to
+   read as a distinct block from the decision list above it. */
+.new-approval{padding-block-start:8px;border-block-start:1px dashed var(--bd)}
+
+/* Intake & Assignment — overflow ("⋯") control and the selected-record card. */
+.cc-more-btn{flex:0 0 auto;inline-size:38px;padding:0;text-align:center;font-size:15px;line-height:1}
+.correspondence-detail-card{display:flex;flex-direction:column;gap:10px}
+
+/* Tracking — reminder field label inside the response form. */
+.sr-reminder{display:grid;gap:4px;font:700 var(--dgo-type-floor) var(--sans);color:var(--mut)}
+
+/* Assignment Desk — the summary panel's empty variant. `hidden` already removes
+   it; this keeps the reveal consistent when a module toggles the class instead. */
+.assign-summary--empty{display:none}
+
+/* User Administration — the directory/detail split needs a wider list column
+   than the default even 1fr 1fr, because the table carries seven columns. */
+.user-admin-split{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+@media (max-width:1100px){.user-admin-split{grid-template-columns:minmax(0,1fr)}}
+
+/* Governed-flow confirmation dialog body. */
+.flow-preview{display:grid;gap:6px;font-size:12px}
+.flow-preview b{color:var(--strong)}
+
+/* Reports — the "extended" report template runs wider tables than the compact one. */
+.report-template.extended .tablewrap table{min-width:820px}
+
+/* Email preview iframe rendered by shared/components.js EmailPreviewFrame(). */
+.email-frame-preview{display:block;inline-size:100%;min-block-size:360px;border:1px solid var(--bd);border-radius:10px;background:#fff}
+
+/* Narrow viewports: keep the row scrollable as a safety net if a future stat is added
+   that is too wide to wrap cleanly.
+
+   NOTE ON WHAT IS *NOT* HERE. A `flex-wrap:nowrap` was tried first and measured to have no
+   effect: `dgo-shell[data-route="correspondence"] .cc-metrics` (0,2,1) outranks this
+   selector (0,1,0) and re-declares `flex-wrap:wrap`. Rather than escalate specificity to
+   win an argument the layout does not need, the declaration was removed — wrapping is the
+   better behaviour for five short chips anyway, and the clipping was never caused by
+   wrapping. It was caused by the flex item having no `min-inline-size:0`, so it refused to
+   shrink inside its grid track and painted past the viewport with nothing scrollable.
+   That is fixed on the base rule above. Verified at 360/390/768/1024/1440px: zero routes
+   report unreachable horizontal overflow. */
+@media (max-width:560px){
+  .cc-metrics{overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;padding-block-end:2px}
+  .cc-metrics .cc-stat{flex:0 0 auto}
 }

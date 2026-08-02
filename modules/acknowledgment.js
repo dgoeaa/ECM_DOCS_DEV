@@ -1,6 +1,6 @@
 import { hydrateGovernance, executeOwnedAction } from '../core/governed-actions.js';
 import { State } from '../core/state.js';
-import { head, esc, toast, confirmAction, badge, mdBack, mdSwitch, resetDetailScroll, statRow, actionPreview} from '../core/ui.js';
+import { head, esc, safeUrl, toast, confirmAction, badge, mdBack, mdSwitch, resetDetailScroll, statRow, actionPreview} from '../core/ui.js';
 import { UIState } from '../core/ui-state.js';
 import { ReceiptLedger } from '../core/receipt-ledger.js';
 import { OfflineActionQueue } from '../core/offline-action-queue.js';
@@ -27,7 +27,7 @@ function render(el) {
     ${statRow([['Pending Acknowledgements', pending.length], ['Acknowledged Tasks', acked.length], ['SLA Compliance', sla == null ? 'N/A' : sla + '%'], ['Total', tasks.length]])}
     ${missingCtx?`<section class="panel"><div class="notify-banner error show"><b>Deep-linked task not loaded</b><p>The link resolved to ${esc(ctx.taskId||ctx.referenceId)}, but the task is not in local state yet. Use Load latest data or Direct lookup from the command tools.</p></div></section>`:''}
     ${ackConvergencePanel()}
-    <div class="split" ${mdSwitch(sel?UIState.get('acknowledgment').md:'list')}><div class="panel">${tasks.length ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr><th>Task</th><th class="col-narrow">Ageing</th><th class="col-narrow">Status</th></tr></thead><tbody>${taskRows(tasks,sel)}</tbody></table></div>` : '<div class="empty"><h2>No tasks</h2><p>Tasks appear here once assignments are created or synchronized.</p><button class="btn" data-refresh-data>Load latest data</button></div>'}</div>
+    <div class="split" ${mdSwitch(sel?UIState.get('acknowledgment').md:'list')}><div class="panel">${tasks.length ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr><th scope="col">Task</th><th scope="col" class="col-narrow">Ageing</th><th scope="col" class="col-narrow">Status</th></tr></thead><tbody>${taskRows(tasks,sel)}</tbody></table></div>` : '<div class="empty"><h2>No tasks</h2><p>Tasks appear here once assignments are created or synchronized.</p><button class="btn" data-refresh-data>Load latest data</button></div>'}</div>
     <div class="detail-col panel-stack">${sel ? detail(sel) : '<section class="panel"><div class="empty"><h2>Select a task</h2><p>Choose a task or open an acknowledgement deep link.</p></div></section>'}</div></div></div>`;
   bind(el, sel);
 }
@@ -51,7 +51,7 @@ function bind(el, sel){
   el.querySelector('[data-track]')?.addEventListener('click',()=>{ State.patch({selectedId:sel.id}); location.hash='#/response-tracking'; });
   el.querySelector('[data-respond]')?.addEventListener('click',()=>{ State.patch({selectedId:sel.id,deepLinkContext:{...(State.get().deepLinkContext||{}),taskId:sel.id,mode:'respond'}}); location.hash='#/orchestrator'; });
   el.querySelector('[data-reassign]')?.addEventListener('click',()=>{ State.patch({selectedId:sel.id,deepLinkContext:{...(State.get().deepLinkContext||{}),taskId:sel.id,mode:'reassign'}}); location.hash='#/single-assignment'; });
-  el.querySelector('[data-attachments]')?.addEventListener('click',()=>{ const links=[...(Array.isArray(sel.attachments)?sel.attachments:[]), sel.attachmentLink||sel.AttachmentLink].filter(Boolean); if(!links.length) return toast('No attachments found for this task','error'); window.open(typeof links[0]==='string'?links[0]:(links[0].AbsoluteUri||links[0].absoluteUri||links[0].url||''),'_blank','noopener,noreferrer'); });
+  el.querySelector('[data-attachments]')?.addEventListener('click',()=>{ const links=[...(Array.isArray(sel.attachments)?sel.attachments:[]), sel.attachmentLink||sel.AttachmentLink].filter(Boolean); if(!links.length) return toast('No attachments found for this task','error'); window.open(safeUrl(typeof links[0]==='string'?links[0]:(links[0].AbsoluteUri||links[0].absoluteUri||links[0].url||''),'about:blank'),'_blank','noopener,noreferrer'); });
   el.querySelector('[data-copy-payload]')?.addEventListener('click',async()=>copyText(JSON.stringify(await buildPreview(sel, readActorForm(el)),null,2),'Acknowledgement payload'));
   el.querySelector('[data-parse-url]')?.addEventListener('click',()=>{ const r=DeepLinkResolver.parse(location.href); toast(r.route?`Current URL resolves to ${r.route}`:'No acknowledgement deeplink in current URL', r.route?'success':'error'); });
 }

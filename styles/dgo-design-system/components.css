@@ -1044,3 +1044,84 @@
 
 /* Tabular numerals helper */
 .dgo-tnum { font-variant-numeric: tabular-nums; }
+
+/* ============================================================================
+   R11.6.3 — component classes that were EMITTED BY JS BUT NEVER DEFINED
+   ============================================================================
+   shared/components.js and the figma* helpers in core/ui.js build markup for a
+   stat band, toolbar, filter bar, detail pane, drawer, pipeline, skeleton set,
+   chip row and persona switcher. None of those classes had a single rule in any
+   stylesheet, so every one of those factories rendered as unstyled block-flow
+   HTML — the literal "generic formatting" case. Auditing the tree found 30+ such
+   classes referenced with zero declarations behind them.
+
+   These rules close that gap using the existing token vocabulary only, so the
+   surfaces inherit light/dark/high-contrast and comfortable/compact for free.
+   ============================================================================ */
+
+/* Workspace header ------------------------------------------------------- */
+.dgo-workspace-header{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--dgo-s-3);margin-block-end:var(--dgo-s-4);min-inline-size:0}
+.dgo-workspace-header h1{margin:var(--dgo-s-1) 0 0;font-family:var(--dgo-family-display,inherit);color:var(--dgo-color-fg-strong)}
+.dgo-workspace-header p{margin:var(--dgo-s-1) 0 0;color:var(--dgo-color-fg-muted)}
+
+/* Stat band -------------------------------------------------------------- */
+.dgo-stat-band{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));gap:var(--dgo-s-3);margin-block-end:var(--dgo-s-4);min-inline-size:0}
+.dgo-stat{display:flex;flex-direction:column;gap:var(--dgo-s-1);padding:var(--dgo-density-pad-y) var(--dgo-density-pad);background:var(--dgo-card-bg);border:1px solid var(--dgo-card-border);border-radius:var(--dgo-radius-control,10px);min-inline-size:0}
+.dgo-stat__label{font-size:var(--dgo-type-floor);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dgo-color-fg-muted)}
+.dgo-stat__value{font-family:var(--dgo-family-display,inherit);font-size:23px;font-weight:800;color:var(--dgo-color-fg-strong);overflow-wrap:break-word}
+.dgo-stat__note{color:var(--dgo-color-fg-subtle);font-size:var(--dgo-type-floor)}
+.dgo-stat--success .dgo-stat__value{color:var(--dgo-color-success-subtle-fg)}
+.dgo-stat--warning .dgo-stat__value{color:var(--dgo-color-warning-subtle-fg)}
+.dgo-stat--danger  .dgo-stat__value{color:var(--dgo-color-danger-subtle-fg)}
+.dgo-stat--info    .dgo-stat__value{color:var(--dgo-color-info-subtle-fg)}
+
+/* Toolbar / filter bar --------------------------------------------------- */
+.dgo-toolbar,.dgo-filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dgo-s-2);padding:var(--dgo-s-2);margin-block-end:var(--dgo-s-3);background:var(--dgo-card-bg);border:1px solid var(--dgo-card-border);border-radius:var(--dgo-radius-control,10px);min-inline-size:0}
+.dgo-toolbar__controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dgo-s-2);flex:1 1 260px;min-inline-size:0}
+.dgo-toolbar__actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dgo-s-2);flex:0 0 auto}
+.dgo-filterbar__spacer{flex:1 1 auto}
+
+/* Chip row / muted text -------------------------------------------------- */
+.dgo-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dgo-s-2);min-inline-size:0}
+.dgo-muted{color:var(--dgo-color-fg-muted)}
+
+/* Detail pane ------------------------------------------------------------ */
+.dgo-detail-pane{display:flex;flex-direction:column;gap:var(--dgo-s-2);padding:var(--dgo-density-pad-y) var(--dgo-density-pad);background:var(--dgo-card-bg);border:1px solid var(--dgo-card-border);border-radius:var(--dgo-radius-control,10px);min-inline-size:0}
+.dgo-detail-pane h2{margin:0;font-family:var(--dgo-family-display,inherit);color:var(--dgo-color-fg-strong);overflow-wrap:break-word}
+.dgo-detail-pane__body{min-inline-size:0;overflow-wrap:break-word}
+
+/* Drawer ----------------------------------------------------------------- */
+.dgo-drawer{position:fixed;inset:0;z-index:60;display:block}
+.dgo-drawer[hidden]{display:none}
+.dgo-drawer>[data-drawer-close]{position:absolute;inset:0;background:var(--dgo-color-surface-overlay,rgba(0,0,0,.5))}
+.dgo-drawer__panel{position:absolute;inset-block:0;inset-inline-end:0;inline-size:min(480px,100%);display:flex;flex-direction:column;background:var(--dgo-color-surface-page);border-inline-start:1px solid var(--dgo-card-border);box-shadow:var(--dgo-shadow-4);overflow:auto}
+.dgo-drawer__header{display:flex;align-items:center;justify-content:space-between;gap:var(--dgo-s-3);padding:var(--dgo-density-pad-y) var(--dgo-density-pad);border-block-end:1px solid var(--dgo-card-border)}
+.dgo-drawer__header h2{margin:0;font-size:16px}
+.dgo-drawer__body{flex:1;padding:var(--dgo-density-pad-y) var(--dgo-density-pad);min-block-size:0}
+
+/* Pipeline --------------------------------------------------------------- */
+.dgo-pipeline{display:flex;flex-wrap:wrap;gap:var(--dgo-s-2);list-style:none;margin:0;padding:0}
+.dgo-pipeline__item{display:flex;flex-direction:column;gap:2px;flex:1 1 120px;padding:var(--dgo-s-2) var(--dgo-s-3);background:var(--dgo-color-surface-sunken);border:1px solid var(--dgo-card-border);border-radius:var(--dgo-radius-control,10px);min-inline-size:0}
+.dgo-pipeline__n{font-family:var(--dgo-family-display,inherit);font-size:20px;font-weight:800;color:var(--dgo-color-fg-strong)}
+.dgo-pipeline__label{font-size:var(--dgo-type-floor);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dgo-color-fg-muted)}
+
+/* Skeleton --------------------------------------------------------------- */
+.dgo-skeleton-set{display:block}
+.dgo-skeleton{background:linear-gradient(90deg,var(--dgo-color-surface-sunken) 25%,var(--dgo-color-surface-muted) 37%,var(--dgo-color-surface-sunken) 63%);background-size:400% 100%;border-radius:6px;animation:dgoSkeleton 1.4s ease infinite}
+@keyframes dgoSkeleton{0%{background-position:100% 50%}100%{background-position:0 50%}}
+@media (prefers-reduced-motion:reduce){.dgo-skeleton{animation:none}}
+
+/* Field hint / button icon / persona switcher ---------------------------- */
+.dgo-field__hint{display:block;margin-block-start:4px;font-size:var(--dgo-type-floor);color:var(--dgo-color-fg-muted)}
+.dgo-btn__icon{display:inline-flex;align-items:center;justify-content:center}
+.dgo-persona{display:inline-flex;align-items:center;gap:var(--dgo-s-2);padding:var(--dgo-s-1) var(--dgo-s-2);background:transparent;border:1px solid var(--dgo-card-border);border-radius:999px;color:inherit;cursor:pointer;min-inline-size:0}
+.dgo-persona b,.dgo-persona small{display:block;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dgo-persona small{color:var(--dgo-color-fg-muted)}
+
+/* Command palette backdrop / scroll region / email preview --------------- */
+.dgo-cmdk__backdrop{position:absolute;inset:0;background:var(--dgo-color-surface-overlay,rgba(0,0,0,.5))}
+.dgo-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:var(--dgo-card-border) transparent}
+.dgo-email-preview{inline-size:100%;min-block-size:360px;border:1px solid var(--dgo-card-border);border-radius:var(--dgo-radius-control,10px);background:#fff}
+
+/* Module authority note — emitted by core/action-authority.js boundaryNotice() */
+.boundary-note{border-inline-start:3px solid var(--dgo-color-border-brand,var(--dgo-color-action-primary))}

@@ -18,19 +18,43 @@ PF.page = function () {
      ============================================================ */
   function alias(name) { return name.toLowerCase().replace(/\.\s*/g, '.').replace(/\s+/g, ''); }
 
+  /* The gate is a role selector, not an authentication boundary — see the note on
+     PF.STAFF in js/data.js. Rendering it as a set of explicit "continue as" choices
+     states that plainly, instead of dressing an unenforced check up as a login. A
+     deployment that supplies PF_CONFIG.console.requireCredentials keeps the
+     username/password form; the built-in demonstration roles carry no password. */
+  var CREDS = PF.CONSOLE_REQUIRES_CREDENTIALS;
+
   PF.$('#demoAccounts').innerHTML = PF.STAFF.map(function (s) {
-    return '<button type="button" class="dgo-chip" data-user="' + PF.esc(s.user) + '" style="cursor:pointer;border:0;background:var(--dgo-color-surface-muted)">' +
+    return '<button type="button" class="dgo-btn dgo-btn--secondary dgo-btn--sm" data-user="' + PF.esc(s.user) + '">' +
       PF.icon('user', 'icon-sm') + PF.esc(s.name) + ' · ' + PF.esc(s.role) + '</button>';
   }).join('');
+
+  PF.$('#accountsHint').textContent = CREDS
+    ? 'Select an account to fill the form.'
+    : 'Select the role to open the console with.';
+
+  if (!CREDS) {
+    /* No credential is published, so do not present a password form that accepts
+       nothing. Hide it and label the console for what it is. */
+    PF.$('#signIn').hidden = true;
+    PF.$('#gateNotice').hidden = false;
+  }
 
   PF.$('#demoAccounts').addEventListener('click', function (e) {
     var b = e.target.closest('[data-user]');
     if (!b) return;
     var s = PF.STAFF.filter(function (x) { return x.user === b.getAttribute('data-user'); })[0];
-    PF.$('#user').value = s.user;
-    PF.$('#pass').value = s.pass;
-    signStatus('info', 'Credentials filled', 'Press sign in to open the console as ' + s.name + '.');
-    PF.$('#signInBtn').focus();
+    if (!s) return;
+    if (CREDS) {
+      PF.$('#user').value = s.user;
+      signStatus('info', 'Account selected', 'Enter the password issued for ' + s.name + '.');
+      PF.$('#pass').focus();
+      return;
+    }
+    PF.store.admin.signIn(s);
+    PF.toast('info', 'Console opened', s.name + ' · ' + s.role + ' (demonstration role)');
+    openConsole();
   });
 
   function signStatus(kind, title, body) {
@@ -50,7 +74,11 @@ PF.page = function () {
     signStatus('info', 'Verifying credentials…', 'Checking the directorate account.');
     setTimeout(function () {
       btn.removeAttribute('data-loading'); btn.disabled = false;
-      var hit = PF.STAFF.filter(function (s) { return (s.user === u || alias(s.name) === u) && s.pass === p; })[0];
+      /* Only reachable when a deployment supplied PF_CONFIG.console.accounts with
+         passwords. The built-in roles carry none, so no account can match here. */
+      var hit = PF.STAFF.filter(function (s) {
+        return (s.user === u || alias(s.name) === u) && !!s.pass && s.pass === p;
+      })[0];
       if (!hit) {
         attempts++;
         signStatus('error', 'Those credentials were not accepted', attempts >= 2 ? 'Select one of the demonstration accounts below to fill the form.' : 'Check the username and password and try again.');

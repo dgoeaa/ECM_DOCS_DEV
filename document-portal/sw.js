@@ -1,7 +1,13 @@
 /* NITDA Intelligent Portal — offline shell.
    Cache-first for the application shell, network-first for navigations so a
    redeployed build is picked up on the next online visit. */
-const CACHE = 'nitda-portal-v2';
+/* Cache version. BUMP THIS whenever a cached file's contents change in a way that must not
+   persist on a visitor's device.
+   v3: js/data.js previously carried three SAS-signed Power Automate URLs and is cached
+   here cache-first. Without a version bump, every browser that had already visited the
+   portal would keep serving the credential-bearing copy from Cache Storage indefinitely —
+   the activate handler below deletes every cache whose key is not the current one. */
+const CACHE = 'nitda-portal-v3';
 const SHELL = [
   './', './index.html', './submit.html', './track.html', './support.html', './admin.html', './404.html',
   './portal.css', './favicon.svg', './manifest.webmanifest',

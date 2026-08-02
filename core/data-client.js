@@ -9,6 +9,8 @@ import { PendingQueue } from './pending-queue.js';
 import { confirmFlowExecution } from './flow-confirmation.js';
 import { authHeaders, clientMayAssertIdentity, ensureAuthenticated } from './auth.js';
 import { AuthConfig, isAuthEnforced } from '../config/auth.config.js';
+import { AuditLog } from './audit-log.js';
+import { getIdentity } from './auth.js';
 export const DataClient=Object.freeze({request,resolveUrl});
 /**
  * Resolve the runtime target for a contract key.
@@ -29,4 +31,42 @@ export async function request(key,payload={},options={}){ const contract=Endpoin
    as before. Once auth is enforced that field is DROPPED entirely and identity travels
    only in the bearer token, so a tampered local profile cannot influence the backend. */
 const asserted=clientMayAssertIdentity()?{userEmail:State.get().profile?.email||''}:{};
-const body=options.flatPayload?{action:contract.action,...payload,...asserted,correlationId:id}:{action:contract.action,payload,...asserted,requestId:id,timestamp:new Date().toISOString()}; const r=await fetch(url,{method:contract.method,headers:{'Content-Type':'application/json','X-Correlation-Id':id,...(await authHeaders())},body:JSON.stringify(body),signal:ctl.signal}); const raw=await r.text(); let data; try{data=raw?JSON.parse(raw):{}}catch{throw new Error('Invalid JSON response from '+key)} if(!r.ok) throw new Error(data?.status?.message||data?.message||('HTTP '+r.status)); LoadingState.success(contract.write?'action':'data',key,{source:'network'}); return {ok:true,key,data,requestId:id,durationMs:Date.now()-started,attempts:attempt+1}; } catch(e){ lastError=e; attempt++; if(attempt>policy.retry){ const norm=normalizeError(e,{key,requestId:id}); LoadingState.error(contract.write?'action':'data',key,e,{retryable:!!contract.write}); if(contract.write){ PendingQueue.enqueue({key,url,payload,error:norm.message,requestId:id,operation:contract.action,retryable:true}); } throw Object.assign(e,{normalized:norm}); } } finally{clearTimeout(timer);} } throw lastError; },{write:!!contract.write}); }
+const body=options.flatPayload?{action:contract.action,...payload,...asserted,correlationId:id}:{action:contract.action,payload,...asserted,requestId:id,timestamp:new Date().toISOString()}; const r=await fetch(url,{method:contract.method,headers:{'Content-Type':'application/json','X-Correlation-Id':id,...(await authHeaders())},body:JSON.stringify(body),signal:ctl.signal}); const raw=await r.text(); let data; try{data=raw?JSON.parse(raw):{}}catch{throw new Error('Invalid JSON response from '+key)} if(!r.ok) throw new Error(data?.status?.message||data?.message||('HTTP '+r.status)); LoadingState.success(contract.write?'action':'data',key,{source:'network'}); recordCorrelation({key,contract,id,attempt,started,ok:true,status:r.status}); return {ok:true,key,data,requestId:id,durationMs:Date.now()-started,attempts:attempt+1}; } catch(e){ lastError=e; attempt++; if(attempt>policy.retry){ const norm=normalizeError(e,{key,requestId:id}); recordCorrelation({key,contract,id,attempt,started,ok:false,error:norm.message}); LoadingState.error(contract.write?'action':'data',key,e,{retryable:!!contract.write}); if(contract.write){ PendingQueue.enqueue({key,url,payload,error:norm.message,requestId:id,operation:contract.action,retryable:true}); } throw Object.assign(e,{normalized:norm}); } } finally{clearTimeout(timer);} } throw lastError; },{write:!!contract.write}); }
+
+/**
+ * Correlation record — the join key between this client and the backend.
+ *
+ * Every request already carried `X-Correlation-Id: <uuid>` and echoed it in the body as
+ * `correlationId`/`requestId`, but that id was never written to the audit log. The result
+ * was that an incident could not be reconstructed end to end: the client trail said WHO
+ * did WHAT, the Power Automate run history said WHICH CALL ran, and nothing joined the
+ * two. Recording the id at the transport boundary — with the effective principal, the
+ * contract, the outcome and the wall-clock duration — closes that gap without changing
+ * the wire format.
+ *
+ * `identity.source` is what distinguishes "the browser claimed to be this person"
+ * (client-asserted, development posture) from "the token proved it" (enforced posture).
+ * An audit line that does not say which one it was is not evidence.
+ */
+function recordCorrelation({ key, contract, id, attempt, started, ok, status, error }) {
+  let principal = {};
+  try { principal = getIdentity(); } catch { principal = {}; }
+  AuditLog.record({
+    ref: '',
+    actor: { email: principal.email || State.get()?.profile?.email || '', name: principal.name || '' },
+    event: ok ? 'audit:endpoint-call' : 'audit:endpoint-failed',
+    entityType: 'endpoint',
+    entityId: key,
+    meta: {
+      correlationId: id,
+      operation: contract?.action || '',
+      write: !!contract?.write,
+      attempts: attempt + 1,
+      durationMs: Date.now() - started,
+      httpStatus: status ?? null,
+      identitySource: principal.source || 'unknown',
+      identityVerified: principal.verified === true,
+      error: error || '',
+    },
+  });
+}

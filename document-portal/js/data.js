@@ -20,11 +20,25 @@ PF.ORG = {
    flows keep working; set a value to '' to disable that integration.
    Delivery is never blocking: the portal records everything locally
    first and the outbox in core.js retries whatever did not go out.
+
+   ⚠️  The three SAS-signed URLs that used to be hardcoded here were
+   credentials, served in plaintext to every anonymous visitor. They
+   have been removed and are now read from window.PF_CONFIG, which is
+   supplied by the git-ignored config.local.js (see config.example.js).
+   THE COMMITTED SIGNATURES REMAIN VALID UNTIL ROTATED IN POWER
+   AUTOMATE — they are still present in Git history and in the tracked
+   ECM_DOCS_DEV.zip. Deleting a file revokes nothing.
+
+   With no runtime config the portal still works end to end; PF.flow()
+   simply reports 'not-configured' and everything stays local.
    --------------------------------------------------------------- */
+var PF_CFG = (window.PF_CONFIG || {});
+var PF_CFG_ENDPOINTS = PF_CFG.endpoints || {};
+
 PF.ENDPOINTS = {
-  submission: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ff7714c11a74fa4a876f8f6a79b64d2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jVUOseIHw17BG3tMiZfBMCEVSN1a65vOSLtsKURgr98',
-  tracking: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca0bafc172114e0bb4853c135246654c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Yef7pmj6yGBRszqaS9BT7gosu2gYlaheAfqhmSgAJuo',
-  support: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3fc71cc29d15481291fd341def327572/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FUeporOryvRDWA7z561j4LsLY4ey3YjUsgUCIqhEzyU'
+  submission: PF_CFG_ENDPOINTS.submission || '',
+  tracking: PF_CFG_ENDPOINTS.tracking || '',
+  support: PF_CFG_ENDPOINTS.support || ''
 };
 
 /* ---------------------------------------------------------------
@@ -80,12 +94,28 @@ PF.STATES = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Be
 PF.OFFICERS = ['A. Bello', 'C. Okonkwo', 'F. Danjuma', 'H. Yusuf', 'M. Adeyemi', 'T. Eze'];
 PF.UNITS = ['Registry & Correspondence', 'Standards, Guidelines & Regulation', 'Digital Economy & Compliance', 'Policy & Strategy', 'Corporate Planning & Partnerships'];
 
-/* Operations console accounts. Scope 'unit' opens the queue filtered to the
-   officer's own directorate; 'all' sees the whole registry. */
-PF.STAFF = [
-  { user: 'admin', pass: 'password', name: 'A. Bello', role: 'Registry supervisor', unit: 'Registry & Correspondence', scope: 'all' },
-  { user: 'reviewer', pass: 'reviewer', name: 'M. Adeyemi', role: 'Reviewing officer', unit: 'Standards, Guidelines & Regulation', scope: 'unit' },
-  { user: 'compliance', pass: 'compliance', name: 'C. Okonkwo', role: 'Compliance officer', unit: 'Digital Economy & Compliance', scope: 'unit' }
+/* Operations console roles. Scope 'unit' opens the queue filtered to the
+   officer's own directorate; 'all' sees the whole registry.
+
+   ⚠️  NO CREDENTIAL IS SHIPPED HERE, AND THE GATE IS NOT A SECURITY BOUNDARY.
+   This portal has no server: every record the console displays lives in the
+   visitor's own localStorage, and the signed-in session is a sessionStorage key
+   that any visitor can set directly from the developer console. The previous
+   build published a username AND password for each of these roles in this file —
+   which is worse than no gate at all, because it advertises a protection that
+   does not exist.
+
+   The console therefore presents itself honestly as demonstration role selection.
+   A deployment that wants real staff authentication must put it behind the
+   authenticating proxy (see proxy/ and AUTHENTICATION_CONTRACT.md); a client-side
+   comparison in this file can never provide it.
+
+   PF_CONFIG.console.accounts may override this list per deployment. */
+PF.CONSOLE_REQUIRES_CREDENTIALS = (PF_CFG.console || {}).requireCredentials === true;
+PF.STAFF = ((PF_CFG.console || {}).accounts) || [
+  { user: 'a.bello', name: 'A. Bello', role: 'Registry supervisor', unit: 'Registry & Correspondence', scope: 'all' },
+  { user: 'm.adeyemi', name: 'M. Adeyemi', role: 'Reviewing officer', unit: 'Standards, Guidelines & Regulation', scope: 'unit' },
+  { user: 'c.okonkwo', name: 'C. Okonkwo', role: 'Compliance officer', unit: 'Digital Economy & Compliance', scope: 'unit' }
 ];
 
 PF.CHANNELS = [
