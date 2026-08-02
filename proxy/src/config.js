@@ -1,0 +1,71 @@
+// Authenticating proxy — configuration.
+//
+// Everything sensitive comes from the environment. Nothing here is committed, and the
+// signed Power Automate URLs never reach a browser — that is the whole point of the
+// component (AUTHENTICATION_CONTRACT.md "Why a proxy").
+//
+// Required:
+//   DGO_TENANT_ID          Entra tenant guid
+//   DGO_AUDIENCE           expected aud (the API app-id URI or client id)
+//   DGO_ROLE_MAP           JSON, e.g. {"DGO.Operator":"operator","DGO.Viewer":"viewer"}
+//   DGO_ENDPOINT_<KEY>     one signed URL per endpoint contract key
+//
+// Optional:
+//   DGO_ISSUER             defaults to the v2.0 issuer for the tenant
+//   DGO_JWKS_URI           defaults to the tenant's discovery keys endpoint
+//   DGO_ROLES_CLAIM        defaults to "roles"
+//   DGO_CLOCK_SKEW_SEC     defaults to 60
+//   DGO_UPSTREAM_TIMEOUT_MS defaults to 45000
+//   PORT                   defaults to 8081
+
+import { EndpointKeys } from '../../config/endpoints.config.js';
+
+const env = (k, d) => (process.env[k] ?? d);
+
+export function loadConfig(source = process.env) {
+  const get = k => source[k];
+  const tenantId = get('DGO_TENANT_ID') || '';
+  const missing = [];
+  if (!tenantId) missing.push('DGO_TENANT_ID');
+  if (!get('DGO_AUDIENCE')) missing.push('DGO_AUDIENCE');
+
+  let roleClaimMap = {};
+  try { roleClaimMap = JSON.parse(get('DGO_ROLE_MAP') || '{}'); }
+  catch { missing.push('DGO_ROLE_MAP (invalid JSON)'); }
+  if (!Object.keys(roleClaimMap).length) missing.push('DGO_ROLE_MAP');
+
+  // One signed URL per contract key, supplied as DGO_ENDPOINT_<KEY>.
+  const endpoints = {};
+  for (const key of EndpointKeys) {
+    const v = get(`DGO_ENDPOINT_${key}`);
+    if (v) endpoints[key] = v;
+  }
+
+  return {
+    tenantId,
+    issuer: get('DGO_ISSUER') || (tenantId ? `https://login.microsoftonline.com/${tenantId}/v2.0` : ''),
+    jwksUri: get('DGO_JWKS_URI') || (tenantId ? `https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys` : ''),
+    audience: get('DGO_AUDIENCE') || '',
+    rolesClaim: get('DGO_ROLES_CLAIM') || 'roles',
+    roleClaimMap,
+    clockSkewSec: Number(get('DGO_CLOCK_SKEW_SEC') || 60),
+    upstreamTimeoutMs: Number(get('DGO_UPSTREAM_TIMEOUT_MS') || 45_000),
+    port: Number(get('PORT') || 8081),
+    endpoints,
+    missing,
+    configuredEndpoints: Object.keys(endpoints),
+    unconfiguredEndpoints: EndpointKeys.filter(k => !endpoints[k]),
+  };
+}
+
+/** Refuse to start misconfigured. A proxy that boots without an issuer enforces nothing. */
+export function assertUsable(cfg) {
+  if (cfg.missing.length) {
+    throw new Error(
+      `Proxy cannot start — missing configuration: ${cfg.missing.join(', ')}.\n` +
+      `See proxy/README.md. Refusing to run: a proxy without an issuer or audience ` +
+      `validates nothing and would be worse than no proxy at all.`
+    );
+  }
+  return cfg;
+}

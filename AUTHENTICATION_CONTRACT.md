@@ -2,7 +2,10 @@
 
 **Status: PROVISIONED, INERT.** Every structure described here exists in the codebase today and is switched off. This document is the specification for turning it on.
 
-> **The client half is done. The server half is not, and cannot be done by the client.**
+> **The client half is done. A reference implementation of the server half now exists in
+> [`proxy/`](proxy/) — complete and tested, but NOT YET DEPLOYED.** Until it is deployed
+> and the clients are pointed at it, nothing below is enforced: the client can only decline
+> to send a request, never prevent one.
 > Everything in `core/auth.js` and `config/auth.config.js` is preparation. Until the
 > obligations in §2 are implemented in the backend, **no control in this platform is
 > enforced** — the client can only decline to send a request, never prevent one.
@@ -36,6 +39,9 @@ Every governed endpoint **must** perform all of the following. A gap in any one 
 7. **Audit server-side.** Log the token-derived identity, not the client-supplied one.
 
 ### Why a proxy
+
+**Reference implementation: [`proxy/`](proxy/) — 66 assertions, dependency-free, deploys as an
+Azure Function, Container App or App Service. See [`proxy/README.md`](proxy/README.md).**
 
 Power Automate HTTP triggers cannot validate a JWT properly on their own. The realistic production shape is an authenticating proxy — Azure API Management or an Azure Function — that performs §2.1–2.3 and forwards to the flow over a private channel.
 

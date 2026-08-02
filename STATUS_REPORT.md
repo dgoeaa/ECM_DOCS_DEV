@@ -62,7 +62,7 @@ CI          green on all runs
 | ID | Finding | Done | Outstanding |
 |---|---|---|---|
 | **G-03** | 22 SAS signatures in tracked files | Reduced to 4 signatures in 2 files; ratchet blocks new ones | **Rotate all 22 in Power Automate.** Deleting files revoked nothing |
-| **G-04** | No authentication; privilege escalation demonstrated | Client half complete, inert, contracted, 25 assertions in CI | **Server enforcement** — `AUTHENTICATION_CONTRACT.md` §2 |
+| **G-04** | No authentication; privilege escalation demonstrated | Client half complete on both apps; **server half implemented and tested in `proxy/`** (66 assertions) | **Deployment** — stand up the proxy, register the Entra app, point the clients at it |
 | **G-08** | Quality gate | Imports, secrets, auth, smoke | **Governance spine has no tests**; no rendered-appearance coverage |
 
 ### Open — 3
@@ -125,7 +125,7 @@ Ordered so each step de-risks the next.
 | 3 | **Accessibility completion** — duplicate `<h1>`, contrast pass | In-repository |
 | 4 | **Rotate 22 pilot signatures** | Power Automate |
 | 5 | **Register Entra ID application** — six app roles | Tenant administration |
-| 6 | **Stand up the authenticating proxy** — `AUTHENTICATION_CONTRACT.md` §2 | Infrastructure |
+| 6 | **Deploy the authenticating proxy** — implementation ready in `proxy/`, needs a host and the signed URLs moved into its environment | Infrastructure |
 | 7 | **Activate** — set `auth.enabled`, supply tenant config, verify | Configuration |
 
 Steps 1–3 are executable now. Steps 4–6 need decisions outside the repository. **Step 7 is a configuration event, not a development one** — that was the point of provisioning authentication dormant.

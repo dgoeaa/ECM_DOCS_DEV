@@ -37,6 +37,12 @@ jobs:
       - name: Check authentication postures
         run: node tests/auth-posture.test.mjs
 
+      # The authenticating proxy: token validation, role derivation, per-action
+      # authorization, identity stripping, idempotency and audit. Signs real RSA
+      # tokens at run time — the verification path is exercised, not mocked.
+      - name: Check authenticating proxy
+        run: node proxy/test/proxy.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest
