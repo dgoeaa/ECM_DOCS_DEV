@@ -422,3 +422,75 @@ Note on Phase 1: `docs/forensic/177d992/01-architecture.md` was produced against
 target. Its central conclusions were re-verified at `18e9f4d` during this phase and hold —
 including the two-proxy topology, `newack/` orphan status, and the zero-hit negative searches —
 but the document itself must be re-anchored before the Phase 1 gate is re-accepted.
+
+---
+
+## 0.12 ADDENDUM — §5.5 tables 2 and 3, completed repo-wide
+
+Self-audit of this deliverable found §5.5 under-delivered: it requires **three** tables, and
+§0.7 above scoped tables 2 and 3 to the design-system fork — the named lead — rather than the
+whole repository. Completed here. Table 1 (byte-identical across trees, exactly 2) stands.
+
+### Table 2 — same filename, divergent content, in more than one tree
+
+**23 basenames**, `docs/forensic/**` excluded:
+
+| Basename | Distinct versions | Trees |
+|---|---:|---|
+| `README.md` | 5 | root, ECM_ActivityHub_Portal, document-portal, proxy, tests |
+| `index.html` | 4 | root, ECM_ActivityHub_Portal, document-portal, newack |
+| `approvals.js` | 3 | ECM_ActivityHub_Portal (services + views/pages), modules |
+| `config.example.js` | 3 | ECM_ActivityHub_Portal, config, document-portal |
+| `config.js` | 3 | ECM_ActivityHub_Portal, newack, proxy |
+| `router.js` | 3 | ECM_ActivityHub_Portal (core + views), core |
+| `admin.js` | 2 | ECM_ActivityHub_Portal, document-portal |
+| `archive.js` | 2 | core, modules |
+| `auth.js` | 2 | ECM_ActivityHub_Portal, core |
+| `correspondence.js` | 2 | ECM_ActivityHub_Portal, modules |
+| `home.js` | 2 | document-portal, modules |
+| `reports.js` | 2 | ECM_ActivityHub_Portal, modules |
+| `ui.js` | 2 | ECM_ActivityHub_Portal, core |
+| `base.css`, `colors_and_type.css`, `components.css`, `layout.css`, `reset.css`, `tokens.primitive.css`, `tokens.semantic.css`, `tokens.theme-dark.css`, `tokens.theme-hc.css`, `tokens.theme-light.css` | 2 each | document-portal, styles |
+
+The ten CSS rows are the design-system fork already analysed in §0.7. The **thirteen JS/HTML
+rows are new** and were not visible in the DS-scoped view.
+
+`auth.js`, `router.js` and `ui.js` each exist in both `core/` and
+`ECM_ActivityHub_Portal/js/core/` with divergent content. Phase 1 §1.4 established the two
+trees share no runtime code, so these are parallel implementations of the same concern, not a
+shared module — which is precisely how the guard asymmetry in Phase 1 §1.2 (`core/router.js`
+evaluates `canCurrentUserAccess` always; `ECM_ActivityHub_Portal/js/core/router.js:21` returns
+`true` while inert) arose without any single change being visibly wrong.
+
+`config.js` in three trees — `ECM_ActivityHub_Portal/js/core/`, `newack/`, `proxy/src/` — is
+the same pattern for endpoint configuration, and is why the credential in `newack/config.js:4`
+sits outside every mechanism that governs the other two.
+
+### Table 3 — files whose basename is unique to one tree
+
+| Tree | Files | Unique basename | Shares a basename |
+|---|---:|---:|---:|
+| `core/` | 57 | 53 | 4 |
+| `ECM_ActivityHub_Portal/` | 53 | 40 | 13 |
+| `document-portal/` | 42 | 25 | 17 |
+| `config/` | 31 | 30 | 1 |
+| `modules/` | 25 | 20 | 5 |
+| `styles/` | 18 | 6 | 12 |
+| root files | 16 | 14 | 2 |
+| `shared/` | 8 | 8 | 0 |
+| `proxy/` | 7 | 5 | 2 |
+| `tests/` | 7 | 6 | 1 |
+| `universal_filename_policy_deliverables/` | 6 | 6 | 0 |
+| `newack/` | 5 | 3 | 2 |
+| `scripts/` | 2 | 2 | 0 |
+| `.github/`, `.devcontainer/`, `assets/` | 1 each | 1 each | 0 |
+| **Total** | **280** | **221** | **59** |
+
+`styles/` (12 of 18) and `document-portal/` (17 of 42) carry the highest proportion of
+shared basenames — both driven by the design-system fork. `shared/`, despite its name, shares
+**no** basename with any other tree.
+
+**No new finding arises from this addendum.** It supplies the evidence base that F-018 (RBAC
+model drift) and Phase 1 §1.2 (guard asymmetry) already describe, and reinforces F-002 —
+`newack/config.js` is one of three same-named configuration modules and the only one outside
+any governing mechanism.
