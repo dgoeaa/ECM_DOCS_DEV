@@ -4,6 +4,9 @@
 **Repository:** `dgoeaa/ECM_DOCS_DEV`
 **Branch:** `claude/platform-architecture-security-4iwgff`
 **Phase 0 executed:** 2026-08-02
+**Audit target (settled after this phase):** `177d992` — see §0.4 and Phase 1 §1.0.
+Phase 0 was executed against `18e9f4d` (then branch HEAD); every figure below is labelled
+with the commit it came from.
 
 ---
 

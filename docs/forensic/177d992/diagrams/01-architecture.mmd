@@ -1,0 +1,112 @@
+%% Diagram 1 — Current-state architecture at 177d992
+%% Solid edge = CONFIRMED-PRESENT (import, link or config literal read in a file)
+%% Dashed edge = INFERRED or conditional (only taken when auth.enabled === true)
+%% Dotted edge = tooling-only reference (no runtime coupling)
+flowchart TB
+
+  subgraph ROOT["ROOT PLATFORM (index.html)"]
+    direction TB
+    IDX["index.html<br/>+ inline boot watchdog 15s"]
+    CSS["styles/index.css"]
+    LOCAL["config/config.local.js<br/>OPTIONAL - onerror=void 0<br/>git-ignored"]
+    FIGMA["shared/figma-uiux-runtime.js"]
+    BOOT["core/boot.js"]
+    ROUTER["core/router.js<br/>route guard: canCurrentUserAccess()"]
+    SHELL["shared/shell.js<br/>&lt;dgo-shell&gt;"]
+    MODS["modules/*.js<br/>25 routes, lazy import()"]
+    STATE["core/state.js<br/>localStorage: dgo.r11.*"]
+    DC["core/data-client.js"]
+    IDX --> CSS
+    IDX --> LOCAL
+    IDX --> FIGMA
+    IDX --> BOOT
+    BOOT --> ROUTER
+    BOOT --> SHELL
+    ROUTER --> MODS
+    MODS --> STATE
+    MODS --> DC
+  end
+
+  subgraph CFG["config/ — 31 modules, 30 referenced"]
+    RBAC["rbac.config.js<br/>Roles / Permissions / canAccess"]
+    AUTHC["auth.config.js<br/>enabled: false (line 28)"]
+    ENDP["endpoints.config.js<br/>19 contracts, all '' without config.local.js"]
+    ORPH["product-definition.config.json<br/>ORPHANED - 0 refs"]
+  end
+
+  BOOT --> CFG
+  ROUTER --> RBAC
+  DC --> AUTHC
+  DC --> ENDP
+  LOCAL -.->|"injects window.DGO_CONFIG"| ENDP
+
+  subgraph PRX["proxy/ — server-side, 7 files"]
+    SRV["server.js"]
+    HND["handler.js"]
+    AUTHZ["authorize.js<br/>imports Roles/Permissions"]
+    JWT["jwt.js"]
+    SRV --> HND --> AUTHZ --> JWT
+  end
+
+  AUTHZ ==>|"imports directly"| RBAC
+
+  PA[("Power Automate<br/>SAS-signed HTTP triggers")]
+  CFW[("exec-hub-proxy<br/>.kanihamza.workers.dev<br/>personal Cloudflare Worker")]
+
+  DC ==>|"DEFAULT PATH<br/>auth.enabled === false"| PA
+  DC -.->|"only if enabled && proxyBaseUrl"| PRX
+  PRX -.-> PA
+
+  subgraph AH["ECM_ActivityHub_Portal/ — 53 files, separately deployed"]
+    AHIDX["index.html"]
+    AHCLI["js/api/client.js"]
+    AHCFG["js/core/config.js:13<br/>API_URL hardcoded"]
+    AHAUTH["js/core/auth.js:25<br/>enabled: false"]
+    AHIDX --> AHCLI --> AHCFG
+    AHCLI --> AHAUTH
+  end
+
+  AHCLI ==>|"DEFAULT PATH"| CFW
+  AHCLI -.->|"only if enabled && proxyBaseUrl"| PRX
+
+  subgraph DP["document-portal/ — 42 files, separately deployed"]
+    DPIDX["index/submit/track/support/admin/404.html"]
+    DPCORE["js/core.js — PF.flow()"]
+    DPDATA["js/data.js<br/>3 SAS URLs hardcoded"]
+    DPSW["sw.js — service worker"]
+    DPDS["ds/ — FORKED design system"]
+    DPIDX --> DPCORE --> DPDATA
+    DPIDX --> DPSW
+    DPIDX --> DPDS
+  end
+
+  DPDATA ==>|"direct POST, no auth concept"| PA
+
+  subgraph NA["newack/ — 5 files, ORPHANED"]
+    NAIDX["index / ack / email.html"]
+    NACFG["config.js:4<br/>1 SAS signature"]
+    NAIDX --> NACFG
+  end
+
+  NACFG ==>|"direct, if ever served"| PA
+
+  subgraph TOOL["tooling — no runtime coupling"]
+    PKG["package.json"]
+    SETUP["scripts/setup-local.mjs"]
+    TESTS["tests/*.mjs, smoke.spec.js"]
+    BASE["tests/secrets-baseline.txt"]
+  end
+
+  TOOL -.-> AH
+  SETUP -.-> DP
+  BASE -.->|"ONLY inbound reference"| NA
+  PKG -.-> PRX
+
+  DPDS -. "FORKED: 10 of 12 files diverged<br/>never identical in-repo" .-> CSS
+
+  classDef bypass fill:#8E1B28,stroke:#5C0F18,color:#fff
+  classDef orphan fill:#A0601A,stroke:#6B3F11,color:#fff
+  classDef ext fill:#2B6280,stroke:#1C405400,color:#fff
+  class PA,CFW ext
+  class NA,ORPH orphan
+  class DPDATA,NACFG,AHCFG bypass
