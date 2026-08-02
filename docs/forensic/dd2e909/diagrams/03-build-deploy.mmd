@@ -1,0 +1,90 @@
+%% Diagram 3 — Build and deployment flow at dd2e909
+%% Principal assertion: there is no build step and no artefact selection.
+%% Everything tracked is served verbatim; nothing is deployed by automation.
+
+graph TB
+
+  subgraph SRC["Source trees — 282 tracked files"]
+    ROOT["index.html + core/ + modules/<br/>config/ + shared/ + styles/ + assets/"]
+    DP["document-portal/ — 41 files<br/>3 live SAS + 3 plaintext passwords"]
+    AH["ECM_ActivityHub_Portal/ — 53 files"]
+    NA["newack/ — 5 files<br/>1 live SAS"]
+    PX["proxy/ — 7 files, server-side"]
+    ZIP["ECM_DOCS_DEV.zip — 16.4 MB<br/>837 files · 31 SAS across 18<br/>9 found NOWHERE else"]
+    DOCS["11 root .md audit files<br/>+ .github/ + .gitignore"]
+  end
+
+  subgraph BUILD["Build step"]
+    NONE["CONFIRMED-ABSENT<br/>no bundler · no tsconfig<br/>no Dockerfile · no build script<br/>0 runtime dependencies"]
+  end
+
+  subgraph SETUP["scripts/setup-local.mjs"]
+    UNZIP["execFileSync('unzip','-p',ARCHIVE,<br/>'…NITDA_operations_manifest<br/>_ai_ready_UNREDACTED-1.json')"]
+    GEN["writes config/config.local.js<br/>+ ECM_ActivityHub_Portal/config.local.js<br/>git-ignored · auth.enabled = false"]
+  end
+
+  subgraph SERVE["npm start — the only 'deploy'"]
+    HS["http-server . -p 8080 --cors<br/>NO exclusion list<br/>(.npmignore / web.config /<br/>staticwebapp.config.json all ABSENT)"]
+  end
+
+  subgraph DC["'.devcontainer/devcontainer.json'"]
+    PC["postCreateCommand:<br/>npm install && npm run setup"]
+    PA2["postAttachCommand: npm start"]
+    FW["forwardPorts 8080, 8081<br/>onAutoForward: openBrowser"]
+  end
+
+  subgraph CI["'.github/workflows/ci.yml' — permissions: contents: read"]
+    J1["imports → check-imports<br/>governance · output-encoding<br/>auth-posture · proxy"]
+    J2["smoke → playwright<br/>installs own chromium"]
+    J3["links → continue-on-error: true<br/>INFORMATIONAL ONLY"]
+    J4["secrets → check-secrets.mjs<br/>SKIPS BINARIES (line 50)"]
+    NODEPLOY["NO DEPLOY JOB<br/>no artefact · no environment<br/>no registry push"]
+  end
+
+  DEPLOY["Actual deployment target<br/>INDETERMINATE<br/>no automation · no config<br/>artefact selection never made"]
+
+  ROOT --> NONE
+  DP --> NONE
+  AH --> NONE
+  NA --> NONE
+  NONE -->|"pass-through, verbatim"| HS
+
+  ZIP -->|"read at setup"| UNZIP --> GEN
+  GEN -.->|"consumed by"| ROOT
+  GEN -.->|"consumed by"| AH
+
+  ZIP ==>|"web-reachable at<br/>/ECM_DOCS_DEV.zip"| HS
+  DP ==>|"/document-portal/js/data.js"| HS
+  NA ==>|"/newack/config.js"| HS
+  DOCS ==> HS
+
+  PC --> UNZIP
+  PA2 --> HS
+  HS --> FW
+
+  ROOT -.-> J1
+  ROOT -.-> J2
+  AH -.-> J1
+  AH -.-> J2
+  PX -.-> J1
+  DP -.->|"read as TEXT only<br/>output-encoding.test.mjs:92"| J1
+  DP -.->|"suppressed"| J4
+  NA -.->|"suppressed — sole reference"| J4
+  ZIP -.->|"NEVER SCANNED<br/>binary skip"| J4
+
+  J1 --> NODEPLOY
+  J2 --> NODEPLOY
+  J3 --> NODEPLOY
+  J4 --> NODEPLOY
+  NODEPLOY -.->|"nothing ships<br/>by automation"| DEPLOY
+  HS -.->|"manual, undefined"| DEPLOY
+
+  classDef bad fill:#4a1420,stroke:#c8102e,stroke-width:3px,color:#fff
+  classDef absent fill:#2b2b2b,stroke:#888,stroke-dasharray:5 5,color:#fff
+  classDef ok fill:#0d3b26,stroke:#17b255,color:#fff
+  classDef warn fill:#3a2f0b,stroke:#b8860b,color:#fff
+
+  class ZIP,HS,DP,NA bad
+  class NONE,NODEPLOY,DEPLOY absent
+  class J1,J2 ok
+  class J3,J4,PC,PA2,FW,UNZIP warn
