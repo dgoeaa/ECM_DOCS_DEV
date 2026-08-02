@@ -440,3 +440,78 @@ high. It is correct — 104 occurrences on 102 lines. Corrected in 02-security.m
 ---
 
 **Phase 4 complete. Engagement closed.**
+
+---
+
+## 4.6 ADDENDUM — Coverage census: what was and was not opened
+
+Added in response to a direct question about what was skipped. The figures are derived by
+matching every tracked path against the text of this report, so they are reproducible.
+
+| Category | Files | Treatment |
+|---|---:|---|
+| **Cited in this report** | **89** | Opened and read; a specific line or behaviour is quoted |
+| **Pattern-swept only** | **166** | Never opened individually — see below for what the sweeps did cover |
+| Quarantined prose | 13 | Read in Phase 4 via targeted claim sweeps only; ~130 KB not read end to end |
+| Excluded by §4 (binary/archive) | 11 | Images, fonts, PDF/DOCX, the ZIP |
+| Excluded by §4 (lockfile) | 1 | `package-lock.json` |
+| **Total** | **280** | |
+
+### What the 166 unopened files *did* receive
+
+Every one was subject to repository-wide mechanical analysis, not ignored:
+
+- secret scan — all 280 tracked files, twice (repo scanner + independent Python reader)
+- unsafe-sink sweep — every `.js`/`.mjs`/`.html` for `innerHTML`, `insertAdjacentHTML`,
+  `document.write`, `eval`, `new Function`, `.outerHTML =`
+- import-graph resolution — 2,085 edges across 168 reachable modules
+- CSP / SRI / `http://` / external-origin sweep
+- proxy and auth-primitive reachability sweep
+- cross-tree duplicate and divergence hashing
+
+What they did **not** receive is line-by-line logic review. A defect with no textual signature —
+a wrong comparison, an inverted condition, a missing `await` — would not have been found in
+those 166 files.
+
+### Material blind spots, ranked
+
+| Tree | Unopened | Why it matters |
+|---|---:|---|
+| `ECM_ActivityHub_Portal/` | **45 of 53** | Rated **High**. F-006 was found in one of the 8 files that *were* opened. The other 45 — including `js/controllers/actions.js` (258 lines, the orchestrator for all 13 services) and `js/core/store.js` — had only mechanical treatment |
+| `core/` | 44 of 57 | Governance primitives: `assignment-cascade`, `acknowledgement-service`, `correspondence-email-service`, `nitda-module-adapter`, `flow-confirmation` |
+| `config/` | 25 of 31 | Includes `platform-provisioning.config.js` (963 lines) and `module-boundaries.config.js`, which `core/action-authority.js` enforces against |
+| `document-portal/` | 26 of 42 | See the close-out below |
+| `styles/` | 14 of 18 | Presentation only; no security consequence identified |
+| `ECM_DOCS_DEV.zip` | 836 of 837 members | All secret-scanned; only the manifest was read; **none** audited for behaviour, per §4 |
+
+### One gap closed on review
+
+v3.1 §7.2 named six `document-portal/js` files and said *"Start there."* They were triaged by
+the automated 104-sink classifier and spot-checked, but not read. That is weaker than the brief
+asked for, so the 58 assignments in those files were re-examined directly.
+
+Result: **no finding changes.** The three sinks handling real record data all escape correctly —
+
+- `submit.js:138-144` — every field passes `PF.esc()` at construction; the
+  `.replace(/\n/g,'<br>')` on `:141` is applied *after* escaping
+- `home.js:41-45` — `PF.esc(x.id)`, `PF.esc(x.title)`, `encodeURIComponent()` on both URL
+  parameters
+- `support.js:70-74` — `hl()` escapes every segment either side of the `<mark>`
+
+Phase 2's conclusion that `document-portal/` contributes **zero** unescaped external-data sinks
+is now supported by reading, not only by classification. The contrast with `newack/` (F-007),
+which has no escaper at all, is confirmed rather than inferred.
+
+### Honest characterisation
+
+This was a **targeted forensic audit, not an exhaustive code review**. Security-critical paths
+were read in full: all of `proxy/` (912 lines), the boot and routing chain, both API clients,
+`document-portal/js/core.js` and `data.js`, all of `newack/`, and every file where a finding
+landed. The remainder was covered by mechanical sweep. That is a legitimate methodology for the
+budget in §4, and it is the correct frame for reading the findings ledger: **absence of a
+finding in an unopened file is not evidence of its absence**, and the ledger should not be read
+as a clean bill of health for the 166.
+
+The single highest-value extension would be a line-by-line review of
+`ECM_ActivityHub_Portal/` — the tree carrying the highest risk rating, the lowest test
+coverage, and the lowest proportion of files opened.
