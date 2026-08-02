@@ -1,6 +1,7 @@
 import { Store } from "../core/store.js";
 import { isActive } from "../core/router.js";
 import { escapeHtml } from "../utils/fn.js";
+import { canOpen } from "../core/router.js";
 
 const NAV = [
   { group: "Executive", items: [
@@ -47,11 +48,16 @@ export function renderSidebar() {
     </div>
 
     <div class="p-3 overflow-y-auto h-[calc(100vh-64px)] scrollbar-thin">
-      ${NAV.map(sec => `
+      ${NAV.map(sec => {
+        /* AUDIT.md F-004 — privileged destinations were rendered unconditionally.
+           A section whose every item is filtered out is omitted rather than left empty. */
+        const items = sec.items.filter(it => canOpen(it.route));
+        if (!items.length) return "";
+        return `
         <div class="mb-4">
           <div class="px-2 text-[11px] tracking-wide uppercase font-extrabold text-slate-400">${escapeHtml(sec.group)}</div>
           <div class="mt-2 space-y-1">
-            ${sec.items.map(it => {
+            ${items.map(it => {
               const active = isActive(it.route);
               const aCls = active ? "bg-nitda/10 border-nitda text-nitda" : "hover:bg-slate-50 border-transparent text-slate-700";
               return `
@@ -62,8 +68,8 @@ export function renderSidebar() {
                 </button>`;
             }).join("")}
           </div>
-        </div>
-      `).join("")}
+        </div>`;
+      }).join("")}
     </div>
   </aside>`;
 }

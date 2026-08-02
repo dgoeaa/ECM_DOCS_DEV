@@ -18,6 +18,7 @@ import { listNotifications, ackNotification, listAudit, listDirectory, generateR
 import { aiChat } from "../services/ai.js";
 
 import { modalInward, modalOutward, modalMinute, modalApprovalDecision, modalBrief, modalDecision, modalMeeting, modalTask } from "../views/components/modals.js";
+import { roleSwitchAllowed } from "../core/auth.js";
 
 function inputValue(el) { return (el && "value" in el) ? el.value : ""; }
 
@@ -34,8 +35,14 @@ export async function dispatchAction(action, el) {
     return;
   }
 
-  // Role switch (lightweight demo)
+  // Role switch. AUDIT.md F-002 — a development affordance only. Once authentication is
+  // enforced the role comes from token claims and this control is refused outright, so it
+  // cannot be used to alter an effective privilege.
   if (action === "role.switch") {
+    if (!roleSwitchAllowed()) {
+      toast("warn", "Role is determined by your signed-in account and cannot be switched.");
+      return;
+    }
     const current = Store.auth.user.role;
     Store.auth.user.role = current === "DGCEO" ? "COS" : "DGCEO";
     Store.auth.user.name = Store.auth.user.role === "DGCEO" ? "DG/CEO" : "Chief of Staff";

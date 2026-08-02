@@ -1,9 +1,20 @@
 import { isoDate } from "../utils/fn.js";
 
+/* AUDIT.md F-001. A named production identity was hardcoded here and shipped to every
+   browser. It is now a neutral development placeholder, overridable for local work via
+   window.DGO_CONFIG.devIdentity, and IGNORED ENTIRELY once authentication is enforced —
+   at that point js/core/auth.js resolves identity from validated token claims and nothing
+   in this object influences authorization. */
+const _dev = (typeof window !== "undefined" && window.DGO_CONFIG?.devIdentity) || {};
+
 export const Store = {
   auth: {
-    user: { email: "dgceo@nitda.gov.ng", name: "DG/CEO", role: "DGCEO" },
-    roles: ["DGCEO"],
+    user: {
+      email: _dev.email || "operator@localhost",
+      name: _dev.name || "Development Operator",
+      role: _dev.role || "Officer"
+    },
+    roles: [_dev.role || "Officer"],
     delegations: []
   },
   ref: {
