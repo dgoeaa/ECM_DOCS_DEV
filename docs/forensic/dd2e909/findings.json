@@ -1,0 +1,276 @@
+[
+  {
+    "id": "F-001",
+    "title": "31 distinct Power Automate SAS signatures require rotation; 9 exist only inside the ratchet-invisible archive",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [
+      {"path": "document-portal/js/data.js", "lines": "25-27"},
+      {"path": "newack/config.js", "lines": "4"},
+      {"path": "ECM_DOCS_DEV.zip", "lines": "n/a — 31 signatures across 18 of 837 members"}
+    ],
+    "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool.",
+    "remediation": "Rotate all 31 signatures in Power Automate before deleting any file; deletion revokes nothing."
+  },
+  {
+    "id": "F-012",
+    "title": "The authenticating proxy is not in the request path; every browser-side control is bypassable",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [
+      {"path": "core/data-client.js", "lines": "21-27"},
+      {"path": "config/auth.config.js", "lines": "28"},
+      {"path": "config/auth.config.js", "lines": "76-77"},
+      {"path": "ECM_ActivityHub_Portal/js/api/client.js", "lines": "6-10"}
+    ],
+    "impact": "Route guards, ownership assertions and active-user checks all execute in the browser while requests go directly to signed Power Automate URLs, so the implemented server-side RBAC protects nothing as configured.",
+    "remediation": "Set auth.enabled and proxyBaseUrl at deploy time and restrict the flows to the proxy's egress address."
+  },
+  {
+    "id": "F-013",
+    "title": "document-portal and newack contain no proxy code path at all",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [
+      {"path": "document-portal/js/core.js", "lines": "277-298"},
+      {"path": "newack/config.js", "lines": "4"}
+    ],
+    "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement.",
+    "remediation": "Add proxy-aware endpoint resolution to both trees, or retire them."
+  },
+  {
+    "id": "F-017",
+    "title": "check-secrets.mjs skips binary files, so the 16.4 MB archive has never been scanned",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [
+      {"path": "tests/check-secrets.mjs", "lines": "50"},
+      {"path": "scripts/setup-local.mjs", "lines": "52"}
+    ],
+    "impact": "The repository's principal credential control has an unstated blind spot covering 87% of its bytes; a new signature added inside the archive passes CI silently.",
+    "remediation": "Extend the scanner to archive members, or remove the archive from the tree."
+  },
+  {
+    "id": "F-018",
+    "title": "No build step and no exclusion list: npm start serves the entire repository",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [
+      {"path": "package.json", "lines": "15"},
+      {"path": ".devcontainer/devcontainer.json", "lines": "10"}
+    ],
+    "impact": "The archive, both credential-bearing config files, all application source and every audit document are directly fetchable from any host running the project's own start command.",
+    "remediation": "Define a deployment artefact and serve only that path."
+  },
+  {
+    "id": "F-023",
+    "title": "ECM Activity Hub defaults its backend API_URL to a personal Cloudflare Workers subdomain under ENV PROD",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [{"path": "ECM_ActivityHub_Portal/js/core/config.js", "lines": "6-13"}],
+    "impact": "On a fresh clone or any deployment lacking the git-ignored config.local.js, every API request carrying correspondence payloads is sent to a third-party-controlled origin that is not a NITDA domain.",
+    "remediation": "Default API_URL to an empty string so the SPA falls back to its documented DEMO mode instead of a live third-party host."
+  },
+  {
+    "id": "F-024",
+    "title": "Two remote scripts loaded with no Subresource Integrity, one pinned to a mutable @latest tag",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [{"path": "ECM_ActivityHub_Portal/index.html", "lines": "11,43"}],
+    "impact": "Whoever controls the lucide package, unpkg, or cdn.tailwindcss.com can execute arbitrary JavaScript in the portal's origin with access to its localStorage and session.",
+    "remediation": "Pin exact versions with integrity hashes, or vendor both locally as the root platform already does."
+  },
+  {
+    "id": "F-002",
+    "title": "CI is green while four live-shaped credentials sit in tracked files",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "tests/check-secrets.mjs", "lines": "5-16"}, {"path": "tests/secrets-baseline.txt", "lines": "1-2"}],
+    "impact": "The baseline suppression is documented and defensible, but it removes any forcing function on rotation.",
+    "remediation": "Time-box the baseline so the build fails after a rotation deadline."
+  },
+  {
+    "id": "F-003",
+    "title": "Audit prose reproduced three live SAS signatures into a third tracked file (contained in dd2e909)",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "172-174"}],
+    "impact": "Quoting a live credential to evidence its exposure spreads it; the ratchet detected and failed the build correctly.",
+    "remediation": "Never quote a credential verbatim in documentation; redact to [REDACTED]."
+  },
+  {
+    "id": "F-004",
+    "title": "Design system forked: 10 of 12 shared filenames diverged, with no establishable source of truth",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "styles/dgo-design-system/", "lines": "16 files"}, {"path": "document-portal/ds/", "lines": "19 files"}],
+    "impact": "Token changes must be made twice and nothing detects divergence; both trees are single-import snapshots so neither has authority from this repository's history.",
+    "remediation": "Nominate one tree authoritative and add a CI drift check over the shared token files."
+  },
+  {
+    "id": "F-009",
+    "title": "newack is orphaned; its sole repository reference is a credential-suppression entry",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "newack",
+    "files": [{"path": "tests/secrets-baseline.txt", "lines": "2"}],
+    "impact": "791 lines across three HTML pages holding a live-shaped credential, with no owner, no tests and no consumer.",
+    "remediation": "Retire the tree, or give it an owner, tests and a proxy-aware endpoint path."
+  },
+  {
+    "id": "F-010",
+    "title": "document-portal has deployment artefacts but no behavioural test or build reference",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [{"path": "document-portal/sw.js", "lines": "1-49"}, {"path": "document-portal/manifest.webmanifest", "lines": "n/a"}],
+    "impact": "A tree shaped for hosting, with a service worker and PWA manifest, that nothing in the repository loads or verifies.",
+    "remediation": "Add the five pages to the smoke suite."
+  },
+  {
+    "id": "F-014",
+    "title": "EmailPreviewFrame renders srcdoc with no sandbox attribute (latent; zero callers)",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "root",
+    "files": [{"path": "shared/components.js", "lines": "42"}],
+    "impact": "Escaping protects the srcdoc attribute boundary but not the content, so any future caller passing email HTML would get same-origin script execution.",
+    "remediation": "Add sandbox=\"\" to match the sibling iframes, or delete the unused export."
+  },
+  {
+    "id": "F-015",
+    "title": "No Content-Security-Policy, framing protection or Permissions-Policy in any entry point",
+    "severity": "medium",
+    "confidence": "confirmed-absent",
+    "scope": "cross",
+    "files": [{"path": "index.html", "lines": "1-61"}],
+    "impact": "No defence in depth against injection or clickjacking in the repository; deploy-time headers are indeterminate.",
+    "remediation": "Adopt default-src 'self'; only one inline script exists, at index.html:26-59."
+  },
+  {
+    "id": "F-019",
+    "title": "The devcontainer automates setup, serves the whole repository, auto-forwards the port and opens a browser",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": ".devcontainer/devcontainer.json", "lines": "7-16"}],
+    "impact": "One click from clone to serving 31 credentials over HTTP, with no step that warns or excludes.",
+    "remediation": "Serve a restricted path in the container and remove onAutoForward openBrowser."
+  },
+  {
+    "id": "F-020",
+    "title": "Service worker precaches js/data.js and admin.html; cache-first strategy defeats credential rotation",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [{"path": "document-portal/sw.js", "lines": "5-19"}, {"path": "document-portal/sw.js", "lines": "31-49"}],
+    "impact": "Credentials persist durably in Cache Storage after the tab closes, the operations console works offline, and rotating the signatures will strand returning visitors on dead endpoints until the CACHE constant is bumped.",
+    "remediation": "Remove js/data.js and admin.html from SHELL, and bump CACHE as part of any rotation."
+  },
+  {
+    "id": "F-021",
+    "title": "document-portal and newack have zero behavioural test coverage of any kind",
+    "severity": "medium",
+    "confidence": "confirmed-absent",
+    "scope": "cross",
+    "files": [{"path": "tests/smoke.spec.js", "lines": "52-172"}, {"path": "scripts/check-links.mjs", "lines": "44-45"}, {"path": "tests/check-imports.mjs", "lines": "28"}],
+    "impact": "The two highest-risk trees are the two least verified; no test loads any of their eight HTML pages.",
+    "remediation": "Add page-load and output-encoding tests for both trees."
+  },
+  {
+    "id": "F-005",
+    "title": "Portal dark and high-contrast theme tokens are 27% and 18% smaller than the root platform's",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [{"path": "document-portal/ds/tokens/tokens.theme-dark.css", "lines": "n/a — 3,096 vs 4,237 bytes"}],
+    "impact": "The portal's dark and high-contrast themes are materially less complete than the root platform's.",
+    "remediation": "Reconcile against whichever design system tree is nominated authoritative."
+  },
+  {
+    "id": "F-006",
+    "title": "check-imports.mjs cannot see document-portal or newack",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "tests/check-imports.mjs", "lines": "28"}],
+    "impact": "Two of five application trees are structurally invisible to the module-graph check, and nothing else covers them.",
+    "remediation": "Add a classic-script reachability check for both trees."
+  },
+  {
+    "id": "F-007",
+    "title": "Five source files exceed 4,000 characters on a single line",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "root",
+    "files": [
+      {"path": "modules/settings.js", "lines": "7,056 chars on one line"},
+      {"path": "modules/diagnostics.js", "lines": "5,181"},
+      {"path": "modules/registry.js", "lines": "4,995"},
+      {"path": "modules/correspondence.js", "lines": "4,379"},
+      {"path": "core/welcome-experience.js", "lines": "4,337"}
+    ],
+    "impact": "Line-range citation loses precision, git blame and diffs are unusable at statement level, and review is impractical.",
+    "remediation": "Reformat to conventional line lengths."
+  },
+  {
+    "id": "F-011",
+    "title": "reports and statistics invoke the EMAIL write contract without executeOwnedAction",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "root",
+    "files": [{"path": "modules/reports.js", "lines": "n/a"}, {"path": "modules/statistics.js", "lines": "n/a"}],
+    "impact": "Downgraded from the Phase 1 provisional rating: with the proxy out of the request path the ownership guard is a UX and audit control, not a security boundary.",
+    "remediation": "Wrap both call sites in executeOwnedAction for audit consistency."
+  },
+  {
+    "id": "F-016",
+    "title": "lookup.js grants allow-same-origin to an iframe rendering backend email HTML",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "root",
+    "files": [{"path": "modules/lookup.js", "lines": "26"}],
+    "impact": "allow-scripts is absent so scripts cannot execute, but the same-origin grant is unnecessary for rendering an email body.",
+    "remediation": "Use sandbox=\"\" as the sibling correspondence-email iframes do."
+  },
+  {
+    "id": "F-022",
+    "title": "No deployment automation exists; artefact selection has never been made",
+    "severity": "low",
+    "confidence": "confirmed-absent",
+    "scope": "cross",
+    "files": [{"path": ".github/workflows/ci.yml", "lines": "1-95"}],
+    "impact": "CI runs four test-only jobs with contents:read permission and no deploy step, so nothing ships by automation and which trees are deployed is indeterminate.",
+    "remediation": "Define a deployment workflow with an explicit artefact allow-list."
+  },
+  {
+    "id": "DOC-DRIFT-001",
+    "title": "Root audit prose discusses CSP and SRI as controls under review; both are absent from code",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "n/a"}],
+    "impact": "The only occurrence of Content-Security-Policy anywhere in the repository is inside a document discussing it, which invites readers to believe the control exists.",
+    "remediation": "Mark absent controls explicitly as absent in the prose."
+  },
+  {
+    "id": "DOC-DRIFT-002",
+    "title": "Root audit prose lists insertAdjacentHTML and document.write, which occur zero times in code",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [{"path": "FORENSIC_ROOT_PLATFORM_AUDIT.md", "lines": "n/a"}],
+    "impact": "The engagement brief's own export counted this prose as source and pre-seeded an incorrect sink baseline of one occurrence each.",
+    "remediation": "Exclude documentation from any automated source inventory."
+  }
+]

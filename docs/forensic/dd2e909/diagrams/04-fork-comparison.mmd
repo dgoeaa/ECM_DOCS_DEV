@@ -1,0 +1,82 @@
+%% Diagram 4 — Variant and fork comparison at dd2e909
+%% Left: the design system fork. Right: the ActivityHub services/pages pairing.
+%% Byte figures are from git blob sizes; IDENTICAL means matching blob hash.
+
+graph TB
+
+  subgraph DS["Design system — forked upstream, not drifted here"]
+    direction TB
+
+    subgraph RDS["styles/dgo-design-system/ — 16 files<br/>1 commit: 5a0a93a 04:54:15+01:00<br/>no CSS edited since import"]
+      R1["base.css 5,499"]
+      R2["components.css 39,791"]
+      R3["colors_and_type.css 8,817"]
+      R4["layout.css 3,263"]
+      R5["reset.css 1,129"]
+      R6["tokens.theme-dark 4,237"]
+      R7["tokens.theme-hc 3,159"]
+      R8["tokens.theme-light 729"]
+      R9["tokens.primitive 8,820"]
+      R10["tokens.semantic 7,077"]
+      RU["ROOT ONLY:<br/>brand-type.css<br/>platform-authority.css<br/>tokens.enhanced.css<br/>tokens.legacy-bridge.css"]
+    end
+
+    subgraph PDS["document-portal/ds/ — 19 files<br/>2 commits: 501bc42 05:05:21+01:00<br/>+ 776d26c (logo assets ONLY)"]
+      P1["styles/base.css 4,566"]
+      P2["styles/components.css 39,333"]
+      P3["colors_and_type.css 10,767"]
+      P4["styles/layout.css 3,252"]
+      P5["styles/reset.css 1,152"]
+      P6["tokens.theme-dark 3,096"]
+      P7["tokens.theme-hc 2,575"]
+      P8["tokens.theme-light 753"]
+      P9["tokens.primitive 8,731"]
+      P10["tokens.semantic 7,088"]
+      PU["PORTAL ONLY:<br/>ds.css<br/>styles/components/command-palette.css<br/>+ fonts, icons, 3 NITDA logos"]
+    end
+
+    IDENT["IDENTICAL — 2 of 12<br/>tokens.component.css<br/>tokens.density.css<br/>(the only 2 byte-identical<br/>blob pairs in the WHOLE repo)"]
+  end
+
+  R1 -.->|"DIVERGED −933"| P1
+  R2 -.->|"DIVERGED −458"| P2
+  R3 -.->|"DIVERGED +1,950"| P3
+  R4 -.->|"DIVERGED −11"| P4
+  R5 -.->|"DIVERGED +23"| P5
+  R6 ==>|"DIVERGED −1,141 = −27%"| P6
+  R7 ==>|"DIVERGED −584 = −18%"| P7
+  R8 -.->|"DIVERGED +24"| P8
+  R9 -.->|"DIVERGED −89"| P9
+  R10 -.->|"DIVERGED +11"| P10
+
+  RDS --- IDENT --- PDS
+
+  VERDICT["SOURCE OF TRUTH: INDETERMINATE<br/>Uploaded 11 minutes apart, ALREADY divergent.<br/>No CSS edited in either tree since import,<br/>so neither has authority from this repo's history.<br/>The fork happened upstream — outside the repository."]
+  IDENT --- VERDICT
+
+  subgraph AH["ECM_ActivityHub_Portal/ — services vs pages"]
+    direction TB
+    SVC["js/services/ — 13 files"]
+    PGS["js/views/pages/ — 19 files"]
+    PAIR["10 PAIRED NAMES<br/>ai · approvals · briefs · decisions<br/>inbox · kpi · meetings · minutes<br/>projects · tasks"]
+    SONLY["3 services with no page"]
+    PONLY["9 pages with no service"]
+    RTR["TWO ROUTERS<br/>js/core/router.js — 61 lines<br/>js/views/router.js — 46 lines"]
+    AHV["Layering vs duplication:<br/>NOT ESTABLISHED<br/>Deferred at Phase 1 §8.1;<br/>tree assessed at its<br/>boundaries only"]
+  end
+
+  SVC --- PAIR --- PGS
+  SVC --- SONLY
+  PGS --- PONLY
+  PAIR --- AHV
+  RTR --- AHV
+
+  classDef ident fill:#0d3b26,stroke:#17b255,color:#fff
+  classDef unique fill:#1c2733,stroke:#5b7a99,color:#fff
+  classDef verdict fill:#2b2b2b,stroke:#888,stroke-dasharray:5 5,color:#fff
+  classDef bigdiv fill:#3a2f0b,stroke:#b8860b,color:#fff
+
+  class IDENT ident
+  class RU,PU unique
+  class VERDICT,AHV verdict
+  class R6,R7,P6,P7 bigdiv
