@@ -1,0 +1,103 @@
+%% Diagram 1 - Current-state architecture at 18e9f4d
+%% SOLID  = CONFIRMED-PRESENT default path (import / link / config literal read in a file)
+%% DASHED = conditional, taken only when auth.enabled === true AND proxyBaseUrl is set
+%% DOTTED = tooling-only reference, no runtime coupling
+flowchart TB
+
+  subgraph ROOT["ROOT PLATFORM - index.html"]
+    direction TB
+    IDX["index.html<br/>+ inline boot watchdog 15s"]
+    LOCAL["config/config.local.js<br/>OPTIONAL, git-ignored<br/>onerror=void 0<br/>ONLY untracked runtime dep"]
+    BOOT["core/boot.js<br/>25 lazy loaders registered"]
+    RTR["core/router.js<br/>GUARD: canCurrentUserAccess()"]
+    SHELL["shared/shell.js - dgo-shell"]
+    MODS["modules/*.js - 25 routes<br/>25/25 import governed-actions<br/>14/25 call core/api.js"]
+    STATE["core/state.js<br/>localStorage dgo.r11.*"]
+    DC["core/data-client.js<br/>resolveUrl()"]
+    IDX --> LOCAL
+    IDX --> BOOT
+    BOOT --> RTR --> MODS
+    BOOT --> SHELL
+    MODS --> STATE
+    MODS --> DC
+  end
+
+  subgraph CFG["config/ - 31 modules, 30 referenced"]
+    RBAC["rbac.config.js<br/>Roles / Permissions / canAccess"]
+    AUTHC["auth.config.js:28<br/>enabled = false  DEFAULT"]
+    ENDP["endpoints.config.js<br/>19 contracts, all '' without config.local.js"]
+    ORPH["product-definition.config.json<br/>ORPHANED - 0 importers"]
+  end
+
+  RTR --> RBAC
+  DC --> AUTHC
+  DC --> ENDP
+  LOCAL -.->|"injects window.DGO_CONFIG"| ENDP
+
+  subgraph PRX["proxy/ - SERVER-SIDE, 7 files, 912 lines"]
+    SRV["server.js"] --> HND["handler.js"] --> AUTHZ["authorize.js"] --> JWT["jwt.js"]
+  end
+
+  AUTHZ ==>|"imports the SAME matrix"| RBAC
+
+  PA[("Power Automate<br/>SAS-signed HTTP triggers")]
+  CFW[("exec-hub-proxy.kanihamza.workers.dev<br/>PERSONAL Cloudflare Worker<br/>INDETERMINATE - OQ-7")]
+
+  DC ==>|"DEFAULT PATH - auth inert"| PA
+  DC -.->|"only if enabled AND proxyBaseUrl"| PRX
+  PRX -.-> PA
+
+  subgraph AH["ECM_ActivityHub_Portal/ - 53 files - separately deployed"]
+    AHIDX["index.html"]
+    AHRTR["js/core/router.js:21<br/>GUARD: if !isAuthEnforced return true<br/>=> /admin /audit /directory OPEN"]
+    AHCTL["js/controllers/actions.js<br/>imports all 13 services"]
+    AHSVC["js/services/*.js - 13"]
+    AHPG["js/views/pages/*.js - 19<br/>render from Store only"]
+    AHVR["js/views/router.js<br/>pure view dispatcher"]
+    AHCLI["js/api/client.js"]
+    AHIDX --> AHRTR --> AHVR --> AHPG
+    AHIDX --> AHCTL --> AHSVC --> AHCLI
+  end
+
+  AHCLI ==>|"DEFAULT PATH - auth inert"| CFW
+  AHCLI -.->|"only if enabled AND proxyBaseUrl"| PRX
+
+  subgraph DP["document-portal/ - 42 files - separately deployed"]
+    DPIDX["index / submit / track / support / admin / 404.html"]
+    DPCORE["js/core.js:286<br/>PF.flow() - the ONLY fetch()"]
+    DPDATA["js/data.js:35<br/>PF.ENDPOINTS from window.PF_CONFIG"]
+    DPSW["sw.js - service worker cache"]
+    DPDS["ds/ - FORKED design system"]
+    DPIDX --> DPCORE --> DPDATA
+    DPIDX --> DPSW
+    DPIDX --> DPDS
+  end
+
+  DPDATA ==>|"direct POST, no Authorization header<br/>target is deployment-supplied - OQ-9"| PA
+
+  subgraph NA["newack/ - 5 files - ORPHANED"]
+    NACFG["config.js:4<br/>1 committed SAS signature"]
+  end
+
+  NACFG ==>|"direct, if ever served"| PA
+
+  subgraph TOOL["tooling - NO runtime coupling"]
+    PKG["package.json"]
+    SETUP["scripts/setup-local.mjs"]
+    TESTS["tests/ - 6 suites"]
+    BASE["tests/secrets-baseline.txt"]
+  end
+
+  TOOL -.-> AH
+  SETUP -.-> DP
+  BASE -.->|"THE ONLY inbound reference"| NA
+  PKG -.->|"npm run start:proxy - manual"| PRX
+
+  DPDS -. "FORKED: 10 of 12 diverged<br/>never identical in-repo - OQ-2" .-> ROOT
+
+  classDef bypass fill:#8E1B28,stroke:#5C0F18,color:#ffffff
+  classDef orphan fill:#A0601A,stroke:#6B3F11,color:#ffffff
+  classDef ext    fill:#2B6280,stroke:#1C4054,color:#ffffff
+  class PA,CFW ext
+  class NA,NACFG,ORPH orphan
+  class AHRTR,DPDATA bypass
