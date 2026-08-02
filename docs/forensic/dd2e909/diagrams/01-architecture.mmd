@@ -1,0 +1,116 @@
+%% Diagram 1 — Current-state architecture at dd2e909
+%% Solid edge  = CONFIRMED-PRESENT code reference (import / script tag / URL)
+%% Dotted edge = test- or script-only reference (no runtime coupling)
+%% The absence of any edge from the Root Platform to the three satellite
+%% trees is this diagram's principal assertion (Phase 1 §4.1, negative search).
+
+graph TB
+
+  subgraph BROWSER["Browser — root platform origin"]
+    IDX["index.html<br/>61 lines"]
+    CSS["styles/index.css<br/>@layer entry"]
+    LOCAL["config/config.local.js<br/>git-ignored · onerror=void 0"]
+    FIGMA["shared/figma-uiux-runtime.js"]
+    WD["inline boot watchdog<br/>15s · index.html:26-59"]
+    BOOT["core/boot.js<br/>boot()"]
+
+    subgraph RT["Root runtime"]
+      ROUTER["core/router.js<br/>route guard:<br/>canCurrentUserAccess()"]
+      STATE["core/state.js<br/>18 collections → []<br/>users ← bootstrapUsers"]
+      AUTH["core/auth.js<br/>core/current-user.js"]
+      AA["core/action-authority.js<br/>executeOwnedAction()<br/>assertModuleAction() throws"]
+      DC["core/data-client.js<br/>resolveUrl() · request()"]
+      DL["core/deeplink-resolver.js"]
+      SHELL["shared/shell.js<br/>&lt;dgo-shell&gt;"]
+      MODS["modules/*.js<br/>25 lazy routes"]
+    end
+
+    subgraph CFG["config/ — 31 files, 0 orphans"]
+      RBAC["rbac.config.js<br/>6 importers"]
+      EP["endpoints.config.js<br/>8 importers"]
+      ACFG["auth.config.js<br/>4 importers"]
+      MB["module-boundaries.config.js"]
+      DLC["deeplink.config.js"]
+      OTHER["25 further config modules"]
+    end
+  end
+
+  subgraph SERVER["Server side"]
+    PROXY["proxy/src/<br/>server.js · handler.js<br/>jwt.js · authorize.js<br/>no package.json"]
+  end
+
+  PA[("Power Automate<br/>HTTP triggers<br/>SAS-signed URLs")]
+
+  subgraph SAT["Satellite trees — no root-runtime reference (CONFIRMED-ABSENT)"]
+    DP["document-portal/<br/>41 files · multi-page<br/>own ds/ · sw.js · manifest<br/>3 SAS sigs"]
+    AH["ECM_ActivityHub_Portal/<br/>53 files · own entry<br/>2 routers · services+pages"]
+    NA["newack/<br/>5 files · ORPHANED<br/>1 SAS sig"]
+  end
+
+  subgraph HARNESS["Test / script harness"]
+    CI["'.github/workflows/ci.yml'"]
+    CHKIMP["tests/check-imports.mjs"]
+    SMOKE["tests/smoke.spec.js"]
+    SECRETS["tests/check-secrets.mjs<br/>+ secrets-baseline.txt"]
+    ENC["tests/output-encoding.test.mjs"]
+    SETUP["scripts/setup-local.mjs"]
+    ZIP["ECM_DOCS_DEV.zip<br/>16.4 MB · 87% of bytes"]
+  end
+
+  IDX --> CSS
+  IDX --> LOCAL
+  IDX --> FIGMA
+  IDX --> BOOT
+  IDX --> WD
+  BOOT --> ROUTER
+  BOOT --> STATE
+  BOOT --> SHELL
+  BOOT --> DL
+  BOOT --> MODS
+  ROUTER --> AUTH
+  MODS --> AA
+  MODS --> DC
+  AA --> MB
+  AUTH --> RBAC
+  AUTH --> ACFG
+  DC --> EP
+  DC --> ACFG
+  DL --> DLC
+  LOCAL -.->|"window.DGO_CONFIG<br/>absent ⇒ all URLs = ''"| EP
+
+  DC -->|"if isAuthEnforced() &&<br/>proxyBaseUrl set"| PROXY
+  DC -->|"otherwise: signed URL direct"| PA
+  PROXY --> PA
+  PROXY -->|"imports<br/>authorize.js:10"| RBAC
+  PROXY -->|"imports<br/>config.js:21"| EP
+
+  DP -->|"PF.flow — direct,<br/>3 signed URLs"| PA
+  NA -->|"API_GET — direct,<br/>1 signed URL"| PA
+  AH -->|"js/api/client.js"| PA
+
+  CHKIMP -.->|"entry point"| BOOT
+  CHKIMP -.->|"entry point"| FIGMA
+  CHKIMP -.->|"entry point"| AH
+  SMOKE -.-> IDX
+  SMOKE -.-> AH
+  ENC -.->|"reads js/core.js<br/>as text"| DP
+  SECRETS -.->|"suppresses"| DP
+  SECRETS -.->|"suppresses — sole reference"| NA
+  SETUP -.->|"writes config.local.js"| LOCAL
+  SETUP -.->|"writes config.local.js"| AH
+  SETUP -.->|"prints URL only"| DP
+  SETUP -.->|"reads manifest via unzip"| ZIP
+  CI -.-> CHKIMP
+  CI -.-> SMOKE
+  CI -.-> SECRETS
+  CI -.-> ENC
+
+  classDef absent fill:#4a1420,stroke:#c8102e,stroke-width:2px,color:#fff
+  classDef server fill:#0d3b26,stroke:#17b255,stroke-width:2px,color:#fff
+  classDef ext fill:#3a2f0b,stroke:#b8860b,stroke-width:2px,color:#fff
+  classDef harness fill:#1c2733,stroke:#5b7a99,color:#fff
+
+  class DP,AH,NA absent
+  class PROXY server
+  class PA ext
+  class CI,CHKIMP,SMOKE,SECRETS,ENC,SETUP,ZIP harness
