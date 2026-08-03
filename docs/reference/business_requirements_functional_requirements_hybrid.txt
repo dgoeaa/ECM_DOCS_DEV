@@ -1,0 +1,404 @@
+.
+
+Business Requirements Document (BRD) / Functional Requirements Document (FRD) Hybrid
+
+Dependency-Free HTML Multi-Module Platform with Power Automate HTTP Flow Integration
+
+Document Type: BRD / FRD Hybrid
+Version: 1.0
+Status: Governance Draft
+Prepared For: Platform Build, Remediation, Change Execution, and Delivery
+Governance
+Prepared By: M365 Copilot
+Document Purpose: Delivery-controlled requirements baseline for implementation,
+remediation, validation, and acceptance
+
+1. Executive Summary
+
+This document defines the business, functional, and non-functional requirements
+for a dependency-free, production-ready, HTML-based, multi-file, multi-folder,
+multi-module platform that uses Power Automate HTTP-triggered flows as its sole
+integration mechanism.
+
+The target solution must be delivered as a fully built, fully provisioned, fully
+configured, fully interactive, complete, robust, valid, and operationally ready
+platform, with no external dependencies, no proxies, no intermediaries, no
+React, and no Vite.
+
+Although certain modules originated as single-file HTML-based SPAs, the target
+state is a centralized, unified platform architecture in which no module
+operates in isolation and no module independently manages resources, utilities,
+or endpoint configuration that should be centrally governed.
+
+This document is intended to function as both:
+
+  - a Business Requirements baseline (what the platform must achieve), and
+  - a Functional / Non-Functional Requirements baseline (how it must be
+    implemented and governed).
+
+2. Business Need
+
+The organization requires a platform that is:
+
+  - simpler to understand and maintain,
+  - free from unnecessary framework complexity,
+  - directly integrated with Power Automate HTTP-triggered flows,
+  - centrally structured,
+  - consistent across modules,
+  - fully operational in production,
+  - and not dependent on third-party frontend frameworks or intermediary
+    integration layers.
+
+The platform must consolidate previously separated or SPA-originated
+capabilities into a single integrated multi-module solution while preserving
+simplicity, centralization, and operational completeness.
+
+3. Objectives
+
+3.1 Primary Objectives
+
+1.  Deliver a live-production, HTML-based, dependency-free platform.
+2.  Implement the platform as a multi-file, multi-folder, multi-module solution.
+3.  Use Power Automate HTTP-triggered flows as the only integration mechanism.
+4.  Ensure the platform is fully built, configured, provisioned, interactive,
+    complete, and operationally ready.
+5.  Prevent architectural fragmentation by enforcing centralization of shared
+    resources, configuration, and endpoint management.
+6.  Preserve direct frontend flow integration until formal maturity is reached
+    for a future proxy layer.
+7.  Avoid the complexity of React and Vite.
+8.  Ensure remediation and change activities result in a complete
+    production-grade outcome, not partial or placeholder-based delivery.
+
+4. Scope
+
+4.1 In Scope
+
+  - HTML-based platform architecture
+  - Multi-file and multi-folder restructuring
+  - Multi-module integration
+  - Centralized endpoint configuration
+  - Direct integration with Power Automate HTTP-triggered flows
+  - Consolidation of SPA-originated modules into a unified architecture
+  - Remediation of incomplete, inconsistent, or decentralized implementation
+    patterns
+  - Delivery readiness, governance, and acceptance criteria
+  - Tracking of temporary security exceptions
+
+4.2 Out of Scope
+
+  - Introduction of React
+  - Introduction of Vite
+  - Introduction of proxy layers in the current phase
+  - Introduction of middleware or intermediary services
+  - Introduction of external dependencies or frontend frameworks
+  - Permanent retention of temporarily disabled OTP security
+
+5. Assumptions
+
+1.  Existing modules and features currently exist in varying forms, including
+    prior single-file HTML SPA implementations.
+2.  Power Automate HTTP-triggered flows already exist or will be provisioned for
+    required business integrations.
+3.  The current phase prioritizes direct frontend integration for speed of
+    development and testing.
+4.  OTP security is intentionally disabled during the current remediation/build
+    phase and will be revisited before final closure.
+5.  Centralization of shared logic, configuration, and endpoint management is
+    both technically feasible and required.
+
+6. Constraints
+
+1.  The platform must remain dependency-free.
+2.  The platform must not use React.
+3.  The platform must not use Vite.
+4.  The platform must not use proxies at this stage.
+5.  The platform must not use intermediaries at this stage.
+6.  All flow endpoint definitions must be centrally structured.
+7.  No module may define an isolated configuration pattern outside the
+    centralized model.
+8.  Delivery must not contain placeholders, samples, demos, or dummy artifacts
+    in required production areas.
+
+7. Business Requirements
+
+7.1 Business Requirements Register
+
+| ID     | Requirement                                                                                                                                    | Priority | Type                  |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------: | --------------------- |
+| BR-001 | The organization shall have a single unified platform rather than disconnected or isolated module implementations.                             | Critical | Business              |
+| BR-002 | The platform shall be production-ready and live-operational upon completion of remediation and change activities.                              | Critical | Business              |
+| BR-003 | The platform shall use Power Automate HTTP-triggered flows as the sole approved integration mechanism.                                         | Critical | Business              |
+| BR-004 | The platform shall avoid unnecessary framework/tooling complexity, including React and Vite.                                                   | High     | Business              |
+| BR-005 | The platform shall preserve a centralized architecture in which shared assets, configuration, and utilities are not duplicated across modules. | Critical | Business              |
+| BR-006 | The platform shall support development and testing through direct frontend flow integration until a future proxy layer is formally approved.   | High     | Business              |
+| BR-007 | The platform shall be fully interactive, complete, and free from placeholder/demo/sample states in required production functionality.          | Critical | Business              |
+| BR-008 | The platform shall consolidate functionality originating from single-file HTML SPAs into a structured multi-file, multi-module platform.       | High     | Business              |
+| BR-009 | The platform shall complete remediation and change delivery in full, with no partial or truncated implementation outcomes.                     | Critical | Business              |
+| BR-010 | The temporary disabled state of OTP security shall be formally tracked and remediated before platform closure.                                 | Critical | Business / Governance |
+
+8. Functional Requirements
+
+8.1 Functional Requirements Register
+
+A. Platform Architecture and Structure
+
+| ID     | Functional Requirement                                                                                         | Priority | Related BR     |
+| ------ | -------------------------------------------------------------------------------------------------------------- | -------: | -------------- |
+| FR-001 | The solution shall be implemented as a multi-file platform.                                                    | Critical | BR-001, BR-008 |
+| FR-002 | The solution shall be implemented as a multi-folder platform.                                                  | Critical | BR-001, BR-008 |
+| FR-003 | The solution shall be implemented as a multi-module platform.                                                  | Critical | BR-001, BR-008 |
+| FR-004 | The platform shall be primarily HTML-based.                                                                    | Critical | BR-002, BR-004 |
+| FR-005 | The platform shall support centralized shared resources instead of isolated per-module duplication.            | Critical | BR-005         |
+| FR-006 | Modules derived from prior single-file SPAs shall be refactored into the unified platform structure.           | High     | BR-008         |
+| FR-007 | No module shall function as an independently governed micro-frontend, isolated SPA, or self-serving subsystem. | Critical | BR-001, BR-005 |
+
+B. Dependency and Technology Control
+
+| ID     | Functional Requirement                                                                          | Priority | Related BR     |
+| ------ | ----------------------------------------------------------------------------------------------- | -------: | -------------- |
+| FR-008 | The platform shall operate without external runtime frontend dependencies.                      | Critical | BR-004         |
+| FR-009 | The platform shall not use React.                                                               | Critical | BR-004         |
+| FR-010 | The platform shall not use Vite.                                                                | Critical | BR-004         |
+| FR-011 | The platform shall not introduce proxy layers during the current implementation phase.          | Critical | BR-006         |
+| FR-012 | The platform shall not introduce intermediary services during the current implementation phase. | Critical | BR-003, BR-006 |
+
+C. Integration and Flow Management
+
+| ID     | Functional Requirement                                                                                          | Priority | Related BR     |
+| ------ | --------------------------------------------------------------------------------------------------------------- | -------: | -------------- |
+| FR-013 | The platform shall use Power Automate HTTP-triggered flows as its sole integration method.                      | Critical | BR-003         |
+| FR-014 | The frontend shall call approved HTTP-triggered flows directly.                                                 | Critical | BR-003, BR-006 |
+| FR-015 | Flow URLs shall remain embedded in the frontend during the current phase.                                       | Critical | BR-006         |
+| FR-016 | Embedded flow URLs shall be centrally managed within the frontend architecture.                                 | Critical | BR-005, BR-006 |
+| FR-017 | No module shall contain isolated endpoint configuration outside the centralized configuration model.            | Critical | BR-005         |
+| FR-018 | Embedded flow URLs shall be stored in a complete, valid, and structurally organized manner.                     | Critical | BR-006         |
+| FR-019 | The platform shall support later migration to a proxy layer only after formal maturity and governance approval. | Medium   | BR-006         |
+
+D. Centralization and Shared Governance
+
+| ID     | Functional Requirement                                                                                | Priority | Related BR |
+| ------ | ----------------------------------------------------------------------------------------------------- | -------: | ---------- |
+| FR-020 | Shared utilities shall be centralized wherever they are common across modules.                        | Critical | BR-005     |
+| FR-021 | Shared references shall be centralized wherever they are common across modules.                       | Critical | BR-005     |
+| FR-022 | Shared resource access patterns shall be standardized across modules.                                 | High     | BR-005     |
+| FR-023 | Configuration management shall follow a centralized provisioning model.                               | Critical | BR-005     |
+| FR-024 | No module shall duplicate centralized logic or configuration in a manner that fragments architecture. | Critical | BR-005     |
+
+E. Completion, Remediation, and Operability
+
+| ID     | Functional Requirement                                                                                                 | Priority | Related BR     |
+| ------ | ---------------------------------------------------------------------------------------------------------------------- | -------: | -------------- |
+| FR-025 | The final solution shall be delivered in a fully built state.                                                          | Critical | BR-002, BR-009 |
+| FR-026 | The final solution shall be delivered in a fully provisioned state.                                                    | Critical | BR-002, BR-009 |
+| FR-027 | The final solution shall be delivered in a fully configured state.                                                     | Critical | BR-002, BR-009 |
+| FR-028 | The final solution shall be complete and valid for production use.                                                     | Critical | BR-002, BR-009 |
+| FR-029 | The platform shall be fully interactive across all intended features and modules.                                      | Critical | BR-007         |
+| FR-030 | The remediation and change plan shall be implemented in full with no partial completion.                               | Critical | BR-009         |
+| FR-031 | No production-required area shall contain placeholders.                                                                | Critical | BR-007, BR-009 |
+| FR-032 | No production-required area shall contain sample content in place of final implementation.                             | Critical | BR-007, BR-009 |
+| FR-033 | No production-required area shall contain demo-only behavior in place of final implementation.                         | Critical | BR-007, BR-009 |
+| FR-034 | No production-required area shall contain dummy data or dummy artifacts where real implementation is required.         | Critical | BR-007, BR-009 |
+| FR-035 | No part of the remediation/change delivery shall be truncated, shortened, or omitted where implementation is required. | Critical | BR-009         |
+
+F. Temporary Security State Management
+
+| ID     | Functional Requirement                                                                                                      | Priority | Related BR |
+| ------ | --------------------------------------------------------------------------------------------------------------------------- | -------: | ---------- |
+| FR-036 | OTP security shall remain disabled during the current build/remediation phase as an explicitly tracked temporary exception. | Critical | BR-010     |
+| FR-037 | The disabled OTP state shall be documented in governance and remediation tracking artifacts.                                | Critical | BR-010     |
+| FR-038 | OTP security shall be reviewed and re-enabled as part of final security remediation closure criteria.                       | Critical | BR-010     |
+
+9. Non-Functional Requirements
+
+9.1 Non-Functional Requirements Register
+
+A. Architectural Quality
+
+| ID      | Non-Functional Requirement                                                                                  | Priority | Related BR     |
+| ------- | ----------------------------------------------------------------------------------------------------------- | -------: | -------------- |
+| NFR-001 | The platform architecture shall remain dependency-free.                                                     | Critical | BR-004         |
+| NFR-002 | The architecture shall remain simple and free of unnecessary framework complexity.                          | High     | BR-004         |
+| NFR-003 | The architecture shall promote cohesion across modules.                                                     | Critical | BR-001, BR-005 |
+| NFR-004 | The architecture shall support maintainability through structured multi-file and multi-folder organization. | High     | BR-008         |
+| NFR-005 | The platform shall preserve consistency in implementation patterns across modules.                          | Critical | BR-005         |
+
+B. Operational Readiness and Quality
+
+| ID      | Non-Functional Requirement                                                                                                 | Priority | Related BR |
+| ------- | -------------------------------------------------------------------------------------------------------------------------- | -------: | ---------- |
+| NFR-006 | The delivered platform shall be robust and operationally stable.                                                           | Critical | BR-002     |
+| NFR-007 | The delivered platform shall be valid for live operation.                                                                  | Critical | BR-002     |
+| NFR-008 | The delivered platform shall not exhibit dysfunctional or disruptive implementation artifacts.                             | Critical | BR-007     |
+| NFR-009 | The solution shall support complete operational readiness at handover.                                                     | Critical | BR-002     |
+| NFR-010 | The solution shall be super-efficient in its runtime and implementation approach, consistent with the chosen architecture. | High     | BR-002     |
+
+C. Configuration and Governance Quality
+
+| ID      | Non-Functional Requirement                                                                                     | Priority | Related BR     |
+| ------- | -------------------------------------------------------------------------------------------------------------- | -------: | -------------- |
+| NFR-011 | Endpoint configuration shall be centrally governable and auditable.                                            | Critical | BR-005, BR-006 |
+| NFR-012 | Shared configuration patterns shall be consistently structured across the platform.                            | Critical | BR-005         |
+| NFR-013 | The implementation shall support governance review of configuration centralization and duplication prevention. | High     | BR-005         |
+
+D. Security and Risk Governance
+
+| ID      | Non-Functional Requirement                                                                                                          | Priority | Related BR |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------: | ---------- |
+| NFR-014 | The temporary disabled state of OTP shall be treated as a controlled exception, not a permanent design standard.                    | Critical | BR-010     |
+| NFR-015 | Security exceptions shall be documented, tracked, and closed before final remediation sign-off.                                     | Critical | BR-010     |
+| NFR-016 | The current direct frontend flow integration model shall be recognized as a temporary design choice pending future maturity review. | High     | BR-006     |
+
+10. Business Rules
+
+| ID        | Business Rule                                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------------------------------- |
+| BRULE-001 | Power Automate HTTP-triggered flows are the only approved integration mechanism.                                  |
+| BRULE-002 | External dependencies are not permitted.                                                                          |
+| BRULE-003 | React and Vite are not permitted.                                                                                 |
+| BRULE-004 | Proxy and intermediary layers are not permitted in the current phase.                                             |
+| BRULE-005 | Flow URLs must remain embedded in the frontend until formal architectural maturity for proxy adoption is reached. |
+| BRULE-006 | Embedded flow URLs must be centrally managed; isolated endpoint definitions are not permitted.                    |
+| BRULE-007 | Modules must not operate as isolated systems.                                                                     |
+| BRULE-008 | Placeholder, sample, demo, and dummy artifacts are not acceptable in required production functionality.           |
+| BRULE-009 | OTP may remain disabled only as a temporary tracked exception pending final remediation closure.                  |
+
+11. Traceability Matrix
+
+11.1 BR to FR/NFR Traceability
+
+| Business Requirement | Mapped Functional / Non-Functional Requirements                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| BR-001               | FR-001, FR-002, FR-003, FR-007, NFR-003                                                            |
+| BR-002               | FR-025, FR-026, FR-027, FR-028, FR-029, NFR-006, NFR-007, NFR-009, NFR-010                         |
+| BR-003               | FR-013, FR-014, FR-012                                                                             |
+| BR-004               | FR-008, FR-009, FR-010, NFR-001, NFR-002                                                           |
+| BR-005               | FR-005, FR-016, FR-017, FR-020, FR-021, FR-022, FR-023, FR-024, NFR-005, NFR-011, NFR-012, NFR-013 |
+| BR-006               | FR-011, FR-014, FR-015, FR-016, FR-018, FR-019, NFR-016                                            |
+| BR-007               | FR-029, FR-031, FR-032, FR-033, FR-034, NFR-008                                                    |
+| BR-008               | FR-001, FR-002, FR-003, FR-006, NFR-004                                                            |
+| BR-009               | FR-025, FR-026, FR-027, FR-028, FR-030, FR-035                                                     |
+| BR-010               | FR-036, FR-037, FR-038, NFR-014, NFR-015                                                           |
+
+12. Acceptance Criteria
+
+12.1 Solution Acceptance Criteria
+
+The platform shall be considered acceptable only if all of the following
+conditions are met:
+
+| ID     | Acceptance Criterion                                                                              |
+| ------ | ------------------------------------------------------------------------------------------------- |
+| AC-001 | The platform is HTML-based and dependency-free.                                                   |
+| AC-002 | The platform is structured as a multi-file, multi-folder, multi-module solution.                  |
+| AC-003 | No React or Vite implementation exists anywhere in the platform.                                  |
+| AC-004 | No external dependency, intermediary, or proxy layer exists in the current delivery scope.        |
+| AC-005 | Power Automate HTTP-triggered flows are the sole integration mechanism.                           |
+| AC-006 | Flow URLs are embedded in the frontend and managed through a centralized structure.               |
+| AC-007 | No module contains an isolated endpoint configuration outside centralized provisioning.           |
+| AC-008 | No module operates in architectural isolation from the unified platform.                          |
+| AC-009 | Shared resources, utilities, references, and configurations are centralized where appropriate.    |
+| AC-010 | The platform is fully built, fully provisioned, and fully configured.                             |
+| AC-011 | The platform is fully interactive and operational.                                                |
+| AC-012 | No placeholders, sample data, demo logic, or dummy artifacts remain in production-required areas. |
+| AC-013 | Remediation and change delivery are complete and non-truncated.                                   |
+| AC-014 | OTP remains disabled only as a formally tracked temporary exception.                              |
+| AC-015 | OTP remediation closure criteria are included in final security closure planning.                 |
+
+13. Delivery Governance Controls
+
+13.1 Mandatory Governance Controls
+
+1.  Architecture Compliance Review must confirm:
+
+      - no external dependencies,
+      - no React or Vite,
+      - no current-stage proxies/intermediaries,
+      - no isolated module patterns.
+
+2.  Configuration Governance Review must confirm:
+
+      - centralized endpoint management,
+      - no isolated flow URL configuration,
+      - structured and valid embedded frontend URL management.
+
+3.  Remediation Completion Review must confirm:
+
+      - no placeholders,
+      - no sample/demo/dummy artifacts,
+      - no truncated implementation.
+
+4.  Security Exception Review must confirm:
+
+      - OTP-disabled state is documented,
+      - exception remains temporary,
+      - re-enablement is included in closure planning.
+
+14. Risks and Governance Notes
+
+14.1 Key Risks
+
+| ID    | Risk                                                                | Impact                                 | Mitigation                                                  |
+| ----- | ------------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------- |
+| R-001 | Modules remain partially isolated after migration from SPA origins. | Architectural fragmentation            | Enforce FR-007, FR-020 to FR-024 through design review      |
+| R-002 | Flow URLs become decentralized across modules.                      | Governance and maintainability failure | Enforce centralized endpoint control under FR-016 to FR-018 |
+| R-003 | Placeholder or demo content survives into production.               | Operational and reputational risk      | Validate against FR-031 to FR-035 and AC-012                |
+| R-004 | OTP remains disabled longer than intended.                          | Security risk                          | Govern via FR-036 to FR-038 and NFR-014 to NFR-015          |
+| R-005 | Teams introduce frameworks or tooling for convenience.              | Architectural non-compliance           | Enforce FR-008 to FR-012 and AC-003 / AC-004                |
+
+14.2 Governance Note
+
+The disabled OTP requirement is preserved as originally stated, but it must be
+treated as a temporary exception under formal governance and not as an
+uncontrolled permanent operating condition.
+
+15. Exit Criteria
+
+The delivery phase shall only close when:
+
+1.  All Critical BRs are satisfied.
+2.  All Critical FRs are implemented and validated.
+3.  All Critical NFRs are satisfied.
+4.  All acceptance criteria are met or approved under formal exception.
+5.  No prohibited technology or architectural pattern remains.
+6.  All temporary exceptions are logged, approved, and scheduled for closure.
+7.  The platform is confirmed operationally ready.
+
+16. Sign-Off Section
+
+| Role                  | Name | Decision | Date | Signature |
+| --------------------- | ---- | -------- | ---- | --------- |
+| Business Owner        |      |          |      |           |
+| Product Owner         |      |          |      |           |
+| Technical Lead        |      |          |      |           |
+| Architecture Reviewer |      |          |      |           |
+| Security Reviewer     |      |          |      |           |
+| Delivery Lead         |      |          |      |           |
+
+17. Final Summary Statement
+
+This requirements baseline mandates the delivery of a dependency-free,
+HTML-based, multi-file, multi-folder, multi-module platform that is:
+
+  - fully built,
+  - fully provisioned,
+  - fully configured,
+  - fully interactive,
+  - robust,
+  - valid,
+  - and operationally ready,
+
+while using Power Automate HTTP-triggered flows as the sole integration
+mechanism and explicitly excluding:
+
+  - external dependencies,
+  - React,
+  - Vite,
+  - proxies,
+  - and intermediaries.
+
+The platform must operate as a single centralized solution, not as a collection
+of isolated modules or SPA remnants. Embedded frontend flow URLs are an
+intentional current-state design decision and must remain centralized, valid,
+and well-structured. OTP security remains temporarily disabled only as a tracked
+and governed exception pending final remediation closure.
