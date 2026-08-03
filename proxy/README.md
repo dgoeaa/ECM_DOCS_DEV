@@ -68,14 +68,17 @@ Everything sensitive comes from the environment. Nothing is committed.
 | `DGO_INTAKE_REF_PREFIX` | | Default `NITDA` |
 | `DGO_UPLOAD_SECRET` | for uploads | ≥32 chars, signs upload tickets. **Absent ⇒ uploads are disabled, never unsigned** |
 | `DGO_ENDPOINT_INTAKE_UPLOAD` | | Document library destination for relayed attachment bytes |
+| `DGO_ENDPOINT_INTAKE_SUPPORT` | | Downstream for helpdesk cases. Absent ⇒ a case reference is still minted and `delivered:false` is returned |
+| `DGO_ENDPOINT_INTAKE_STATUS` | | Registry lookup for status read-back. **Absent ⇒ `/intake/status` answers `503`, never `404`** |
 
 Contract keys are the 19 in `config/endpoints.config.js`. `GET /healthz` reports which are configured and which are still missing.
 
 ## The anonymous intake route
 
-`POST /intake/submission` is **the only unauthenticated path through this proxy.** It exists
-because the document portal is a public channel: a citizen sending a letter to NITDA has no
-account and should not need one.
+`/intake/*` is **the only unauthenticated path through this proxy.** It exists because the
+document portal is a public channel: a citizen sending a letter to NITDA has no account and
+should not need one. Four routes: `POST /intake/submission`, `PUT /intake/upload`,
+`POST /intake/support` and `POST /intake/status`.
 
 Because it is unauthenticated it is deliberately narrow:
 
@@ -117,12 +120,46 @@ possible at all.
 constructed, no tickets are issued, and `PUT /intake/upload` answers `503`. Starting with
 unsigned tickets would be worse than starting without uploads.
 
+## Status read-back
+
+`POST /intake/status` takes `{ referenceId, email }` and returns the citizen-visible view of
+one record. It is the **first unauthenticated read** in this proxy, which weakened the
+create-only property intake started with, so three properties carry the weight:
+
+| Property | What it buys |
+|---|---|
+| **Uniform denial** | An unknown reference and a wrong email return a byte-identical `404` — same status, same body, no distinguishing field. Otherwise the route answers "does `NITDA-2026-000318` exist?" for anybody who asks. |
+| **Allow-listed projection** | Only the fields in `projectStatus` ever leave. The description, attachment list, assigned officer, handling unit and phone number are not among them. Built by allow-list so a field the registry adds later cannot leak through a forgotten blocklist entry. |
+| **Its own rate limit** | 10/min per source, separate from the submission budget, so a guessing run cannot hide inside the more generous allowance or deny service to a legitimate submitter. |
+
+Two further deliberate choices. It is a **POST** so the email does not land in an access log,
+a `Referer` header or browser history. And the proxy **re-checks the email itself** after the
+upstream answers — an upstream that ignores the parameter and matches on the reference alone
+would otherwise turn this into an unauthenticated read of any record, and that check is not
+delegated on the strength of an assumption about someone else's implementation.
+
+A timeline `note` is carried only when the upstream marks the entry `public: true`. Internal
+deliberation shares that timeline in most case systems, and the default for anything
+unmarked must be to withhold it.
+
+**What this does not solve.** References are sequential and therefore guessable, so the email
+is the only real secret in the pair — and it is one submitters routinely publish. Rate
+limiting is what makes online guessing impractical; it is not a substitute for an unguessable
+reference. The durable fix is a high-entropy lookup token minted at submission and sent in
+the acknowledgement email. Recorded as **F-030**, not assumed away.
+
+With `DGO_ENDPOINT_INTAKE_STATUS` unset the route answers **503**, never 404: a 404 would
+tell the submitter their request does not exist, which is a claim about the registry this
+proxy is in no position to make when the truth is that it has nowhere to ask.
+
 ### Three things that must change before scaling out
 
-Both are in-memory and therefore **per instance**:
+All three are in-memory and therefore **per instance**:
 
-1. **The rate limiter.** Behind N replicas the effective limit is N × 5/min. Move it to a
-   shared store or a front-door WAF rule.
+1. **The rate limiters.** Behind N replicas the effective limits are N × 5/min for
+   submissions and N × 10/min for status reads. Move them to a shared store or a front-door
+   WAF rule — the status limit in particular is the control standing between a guessable
+   reference and an enumeration run.
 2. **The reference minter.** Two instances will mint the same reference. Back it with a
    durable counter or the registry's own numbering.
 3. **The consumed-ticket set.** Single-use is enforced per instance, so behind N replicas a

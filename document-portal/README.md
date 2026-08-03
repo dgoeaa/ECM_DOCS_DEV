@@ -1,8 +1,9 @@
 # NITDA Intelligent Portal — deployable package
 
-A single, unified portal for document submission, status tracking, helpdesk support and
-registry operations. It merges the two source portals (`digitaldocs.page.gd` and
-`intelhub.page.gd`) into one product built on the **NITDA Design System v2.1**.
+The **external** intake channel for documents and correspondence addressed to NITDA:
+submission, status tracking and helpdesk support. It is not a service-request desk and it
+carries no staff-facing function — internal operations live in the root platform, which is
+the system of record. Built on the **NITDA Design System v2.1**.
 
 Static files only — no build step, no framework, no CDN dependency. Copy the folder to any
 web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Apps) and it runs.
@@ -11,11 +12,10 @@ web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Ap
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | Front door: live registry activity, service catalogue, lifecycle explainer, FAQ, first-visit welcome |
-| `submit.html` | Four-step guided submission: service → requester → document → review, with drag-and-drop attachments, autosaved draft and printable receipt |
-| `track.html` | Verified lookup (tracking ID + email), lifecycle stepper, working-day SLA meter, full timeline, respond / note / withdraw |
+| `index.html` | Front door: live registry activity, correspondence types, lifecycle explainer, FAQ, first-visit welcome |
+| `submit.html` | Four-step guided submission: correspondence type → sender → document → review, with drag-and-drop attachments, autosaved draft and printable receipt |
+| `track.html` | Verified lookup (tracking reference + email) read back from the registry, lifecycle stepper, acknowledgement meter, full timeline |
 | `support.html` | Helpdesk: searchable answers, contact channels, portal status, case desk with preview-and-confirm and instant case reference |
-| `admin.html` | Operations console: staff sign-in, KPIs, filterable queue, bulk triage, record drawer with decisions, support inbox, performance, audit trail, CSV export |
 | `404.html` | Not-found page in the portal shell |
 
 ## Supporting files
@@ -24,14 +24,12 @@ web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Ap
 ds/                 DGO Design System v2.1 (tokens, reset, base, layout, components, fonts, logos, icons)
 portal.css          Portal layer — every class namespaced .pf-*, consumes only --dgo-* tokens
 js/icons.js         46-symbol icon sprite, injected at runtime
-js/data.js          Service catalogue, status model, staff accounts, FAQ, seed records, workflow endpoints
+js/data.js          Correspondence taxonomy, status model, FAQ, seed records, proxy base URL
 js/core.js          Store, metrics, themes, toasts, dialogs, command palette, outbox, shell
 js/home.js          Home page behaviour
 js/submit.js        Submission wizard
 js/track.js         Tracking and citizen-side actions
 js/support.js       Helpdesk and case desk
-js/admin-panels.js  Console panels: support inbox, performance, audit, CSV
-js/admin.js         Console shell, queue, record drawer, decisions
 sw.js               Offline shell (cache-first assets, network-first navigations)
 manifest.webmanifest, favicon.svg, robots.txt, sitemap.xml
 ```
@@ -62,42 +60,50 @@ Leaving `proxyBaseUrl` empty puts the portal in **demo mode**: everything stays 
 nothing is transmitted. That is the safe failure for a public channel — it degrades to
 visibly doing nothing rather than quietly reaching an unintended host.
 
-**Status tracking is local for now.** The old tracking call was fire-and-forget — it never
-read a response, so every result shown already came from this browser's own store. Genuine
-read-back from the registry is step 6 of `docs/architecture/TARGET_ARCHITECTURE.md`.
+**Status tracking reads back from the registry.** `POST /intake/status` takes the tracking
+reference and the email it was submitted under. Unknown reference and wrong email return a
+byte-identical `404` — telling a caller which it was would answer "does this reference
+exist?" for anybody who asks — and the response is an allow-listed projection carrying
+status, dates and the public timeline, never the description, the attachments, the assigned
+officer or the handling unit.
 
-**Service catalogue** — `js/data.js` → `PF.SERVICES`: code, owning unit, working-day target and
-required documents per service. Adding an entry adds it to the submission form, the home
-catalogue, the command palette and the console filters automatically.
+When the registry cannot be reached the page falls back to the copy this browser saved at
+submission **and says so on the record**. Presenting device data as the registry's answer is
+the failure this replaced; an unreachable registry is also never reported as "not found",
+because it is not evidence the submission was never received.
 
-**Staff accounts** — `js/data.js` → `PF.STAFF`. Shipped demonstration accounts:
+Respond / add-a-note / withdraw still write only to `localStorage`, so they are offered on a
+device-sourced record only. A registry-sourced record routes the submitter to the helpdesk,
+which *is* delivered. Citizen write-back to the registry is a later step — a button that
+renders "Response sent" for something never sent is worse than no button.
 
-| Username | Password | Role | Scope |
-| --- | --- | --- | --- |
-| `admin` | `password` | Registry supervisor | Whole registry |
-| `reviewer` | `reviewer` | Reviewing officer | Standards, Guidelines & Regulation |
-| `compliance` | `compliance` | Compliance officer | Digital Economy & Compliance |
+**Correspondence taxonomy** — `js/data.js` → `PF.CORRESPONDENCE_TYPES`: eight public-facing
+types, each mapped to the internal registry category the operations platform already uses.
+Adding an entry adds it to the submission form, the home page and the command palette
+automatically. Confirm the `category` strings against the registry reference data before
+go-live.
 
-Sign-in also accepts the dotted form of the officer's name (`a.bello`). Replace this list with
-your identity provider before production use — the console is a client-side gate, and
-`robots.txt` excludes `admin.html` from indexing.
+**There are no staff accounts.** `PF.STAFF` held `admin`/`password`, `reviewer`/`reviewer`
+and `compliance`/`compliance` in this JavaScript file, served by an unauthenticated static
+site, and the console compared the typed password against it in the browser. The console and
+the credentials are both deleted — an external submission channel must not carry staff
+triage, and the internal platform already implements it with server-side identity. See
+`docs/forensic/dd2e909/findings.json` **F-029**.
 
 ## Data
 
-Records, support cases, the audit trail, the device history, the draft and the outbox live in
-`localStorage` under `nitda.portal.*`; the console session lives in `sessionStorage`. A fresh
-browser installs sixteen seed records and two support cases, dated relative to the day of
-first load, so a new deployment always looks current. *Reset data* in the console reinstalls
-the demonstration set.
+Demonstration records, the device history, the draft and the offline outbox live in
+`localStorage` under `nitda.portal.*`. A fresh browser installs sixteen seed records dated
+relative to the day of first load, so a new deployment always looks current.
 
-To connect a real back end, replace the five `PF.store` methods (`all`, `get`, `add`, `update`,
-`tickets`) with fetch calls; every page reads the registry only through them.
+With a proxy configured, the registry is authoritative: `PF.store` serves the demonstration
+set and the offline fallback, not the truth about a live submission.
 
 ## Built in
 
 - Three themes — light, dark, high contrast — persisted per browser.
-- Command palette on `Ctrl/⌘ K` or `/`: navigate, start any service, jump to your own requests.
-- Working-day arithmetic for every service-level target, with overdue detection.
+- Command palette on `Ctrl/⌘ K` or `/`: navigate, start any correspondence type, jump to your own requests.
+- Working-day arithmetic for the acknowledgement target, with overdue detection.
 - Print stylesheets: submission receipt, request record and support case print as clean A4
   documents with the endorsed NITDA logotype.
 - Offline shell via service worker; installable as a PWA with submit/track/support shortcuts.
@@ -108,19 +114,25 @@ To connect a real back end, replace the five `PF.store` methods (`all`, `get`, `
 
 ## Feature parity with the sources
 
-Every capability of both source portals is preserved: mobile navigation, theme toggle,
-first-visit welcome, submission form with file validation and confirm-before-send, tracking by
-ID with status history, support form with preview modal and workflow POST, admin sign-in with
-session persistence, dashboard statistics and the submissions table. Each was rebuilt on the
-design system and extended — guided multi-step submission, email-verified tracking, SLA
-meters, real case references, a working queue with bulk triage and decisions, performance
-analytics, an audit trail and CSV export.
+The external-facing capability of both source portals is preserved: mobile navigation, theme
+toggle, first-visit welcome, submission with file validation and confirm-before-send,
+tracking by reference with status history, and a helpdesk with preview modal and a real case
+reference. Each was rebuilt on the design system and extended — guided multi-step
+submission, email-verified tracking read back from the registry, acknowledgement meters and
+an offline outbox.
+
+**Deliberately not preserved:** the staff console. Queue triage, decisions, performance
+analytics, the audit trail and CSV export were browser-side functions over one device's
+`localStorage`, gated by a password held in a public file. They belong in the internal
+platform, which implements them against the system of record.
 
 ## Deployment checklist
 
 1. Copy the folder contents to the web root (or a subdirectory — all paths are relative).
 2. Serve over HTTPS; the service worker and clipboard both require a secure context.
 3. Set `Cache-Control: no-cache` on `sw.js`, long-lived caching on `ds/` and `js/`.
-4. Point `sitemap.xml` at the live host and confirm `robots.txt` still excludes `admin.html`.
-5. Confirm the three flow URLs are reachable from the browser origin (CORS must allow it),
-   or clear them to run the portal standalone.
+4. Point `sitemap.xml` at the live host.
+5. Set `proxyBaseUrl` in `config.local.js` and confirm the proxy allows this origin (CORS).
+   Leave it empty to run the portal standalone in demo mode.
+6. Bump `CACHE` in `sw.js` on every release — asset requests are cache-first, so a stale
+   entry survives a redeploy.

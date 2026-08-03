@@ -1,4 +1,4 @@
-/* NITDA Intelligent Portal — service catalogue, status model and seed records.
+/* NITDA Intelligent Portal — correspondence taxonomy, status model and seed records.
    Loaded before core.js. All dates are stored as day-offsets and materialised
    at install time so a freshly deployed instance always looks current. */
 window.PF = window.PF || {};
@@ -52,9 +52,6 @@ PF.STATUS = {
 PF.STAGES = ['Received', 'Validated', 'Under review', 'Decision'];
 
 /* ---------------------------------------------------------------
-   Service catalogue
-   --------------------------------------------------------------- */
-/* ---------------------------------------------------------------
    Correspondence taxonomy.
 
    This replaced PF.SERVICES, which modelled the portal as a service desk:
@@ -105,16 +102,22 @@ PF.CORRESPONDENCE_TYPES = [
 PF.ORG_TYPES = ['Ministry, Department or Agency', 'State Government', 'Private company', 'Non-governmental organisation', 'Academic institution', 'Individual / Sole proprietor', 'International organisation'];
 PF.STATES = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT — Abuja', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara'];
 
+/* Names used only to make the shipped demonstration records read plausibly. Nothing in the
+   portal assigns work — the registry does that on receipt, and a submission dispatched to
+   the proxy carries no officer at all. */
 PF.OFFICERS = ['A. Bello', 'C. Okonkwo', 'F. Danjuma', 'H. Yusuf', 'M. Adeyemi', 'T. Eze'];
-PF.UNITS = ['Registry & Correspondence', 'Standards, Guidelines & Regulation', 'Digital Economy & Compliance', 'Policy & Strategy', 'Corporate Planning & Partnerships'];
 
-/* Operations console accounts. Scope 'unit' opens the queue filtered to the
-   officer's own directorate; 'all' sees the whole registry. */
-PF.STAFF = [
-  { user: 'admin', pass: 'password', name: 'A. Bello', role: 'Registry supervisor', unit: 'Registry & Correspondence', scope: 'all' },
-  { user: 'reviewer', pass: 'reviewer', name: 'M. Adeyemi', role: 'Reviewing officer', unit: 'Standards, Guidelines & Regulation', scope: 'unit' },
-  { user: 'compliance', pass: 'compliance', name: 'C. Okonkwo', role: 'Compliance officer', unit: 'Digital Economy & Compliance', scope: 'unit' }
-];
+/* PF.STAFF is deleted, not moved.
+   It held three username/password pairs — admin/password, reviewer/reviewer,
+   compliance/compliance — in a JavaScript file served to the public internet by an
+   unauthenticated static site, and admin.js compared the typed password against them in
+   the browser. That is not a weak authentication control; it is the absence of one, and
+   the fix is not a stronger password.
+
+   The operations console it gated is retired with it. An external submission channel has
+   no business carrying staff triage: the internal platform already implements registry,
+   correspondence, dispatch and approvals, and enforces identity server-side.
+   See TARGET_ARCHITECTURE.md §3.4 and docs/forensic/dd2e909/findings.json F-029. */
 
 PF.CHANNELS = [
   { icon: 'mail', label: 'Helpdesk email', value: 'portal@nitda.gov.ng', href: 'mailto:portal@nitda.gov.ng', note: 'Quote your tracking ID in the subject line. Replies within one working day.' },
@@ -133,14 +136,14 @@ PF.SUPPORT_TOPICS = [
 ];
 
 PF.FAQ = [
-  { q: 'How long does a submission take?', a: 'Each service publishes its own service-level target, from 5 working days for general correspondence up to 30 working days for accreditation. The target for your request is shown on the tracking page together with the date it is due.' },
+  { q: 'How long does a submission take?', a: 'The registry acknowledges receipt within ' + PF.ACK_TARGET_DAYS + ' working days, and the acknowledgement carries your tracking ID. How long the substantive response takes depends on what was submitted and which directorate handles it — the portal does not promise a decision date it cannot keep. Every change is reported on your tracking timeline.' },
   { q: 'I have lost my tracking ID. What can I do?', a: 'Tracking IDs are emailed to the address used at submission and are also listed under “Recent activity on this device” on the tracking page. If neither is available, raise a support request with your name, organisation and the approximate submission date and the registry will locate the record.' },
   { q: 'Which file formats are accepted?', a: 'PDF, DOC, DOCX, XLS, XLSX, PNG and JPG. Individual files may not exceed 10 MB and a single submission may carry up to five attachments. Scanned documents should be legible at 200 dpi or better.' },
-  { q: 'My request says “Action required”. What happens next?', a: 'A reviewer has asked for extra information. The note on your tracking timeline explains exactly what is needed. Reply to the notification email with the requested document quoting your tracking ID; the clock on your service-level target pauses until you respond.' },
+  { q: 'My request says “Action required”. What happens next?', a: 'A reviewing officer has asked for extra information. The note on your tracking timeline explains what is needed. Reply to the notification email with the requested document, quoting your tracking ID. Nothing further happens on the file until you respond.' },
   { q: 'Is my data protected?', a: 'Submissions are processed under the Nigeria Data Protection Act. Files are transmitted over TLS, retained only for as long as the regulatory purpose requires, and access is limited to the assigned unit and the registry.' },
   { q: 'Can somebody else submit on my behalf?', a: 'Yes. Provide the organisation details of the entity the submission is for and use an official email address that is monitored — all correspondence, including the decision, goes to that address.' },
-  { q: 'Are there fees, and can I pay in the portal?', a: 'Where a service carries a prescribed fee it is paid into the agency’s designated revenue account through the Treasury Single Account. The portal does not take card payments; upload the evidence of payment as one of your attachments and the registry reconciles it during validation.' },
-  { q: 'Can a request be expedited?', a: 'Mark the submission as expedited on the document step and state the reason. The registry validates the justification, and expedited requests are triaged ahead of the standard queue — the published working-day target does not change, but the first review normally happens the same day.' },
+  { q: 'Are there fees, and can I pay in the portal?', a: 'Where a prescribed fee applies it is paid into the agency’s designated revenue account through the Treasury Single Account. The portal does not take card payments; upload the evidence of payment as one of your attachments and the registry reconciles it during validation.' },
+  { q: 'Can a request be expedited?', a: 'Mark the submission as expedited on the document step and state the reason. The registry validates the justification, and expedited correspondence is triaged ahead of the standard queue. It changes the order things are picked up in, not the acknowledgement target.' },
   { q: 'How do I correct something after submitting?', a: 'Open the request on the tracking page and add a note; it lands on the reviewing officer’s timeline immediately. If the document itself was wrong, withdraw the request and submit the corrected version so the registry keeps one clean record per decision.' }
 ];
 

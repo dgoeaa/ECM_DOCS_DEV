@@ -109,7 +109,14 @@ Today the portal is the system of record for its own submissions — approvals, 
 
 In target, the portal keeps **exactly one** local responsibility: an **offline outbox** for submissions that could not be delivered, retried on reconnect. Everything else — status, timeline, decisions — is **read back from the platform** by tracking reference. The portal becomes a client.
 
-The staff console (`admin.html`) has no place in an external portal. Triage, decisions and audit belong in the internal platform, where they are already implemented and where identity is enforced. **`admin.html` is retired, not fixed** — that also closes the hardcoded-credentials finding by deleting its reason to exist.
+The staff console (`admin.html`) has no place in an external portal. Triage, decisions and audit belong in the internal platform, where they are already implemented and where identity is enforced. **`admin.html` is retired, not fixed** — that also closes the hardcoded-credentials problem by deleting its reason to exist. Recorded as **F-029**, which the original 29 findings missed: the audit caught the service-worker consequence of the console (F-020) but never the three credentials themselves.
+
+**Implemented at step 6.** `admin.html`, `js/admin.js` and `js/admin-panels.js` are deleted; `PF.STAFF` and `PF.store.admin` are gone; every nav link, the command-palette entry, the `robots.txt` disallow and the service-worker precache entries went with them. `PF.intake.status()` reads a request back through `POST /intake/status`, and the tracking page states which source it is showing — a device-store fallback is labelled rather than passed off as the registry's answer.
+
+Two things are deliberately **not** done at step 6 and remain open:
+
+- **Citizen write-back.** Respond, add-a-note and withdraw still write only to `localStorage`. Rather than leave buttons that render "Response sent" for something never sent, they are offered only on a device-sourced record; a registry-sourced record routes the submitter to the helpdesk, which *is* delivered. A write-back route is a later step.
+- **Reference entropy.** See §3.8.
 
 ### 3.5 The submission contract
 
@@ -140,6 +147,33 @@ The staff console (`admin.html`) has no place in an external portal. Triage, dec
 
 **Deliberate properties.** No `userEmail` and no role — the caller is anonymous by design and identity is irrelevant to an external submission. `sha256` per attachment lets the proxy verify what arrived matches what was declared. The reference is minted **server-side**; a client-generated ID is not a registry reference.
 
+**The status contract** (step 6). The pair is the credential; there is no token and no session.
+
+```jsonc
+// POST {proxyBaseUrl}/intake/status           — anonymous, rate-limited 10/min per source
+{ "referenceId": "NITDA-2026-004182", "email": "sender@example.org" }
+
+// 200 OK — the ONLY fields that ever leave the proxy
+{
+  "ok": true,
+  "record": {
+    "referenceId": "…", "status": "review", "statusLabel": "Under review",
+    "category": "General Correspondence", "subject": "…",
+    "receivedAt": "…", "acknowledgedAt": "…", "updatedAt": "…", "closedAt": "",
+    "actionRequired": false,
+    "timeline": [ { "at": "…", "status": "received", "label": "…", "note": "" } ]
+  }
+}
+
+// 404 — unknown reference AND wrong email, byte-identical in both cases
+{ "ok": false, "error": "not_found" }
+// 503 — no read-back configured. NOT a 404: this proxy has nowhere to ask, which is not
+//       a statement that the submission does not exist.
+{ "ok": false, "error": "status_not_available" }
+```
+
+**POST, not GET** — the email must not land in an access log, a `Referer` header or browser history. **The projection is an allow-list**, so a field the registry adds later cannot leak by omission from a blocklist. A timeline `note` is carried only when the upstream marks the entry `public: true`; internal deliberation shares that timeline in most case systems and the default for anything unmarked must be to withhold it. The proxy **re-checks the email itself** rather than trusting the upstream to have honoured the parameter. See §3.8 for what this design does not solve.
+
 ### 3.6 What the proxy must add
 
 It already does token validation, role derivation, per-action authorization, identity stripping, idempotency and audit — correctly, with 66 passing assertions. Intake needs three additions:
@@ -157,6 +191,18 @@ It already does token validation, role derivation, per-action authorization, ide
 Target: **one vocabulary**, `config/rbac.config.js`, with the ActivityHub deriving `ROUTE_ROLES` from it. `DGCEO` and `COS` become *positions* mapped onto roles (`DGCEO → executive`, `COS → director`), not a parallel role system. Left as-is, activation silently locks three ActivityHub routes for every principal.
 
 ---
+
+### 3.8 What the status route does not solve
+
+The lookup pair is `referenceId` + `senderEmail`. References are sequential (`NITDA-<year>-<seq>`), so the reference is guessable and **the email is the only real secret** — one that submitters routinely publish. Three controls narrow the exposure and none of them fixes that:
+
+| Control | What it buys |
+|---|---|
+| Uniform denial | Unknown reference and wrong email return byte-identical responses, so the route is not an oracle for "does this reference exist?" |
+| Allow-listed projection | A successful guess yields status and dates. The description, attachments, assigned officer and handling unit are never in the response. |
+| Dedicated rate limit | 10/min per source, separate from the submission budget, which is what makes online guessing impractical. |
+
+The durable fix is a **high-entropy lookup token** minted at submission and sent in the acknowledgement email, used in place of — or alongside — the reference. That is owner-side work, recorded as **F-030** rather than assumed away.
 
 ## 4. Target request path
 
@@ -191,9 +237,10 @@ Each step is independently deployable and leaves the platform working.
 | ~~**3**~~ | ~~Build `/intake/*`~~ — **DONE**: `proxy/src/intake.js`, create-only, 5/min per address, server-minted references, 36 assertions | — | — | — |
 | ~~**4**~~ | ~~Upload brokering~~ — **DONE**: signed single-use tickets, byte verification, relayed through the proxy. Departs from §3.3 deliberately — see `proxy/README.md` | F-028 fully | — | — |
 | ~~**5**~~ | ~~Point the portal at the proxy~~ — **DONE**: `PF.ENDPOINTS` deleted, `PF.flow` replaced by `PF.intake`, portal holds no credential | **F-013**, **F-001** (portal) | — | — |
-| **6** | Portal reads status back; retire `admin.html` and `PF.STAFF` | **D-C2**, F-010 | ~3 days | step 5 |
+| ~~**6**~~ | ~~Portal reads status back; retire `admin.html` and `PF.STAFF`~~ — **DONE**: `/intake/status` with uniform denial and an allow-listed projection; console deleted with its three hardcoded credentials; three step-2 render defects fixed along the way | **D-C2**, **F-029**, F-010, F-020 | — | — |
 | **7** | Registry scan-intake workspace in the root platform | Channel C | ~1 week | step 4 |
 | **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
+| **10** | High-entropy lookup token issued at submission, replacing the guessable reference as the status credential | **F-030** | ~2 days | step 6 |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
 
 **Steps 1 and 2 are worth doing regardless of everything else** — step 1 stops losing citizens' documents today, and step 2 is the model correction you asked for. Neither depends on any infrastructure decision.

@@ -10,7 +10,7 @@
  * Run: node tests/hardening.test.mjs
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -146,7 +146,7 @@ console.log('\nF-013 / F-001 · document portal holds no credential');
   ok('an unconfigured proxy yields no URL rather than a default host',
      /if \(!base\) return ''/.test(core));
 
-  for (const f of ['submit.js', 'support.js', 'track.js', 'admin.js', 'home.js']) {
+  for (const f of ['submit.js', 'support.js', 'track.js', 'home.js']) {
     const src = read(`document-portal/js/${f}`);
     ok(`${f} makes no PF.flow call`, !/PF\.flow\(/.test(src));
     ok(`${f} carries no signed URL`, !/sig=[A-Za-z0-9_-]{20,}/.test(src));
@@ -165,6 +165,89 @@ console.log('\nF-013 / F-001 · document portal holds no credential');
   ok('the portal is no longer a baselined credential file',
      !baselineEntries.some(l => l.startsWith('document-portal')),
      `entries: ${baselineEntries.join(', ')}`);
+}
+
+/* ---------------------------------------------------------------- F-012
+   The external portal shipped a staff console gated by three username/password
+   pairs held in js/data.js and compared in the browser. It is retired, not
+   fixed — an external submission channel has no business carrying staff triage,
+   and the internal platform already enforces identity server-side. */
+console.log('\nF-012 · the staff console is retired, not merely hidden');
+{
+  const gone = ['document-portal/admin.html', 'document-portal/js/admin.js', 'document-portal/js/admin-panels.js'];
+  for (const f of gone) ok(`${f} is deleted`, !existsSync(path.join(ROOT, f)));
+
+  const data = read('document-portal/js/data.js');
+  ok('PF.STAFF is gone', !/PF\.STAFF\s*=/.test(data));
+  ok('no demo password literal survives', !/pass:\s*['"]/.test(data));
+  ok('the deletion is explained where the credentials used to be', /PF\.STAFF is deleted/.test(data));
+
+  const core = read('document-portal/js/core.js');
+  ok('PF.store.admin is gone', !/^\s*admin:\s*\{/m.test(core));
+  ok('the command palette no longer routes to the console', !/admin\.html/.test(core));
+  ok('a session left by the retired console is cleared on load',
+     /sessionStorage\.removeItem\('nitda\.portal\.admin'\)/.test(core));
+
+  const sw = read('document-portal/sw.js');
+  ok('the console files are out of the precache shell', !/admin/.test((sw.match(/const SHELL = \[([\s\S]*?)\];/) || [, ''])[1]),
+     'a deleted file left in SHELL fails addAll and takes the whole offline shell down');
+
+  for (const p of ['index.html', 'submit.html', 'track.html', 'support.html', '404.html']) {
+    ok(`${p} does not link to the console`, !/admin\.html/.test(read(`document-portal/${p}`)));
+  }
+}
+
+/* ---------------------------------------------------------------- D-C2
+   The tracking page reported whatever this browser's localStorage said. It
+   could not show a decision the registry had taken, and a submission made on
+   one device did not exist on another. */
+console.log('\nD-C2 · the portal reads status back from the registry');
+{
+  const core = read('document-portal/js/core.js');
+  ok('PF.intake.status exists', /status:\s*function\s*\(referenceId, email\)/.test(core));
+  ok('it targets the proxy status route', /\/intake\/status/.test(core));
+  ok('a 404 is treated as authoritative, not as a reason to fall back',
+     /r\.status === 404/.test(core));
+
+  const track = read('document-portal/js/track.js');
+  ok('the tracking page asks the registry first', /PF\.intake\.status\(/.test(track));
+  ok('a registry answer is rendered as such', /'registry'/.test(track));
+  ok('device data is labelled when it is used', /Shown from this device/.test(track));
+  ok('an unreachable registry is not reported as not-found',
+     /Status is unavailable right now/.test(track));
+
+  // The enumeration oracle: the old page told a caller that a reference existed but
+  // belonged to someone else. The proxy returns one uniform denial; the page must not
+  // put the distinction back.
+  ok('no separate wrong-email message remains',
+     !/does not match this request|registered to a different address/.test(track));
+
+  // The service-desk framing step 2 retired, which survived in this one block and read
+  // "Closed after 14 of 3 working days" on a closed record.
+  // Matched as it appears in the emitted markup, so the comment recording why it was
+  // changed does not itself trip the check.
+  ok('the acknowledgement block is not framed as a service-level target',
+     !/>Service-level target</.test(track));
+  ok('it reports acknowledgement of receipt instead', />Acknowledgement of receipt</.test(track));
+
+  // Public copy that outlived the model change: the FAQ promised per-service decision
+  // SLAs ("up to 30 working days for accreditation") the platform never enforced and no
+  // longer even claims to have.
+  const data = read('document-portal/js/data.js');
+  ok('the FAQ no longer promises a per-service decision SLA', !/service-level target/i.test(data));
+  ok('the FAQ states the acknowledgement commitment instead', /acknowledges receipt within/i.test(data));
+  ok('no page advertises published working-day targets',
+     !['index.html', 'submit.html', 'track.html', 'support.html']
+       .some(p => /working-day target/i.test(read(`document-portal/${p}`))));
+
+  // Fields renamed by step 2 that two render paths kept reading, interpolating
+  // "undefined" into the page with no error anywhere.
+  ok('the record view does not read the retired type fields',
+     !/\bs\.name\b|\bs\.code\b/.test(track));
+  ok('the home page reads label, not the retired name field',
+     !/\bs\.name\b/.test(read('document-portal/js/home.js')));
+  ok('metrics bucket on the field records actually carry',
+     /byType/.test(core) && !/byService/.test(read('document-portal/js/home.js')));
 }
 
 console.log(`\n${failed ? '❌' : '✅'} ${passed} passed, ${failed} failed\n`);

@@ -76,14 +76,17 @@ PF.page = function () {
     PF.$$('[data-count]').forEach(function (n) { io.observe(n); });
   } else PF.$$('[data-count]').forEach(countUp);
 
-  /* ---- service catalogue ---- */
+  /* ---- correspondence types ----
+     Step 2 renamed the model's fields (name/code/sla -> label/category) and this card
+     kept reading the old ones, so every title rendered empty and every card carried an
+     "undefined" handling unit. A correspondence type has no unit — the registry assigns
+     one on receipt — so that line is gone rather than sourced from somewhere else. */
   PF.$('#catalogue').innerHTML = PF.CORRESPONDENCE_TYPES.map(function (s) {
-    var count = m.byService[s.key] || 0;
-    return '<a class="pf-cat__i" href="submit.html?service=' + s.key + '" style="text-decoration:none;color:inherit">' +
+    var count = m.byType[s.key] || 0;
+    return '<a class="pf-cat__i" href="submit.html?type=' + encodeURIComponent(s.key) + '" style="text-decoration:none;color:inherit">' +
       '<span class="pf-cat__sla">' + PF.esc(s.category) + ' · acknowledged in ' + PF.ACK_TARGET_DAYS + ' working days</span>' +
-      '<span class="pf-cat__t">' + PF.esc(s.name) + '</span>' +
+      '<span class="pf-cat__t">' + PF.esc(s.label) + '</span>' +
       '<p class="pf-cat__b">' + PF.esc(s.blurb) + '</p>' +
-      '<span class="dgo-row" style="gap:8px;font-size:12px;color:var(--dgo-color-fg-subtle)"><svg class="icon-sm" aria-hidden="true"><use href="#i-building"></use></svg>' + PF.esc(s.unit) + '</span>' +
       (count ? '<span style="font-size:12px;color:var(--dgo-color-action-primary);font-weight:600">' + count + ' in the registry</span>' : '') +
       '</a>';
   }).join('');

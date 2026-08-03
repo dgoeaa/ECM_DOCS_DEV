@@ -16,7 +16,7 @@
       },
       {
         "path": "ECM_DOCS_DEV.zip",
-        "lines": "n/a \u2014 31 signatures across 18 of 837 members"
+        "lines": "n/a — 31 signatures across 18 of 837 members"
       }
     ],
     "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool. At step 5 the portal stopped holding its three signatures; the archive is now the only baselined file. All 31 still require rotation -- see docs/architecture/ROTATION_REGISTER.md.",
@@ -242,8 +242,9 @@
         "lines": "n/a"
       }
     ],
-    "impact": "A tree shaped for hosting, with a service worker and PWA manifest, that nothing in the repository loads or verifies.",
-    "remediation": "Add the five pages to the smoke suite."
+    "impact": "A tree shaped for hosting, with a service worker and PWA manifest, that nothing in the repository loads or verifies. CLOSED: tests/portal.spec.js covers every page plus the correspondence model, the status read-back resolutions and the console retirement.",
+    "remediation": "Add the five pages to the smoke suite.",
+    "outcome": "fixed"
   },
   {
     "id": "F-014",
@@ -306,8 +307,9 @@
         "lines": "31-49"
       }
     ],
-    "impact": "Credentials persist durably in Cache Storage after the tab closes, the operations console works offline, and rotating the signatures will strand returning visitors on dead endpoints until the CACHE constant is bumped.",
-    "remediation": "Remove js/data.js and admin.html from SHELL, and bump CACHE as part of any rotation."
+    "impact": "Credentials persist durably in Cache Storage after the tab closes, the operations console works offline, and rotating the signatures will strand returning visitors on dead endpoints until the CACHE constant is bumped. CLOSED at step 6: admin.html no longer exists to precache, and the console files were removed from SHELL -- a deleted entry would have failed addAll and taken the whole offline shell down.",
+    "remediation": "Remove js/data.js and admin.html from SHELL, and bump CACHE as part of any rotation.",
+    "outcome": "fixed"
   },
   {
     "id": "F-021",
@@ -342,7 +344,7 @@
     "files": [
       {
         "path": "document-portal/ds/tokens/tokens.theme-dark.css",
-        "lines": "n/a \u2014 3,096 vs 4,237 bytes"
+        "lines": "n/a — 3,096 vs 4,237 bytes"
       }
     ],
     "impact": "The portal's dark and high-contrast themes are materially less complete than the root platform's.",
@@ -490,7 +492,7 @@
       },
       {
         "path": "config/rbac.config.js",
-        "lines": "n/a \u2014 systemAdmin/userAdmin/executive/director/operator/viewer"
+        "lines": "n/a — systemAdmin/userAdmin/executive/director/operator/viewer"
       },
       {
         "path": "proxy/src/authorize.js",
@@ -533,5 +535,51 @@
     ],
     "impact": "The shipped development identity carries a role name no guard in either application recognises; inert-only, so the effect is cosmetic.",
     "remediation": "Emit a role drawn from the vocabulary the portal actually guards on."
+  },
+  {
+    "id": "F-029",
+    "title": "The external portal shipped a staff console gated by three hardcoded credentials in a public JavaScript file",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [
+      {
+        "path": "document-portal/js/data.js",
+        "lines": "113-117 (pre-step-6)"
+      },
+      {
+        "path": "document-portal/js/admin.js",
+        "lines": "53 (pre-step-6)"
+      },
+      {
+        "path": "document-portal/admin.html",
+        "lines": "n/a (pre-step-6)"
+      }
+    ],
+    "impact": "PF.STAFF held admin/password, reviewer/reviewer and compliance/compliance in an asset served by an unauthenticated static site, and admin.js compared the typed password against it in the browser. Anyone who opened the page source obtained a working sign-in to a console offering triage, assignment, decisions, a support-case inbox and the audit trail over every record in the store. robots.txt disallowed the page, which is a crawler hint and not an access control.",
+    "remediation": "Retire the console rather than strengthen the gate: an external submission channel must not carry staff triage, and the internal platform already implements it with server-side identity.",
+    "outcome": "fixed",
+    "note": "NOT RECORDED IN THE ORIGINAL 29. The audit found the service-worker consequence of the console (F-020) but never recorded the credentials themselves. Added at step 6 when the console was deleted. Closed by commit on branch claude/quirky-babbage-1nomt5: admin.html, js/admin.js, js/admin-panels.js deleted; PF.STAFF and PF.store.admin removed; nav links, command-palette entry, robots.txt disallow and precache entries removed; a session left in sessionStorage by the retired console is cleared on load. Asserted in tests/hardening.test.mjs and tests/portal.spec.js."
+  },
+  {
+    "id": "F-030",
+    "title": "Status read-back is guarded by a guessable reference plus an email that submitters routinely publish",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "proxy",
+    "files": [
+      {
+        "path": "proxy/src/intake.js",
+        "lines": "createReferenceMinter / validateStatusQuery"
+      },
+      {
+        "path": "docs/architecture/TARGET_ARCHITECTURE.md",
+        "lines": "3.8"
+      }
+    ],
+    "impact": "References are minted as NITDA-<year>-<zero-padded sequence> and are therefore guessable. The lookup pair for POST /intake/status is that reference plus the sender's email, so the email is the only unpredictable half — and it is a value organisations publish. An attacker who knows a correspondent's address can iterate the sequence. Three controls bound the damage rather than remove it: denials are byte-identical so the route is not an existence oracle, the response is an allow-listed projection carrying no description, attachment, officer or unit, and status reads have a dedicated 10/min per-source budget that makes online iteration impractical.",
+    "remediation": "Mint a high-entropy lookup token at submission, return it in the acknowledgement email, and accept it in place of or alongside the reference. Rate limiting is what currently makes guessing impractical; it is not a substitute for an unguessable credential.",
+    "outcome": "skipped",
+    "note": "Introduced by step 6, recorded at step 6 rather than discovered later. Deliberately not fixed in the same change: the token must be issued at submission and delivered by the acknowledgement email, which is owner-side work on the Power Automate side. Tracked as roadmap step 10."
   }
 ]

@@ -5,13 +5,17 @@
    Asset requests below are cache-first, so a stale entry survives a redeploy: rotating a
    signature without bumping this constant leaves returning visitors pinned to an endpoint
    that no longer exists. */
-const CACHE = 'nitda-portal-v4';
+const CACHE = 'nitda-portal-v5';
 
-/* js/data.js is deliberately NOT precached — it carries the workflow endpoints, and
-   precaching wrote them durably into Cache Storage where they outlived the tab.
-   admin.html is deliberately NOT precached either: it is the staff console, robots.txt
-   excludes it, and there is no reason to make it available offline. Both are still fetched
-   normally on demand; they are simply not persisted by the install step. */
+/* js/data.js is deliberately NOT precached. It once carried the signed workflow endpoints
+   and precaching wrote them durably into Cache Storage, where they outlived the tab. Step 5
+   removed the endpoints from it, but keeping it out of the install shell is still right: it
+   is the file most likely to change with registry reference data, and a cache-first copy of
+   a stale correspondence taxonomy is the wrong thing to serve offline.
+
+   admin.html, js/admin.js and js/admin-panels.js are gone entirely — the staff console was
+   retired in step 6 (TARGET_ARCHITECTURE.md §3.4). Leaving them listed here would make
+   install() fail on the addAll, taking the whole offline shell down with it. */
 const SHELL = [
   './', './index.html', './submit.html', './track.html', './support.html', './404.html',
   './portal.css', './favicon.svg', './manifest.webmanifest',
@@ -25,7 +29,7 @@ const SHELL = [
   './ds/fonts/CascadiaMono-Regular.woff2',
   './ds/logo/nitda-symbol.png', './ds/logo/nitda-lockup.png', './ds/logo/nitda-lockup-white.png',
   './js/icons.js', './js/core.js', './js/home.js',
-  './js/submit.js', './js/track.js', './js/support.js', './js/admin-panels.js', './js/admin.js'
+  './js/submit.js', './js/track.js', './js/support.js'
 ];
 
 self.addEventListener('install', (e) => {

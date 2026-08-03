@@ -52,6 +52,11 @@ export function loadConfig(source = process.env) {
   const supportEndpoint = get('DGO_ENDPOINT_INTAKE_SUPPORT');
   if (supportEndpoint) endpoints.INTAKE_SUPPORT = supportEndpoint;
 
+  // Status read-back. Absent, /intake/status answers 503 rather than denying — see the
+  // §status read-back note in intake.js for why a 404 there would be a false statement.
+  const statusEndpoint = get('DGO_ENDPOINT_INTAKE_STATUS');
+  if (statusEndpoint) endpoints.INTAKE_STATUS = statusEndpoint;
+
   return {
     tenantId,
     issuer: get('DGO_ISSUER') || (tenantId ? `https://login.microsoftonline.com/${tenantId}/v2.0` : ''),

@@ -88,56 +88,116 @@ PF.page = function () {
       '<span class="dgo-skeleton" style="height:14px;width:80%"></span>' +
       '<span class="dgo-skeleton" style="height:14px;width:65%"></span></div></div>';
 
-    setTimeout(function () {
+    /* Ask the registry first. Until step 6 this function read localStorage and nothing
+       else, so it could not report a decision the registry had actually taken and a
+       submission made on a phone did not exist on a laptop. The device store is now a
+       fallback, and when it is used the page says so — presenting device data as though it
+       came from the registry is the failure this replaces. */
+    PF.intake.status(id, email).then(function (res) {
       btn.removeAttribute('data-loading'); btn.disabled = false;
-      var rec = PF.store.get(id);
       PF.store.log('lookup', id, 'Status lookup for ' + id);
-      /* The tracking flow used to be called here. It did nothing: PF.flow only ever read
-         r.ok, never a response body, so a lookup was fire-and-forget and every result
-         shown came from this browser's own store. Removing the call loses no behaviour and
-         removes one signed credential. Genuine read-back from the registry is step 6 of
-         docs/architecture/TARGET_ARCHITECTURE.md. */
-      if (!rec) return notFound(id);
-      if (rec.email.toLowerCase() !== email.toLowerCase()) return mismatch(id);
-      history.replaceState(null, '', location.pathname + '?id=' + encodeURIComponent(id) + '&email=' + encodeURIComponent(email));
-      render(rec);
-    }, 700);
+
+      if (res.resolution === 'found') {
+        keepUrl(id, email);
+        return render(fromRegistry(res.record, id), 'registry');
+      }
+      if (res.resolution === 'denied') return denied(id);
+
+      // Unavailable: no read-back configured, offline, or the registry could not be
+      // reached. That is not a statement that the request does not exist, so it must not
+      // be reported as one.
+      var rec = PF.store.get(id);
+      if (!rec || String(rec.email || '').toLowerCase() !== email.toLowerCase()) {
+        return unavailable(id, res.reason);
+      }
+      keepUrl(id, email);
+      render(rec, 'device');
+    });
   }
 
-  function notFound(id) {
+  function keepUrl(id, email) {
+    history.replaceState(null, '', location.pathname + '?id=' + encodeURIComponent(id) + '&email=' + encodeURIComponent(email));
+  }
+
+  /* One denial for both cases. The registry deliberately does not distinguish "no such
+     reference" from "wrong email" — telling an anonymous caller which it was answers
+     "does NITDA-2026-000318 exist?" for anybody who asks. Saying it differently here
+     would put that oracle straight back. */
+  function denied(id) {
     out.innerHTML = '<div class="dgo-alert dgo-alert--danger"><span class="dgo-alert__icon"><svg class="icon" aria-hidden="true"><use href="#i-alert"></use></svg></span>' +
-      '<div class="dgo-alert__body"><div class="dgo-alert__title">No request found for ' + PF.esc(id) + '</div>' +
-      '<p style="margin:0 0 10px">Check for transposed characters — tracking IDs are nine characters after the NITDA prefix and never contain the letters I or O.</p>' +
+      '<div class="dgo-alert__body"><div class="dgo-alert__title">No request matches that tracking ID and email</div>' +
+      '<p style="margin:0 0 10px">Both must match the request exactly. Check for transposed characters in the ID, and use the email address the confirmation was sent to — not a colleague’s.</p>' +
       '<a class="dgo-btn dgo-btn--secondary dgo-btn--sm" href="support.html">Ask the helpdesk to find it</a></div></div>';
-    PF.toast('error', 'Request not found', 'Nothing in the registry matches ' + id + '.');
+    PF.toast('error', 'No match', 'Nothing matches that tracking ID and email together.');
   }
 
-  function mismatch(id) {
-    out.innerHTML = '<div class="dgo-alert dgo-alert--warning"><span class="dgo-alert__icon"><svg class="icon" aria-hidden="true"><use href="#i-lock"></use></svg></span>' +
-      '<div class="dgo-alert__body"><div class="dgo-alert__title">That email does not match this request</div>' +
-      '<p style="margin:0 0 10px">' + PF.esc(id) + ' exists, but it is registered to a different address. Use the address the confirmation was sent to, or ask the helpdesk to re-issue access.</p>' +
+  function unavailable(id, reason) {
+    var why = reason === 'offline'
+      ? 'This device is offline, so the registry could not be reached.'
+      : reason === 'rate-limited'
+        ? 'Too many lookups from this connection in a short time. Wait a minute and try again.'
+        : 'The registry could not be reached just now.';
+    out.innerHTML = '<div class="dgo-alert dgo-alert--warning"><span class="dgo-alert__icon"><svg class="icon" aria-hidden="true"><use href="#i-warning"></use></svg></span>' +
+      '<div class="dgo-alert__body"><div class="dgo-alert__title">Status is unavailable right now</div>' +
+      '<p style="margin:0 0 10px">' + why + ' This does <strong>not</strong> mean ' + PF.esc(id) + ' was not received — it means the status could not be read. Try again shortly.</p>' +
       '<a class="dgo-btn dgo-btn--secondary dgo-btn--sm" href="support.html">Contact the helpdesk</a></div></div>';
-    PF.toast('warning', 'Verification failed', 'The email does not match the record.');
+    PF.toast('warning', 'Status unavailable', 'The registry could not be reached.');
   }
 
   /* ---------- record view ---------- */
   function stageOf(rec) { return PF.status(rec.status).stage; }
 
-  function slaBlock(rec) {
+  /* Map the registry's projected view onto the shape this page renders.
+     The projection is deliberately narrow — no officer, no handling unit, no attachment
+     list, no description — so the fields it does not carry are left undefined and the
+     renderer omits their rows rather than printing empty ones. */
+  function fromRegistry(p, id) {
+    p = p || {};
+    var tl = (p.timeline || []).map(function (e) {
+      return { at: e.at, status: e.status, label: e.label || '', note: e.note || '', actor: 'Registry' };
+    });
+    return {
+      id: p.referenceId || id,
+      status: p.status || 'received',
+      statusLabel: p.statusLabel || '',
+      category: p.category || '',
+      title: p.subject || '',
+      submittedAt: p.receivedAt || '',
+      acknowledgedAt: p.acknowledgedAt || '',
+      updatedAt: p.updatedAt || p.receivedAt || '',
+      closedAt: p.closedAt || '',
+      actionRequired: p.actionRequired === true,
+      events: tl
+    };
+  }
+
+  /* Acknowledgement of receipt, NOT a decision deadline.
+     This block used to be titled "Service-level target" and measured elapsed days against
+     a per-service SLA — the service-desk model step 2 retired. On a closed record it read
+     "Closed after 14 of 3 working days", which is meaningless: the 3 days are the window
+     to acknowledge receipt, and the outcome follows its own workflow. It now reports the
+     one commitment the registry actually makes. */
+  function ackBlock(rec) {
     var total = PF.ACK_TARGET_DAYS;
-    var used = 0, d = new Date(rec.submittedAt), end = PF.isOpen(rec) ? new Date() : new Date(rec.updatedAt);
+    if (!rec.submittedAt) return '';
+    var ackAt = rec.acknowledgedAt || (rec.events.length ? rec.events[0].at : '');
+    var used = 0, d = new Date(rec.submittedAt), end = new Date(ackAt || Date.now());
     while (d < end) { d.setDate(d.getDate() + 1); var w = d.getDay(); if (w !== 0 && w !== 6) used++; }
+
     var pct = Math.min(100, Math.round((used / total) * 100));
-    var over = used > total;
-    var label;
-    if (!PF.isOpen(rec)) label = 'Closed after ' + used + ' of ' + total + ' working days';
-    else if (over) label = 'Overdue by ' + (used - total) + (used - total === 1 ? ' working day' : ' working days');
+    var over = used > total, label;
+    if (ackAt) label = 'Acknowledged ' + (used <= total ? 'within' : 'after') + ' ' + used + (used === 1 ? ' working day' : ' working days');
+    else if (over) label = 'Acknowledgement overdue by ' + (used - total) + (used - total === 1 ? ' working day' : ' working days');
     else label = (total - used) + (total - used === 1 ? ' working day left' : ' working days left') + ' of ' + total;
+
+    var late = over && !ackAt;
     return '<div class="dgo-stack dgo-stack--2">' +
-      '<div class="dgo-row dgo-row--between" style="font-size:12.5px"><span style="color:var(--dgo-color-fg-muted)">Service-level target</span>' +
-      '<span style="font-weight:600;color:' + (over && PF.isOpen(rec) ? 'var(--dgo-color-danger-subtle-fg)' : 'var(--dgo-color-fg-strong)') + '">' + label + '</span></div>' +
-      '<div class="pf-meter" data-over="' + (over && PF.isOpen(rec)) + '"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="dgo-row dgo-row--between" style="font-size:11.5px;color:var(--dgo-color-fg-subtle)"><span>Received ' + PF.date(rec.submittedAt) + '</span><span>Acknowledgement by ' + PF.date(rec.ackDueAt) + '</span></div>' +
+      '<div class="dgo-row dgo-row--between" style="font-size:12.5px"><span style="color:var(--dgo-color-fg-muted)">Acknowledgement of receipt</span>' +
+      '<span style="font-weight:600;color:' + (late ? 'var(--dgo-color-danger-subtle-fg)' : 'var(--dgo-color-fg-strong)') + '">' + label + '</span></div>' +
+      '<div class="pf-meter" data-over="' + late + '"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="dgo-row dgo-row--between" style="font-size:11.5px;color:var(--dgo-color-fg-subtle)"><span>Received ' + PF.date(rec.submittedAt) + '</span>' +
+      '<span>' + (ackAt ? 'Acknowledged ' + PF.date(ackAt) : 'Target ' + PF.date(rec.ackDueAt || PF.addWorkingDays(rec.submittedAt, total))) + '</span></div>' +
+      '<p class="pf-note" style="margin:0">The registry commits to acknowledging receipt. The outcome follows its own workflow and is reported on this timeline.</p>' +
       '</div>';
   }
 
@@ -152,8 +212,29 @@ PF.page = function () {
     }).join('') + '</ol></div>';
   }
 
-  function render(rec) {
-    var s = PF.correspondenceType(rec.type), st = PF.status(rec.status);
+  /* A row is emitted only when there is something to put in it. The registry projection
+     carries fewer fields than a device record, and a blank <dd> — or worse, the literal
+     string "undefined" — is not an acceptable way to render an absent one. */
+  function row(label, value) {
+    return value ? '<dt>' + label + '</dt><dd>' + value + '</dd>' : '';
+  }
+
+  function sourceNote(source) {
+    if (source === 'registry') {
+      return '<p class="pf-note" style="margin:0">Read from the NITDA registry just now.</p>';
+    }
+    // Device data is shown only when the registry could not be reached, and it must be
+    // labelled. The whole point of step 6 is that this page stops passing off one browser's
+    // localStorage as the registry's answer.
+    return '<div class="dgo-alert dgo-alert--warning" style="margin:0"><span class="dgo-alert__icon"><svg class="icon-sm" aria-hidden="true"><use href="#i-warning"></use></svg></span>' +
+      '<div class="dgo-alert__body"><div class="dgo-alert__title">Shown from this device</div>' +
+      '<p style="margin:0">The registry could not be reached, so this is the copy saved in this browser when the request was submitted. It will not show anything the registry has done since.</p></div></div>';
+  }
+
+  function render(rec, source) {
+    source = source || 'device';
+    var st = PF.status(rec.status);
+    var typeLabel = rec.typeLabel || (rec.type ? PF.correspondenceType(rec.type).label : '');
     var events = rec.events.slice().reverse();
     out.innerHTML =
       '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Request record ' + rec.id + ' · printed ' + PF.dateTime(new Date().toISOString()) + '</p></div>' +
@@ -170,19 +251,20 @@ PF.page = function () {
           '</div>' +
           '<div class="pf-panel__body dgo-stack dgo-stack--5">' +
             '<div class="dgo-stack dgo-stack--2"><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:22px;line-height:1.2;letter-spacing:-.012em">' + PF.esc(rec.title) + '</h2>' +
-            '<p class="pf-note">' + PF.esc(st.blurb) + '</p></div>' +
+            '<p class="pf-note">' + PF.esc(rec.statusLabel || st.blurb) + '</p></div>' +
             stageBar(rec) +
-            slaBlock(rec) +
+            ackBlock(rec) +
+            sourceNote(source) +
             '<dl class="pf-kv">' +
-              '<dt>Service</dt><dd>' + PF.esc(s.name) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + s.code + ')</span></dd>' +
-              '<dt>Handling unit</dt><dd>' + PF.esc(rec.unit) + '</dd>' +
-              '<dt>Reviewing officer</dt><dd>' + PF.esc(rec.officer) + '</dd>' +
-              '<dt>Submitted by</dt><dd>' + PF.esc(rec.name) + ' · ' + PF.esc(rec.org) + '</dd>' +
-              '<dt>Received</dt><dd>' + PF.dateTime(rec.submittedAt) + ' · ' + PF.rel(rec.submittedAt) + '</dd>' +
-              '<dt>Last update</dt><dd>' + PF.dateTime(rec.updatedAt) + ' · ' + PF.rel(rec.updatedAt) + '</dd>' +
-              '<dt>Attachments</dt><dd>' + rec.files.map(function (f) { return PF.esc(f.name) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">' + PF.bytes(f.size) + '</span>'; }).join('<br>') + '</dd>' +
+              row('Correspondence type', PF.esc(typeLabel)) +
+              row('Registry category', PF.esc(rec.category)) +
+              row('Handling unit', PF.esc(rec.unit)) +
+              row('Submitted by', rec.name ? PF.esc(rec.name) + (rec.org ? ' · ' + PF.esc(rec.org) : '') : '') +
+              row('Received', rec.submittedAt ? PF.dateTime(rec.submittedAt) + ' · ' + PF.rel(rec.submittedAt) : '') +
+              row('Last update', rec.updatedAt ? PF.dateTime(rec.updatedAt) + ' · ' + PF.rel(rec.updatedAt) : '') +
+              row('Attachments', (rec.files || []).map(function (f) { return PF.esc(f.name) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">' + PF.bytes(f.size) + '</span>'; }).join('<br>')) +
             '</dl>' +
-            actions(rec) +
+            actions(rec, source) +
           '</div>' +
         '</div>' +
         '<div class="pf-panel">' +
@@ -203,12 +285,22 @@ PF.page = function () {
     PF.toast('success', 'Request located', rec.id + ' · ' + st.label);
   }
 
-  function actions(rec) {
+  /* Respond / note / withdraw write to this browser's store and nothing else — there is no
+     write-back route to the registry yet. On a registry-sourced record they would render a
+     "Response sent" toast for something that was never sent, so they are not offered there.
+     The helpdesk route IS delivered (POST /intake/support), so it is what a submitter
+     looking at a real record is given. Citizen write-back to the registry is a later step;
+     offering a button that quietly does nothing is worse than not offering one. */
+  function actions(rec, source) {
     var btns = [];
-    if (rec.status === 'action-required') btns.push('<button class="dgo-btn dgo-btn--primary" id="respondBtn"><svg class="icon-sm" aria-hidden="true"><use href="#i-send"></use></svg>Respond to the request</button>');
-    if (PF.isOpen(rec)) btns.push('<button class="dgo-btn dgo-btn--secondary" id="noteBtn"><svg class="icon-sm" aria-hidden="true"><use href="#i-chat"></use></svg>Add a note</button>');
-    if (PF.isOpen(rec)) btns.push('<button class="dgo-btn dgo-btn--ghost" id="withdrawBtn" style="color:var(--dgo-color-action-danger)">Withdraw request</button>');
-    btns.push('<a class="dgo-btn dgo-btn--ghost" href="support.html">Contact the helpdesk</a>');
+    if (source === 'device') {
+      if (rec.status === 'action-required') btns.push('<button class="dgo-btn dgo-btn--primary" id="respondBtn"><svg class="icon-sm" aria-hidden="true"><use href="#i-send"></use></svg>Respond to the request</button>');
+      if (PF.isOpen(rec)) btns.push('<button class="dgo-btn dgo-btn--secondary" id="noteBtn"><svg class="icon-sm" aria-hidden="true"><use href="#i-chat"></use></svg>Add a note</button>');
+      if (PF.isOpen(rec)) btns.push('<button class="dgo-btn dgo-btn--ghost" id="withdrawBtn" style="color:var(--dgo-color-action-danger)">Withdraw request</button>');
+    } else if (rec.actionRequired) {
+      btns.push('<a class="dgo-btn dgo-btn--primary" href="support.html?ref=' + encodeURIComponent(rec.id) + '&topic=submission"><svg class="icon-sm" aria-hidden="true"><use href="#i-send"></use></svg>Respond to the registry</a>');
+    }
+    btns.push('<a class="dgo-btn dgo-btn--ghost" href="support.html?ref=' + encodeURIComponent(rec.id) + '">Contact the helpdesk</a>');
     return '<div class="dgo-cluster dgo-cluster--2 pf-no-print" style="padding-top:4px">' + btns.join('') + '</div>';
   }
 

@@ -9,7 +9,7 @@ import http from 'node:http';
 import { loadConfig, assertUsable } from './config.js';
 import { createJwks } from './jwt.js';
 import { handleRequest, createIdempotencyStore } from './handler.js';
-import { createRateLimiter, createReferenceMinter } from './intake.js';
+import { createRateLimiter, createReferenceMinter, STATUS_LIMITS } from './intake.js';
 import { createUploadBroker } from './upload.js';
 
 const cfg = assertUsable(loadConfig());
@@ -21,6 +21,12 @@ const idempotency = createIdempotencyStore();
 // than it reads, and two instances can mint the same reference. Back them with a shared
 // store, or a front-door rate limit and the registry's own numbering, before scaling out.
 const rateLimiter = createRateLimiter();
+// Status reads get a separate, tighter budget. Sharing one limiter would let a guessing run
+// spend the submission allowance, and would let a burst of legitimate lookups block a
+// submission — the two operations have nothing to do with each other.
+const statusRateLimiter = createRateLimiter({
+  windowMs: STATUS_LIMITS.windowMs, perWindow: STATUS_LIMITS.perWindow,
+});
 const minter = createReferenceMinter({ prefix: cfg.intakeRefPrefix });
 
 // Upload brokering is optional and fails CLOSED: without DGO_UPLOAD_SECRET no tickets are
@@ -86,7 +92,7 @@ const server = http.createServer(async (req, res) => {
   }
   const out = await handleRequest(
     { method: req.method, path, headers: req.headers, body, remoteAddress: req.socket?.remoteAddress },
-    { config: cfg, jwks, idempotency, audit, rateLimiter, minter, broker }
+    { config: cfg, jwks, idempotency, audit, rateLimiter, statusRateLimiter, minter, broker }
   );
   res.writeHead(out.status, out.headers);
   res.end(JSON.stringify(out.body));

@@ -6,15 +6,22 @@
 //
 // Because it is unauthenticated it is deliberately narrow:
 //
-//   CREATE ONLY   It can bring a new submission into the registry. It cannot read, list,
-//                 search or mutate anything. There is no path from here to an existing
-//                 record, so an anonymous caller cannot enumerate or alter correspondence.
-//   RATE LIMITED  Per source address, fixed window. An open create endpoint without this
-//                 is a spam amplifier attached to a government workflow.
+//   NO MUTATION OF EXISTING RECORDS
+//                 It can create a submission and it can read back the status of ONE record
+//                 the caller already identifies. It cannot list, search, or change anything
+//                 that already exists.
+//   RATE LIMITED  Per source address, fixed window, with a separate and stricter budget for
+//                 status reads. An open create endpoint without this is a spam amplifier
+//                 attached to a government workflow; an open read endpoint without it is an
+//                 enumeration tool.
 //   SIZE CAPPED   Bounded body, bounded attachment count, bounded declared size.
 //   SERVER-MINTED REFERENCES  The registry reference is issued here. A client-chosen
 //                 identifier is not a reference — two submitters would collide, and a
 //                 malicious one could claim someone else's.
+//
+// The status read was added in step 6 and it weakened the create-only property this module
+// started with, so the tradeoff is recorded rather than buried. See §status read-back below
+// for what constrains it and, more importantly, for what does NOT.
 //
 // It validates the submission against the correspondence model rather than accepting
 // whatever arrives: an intake channel that forwards unvalidated input is just a slower
@@ -34,6 +41,19 @@ export const INTAKE_LIMITS = Object.freeze({
   maxDescriptionChars: 8000,
   windowMs: 60_000,
   perWindow: 5,               // submissions per address per window
+});
+
+/* Status reads get their own, tighter budget. A submission is a deliberate act a person
+   performs a handful of times; a status read is the operation an attacker would repeat, so
+   the two must not draw on a shared allowance. Ten per minute is far above what the
+   tracking page needs and far below what guessing needs. */
+export const STATUS_LIMITS = Object.freeze({
+  maxBodyBytes: 4 * 1024,
+  maxReferenceChars: 64,
+  windowMs: 60_000,
+  perWindow: 10,
+  maxTimelineEntries: 50,
+  maxNoteChars: 2000,
 });
 
 export class IntakeError extends Error {
@@ -212,6 +232,88 @@ export function validateSupportCase(body, { limits = INTAKE_LIMITS } = {}) {
   return { name, email, topic, message, aboutReference };
 }
 
+/* ── status read-back ──────────────────────────────────────────────────────────
+   TARGET_ARCHITECTURE.md §3.4. Until step 6 the tracking page reported whatever this
+   browser's own localStorage said, so it could not show a decision the registry had
+   actually made, and a submission made on a phone was invisible on a laptop. It was a
+   local echo wearing the costume of a tracking system.
+
+   The read is guarded by three things, and it is worth being precise about what each one
+   does and does not buy:
+
+     1. THE PAIR. A caller must present the reference AND the email it was submitted under.
+     2. UNIFORM DENIAL. Unknown reference and wrong email return the identical response.
+        Without this the route answers "does NITDA-2026-000318 exist?" for anybody who asks,
+        which is an enumeration oracle over the registry's own numbering.
+     3. ALLOW-LISTED PROJECTION. Only the fields below ever leave this function. The
+        description, the attachment list, the assigned officer and the internal unit are not
+        in it, so a successful guess yields status and dates, not the correspondence.
+
+   What this does NOT buy, stated plainly: references are sequential (NITDA-<year>-<seq>),
+   therefore guessable. The email is the only real secret in the pair, and it is a secret
+   that submitters routinely publish. Rate limiting is what makes online guessing
+   impractical — it is not a substitute for an unguessable reference. The durable fix is a
+   high-entropy lookup token issued at submission and sent in the acknowledgement email;
+   that is recorded as a finding rather than silently assumed away here. */
+
+/** Validate a status lookup. Returns the pair; throws IntakeError on violation. */
+export function validateStatusQuery(body, { limits = STATUS_LIMITS } = {}) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new IntakeError('malformed_body');
+
+  const referenceId = str(body.referenceId).toUpperCase();
+  if (!referenceId) throw new IntakeError('missing_reference');
+  if (referenceId.length > limits.maxReferenceChars) throw new IntakeError('reference_too_long');
+  // Deliberately a shape check, not a registry lookup: this rejects junk before it reaches
+  // the upstream, and it must NOT distinguish "well-formed but unknown" from "known".
+  if (!/^[A-Z0-9][A-Z0-9-]{5,}$/.test(referenceId)) throw new IntakeError('invalid_reference');
+
+  const email = str(body.email).toLowerCase();
+  if (!email) throw new IntakeError('missing_email');
+  if (!EMAIL.test(email)) throw new IntakeError('invalid_email');
+
+  return { referenceId, email };
+}
+
+/**
+ * Reduce an upstream record to the citizen-visible view.
+ *
+ * Built by allow-list, never by deletion: a registry that starts returning a new internal
+ * field must not have it appear on a public tracking page because nobody remembered to add
+ * it to a blocklist.
+ */
+export function projectStatus(upstream, { limits = STATUS_LIMITS } = {}) {
+  const r = upstream && typeof upstream === 'object' ? upstream : {};
+  const raw = Array.isArray(r.timeline) ? r.timeline.slice(0, limits.maxTimelineEntries) : [];
+
+  const timeline = raw.map(e => {
+    const t = e && typeof e === 'object' ? e : {};
+    // A note is only carried when the registry has explicitly marked the entry public.
+    // Internal deliberation lives on the same timeline in most case systems, and the
+    // default for anything not marked must be to withhold it.
+    const isPublic = t.public === true;
+    return {
+      at: str(t.at),
+      status: str(t.status),
+      label: str(t.label),
+      note: isPublic ? str(t.note).slice(0, limits.maxNoteChars) : '',
+    };
+  }).filter(e => e.at || e.label);
+
+  return {
+    referenceId:    str(r.referenceId) || str(r.reference),
+    status:         str(r.status),
+    statusLabel:    str(r.statusLabel),
+    category:       str(r.category),
+    subject:        str(r.subject),
+    receivedAt:     str(r.receivedAt),
+    acknowledgedAt: str(r.acknowledgedAt),
+    updatedAt:      str(r.updatedAt),
+    closedAt:       str(r.closedAt),
+    actionRequired: r.actionRequired === true,
+    timeline,
+  };
+}
+
 /**
  * Handle POST /intake/submission.
  *
@@ -221,23 +323,100 @@ export function validateSupportCase(body, { limits = INTAKE_LIMITS } = {}) {
  */
 export async function handleIntake(req, deps) {
   const {
-    config = {}, rateLimiter, minter, broker, audit = () => {}, fetchImpl = fetch,
-    correlationId = '', now = () => new Date(),
+    config = {}, rateLimiter, statusRateLimiter, minter, broker, audit = () => {},
+    fetchImpl = fetch, correlationId = '', now = () => new Date(),
   } = deps;
 
+  const ACTIONS = ['submission', 'support', 'status'];
   const action = String(req.path || '').split('/').filter(Boolean).pop() || '';
-  if (action !== 'submission' && action !== 'support') {
+  if (!ACTIONS.includes(action)) {
     return { status: 404, headers: { 'Content-Type': 'application/json' },
              body: { ok: false, error: 'unknown_intake_action', action, correlationId } };
   }
 
   const key = sourceKey(req, { trustForwardedFor: !!config.trustForwardedFor });
-  const rl = rateLimiter.check(key);
+  // Status reads draw on their own budget so that repeated lookups cannot exhaust a
+  // legitimate submitter's ability to submit, and — the direction that matters — so that a
+  // guessing run cannot hide inside the more generous submission allowance.
+  const limiter = action === 'status' ? (statusRateLimiter || rateLimiter) : rateLimiter;
+  const rl = limiter.check(action === 'status' ? `status:${key}` : key);
   if (!rl.allowed) {
-    audit({ event: 'intake:rate-limited', correlationId, source: key, at: now().toISOString() });
+    audit({ event: 'intake:rate-limited', correlationId, source: key, action, at: now().toISOString() });
     return { status: 429,
              headers: { 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfterSec) },
              body: { ok: false, error: 'rate_limited', retryAfterSeconds: rl.retryAfterSec, correlationId } };
+  }
+
+  if (action === 'status') {
+    let q;
+    try {
+      q = validateStatusQuery(req.body, { limits: config.statusLimits || STATUS_LIMITS });
+    } catch (e) {
+      audit({ event: 'intake:status-rejected', correlationId, source: key,
+              reason: e.reason || 'error', at: now().toISOString() });
+      return { status: e.status || 400, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'invalid_status_query', reason: e.reason || 'error', correlationId } };
+    }
+
+    // The single denial. Unknown reference, wrong email and an upstream 404 all return
+    // exactly this object — same status, same body, no distinguishing field. Every early
+    // return below goes through it for that reason.
+    const deny = () => ({
+      status: 404, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+      body: { ok: false, error: 'not_found', correlationId },
+    });
+
+    const target = config.endpoints?.INTAKE_STATUS;
+    if (!target) {
+      // No read-back configured. Say so, rather than denying — a 404 here would tell the
+      // submitter their request does not exist, which is a false statement about the
+      // registry when the truth is that this proxy has nowhere to ask.
+      audit({ event: 'intake:status-not-configured', correlationId, at: now().toISOString() });
+      return { status: 503, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'status_not_available', correlationId } };
+    }
+
+    let upstream = null;
+    try {
+      const res = await fetchImpl(target, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+        body: JSON.stringify({ referenceId: q.referenceId, email: q.email }),
+      });
+      if (res.status === 404) {
+        audit({ event: 'intake:status-miss', correlationId, source: key, at: now().toISOString() });
+        return deny();
+      }
+      if (!res.ok) {
+        audit({ event: 'intake:status-upstream-error', correlationId, upstreamStatus: res.status,
+                at: now().toISOString() });
+        return { status: 502, headers: { 'Content-Type': 'application/json' },
+                 body: { ok: false, error: 'status_upstream_error', correlationId } };
+      }
+      upstream = await res.json();
+    } catch {
+      audit({ event: 'intake:status-upstream-unreachable', correlationId, at: now().toISOString() });
+      return { status: 502, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'status_upstream_error', correlationId } };
+    }
+
+    // The email is re-checked here even though it was sent upstream. An upstream that
+    // ignores the email parameter and matches on the reference alone would otherwise turn
+    // this route into an unauthenticated read of any record — this proxy does not delegate
+    // that check on the strength of an assumption about someone else's implementation.
+    const record = upstream && typeof upstream === 'object' && upstream.record ? upstream.record : upstream;
+    const onFile = str(record?.senderEmail || record?.email).toLowerCase();
+    if (!onFile || onFile !== q.email) {
+      audit({ event: 'intake:status-denied', correlationId, source: key, at: now().toISOString() });
+      return deny();
+    }
+
+    audit({ event: 'intake:status-served', correlationId, source: key,
+            referenceId: q.referenceId, at: now().toISOString() });
+    return {
+      status: 200, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+      body: { ok: true, record: projectStatus(record, { limits: config.statusLimits || STATUS_LIMITS }), correlationId },
+    };
   }
 
   if (action === 'support') {

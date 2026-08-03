@@ -100,9 +100,14 @@
     draft: 'nitda.portal.draft.v2',
     out: 'nitda.portal.outbox.v2',
     theme: 'nitda.portal.theme',
-    welcome: 'nitda.portal.welcome',
-    admin: 'nitda.portal.admin'
+    welcome: 'nitda.portal.welcome'
   };
+
+  /* The retired operations console left a staff session — name, role, directorate — in
+     sessionStorage. The console is gone, so nothing reads it, but a browser that used it
+     is still holding the data. Clear it once on load rather than leaving it to expire
+     whenever that tab happens to close. */
+  try { sessionStorage.removeItem('nitda.portal.admin'); } catch (e) {}
 
   function read(key, fallback) {
     try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -232,24 +237,11 @@
       PF.store.tickets();
       PF.store.log('system', 'REGISTRY', 'Demonstration data reinstalled');
     },
-    admin: {
-      session: function () { try { return JSON.parse(sessionStorage.getItem(K.admin) || 'null'); } catch (e) { return null; } },
-      signedIn: function () { return !!PF.store.admin.session(); },
-      signIn: function (staff) {
-        try {
-          sessionStorage.setItem(K.admin, JSON.stringify({
-            user: staff.user, name: staff.name, role: staff.role, unit: staff.unit, scope: staff.scope,
-            at: new Date().toISOString()
-          }));
-        } catch (e) {}
-        PF.store.log('auth', staff.user, staff.name + ' signed in to the operations console');
-      },
-      signOut: function () {
-        var s = PF.store.admin.session();
-        try { sessionStorage.removeItem(K.admin); } catch (e) {}
-        if (s) PF.store.log('auth', s.user, s.name + ' signed out');
-      }
-    }
+    /* PF.store.admin is gone with the operations console it served. It kept a "signed in"
+       staff session in sessionStorage after checking a password held in js/data.js — a
+       gate whose entire strength was that the browser agreed to honour it. Triage,
+       decisions and audit belong in the internal platform, where identity is enforced
+       server-side. See TARGET_ARCHITECTURE.md §3.4. */
   };
 
   /* ============================================================
@@ -381,17 +373,56 @@
         PF.outbox.queue('support', payload, '');
         return { delivered: false, reason: 'unreachable' };
       });
+    },
+
+    /* Read a request's status back from the registry.
+
+       Until this existed the tracking page reported whatever THIS browser's localStorage
+       said, so it could not show a decision the registry had actually taken, and a
+       submission made on a phone did not exist on a laptop. The local store is now a
+       cache of last resort, and callers are told which of the two they are looking at —
+       showing device data as though it came from the registry is the failure this
+       replaces, so it must never be silent.
+
+       Resolution is one of:
+         found      the registry answered and the pair matched
+         denied     the registry answered and it did not — authoritative, do not fall back
+         unavailable  no read-back configured, offline, or the registry could not be
+                    reached. NOT a denial: the caller may show device data, labelled. */
+    status: function (referenceId, email) {
+      var url = proxyUrl('/intake/status');
+      if (!url) return Promise.resolve({ resolution: 'unavailable', reason: 'not-configured' });
+      if (!navigator.onLine) return Promise.resolve({ resolution: 'unavailable', reason: 'offline' });
+      return fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ referenceId: referenceId, email: email })
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          if (r.ok) return { resolution: 'found', record: data.record || null };
+          // 404 is the registry's single, uniform denial — it deliberately does not say
+          // whether the reference was unknown or the email was wrong, and neither does
+          // this. 400 is a malformed query, which is also a definite "not this pair".
+          if (r.status === 404 || r.status === 400) return { resolution: 'denied' };
+          if (r.status === 429) return { resolution: 'unavailable', reason: 'rate-limited' };
+          return { resolution: 'unavailable', reason: 'registry-error', status: r.status };
+        });
+      }).catch(function () {
+        return { resolution: 'unavailable', reason: 'unreachable' };
+      });
     }
   };
-;
 
   /* Aggregate figures used by the home page and the operations console. */
   PF.metrics = function () {
     var all = PF.store.all(), now = new Date();
-    var m = { total: all.length, open: 0, review: 0, action: 0, approved: 0, declined: 0, overdue: 0, expedited: 0, week: 0, onTime: 0, closed: 0, byStatus: {}, byService: {} };
+    // byType keys on r.type, the correspondence-type key. It was byService keyed on
+    // r.service, a field step 2 removed from the record — so every bucket counted
+    // `undefined` and every per-type figure on the home page was silently zero.
+    var m = { total: all.length, open: 0, review: 0, action: 0, approved: 0, declined: 0, overdue: 0, expedited: 0, week: 0, onTime: 0, closed: 0, byStatus: {}, byType: {}, byCategory: {} };
     all.forEach(function (r) {
       m.byStatus[r.status] = (m.byStatus[r.status] || 0) + 1;
-      m.byService[r.service] = (m.byService[r.service] || 0) + 1;
+      if (r.type) m.byType[r.type] = (m.byType[r.type] || 0) + 1;
+      if (r.category) m.byCategory[r.category] = (m.byCategory[r.category] || 0) + 1;
       if (PF.isOpen(r)) m.open++;
       if (r.status === 'review' || r.status === 'validation') m.review++;
       if (r.status === 'action-required') m.action++;
@@ -538,8 +569,7 @@
       { g: 'Navigate', label: 'Home', meta: 'Overview', icon: 'home', run: function () { location.href = 'index.html'; } },
       { g: 'Navigate', label: 'Submit a document', meta: 'New request', icon: 'upload', run: function () { location.href = 'submit.html'; } },
       { g: 'Navigate', label: 'Track a request', meta: 'Status', icon: 'search', run: function () { location.href = 'track.html'; } },
-      { g: 'Navigate', label: 'Support and helpdesk', meta: 'Help', icon: 'help', run: function () { location.href = 'support.html'; } },
-      { g: 'Navigate', label: 'Operations console', meta: 'Staff', icon: 'chart', run: function () { location.href = 'admin.html'; } }
+      { g: 'Navigate', label: 'Support and helpdesk', meta: 'Help', icon: 'help', run: function () { location.href = 'support.html'; } }
     ];
     PF.CORRESPONDENCE_TYPES.forEach(function (s) {
       list.push({
