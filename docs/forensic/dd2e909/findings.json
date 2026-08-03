@@ -1,8 +1,8 @@
 [
   {
     "id": "F-001",
-    "title": "31 distinct Power Automate SAS signatures require rotation; 9 exist only inside the ratchet-invisible archive",
-    "severity": "high",
+    "title": "31 Power Automate SAS signatures across 25 development/pilot workflows require decommissioning at cutover; 9 exist only inside the ratchet-invisible archive",
+    "severity": "medium",
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
@@ -19,8 +19,9 @@
         "lines": "n/a — 31 signatures across 18 of 837 members"
       }
     ],
-    "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool. At step 5 the portal stopped holding its three signatures; the archive is now the only baselined file. All 31 still require rotation -- see docs/architecture/ROTATION_REGISTER.md.",
-    "remediation": "Rotate all 31 signatures in Power Automate before deleting any file; deletion revokes nothing."
+    "impact": "Any holder of a signature can invoke the corresponding Power Automate workflow with no authentication step to fail. OWNER DECISION, RECORDED: these are development and pilot endpoints that will be REPLACED ENTIRELY once the build is complete, not rotated in place, and will not carry production traffic. Severity is medium rather than high on that basis -- the exposure is bounded to non-production infrastructure for a bounded period. It is not nil: until the old triggers are removed or re-signed they answer to anyone holding the URL, and 18 were deleted from the tree while remaining reachable from origin/main history. The step-5 change means the document portal now holds none of them.",
+    "remediation": "At cutover, account for all 25 workflows in docs/architecture/ROTATION_REGISTER.md: each must be DELETED or have its HTTP trigger REGENERATED. Standing up replacement flows beside still-enabled pilot flows revokes nothing -- the old trigger keeps answering. Provision the replacements behind the proxy's egress only, and supply their URLs to the proxy's server-side environment, never to a file any client loads.",
+    "note": "Reframed from 'rotate urgently' after the owner confirmed the endpoints are development and pilot infrastructure slated for wholesale replacement. The register is retained and is now MORE load-bearing, not less: it is the only enumeration of the full set, and nine signatures appear nowhere but the archive, so anyone working from the source tree would miss those workflows entirely."
   },
   {
     "id": "F-012",

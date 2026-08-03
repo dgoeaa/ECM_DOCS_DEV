@@ -289,6 +289,7 @@ Each step is independently deployable and leaves the platform working.
 | **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
 | **10** | High-entropy lookup token issued at submission, replacing the guessable reference as the status credential | **F-030** | ~2 days | step 6 |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
+| **11** | **Cutover** — decommission all 25 development/pilot workflows, provision replacements behind proxy egress only | **F-001** | owner-side | steps 8, 10 |
 
 **Steps 1 and 2 are worth doing regardless of everything else** — step 1 stops losing citizens' documents today, and step 2 is the model correction you asked for. Neither depends on any infrastructure decision.
 
