@@ -1,4 +1,5 @@
 import { PUBLIC_DOCUMENT_KINDS } from '../../config/correspondence-categories.config.js';
+import { normaliseFilename } from '../../config/filename-policy.config.js';
 import { VerificationError } from './verification.js';
 
 // Anonymous correspondence intake — TARGET_ARCHITECTURE.md §3.5, §3.6.
@@ -179,16 +180,23 @@ export function validateSubmission(body, { categories = INTAKE_CATEGORIES, limit
     if (!a || typeof a !== 'object') throw new IntakeError('malformed_attachment', `index ${i}`);
     const name = str(a.name);
     if (!name) throw new IntakeError('attachment_missing_name', `index ${i}`);
-    // A path separator in a declared filename is either a mistake or an attempt to
-    // influence where the file lands. Neither is acceptable; take the basename.
-    const safeName = name.split(/[\\/]/).pop();
+    /* The agency's Universal Filename Policy, applied where files actually enter the
+       registry. Normalising rather than rejecting is deliberate: a citizen must not be
+       turned away because their phone named the scan `IMG_20260101(1).jpg`. The name they
+       sent is kept as `originalName` so the file can still be tied back to what they
+       attached — storing only the normalised name would quietly rewrite their submission.
+       Taking the basename is part of this now; it used to be the whole of it. */
+    const policy = normaliseFilename(name);
+    const safeName = policy.name;
     const size = Number(a.size);
     if (!Number.isFinite(size) || size < 0) throw new IntakeError('attachment_invalid_size', safeName);
     declaredBytes += size;
     if (declaredBytes > limits.maxAttachmentBytes) throw new IntakeError('attachments_too_large', `${declaredBytes} bytes declared`);
     const sha256 = str(a.sha256).toLowerCase();
     if (sha256 && !/^[a-f0-9]{64}$/.test(sha256)) throw new IntakeError('attachment_invalid_digest', safeName);
-    return { name: safeName, size, sha256 };
+    return policy.changed
+      ? { name: safeName, originalName: policy.original, renamed: policy.reasons, size, sha256 }
+      : { name: safeName, size, sha256 };
   });
 
   return {

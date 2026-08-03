@@ -28,6 +28,7 @@
 // is burned on redemption.
 
 import crypto from 'node:crypto';
+import { normaliseFilename, FILENAME_LIMITS } from '../../config/filename-policy.config.js';
 
 export const UPLOAD_LIMITS = Object.freeze({
   maxFileBytes: 25 * 1024 * 1024,   // per attachment, actual bytes
@@ -151,6 +152,23 @@ export function verifyBytes(body, { declaredSize, declaredSha256, limits = UPLOA
   const digest = crypto.createHash('sha256').update(body).digest('hex');
   if (declaredSha256 && digest !== declaredSha256) throw new UploadError('digest_mismatch', '', 409);
   return digest;
+}
+
+/**
+ * Tell the caller their file was renamed, and why.
+ *
+ * Silent renaming is the failure mode to avoid here. An officer who deposits
+ * `Ministry Reply FINAL.pdf` and gets back a receipt saying `name: ministry_reply_final.pdf`
+ * with no explanation reasonably concludes the system is unreliable; one who is told the
+ * policy normalised it learns the standard. Absent from the response entirely when nothing
+ * changed, so a compliant name produces no noise.
+ */
+export function renameNotice(policy) {
+  if (!policy?.changed) return {};
+  return {
+    declaredName: policy.original,
+    renamed: { to: policy.name, reasons: policy.reasons, policy: 'universal-filename-policy-v1.0' },
+  };
 }
 
 /**
@@ -299,15 +317,22 @@ export async function handleScanIntake(req, deps) {
 
   const h = k => String(req.headers?.[k] ?? req.headers?.[k.toLowerCase()] ?? '');
 
-  // A path separator in a declared filename is either a mistake or an attempt to influence
-  // where the file lands. Take the basename, exactly as intake validation does.
-  let filename = '';
-  try { filename = decodeURIComponent(h('x-dgo-filename')).trim(); }
-  catch { filename = h('x-dgo-filename').trim(); }
-  filename = filename.split(/[\\/]/).pop().slice(0, SCAN_LIMITS.maxFilenameChars);
-  if (!filename) {
+  /* Decode BEFORE normalising. The header is percent-encoded, so `%2e%2e%2f` is a path
+     separator that only exists after decoding — normalising first would leave it intact and
+     the basename step would be looking at the wrong string. */
+  let declaredName = '';
+  try { declaredName = decodeURIComponent(h('x-dgo-filename')).trim(); }
+  catch { declaredName = h('x-dgo-filename').trim(); }
+  if (!declaredName) {
     return json(400, { ok: false, error: 'missing_filename', correlationId });
   }
+  // The agency's Universal Filename Policy. A registry deposit is named by an officer, so
+  // unlike the public path this one also reports what it changed, so the officer learns the
+  // standard rather than silently having their names rewritten forever.
+  const policy = normaliseFilename(declaredName, {
+    limits: { ...FILENAME_LIMITS, maxBodyChars: SCAN_LIMITS.maxFilenameChars },
+  });
+  const filename = policy.name;
 
   const declaredSha256 = h('x-dgo-sha256').toLowerCase();
   if (declaredSha256 && !/^[a-f0-9]{64}$/.test(declaredSha256)) {
@@ -338,6 +363,7 @@ export async function handleScanIntake(req, deps) {
   // are different events, and only recording the second loses the ability to tell a failed
   // filing from a deposit that never happened.
   audit({ event: 'scan:accepted', correlationId, referenceId, filename,
+          ...(policy.changed ? { declaredName: policy.original, renamed: policy.reasons } : {}),
           subject: identity.subject, email: identity.email,
           bytes: req.body.length, sha256: digest, at: now().toISOString() });
 
@@ -346,6 +372,7 @@ export async function handleScanIntake(req, deps) {
     audit({ event: 'scan:endpoint-not-configured', correlationId, referenceId, at: now().toISOString() });
     return json(202, { ok: true, referenceId, name: filename, bytes: req.body.length,
                        sha256: digest, stored: false, reason: 'endpoint_not_configured',
+                       ...renameNotice(policy),
                        depositedBy: identity.email || '', correlationId });
   }
 
@@ -365,6 +392,7 @@ export async function handleScanIntake(req, deps) {
     sha256: digest,
     stored,
     attachmentLink: link,
+    ...renameNotice(policy),
     // Returned so the workspace can write it onto the correspondence record. It comes from
     // the token, never from the request body — a clerk cannot deposit as a colleague.
     depositedBy: identity.email || '',
