@@ -137,6 +137,25 @@
     "remediation": "Pin exact versions with integrity hashes, or vendor both locally as the root platform already does."
   },
   {
+    "id": "F-028",
+    "title": "Document portal silently discards attachments: only the first file is transmitted, and only if under 4 MB",
+    "severity": "high",
+    "confidence": "confirmed-present",
+    "scope": "docportal",
+    "files": [
+      {
+        "path": "document-portal/js/submit.js",
+        "lines": "4"
+      },
+      {
+        "path": "document-portal/js/submit.js",
+        "lines": "331-347"
+      }
+    ],
+    "impact": "The upload UI accepts 5 files at 10 MB each and 50 MB total, but dispatchToWorkflow sends only files[0] and substitutes an empty FileContentBase64 when that file exceeds 4 MB, so a submitter is told their documents were received when 4 of 5 were discarded or all content was dropped.",
+    "remediation": "Send every attachment via brokered SharePoint uploads rather than base64 inside a JSON workflow payload."
+  },
+  {
     "id": "F-002",
     "title": "CI is green while four live-shaped credentials sit in tracked files",
     "severity": "medium",

@@ -1,0 +1,307 @@
+<title>DGO Target Architecture — internal operations, external intake</title>
+<style>
+  :root{
+    --ground:#F1F4F2; --sheet:#FFFFFF; --ink:#111C17; --ink-2:#4C5D55; --ink-3:#7C8D85;
+    --rule:#D3DCD7; --rule-2:#E6EBE8;
+    --brand:#05583B; --accent:#17B255; --crit:#C8102E; --warn:#9A6A08; --cool:#3E6B86;
+    --crit-wash:#FBEAED; --warn-wash:#FBF3E2; --ok-wash:#E9F6EE; --cool-wash:#EAF1F5; --brand-wash:#E4EFE9;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+    --sans:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;
+    --sh:0 1px 2px rgba(17,28,23,.06),0 12px 32px -18px rgba(17,28,23,.28);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--ground:#0C1114;--sheet:#141C20;--ink:#E6EEEA;--ink-2:#9FB2AA;--ink-3:#6E827A;
+      --rule:#26333A;--rule-2:#1D272C;--brand:#17B255;--accent:#3BD97A;--crit:#FF6076;--warn:#D9A63C;--cool:#7FB3D0;
+      --crit-wash:#2C1218;--warn-wash:#2A2210;--ok-wash:#0F2A1C;--cool-wash:#12222B;--brand-wash:#10251C;
+      --sh:0 1px 2px rgba(0,0,0,.5),0 14px 36px -20px rgba(0,0,0,.8);}
+  }
+  :root[data-theme="dark"]{--ground:#0C1114;--sheet:#141C20;--ink:#E6EEEA;--ink-2:#9FB2AA;--ink-3:#6E827A;
+    --rule:#26333A;--rule-2:#1D272C;--brand:#17B255;--accent:#3BD97A;--crit:#FF6076;--warn:#D9A63C;--cool:#7FB3D0;
+    --crit-wash:#2C1218;--warn-wash:#2A2210;--ok-wash:#0F2A1C;--cool-wash:#12222B;--brand-wash:#10251C;
+    --sh:0 1px 2px rgba(0,0,0,.5),0 14px 36px -20px rgba(0,0,0,.8);}
+  :root[data-theme="light"]{--ground:#F1F4F2;--sheet:#FFFFFF;--ink:#111C17;--ink-2:#4C5D55;--ink-3:#7C8D85;
+    --rule:#D3DCD7;--rule-2:#E6EBE8;--brand:#05583B;--accent:#17B255;--crit:#C8102E;--warn:#9A6A08;--cool:#3E6B86;
+    --crit-wash:#FBEAED;--warn-wash:#FBF3E2;--ok-wash:#E9F6EE;--cool-wash:#EAF1F5;--brand-wash:#E4EFE9;
+    --sh:0 1px 2px rgba(17,28,23,.06),0 12px 32px -18px rgba(17,28,23,.28);}
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:44px 22px 90px;display:flex;flex-direction:column;gap:32px}
+  header.mast{border-bottom:2px solid var(--ink);padding-bottom:18px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:6px 0 0;font-size:clamp(23px,3.4vw,34px);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;font-weight:650}
+  .stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);text-align:right;line-height:1.7}
+  .stamp b{color:var(--ink)}
+  .thesis-band{background:var(--brand-wash);border-left:4px solid var(--brand);border-radius:0 3px 3px 0;padding:16px 20px}
+  .thesis-band p{margin:0 0 6px;font-size:15px;text-wrap:balance}
+  .thesis-band p:last-child{margin:0}
+  .thesis-band b{color:var(--ink)}
+  figure.sheet{margin:0;background:var(--sheet);border:1px solid var(--rule);border-radius:3px;box-shadow:var(--sh);overflow:hidden}
+  .sh-head{padding:16px 20px 14px;border-bottom:1px solid var(--rule)}
+  .sh-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+  .sh-head h2{margin:3px 0 0;font-size:18px;letter-spacing:-.012em;font-weight:620;text-wrap:balance}
+  .sh-head p{margin:7px 0 0;font-size:13.6px;color:var(--ink-2);max-width:68ch}
+  .sh-head p b{color:var(--ink)}
+  .canvas{padding:16px 14px;overflow-x:auto}
+  .canvas svg{display:block;width:100%;min-width:800px;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 22px;padding:12px 20px 16px;border-top:1px solid var(--rule-2);font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .key{width:22px;height:0;border-top-width:2.5px;border-top-style:solid;flex:none}
+  .swatch{width:11px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(128,128,128,.35)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl{padding:4px 20px 20px;overflow-x:auto}
+  th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+     border-bottom:1px solid var(--rule);padding:9px 12px 7px;white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid var(--rule-2);vertical-align:top;color:var(--ink-2)}
+  td b{color:var(--ink)} td:first-child{white-space:nowrap}
+  code{font-family:var(--mono);font-size:11.8px;color:var(--ink);background:var(--rule-2);padding:1px 5px;border-radius:2px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
+        padding:2px 7px;border-radius:9px;white-space:nowrap}
+  .p-no{background:var(--crit-wash);color:var(--crit)} .p-yes{background:var(--ok-wash);color:var(--accent)}
+  .p-part{background:var(--warn-wash);color:var(--warn)}
+  .t-lane{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700}
+  .t-node{font-family:var(--sans);font-size:12.5px;font-weight:600}
+  .t-sub{font-family:var(--mono);font-size:10.5px}
+  .t-flow{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.05em}
+  .fill-ink{fill:var(--ink)} .fill-2{fill:var(--ink-2)} .fill-3{fill:var(--ink-3)}
+  .fill-crit{fill:var(--crit)} .fill-warn{fill:var(--warn)} .fill-acc{fill:var(--accent)} .fill-cool{fill:var(--cool)}
+  .node{fill:var(--sheet);stroke:var(--ink-2);stroke-width:1.4;rx:4}
+  .node-ok{fill:var(--ok-wash);stroke:var(--accent);stroke-width:1.6}
+  .node-new{fill:var(--cool-wash);stroke:var(--cool);stroke-width:1.8;stroke-dasharray:6 3}
+  .node-crit{fill:var(--crit-wash);stroke:var(--crit);stroke-width:1.6}
+  .flow{fill:none;stroke:var(--ink-2);stroke-width:1.7;marker-end:url(#a)}
+  .flow-new{fill:none;stroke:var(--cool);stroke-width:2.6;marker-end:url(#ac)}
+  .flow-crit{fill:none;stroke:var(--crit);stroke-width:2.8;marker-end:url(#ax)}
+  footer{font-family:var(--mono);font-size:11px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:16px}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div>
+    <div class="eyebrow">Target architecture · for decision</div>
+    <h1>Internal operations, external intake — one record</h1>
+  </div>
+  <div class="stamp">
+    GROUNDED AT <b>f9ee82c</b><br>
+    FINDINGS <b>29</b> · 8 high<br>
+    STATUS <b>design — no code written</b>
+  </div>
+</header>
+
+<div class="thesis-band">
+  <p><b>The root platform is the internal operations system and the single system of record.</b></p>
+  <p><b>The document portal is an external intake channel for documents and correspondence — not a service-request desk.</b></p>
+</div>
+
+<!-- SHEET A — zones -->
+<figure class="sheet">
+  <div class="sh-head">
+    <div class="sh-no">Sheet A · target zone model</div>
+    <h2>Four zones, and one rule that makes it an architecture</h2>
+    <p><b>No client holds a credential for the systems of record.</b> The proxy is the only component that does — which
+      retires the SAS-in-client-code problem class rather than rotating it.</p>
+  </div>
+  <div class="canvas">
+  <svg viewBox="0 0 1240 520" role="img" aria-label="Target zone model">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-2)"/></marker>
+      <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--cool)"/></marker>
+      <marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--crit)"/></marker>
+    </defs>
+
+    <rect x="16" y="42" width="252" height="300" rx="5" fill="none" stroke="var(--cool)" stroke-width="1.5"/>
+    <text class="t-lane fill-cool" x="32" y="66">Public zone</text>
+    <text class="t-sub fill-3" x="32" y="82">anonymous · internet</text>
+    <rect class="node node-ok" x="40" y="100" width="204" height="88"/>
+    <text class="t-node fill-ink" x="142" y="128" text-anchor="middle">document-portal</text>
+    <text class="t-sub fill-2" x="142" y="147" text-anchor="middle">submit · track · support</text>
+    <text class="t-sub fill-cool" x="142" y="164" text-anchor="middle">documents &amp; correspondence</text>
+    <text class="t-sub fill-crit" x="142" y="180" text-anchor="middle">NOT a service desk</text>
+    <rect class="node node-crit" x="40" y="206" width="204" height="52"/>
+    <text class="t-node fill-ink" x="142" y="228" text-anchor="middle">admin.html</text>
+    <text class="t-sub fill-crit" x="142" y="246" text-anchor="middle">RETIRED — moves internal</text>
+    <text class="t-sub fill-3" x="40" y="290">Keeps one local job only:</text>
+    <text class="t-sub fill-3" x="40" y="306">an offline outbox for undelivered</text>
+    <text class="t-sub fill-3" x="40" y="322">submissions. Status is read back.</text>
+
+    <rect x="446" y="42" width="300" height="300" rx="5" fill="var(--brand-wash)" stroke="var(--brand)" stroke-width="2"/>
+    <text class="t-lane fill-ink" x="464" y="66">Enforcement zone</text>
+    <text class="t-sub fill-2" x="464" y="82">the only holder of credentials</text>
+    <rect class="node node-ok" x="470" y="100" width="252" height="62"/>
+    <text class="t-node fill-ink" x="596" y="124" text-anchor="middle">/intake/*</text>
+    <text class="t-sub fill-2" x="596" y="142" text-anchor="middle">anonymous · rate-limited · create-only</text>
+    <rect class="node node-ok" x="470" y="176" width="252" height="62"/>
+    <text class="t-node fill-ink" x="596" y="200" text-anchor="middle">/{contract}</text>
+    <text class="t-sub fill-2" x="596" y="218" text-anchor="middle">token + RBAC required</text>
+    <rect class="node node-new" x="470" y="252" width="252" height="62"/>
+    <text class="t-node fill-ink" x="596" y="276" text-anchor="middle">upload brokering</text>
+    <text class="t-sub fill-cool" x="596" y="294" text-anchor="middle">short-lived · single-use · NEW</text>
+
+    <rect x="924" y="42" width="300" height="300" rx="5" fill="none" stroke="var(--ink-2)" stroke-width="1.5"/>
+    <text class="t-lane fill-ink" x="942" y="66">Systems of record</text>
+    <text class="t-sub fill-3" x="942" y="82">reachable from the proxy only</text>
+    <rect class="node" x="948" y="100" width="252" height="70"/>
+    <text class="t-node fill-ink" x="1074" y="128" text-anchor="middle">SharePoint</text>
+    <text class="t-sub fill-2" x="1074" y="147" text-anchor="middle">10 lists + document library</text>
+    <rect class="node" x="948" y="186" width="252" height="70"/>
+    <text class="t-node fill-ink" x="1074" y="214" text-anchor="middle">Power Automate</text>
+    <text class="t-sub fill-2" x="1074" y="233" text-anchor="middle">orchestration · private endpoint</text>
+    <text class="t-sub fill-crit" x="948" y="290">Today: reachable directly by all four clients.</text>
+    <text class="t-sub fill-acc" x="948" y="308">Target: IP-restricted to proxy egress.</text>
+
+    <rect x="16" y="374" width="1208" height="122" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+    <text class="t-lane fill-acc" x="32" y="398">Internal zone · NITDA staff · Entra ID mandatory</text>
+    <rect class="node node-ok" x="40" y="412" width="290" height="66"/>
+    <text class="t-node fill-ink" x="185" y="438" text-anchor="middle">DGO R11.6 runtime</text>
+    <text class="t-sub fill-2" x="185" y="456" text-anchor="middle">system of record · 25 routes</text>
+    <rect class="node node-ok" x="356" y="412" width="270" height="66"/>
+    <text class="t-node fill-ink" x="491" y="438" text-anchor="middle">ECM Activity Hub</text>
+    <text class="t-sub fill-2" x="491" y="456" text-anchor="middle">executive SPA</text>
+    <rect class="node node-new" x="652" y="412" width="270" height="66"/>
+    <text class="t-node fill-ink" x="787" y="438" text-anchor="middle">Registry scan intake</text>
+    <text class="t-sub fill-cool" x="787" y="456" text-anchor="middle">counter uploads · NEW</text>
+    <rect class="node" x="948" y="412" width="252" height="66"/>
+    <text class="t-node fill-ink" x="1074" y="438" text-anchor="middle">Mailbox</text>
+    <text class="t-sub fill-2" x="1074" y="456" text-anchor="middle">email channel · implemented</text>
+
+    <path class="flow-new" d="M244,144 L464,144"/>
+    <text class="t-flow fill-cool" x="354" y="136" text-anchor="middle">anonymous submit</text>
+    <path class="flow" d="M722,131 L942,131"/>
+    <path class="flow" d="M722,207 L942,207"/>
+    <path class="flow" d="M596,320 L596,352 L1074,352 L1074,180"/>
+    <path class="flow" d="M185,412 L185,368 L470,368 L560,368 L560,244"/>
+    <path class="flow" d="M491,412 L491,320"/>
+    <path class="flow-new" d="M787,412 L787,368 L640,368 L640,290"/>
+  </svg>
+  </div>
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--ok-wash);border-color:var(--accent)"></i>exists and is correct</span>
+    <span><i class="swatch" style="background:var(--cool-wash);border-color:var(--cool)"></i>new — to build</span>
+    <span><i class="swatch" style="background:var(--crit-wash);border-color:var(--crit)"></i>retired</span>
+    <span><i class="key" style="border-color:var(--cool)"></i>new path</span>
+    <span><i class="key" style="border-color:var(--ink-2)"></i>existing path</span>
+  </div>
+</figure>
+
+<!-- SHEET B — channels -->
+<figure class="sheet">
+  <div class="sh-head">
+    <div class="sh-no">Sheet B · intake channels</div>
+    <h2>Four channels, one correspondence record</h2>
+    <p>All four produce <b>the same record</b>. <code>channel</code> is the only field that distinguishes them, and it
+      gains exactly one value — <code>Portal</code>. That the model needs no other change is the test of whether it was
+      right, and it was.</p>
+  </div>
+  <div class="tbl">
+  <table>
+    <tr><th>Channel</th><th>Origin</th><th>Today</th><th>Target</th><th><code>channel</code></th></tr>
+    <tr><td><b>A · Document portal</b></td><td>External submitter</td>
+      <td><span class="pill p-no">NO PATH</span></td>
+      <td>anonymous submit → proxy → SharePoint + registry record</td><td><code>Portal</code> <i>new</i></td></tr>
+    <tr><td><b>B · Email</b></td><td>Mailbox</td>
+      <td><span class="pill p-yes">IMPLEMENTED</span></td>
+      <td>unchanged — <code>FETCH_ALL</code> → <code>state.emails</code> → email-to-task</td><td><code>Email</code></td></tr>
+    <tr><td><b>C · Scan / physical</b></td><td>Registry counter</td>
+      <td><span class="pill p-part">METADATA ONLY</span></td>
+      <td>new internal workspace: file → SharePoint → record with link attached</td><td><code>Document</code></td></tr>
+    <tr><td><b>D · Internal origination</b></td><td>NITDA staff</td>
+      <td><span class="pill p-yes">IMPLEMENTED</span></td>
+      <td>unchanged — <code>modules/correspondence.js</code></td><td><code>Registry</code></td></tr>
+  </table>
+  </div>
+  <div class="sh-head" style="border-top:1px solid var(--rule);border-bottom:none">
+    <div class="sh-no">The record every channel produces</div>
+    <p style="margin-top:9px"><code>id · referenceId · subject · sender · senderEmail · receivedAt · eventDate ·
+      correspondenceType · channel · category · status · priority · confidentiality · description</code></p>
+    <p>Documents are never carried as bytes. They live in SharePoint and the record holds
+      <code>attachmentLink</code> — already the implicit model, and it is correct.</p>
+  </div>
+</figure>
+
+<!-- SHEET C — the model mismatch -->
+<figure class="sheet">
+  <div class="sh-head">
+    <div class="sh-no">Sheet C · the correction you asked for</div>
+    <h2>Service catalogue → correspondence model</h2>
+    <p>The portal today is a <b>service-request desk</b>: pick a service, start its SLA, get approved or declined.
+      A correspondence channel <b>receives a document</b>, classifies it, assigns a reference and routes it.
+      The two models share almost no fields, which is why nothing connects.</p>
+  </div>
+  <div class="tbl">
+  <table>
+    <tr><th>Concern</th><th>Portal today — service desk</th><th>Target — correspondence intake</th></tr>
+    <tr><td><b>Submitter picks</b></td><td>a service from <code>PF.SERVICES</code><br><span class="t-sub">IT-CLR · DPA-CMP · OEM cert</span></td>
+        <td>a correspondence category, mapped to the registry taxonomy</td></tr>
+    <tr><td><b>Timing</b></td><td>per-service SLA — 14 days, 10 days</td><td>acknowledgement of receipt, then registry status</td></tr>
+    <tr><td><b>Outcome</b></td><td>approved / declined by a portal officer</td><td>routed and minuted in the internal registry</td></tr>
+    <tr><td><b>Identity</b></td><td>staff sign-in inside the public portal</td><td>none — anonymous submission, decisions happen internally</td></tr>
+    <tr><td><b>Key fields</b></td><td><code>serviceName · serviceCode · unit · officer · sla</code></td>
+        <td><code>subject · sender · correspondenceType · category · eventDate</code></td></tr>
+    <tr><td><b>Record owner</b></td><td>the submitter's own <code>localStorage</code></td><td>the root platform</td></tr>
+  </table>
+  </div>
+  <div class="sh-head" style="border-top:1px solid var(--rule);border-bottom:none">
+    <div class="sh-no" style="color:var(--crit)">F-028 · High · found while writing this</div>
+    <p style="margin-top:9px">The upload UI accepts <b>5 files, 10 MB each, 50 MB total</b>. What it transmits is
+      <code>files[0]</code> only — and if that file exceeds <b>4 MB</b> it sends an <b>empty</b> payload while still
+      reporting success.</p>
+    <p><b>For a service desk that is a bug. For a document intake channel it is the entire purpose failing silently,</b>
+      and the submitter is told their documents were received.</p>
+  </div>
+</figure>
+
+<!-- SHEET D — sequence -->
+<figure class="sheet">
+  <div class="sh-head">
+    <div class="sh-no">Sheet D · build sequence</div>
+    <h2>Nine steps, each independently deployable</h2>
+    <p>Steps <b>1 and 2 are worth doing regardless of every other decision</b> — one stops losing citizens' documents
+      today, the other is the model correction itself. Neither depends on infrastructure.</p>
+  </div>
+  <div class="tbl">
+  <table>
+    <tr><th>#</th><th>Step</th><th>Closes</th><th>Effort</th><th>Depends on</th></tr>
+    <tr><td><b>1</b></td><td>Send every attachment; remove the 4 MB silent drop</td><td><b>F-028</b></td><td>½ day</td><td>—</td></tr>
+    <tr><td><b>2</b></td><td>Replace the service catalogue with the correspondence model</td><td>model mismatch</td><td>2 days</td><td>D1</td></tr>
+    <tr><td><b>3</b></td><td>Build <code>/intake/*</code> — anonymous, rate-limited, create-only, mints references</td><td>—</td><td>3 days</td><td>step 2</td></tr>
+    <tr><td><b>4</b></td><td>Upload brokering; file bytes move to SharePoint</td><td><b>F-028</b> fully</td><td>3 days</td><td>step 3</td></tr>
+    <tr><td><b>5</b></td><td>Point the portal at the proxy; delete <code>PF.ENDPOINTS</code></td><td><b>F-013 · F-001</b></td><td>2 days</td><td>3–4</td></tr>
+    <tr><td><b>6</b></td><td>Portal reads status back; retire <code>admin.html</code> and <code>PF.STAFF</code></td><td>console credentials</td><td>3 days</td><td>step 5</td></tr>
+    <tr><td><b>7</b></td><td>Registry scan-intake workspace</td><td>channel C</td><td>1 week</td><td>step 4</td></tr>
+    <tr><td><b>8</b></td><td>Reconcile roles; enable auth; restrict flows to proxy egress</td><td><b>F-012 · F-025</b></td><td>1 week</td><td>3–6</td></tr>
+    <tr><td><b>9</b></td><td>Retire or adopt <code>newack/</code></td><td><b>F-009</b></td><td>1 hour</td><td>D2</td></tr>
+  </table>
+  </div>
+</figure>
+
+<!-- decisions -->
+<figure class="sheet">
+  <div class="sh-head">
+    <div class="sh-no">Open decisions · mine to recommend, yours to make</div>
+    <h2>Five choices that shape the build</h2>
+  </div>
+  <div class="tbl">
+  <table>
+    <tr><th>#</th><th>Decision</th><th>Recommendation</th><th>Why</th></tr>
+    <tr><td><b>D1</b></td><td>Category vocabulary for external submitters</td><td><b>Public subset, mapped to the internal taxonomy</b></td>
+        <td>A submitter should not choose from an internal list, but every value must map to one</td></tr>
+    <tr><td><b>D2</b></td><td><code>newack/</code></td><td><b>Retire</b></td>
+        <td>Orphaned, unowned, untested, holds a live credential. Acknowledgement already exists in the root platform</td></tr>
+    <tr><td><b>D3</b></td><td>Portal SLA display</td><td><b>Acknowledgement target only</b></td>
+        <td>Per-service SLAs belong to a service desk. A correspondence channel acknowledges receipt and reports status</td></tr>
+    <tr><td><b>D4</b></td><td>Anonymous or verified submission</td><td><b>Email verification before the reference is issued</b></td>
+        <td>One round-trip stops trivial abuse of an unauthenticated create endpoint, and gives the submitter a real receipt</td></tr>
+    <tr><td><b>D5</b></td><td><code>ECM_DOCS_DEV.zip</code></td><td><b>Move out of the repository</b></td>
+        <td>87% of repository bytes and 9 credentials found nowhere else. It is a reference archive, not source</td></tr>
+  </table>
+  </div>
+</figure>
+
+<footer>
+  Full text: <b>docs/architecture/TARGET_ARCHITECTURE.md</b> · current-state evidence:
+  <b>docs/forensic/dd2e909/</b> · this is not a rewrite — the correspondence model, attachment-by-link, the proxy's
+  authorization core and the module structure are all already correct and unchanged.
+</footer>
+
+</div>
