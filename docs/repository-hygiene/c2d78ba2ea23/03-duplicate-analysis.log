@@ -1,0 +1,11 @@
+$ python3 Phase 2 duplicate/obsolescence analyzer over docs/repository-hygiene/c2d78ba2ea23/inventory.json and reference-graph.json using sha256 grouping, normalized-line Jaccard plus difflib similarity, ZIP member hashing, and supersession/dangling-reference scans
+> scope_commit=c2d78ba2ea23 tracked_files=294 text_files=286 scope_integrity_mismatches=0
+> exact_groups=2 exact_files=4 redundant_bytes=7071
+> near_pairs=28 divergent=8 partial_fork=1 shared_lineage=19
+> archive_members=837 identical_to_tracked=228 member_to_path_rows=240 same_path_divergent=58 archive_only=551
+> marker_hits=8 self_declared=1 superseded_dirs=1
+> path_reference_anomalies=590 stale=39 git_ignored_by_design=32 resolves_under_ancestor=458 resolves_under_another_tree=47 ambiguous_suffix=0 resolves_inside_archive=14
+> archive_reference_recheck archive=ECM_DOCS_DEV.zip literal_mentions=52 referencing_files=18 phase0_claim=CORRECTED
+> similarity thresholds: divergent-copy >=0.90, partial-fork >=0.75, shared-lineage >=0.60 on normalized non-blank lines
+> rejected heuristic: 'legacy-bridge' marker - every hit named the tracked, live file styles/dgo-design-system/tokens/tokens.legacy-bridge.css
+> sig= values are redacted in all generated evidence

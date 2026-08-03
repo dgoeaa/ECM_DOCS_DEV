@@ -1,0 +1,9 @@
+path	line	kind	direction	drives_verdict	subjects	quote
+FORENSIC_REPOSITORY_AUDIT.md	243	explicit-supersession	asserted-about-other	yes	ECM_DOCS_DEV.zip	| `ECM_DOCS_DEV.zip` | 1 | 17 MB, 838 entries — a snapshot of this platform, superseded by the tree it was used to repair |
+docs/forensic/177d992/00-provenance.md	90	explicit-deletion-note	asserted-about-other	no	(none)	| `document-portal_Central_NITDA_/` does not exist | Correct at HEAD — but it **did** exist and was deleted in `776d26c`; see §0.6 | `CONFIRMED-PRESENT` (history) |
+docs/forensic/177d992/01-architecture.md	266	explicit-deletion-note	asserted-about-other	no	(none)	Phase 0 deferred this. It existed and was deleted:
+docs/forensic/177d992/README.md	1	explicit-supersession	self-declared	yes	(none)	# SUPERSEDED — prior audit target
+docs/forensic/177d992/README.md	10	explicit-stale	self-declared	yes	(none)	changes and its central conclusions were re-verified at `18e9f4d`. It must not be cited as
+document-portal/js/submit.js	262	explicit-deletion-note	asserted-about-other	no	(none)	PF.dialog({ title: 'Clear this form?', sub: 'Everything you have typed and attached is removed.', okLabel: 'Clear it', tone: 'danger', body: '<p class="pf-note">The saved draft on this device is delet
+document-portal/js/track.js	259	explicit-supersession	asserted-about-other	no	(none)	textareaField('Reason (optional)', 'Superseded by a corrected submission.')
+styles/dgo-design-system/tokens/tokens.legacy-bridge.css	3	explicit-deletion-note	asserted-about-other	no	(none)	short vars; the hardcoded styles/tokens.css is deleted. Values are preserved

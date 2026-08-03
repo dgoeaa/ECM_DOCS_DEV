@@ -1,0 +1,295 @@
+path	top_level_tree	size_bytes	reachability	phase2_verdict	confidence	strongest_similarity	stale_outbound_references	signals
+.devcontainer/devcontainer.json	.devcontainer	738	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+.github/workflows/ci.yml	.github	3026	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+.gitignore	root runtime	525	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+AUDIT.md	root runtime	10046	test-reachable	stale-content-review	low	0.0	15	stale-copy-at-same-path-inside-tracked-archive | carries-stale-outbound-references
+AUTHENTICATION_CONTRACT.md	root runtime	7041	test-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+CAPABILITY_ASSESSMENT_R11.6.md	root runtime	31640	test-reachable	stale-content-review	low	0.0	5	carries-stale-outbound-references
+CONTRIBUTING.md	root runtime	4972	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/README.md	ECM_ActivityHub_Portal	1370	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/config.example.js	ECM_ActivityHub_Portal	1100	config-template	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/index.html	ECM_ActivityHub_Portal	1967	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/api/client.js	ECM_ActivityHub_Portal	1998	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/controllers/actions.js	ECM_ActivityHub_Portal	10820	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/core/auth.js	ECM_ActivityHub_Portal	6259	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+ECM_ActivityHub_Portal/js/core/config.js	ECM_ActivityHub_Portal	2332	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/core/router.js	ECM_ActivityHub_Portal	2180	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/core/store.js	ECM_ActivityHub_Portal	3462	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/data/demo.js	ECM_ActivityHub_Portal	3934	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/events/bindings.js	ECM_ActivityHub_Portal	991	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/main.js	ECM_ActivityHub_Portal	1068	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/ai.js	ECM_ActivityHub_Portal	328	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/approvals.js	ECM_ActivityHub_Portal	991	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/bootstrap.js	ECM_ActivityHub_Portal	1270	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/briefs.js	ECM_ActivityHub_Portal	1916	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/correspondence.js	ECM_ActivityHub_Portal	2343	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/decisions.js	ECM_ActivityHub_Portal	1059	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/inbox.js	ECM_ActivityHub_Portal	1694	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/kpi.js	ECM_ActivityHub_Portal	457	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/meetings.js	ECM_ActivityHub_Portal	1867	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/minutes.js	ECM_ActivityHub_Portal	1967	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/ops.js	ECM_ActivityHub_Portal	1686	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/projects.js	ECM_ActivityHub_Portal	818	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/services/tasks.js	ECM_ActivityHub_Portal	1844	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/utils/fn.js	ECM_ActivityHub_Portal	848	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/utils/toast.js	ECM_ActivityHub_Portal	359	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/components/modals.js	ECM_ActivityHub_Portal	19736	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/components/ui.js	ECM_ActivityHub_Portal	3151	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/header.js	ECM_ActivityHub_Portal	1242	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/layout.js	ECM_ActivityHub_Portal	1894	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/admin.js	ECM_ActivityHub_Portal	1425	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/ai.js	ECM_ActivityHub_Portal	1293	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/approvals.js	ECM_ActivityHub_Portal	1985	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6744	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/audit.js	ECM_ActivityHub_Portal	1401	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6479	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/briefs.js	ECM_ActivityHub_Portal	2242	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6744	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/dashboard.js	ECM_ActivityHub_Portal	2472	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/decisions.js	ECM_ActivityHub_Portal	1476	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/directory.js	ECM_ActivityHub_Portal	1346	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6479	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/inbox.js	ECM_ActivityHub_Portal	3495	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/inward.js	ECM_ActivityHub_Portal	2161	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.7473	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/kpi.js	ECM_ActivityHub_Portal	1253	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/meetings.js	ECM_ActivityHub_Portal	2614	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6452	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/minutes.js	ECM_ActivityHub_Portal	2191	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6667	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/notfound.js	ECM_ActivityHub_Portal	1145	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/notifications.js	ECM_ActivityHub_Portal	1738	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6076	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/outward.js	ECM_ActivityHub_Portal	2115	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.7473	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/projects.js	ECM_ActivityHub_Portal	2368	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6744	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/reports.js	ECM_ActivityHub_Portal	942	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/pages/tasks.js	ECM_ActivityHub_Portal	2267	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.6744	0	shared-lineage | byte-identical-copy-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/router.js	ECM_ActivityHub_Portal	2037	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/js/views/sidebar.js	ECM_ActivityHub_Portal	3575	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+ECM_ActivityHub_Portal/powerAutomateClient.js	ECM_ActivityHub_Portal	1389	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+ECM_DOCS_DEV.zip	root runtime	16783981	test-reachable	load-bearing-archive	high	0.0	0	declared-obsolete-by-another-tracked-file | tracked-archive | read-at-runtime-by-tracked-script
+FORENSIC_REPOSITORY_AUDIT.md	root runtime	21013	documentation-referenced	stale-content-review	low	0.0	4	carries-stale-outbound-references
+LICENSE	root runtime	991	legal-or-license	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+PLATFORM_DOCUMENTATION.md	root runtime	17532	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+README.md	root runtime	12092	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+REPOSITORY_AUDIT.md	root runtime	16416	documentation-referenced	stale-content-review	low	0.0	2	carries-stale-outbound-references
+STATUS_REPORT.md	root runtime	9064	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+assets/dgo-mark.svg	assets	329	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/acknowledgement-flow.config.js	config	1023	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/action-ownership.config.js	config	8119	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/action-routing.config.js	config	20851	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/activity-parity.config.js	config	2808	runtime-reachable	stale-content-review	low	0.0	1	byte-identical-copy-inside-tracked-archive | carries-stale-outbound-references
+config/app.config.js	config	621	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/assignment-cascade.config.js	config	3808	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/auth.config.js	config	4953	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+config/browser-certification.config.js	config	1309	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/cache-policy.config.js	config	725	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/config.example.js	config	3087	config-template	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/correspondence-email-templates.config.js	config	4532	config-template	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/deeplink.config.js	config	1322	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/dynamic-actions.config.js	config	4764	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/endpoints.config.js	config	5881	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/fetch-policy.config.js	config	1303	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/module-boundaries.config.js	config	6494	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/nav.config.js	config	605	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/navigation-relationships.config.js	config	3976	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/performance-budget.config.js	config	284	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/platform-provisioning.config.js	config	17456	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/priority.config.js	config	1524	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/product-definition.config.json	config	2284	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/rbac.config.js	config	3804	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/receipt-ledger.config.js	config	445	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/routes.config.js	config	3340	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/source-routing.config.js	config	4089	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/source-views.config.js	config	1285	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/state-schema.config.js	config	755	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/support-routing.config.js	config	1061	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/welcome-experience.config.js	config	2684	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+config/workflow-clarity.config.js	config	7322	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/acknowledgement-service.js	core	10927	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+core/action-authority.js	core	2869	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+core/action-runtime.js	core	1501	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/activity-parity.js	core	16779	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/api.js	core	1751	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/archive.js	core	3254	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/assignment-cascade.js	core	10446	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/assignment-payload.js	core	9376	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/audit-log.js	core	1431	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/auth.js	core	7077	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+core/boot.js	core	3692	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/cache-manager.js	core	2893	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/contracts.js	core	2004	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/correspondence-email-service.js	core	10739	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/current-user.js	core	4813	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+core/data-client.js	core	5823	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+core/data-loader.js	core	5338	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/data-reconciler.js	core	955	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/data-selectors.js	core	2869	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/deeplink-resolver.js	core	2046	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/directorate-scope.js	core	1616	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/dispatch-service.js	core	2880	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/domain.js	core	5898	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/endpoint-registry.js	core	4687	runtime-reachable	stale-content-review	low	0.0	1	byte-identical-copy-inside-tracked-archive | carries-stale-outbound-references
+core/enterprise-domain.js	core	7093	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/entity-store.js	core	8930	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/errors.js	core	1853	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/export-bundle.js	core	1157	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/fetch-manager.js	core	1725	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/flow-confirmation.js	core	2275	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/focus-trap.js	core	5078	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/governed-actions.js	core	748	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/idempotency.js	core	1039	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/lifecycle.js	core	2405	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/loading-state.js	core	2306	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/metrics-service.js	core	1201	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/nitda-module-adapter.js	core	6679	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/offline-action-queue.js	core	2072	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/otp-service.js	core	1746	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/pending-queue.js	core	1941	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/performance-monitor.js	core	1651	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/platform-provisioner.js	core	2247	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/query-store.js	core	1059	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/receipt-ledger.js	core	2699	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/render-budget.js	core	1119	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/report-export-service.js	core	4388	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/retention.js	core	970	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/router.js	core	1481	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/security-actions.js	core	1138	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/source-views.js	core	2838	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/state.js	core	3397	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/support-service.js	core	1378	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/ui-interactions.js	core	1805	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/ui-state.js	core	820	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/ui.js	core	9467	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+core/welcome-experience.js	core	24370	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+core/write-manager.js	core	1583	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+docs/forensic/177d992/00-provenance.md	docs	19426	unreferenced-but-plausibly-current	obsolete-superseded	high	0.0	2	inside-directory-declared-superseded | no-incoming-tracked-reference | carries-stale-outbound-references
+docs/forensic/177d992/01-architecture.md	docs	16693	documentation-referenced	obsolete-superseded	high	0.0	2	inside-directory-declared-superseded | carries-stale-outbound-references
+docs/forensic/177d992/README.md	docs	593	unreferenced-but-plausibly-current	obsolete-superseded	high	0.0	0	self-declared-superseded | inside-directory-declared-superseded | no-incoming-tracked-reference
+docs/forensic/177d992/diagrams/01-architecture.mmd	docs	3567	unreferenced-but-plausibly-current	obsolete-superseded	high	0.0	1	inside-directory-declared-superseded | no-incoming-tracked-reference | carries-stale-outbound-references
+docs/forensic/18e9f4d/00-provenance.md	docs	23021	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	1	no-incoming-tracked-reference | carries-stale-outbound-references
+docs/forensic/18e9f4d/01-architecture.md	docs	19760	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/02-security.md	docs	22744	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+docs/forensic/18e9f4d/03-build-deploy.md	docs	13269	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/04-report.md	docs	28848	unreferenced-obsolete-candidate	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/diagrams/01-architecture.mmd	docs	3860	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/diagrams/02-trust-boundaries.mmd	docs	2667	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd	docs	2757	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/diagrams/04-fork-comparison.mmd	docs	3687	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+docs/forensic/18e9f4d/findings.json	docs	11045	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	no-incoming-tracked-reference
+document-portal/404.html	document-portal	4814	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/README.md	document-portal	9196	unreferenced-but-plausibly-current	unreferenced-review	low	0.0	0	stale-copy-at-same-path-inside-tracked-archive | no-incoming-tracked-reference
+document-portal/admin.html	document-portal	9064	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/config.example.js	document-portal	2819	config-template	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+document-portal/ds/colors_and_type.css	document-portal	10767	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/ds/ds.css	document-portal	722	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/ds/fonts/CascadiaMono-Regular.woff2	document-portal	143932	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/ds/icons/sprite.svg	document-portal	8017	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/ds/logo/nitda-lockup-white.png	document-portal	12383	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+document-portal/ds/logo/nitda-lockup.png	document-portal	112180	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+document-portal/ds/logo/nitda-symbol.png	document-portal	56669	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+document-portal/ds/styles/base.css	document-portal	4566	asset-referenced	duplicate-divergent	medium	0.9295	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/styles/components.css	document-portal	39333	asset-referenced	duplicate-divergent	medium	0.9531	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/styles/components/command-palette.css	document-portal	11685	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/ds/styles/layout.css	document-portal	3252	asset-referenced	duplicate-divergent	medium	0.9886	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/styles/reset.css	document-portal	1152	asset-referenced	duplicate-divergent	medium	0.9859	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.component.css	document-portal	5786	asset-referenced	duplicate-exact	high	0.0	0	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.density.css	document-portal	1285	asset-referenced	duplicate-exact	high	0.0	0	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.primitive.css	document-portal	8731	asset-referenced	duplicate-divergent	medium	0.9933	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.semantic.css	document-portal	7088	asset-referenced	duplicate-divergent	medium	0.9412	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.theme-dark.css	document-portal	3096	asset-referenced	partial-fork-review	low	0.8375	0	partial-fork | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.theme-hc.css	document-portal	2575	asset-referenced	duplicate-divergent	medium	0.9078	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.theme-light.css	document-portal	753	asset-referenced	duplicate-divergent	medium	0.9714	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/favicon.svg	document-portal	262	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/index.html	document-portal	14922	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/js/admin-panels.js	document-portal	18043	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/js/admin.js	document-portal	36176	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/js/core.js	document-portal	29931	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/js/data.js	document-portal	24555	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/js/home.js	document-portal	7582	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/js/icons.js	document-portal	14116	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/js/submit.js	document-portal	23733	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/js/support.js	document-portal	16110	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/js/track.js	document-portal	18217	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/manifest.webmanifest	document-portal	736	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/portal.css	document-portal	26129	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/robots.txt	document-portal	67	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/sitemap.xml	document-portal	381	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+document-portal/submit.html	document-portal	15541	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.6346	0	shared-lineage | stale-copy-at-same-path-inside-tracked-archive
+document-portal/support.html	document-portal	14189	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/sw.js	document-portal	2654	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+document-portal/track.html	document-portal	9136	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.6346	0	shared-lineage | stale-copy-at-same-path-inside-tracked-archive
+index.html	root runtime	4387	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/acknowledgment.js	modules	13959	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/activities.js	modules	24852	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/approvals.js	modules	7129	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/archive.js	modules	4008	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/assistant.js	modules	4329	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/bulk-assignment.js	modules	8354	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/comments.js	modules	2658	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/correspondence-email.js	modules	12054	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/correspondence.js	modules	20790	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/diagnostics.js	modules	8238	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/dispatch.js	modules	9654	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/ecm-erp-charter.js	modules	16698	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/executive.js	modules	11697	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/fasttrack.js	modules	10007	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/home.js	modules	4435	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/lookup.js	modules	14208	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/operator-hud.js	modules	4810	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/orchestrator.js	modules	6354	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/registry.js	modules	11592	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/reports.js	modules	9107	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/response-tracking.js	modules	11154	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/settings.js	modules	7852	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/single-assignment.js	modules	15388	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+modules/statistics.js	modules	10053	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+modules/user-admin.js	modules	9119	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+newack/ack.html	newack	7654	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+newack/config.js	newack	2636	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+newack/email.html	newack	6371	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+newack/index.html	newack	7893	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+newack/styles.css	newack	7035	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+package-lock.json	root runtime	63368	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+package.json	root runtime	1234	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+playwright.config.js	root runtime	1986	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+proxy/README.md	proxy	6618	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/src/authorize.js	proxy	4645	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/src/config.js	proxy	2848	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/src/handler.js	proxy	7349	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/src/jwt.js	proxy	6722	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/src/server.js	proxy	2440	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+proxy/test/proxy.test.mjs	proxy	13830	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+scripts/check-links.mjs	scripts	2051	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+scripts/setup-local.mjs	scripts	5809	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+shared/accessibility.js	shared	493	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+shared/components.js	shared	12139	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+shared/design-system-adapter.js	shared	6177	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+shared/figma-uiux-runtime.js	shared	5956	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+shared/relationship-runtime.js	shared	3628	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+shared/shell.js	shared	14000	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+shared/welcome-runtime.js	shared	8589	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	stale-copy-at-same-path-inside-tracked-archive
+shared/workspace-guide.js	shared	620	runtime-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+styles/app.css	styles	81442	asset-referenced	stale-content-review	low	0.0	1	stale-copy-at-same-path-inside-tracked-archive | carries-stale-outbound-references
+styles/dgo-design-system/base.css	styles	5499	asset-referenced	duplicate-divergent	medium	0.9295	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/brand-type.css	styles	4989	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/colors_and_type.css	styles	8817	asset-referenced	stale-content-review	low	0.0	1	byte-identical-copy-inside-tracked-archive | carries-stale-outbound-references
+styles/dgo-design-system/components.css	styles	47239	asset-referenced	duplicate-divergent	medium	0.9531	0	divergent-copy | stale-copy-at-same-path-inside-tracked-archive
+styles/dgo-design-system/layout.css	styles	3263	asset-referenced	duplicate-divergent	medium	0.9886	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/platform-authority.css	styles	10288	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/reset.css	styles	1129	asset-referenced	duplicate-divergent	medium	0.9859	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.component.css	styles	5786	asset-referenced	duplicate-exact	high	0.0	0	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.density.css	styles	1285	asset-referenced	duplicate-exact	high	0.0	0	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.enhanced.css	styles	1094	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.legacy-bridge.css	styles	3062	asset-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.primitive.css	styles	8820	asset-referenced	duplicate-divergent	medium	0.9933	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.semantic.css	styles	7077	asset-referenced	duplicate-divergent	medium	0.9412	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.theme-dark.css	styles	4237	asset-referenced	partial-fork-review	low	0.8375	0	partial-fork | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.theme-hc.css	styles	3159	asset-referenced	duplicate-divergent	medium	0.9078	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.theme-light.css	styles	729	asset-referenced	duplicate-divergent	medium	0.9714	0	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/index.css	styles	3012	asset-referenced	stale-content-review	low	0.0	3	byte-identical-copy-inside-tracked-archive | carries-stale-outbound-references
+tests/README.md	tests	3924	script-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/auth-posture.test.mjs	tests	9719	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/check-imports.mjs	tests	4602	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/check-secrets.mjs	tests	7320	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/governance.test.mjs	tests	14290	standalone-entrypoint	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/secrets-baseline.txt	tests	1056	test-reachable	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+tests/smoke.spec.js	tests	11864	documentation-referenced	no-duplicate-or-obsolescence-signal	high	0.0	0	(none)
+universal_filename_policy_deliverables/universal_filename_policy_ai_machine_usage.json	universal_filename_policy_deliverables	4247	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+universal_filename_policy_deliverables/universal_filename_policy_one_page_memo.pdf	universal_filename_policy_deliverables	2809	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+universal_filename_policy_deliverables/universal_filename_policy_sop.md	universal_filename_policy_deliverables	2995	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+universal_filename_policy_deliverables/universal_filename_policy_sop.txt	universal_filename_policy_deliverables	2381	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+universal_filename_policy_deliverables/universal_filename_policy_team_handbook.pdf	universal_filename_policy_deliverables	5683	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
+universal_filename_policy_deliverables/universal_filename_policy_word_version.docx	universal_filename_policy_deliverables	38946	archive-contained	no-duplicate-or-obsolescence-signal	high	0.0	0	byte-identical-copy-inside-tracked-archive
