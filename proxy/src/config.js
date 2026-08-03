@@ -49,6 +49,8 @@ export function loadConfig(source = process.env) {
   // broker in front of it. Reached with the proxy's credential, never the browser's.
   const uploadEndpoint = get('DGO_ENDPOINT_INTAKE_UPLOAD');
   if (uploadEndpoint) endpoints.INTAKE_UPLOAD = uploadEndpoint;
+  const supportEndpoint = get('DGO_ENDPOINT_INTAKE_SUPPORT');
+  if (supportEndpoint) endpoints.INTAKE_SUPPORT = supportEndpoint;
 
   return {
     tenantId,

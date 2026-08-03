@@ -270,7 +270,10 @@
       if (!all.length || !navigator.onLine) return;
       all.forEach(function (item) {
         item.tries++;
-        PF.flow(item.kind, item.payload, item.ref, { isRetry: true }).then(function (res) {
+        var send = item.kind === 'support'
+          ? PF.intake.support(item.payload)
+          : PF.intake.submit(item.payload, { queue: false });
+        send.then(function (res) {
           if (res.delivered || item.tries >= 5) PF.outbox.drop(item);
         });
       });
@@ -278,31 +281,109 @@
     }
   };
 
-  /* Posts to the configured Power Automate flow for `kind`. Never rejects:
-     the local record is already authoritative, so a failure only queues a
-     retry and writes a line to the audit trail. */
-  PF.flow = function (kind, payload, ref, opts) {
-    opts = opts || {};
-    var isRetry = !!opts.isRetry, queueable = opts.queue !== false && !isRetry;
-    var url = (PF.ENDPOINTS || {})[kind];
-    if (!url) return Promise.resolve({ delivered: false, reason: 'not-configured' });
-    if (!navigator.onLine) {
-      if (queueable) { PF.outbox.queue(kind, payload, ref); PF.store.log('integration', ref || kind, 'Offline — ' + kind + ' payload queued for delivery'); }
-      return Promise.resolve({ delivered: false, reason: 'offline' });
-    }
-    return fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function (r) {
-      PF.store.log('integration', ref || kind, 'Workflow ' + kind + (r.ok ? ' accepted the payload (HTTP ' + r.status + ')' : ' rejected the payload (HTTP ' + r.status + ')'));
-      if (!r.ok && queueable) PF.outbox.queue(kind, payload, ref);
-      return { delivered: r.ok, status: r.status };
-    }).catch(function () {
-      if (queueable) { PF.outbox.queue(kind, payload, ref); PF.store.log('integration', ref || kind, 'Workflow ' + kind + ' unreachable — payload queued for delivery'); }
-      return { delivered: false, reason: 'unreachable' };
+  /* ============================================================
+     Backend — the authenticating proxy.
+
+     This replaced PF.flow(), which posted directly to a SAS-signed Power
+     Automate URL held in this bundle. Two things changed.
+
+     First, the portal no longer holds a credential: the proxy does. Second,
+     PF.flow never read a response body — only r.ok — so nothing here was ever
+     genuinely two-way. These calls are, so a submission now comes back with a
+     registry reference the submitter can actually use.
+
+     Failure is never silent. A call that cannot be delivered is queued in the
+     outbox and written to the audit trail, exactly as before.
+     ============================================================ */
+  function proxyUrl(path) {
+    var base = (PF.CONFIG && PF.CONFIG.proxyBaseUrl) || '';
+    if (!base) return '';
+    return String(base).replace(/\/+$/, '') + path;
+  }
+  PF.backendConfigured = function () { return !!proxyUrl('/intake/submission'); };
+
+  function readJson(r) {
+    return r.text().then(function (t) {
+      var data = {};
+      try { data = t ? JSON.parse(t) : {}; } catch (e) {}
+      return data;
     });
+  }
+
+  PF.intake = {
+    /* Phase 1 — register the correspondence and receive a reference plus one
+       upload ticket per declared attachment. */
+    submit: function (record, opts) {
+      opts = opts || {};
+      var url = proxyUrl('/intake/submission');
+      if (!url) return Promise.resolve({ delivered: false, reason: 'not-configured' });
+      if (!navigator.onLine) {
+        if (opts.queue !== false) PF.outbox.queue('submission', record, record.localId || '');
+        return Promise.resolve({ delivered: false, reason: 'offline' });
+      }
+      return fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          if (!r.ok) {
+            if (opts.queue !== false) PF.outbox.queue('submission', record, record.localId || '');
+            PF.store.log('integration', record.localId || '', 'Registry refused the submission (HTTP ' + r.status + ')');
+            return { delivered: false, status: r.status, reason: data.reason || 'rejected' };
+          }
+          PF.store.log('integration', data.referenceId || record.localId || '',
+            'Registry accepted the submission and issued ' + (data.referenceId || 'a reference'));
+          return { delivered: true, referenceId: data.referenceId, uploads: data.uploads || [] };
+        });
+      }).catch(function () {
+        if (opts.queue !== false) PF.outbox.queue('submission', record, record.localId || '');
+        PF.store.log('integration', record.localId || '', 'Registry unreachable — submission queued for delivery');
+        return { delivered: false, reason: 'unreachable' };
+      });
+    },
+
+    /* Phase 2 — redeem one ticket with the raw file. Bytes never travel
+       base64-encoded inside a JSON payload, which is what forced the 4 MB
+       ceiling and the silent truncation this replaced. */
+    upload: function (ticket, file) {
+      var url = proxyUrl('/intake/upload');
+      if (!url) return Promise.resolve({ ok: false, stored: false, reason: 'not-configured' });
+      return fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/octet-stream', 'X-Upload-Ticket': ticket },
+        body: file
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          return { ok: r.ok, stored: !!data.stored, status: r.status,
+                   reason: data.reason || data.error || '', link: data.attachmentLink || '' };
+        });
+      }).catch(function () { return { ok: false, stored: false, reason: 'unreachable' }; });
+    },
+
+    /* A helpdesk case. A create, like a submission, but not correspondence —
+       it gets a CASE- reference and never enters the registry. */
+    support: function (payload) {
+      var url = proxyUrl('/intake/support');
+      if (!url) return Promise.resolve({ delivered: false, reason: 'not-configured' });
+      if (!navigator.onLine) {
+        PF.outbox.queue('support', payload, '');
+        return Promise.resolve({ delivered: false, reason: 'offline' });
+      }
+      return fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          if (!r.ok) { PF.outbox.queue('support', payload, ''); return { delivered: false, status: r.status }; }
+          return { delivered: true, caseRef: data.caseRef };
+        });
+      }).catch(function () {
+        PF.outbox.queue('support', payload, '');
+        return { delivered: false, reason: 'unreachable' };
+      });
+    }
   };
+;
 
   /* Aggregate figures used by the home page and the operations console. */
   PF.metrics = function () {

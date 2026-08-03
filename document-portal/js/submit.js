@@ -328,103 +328,115 @@ PF.page = function () {
     });
   }
 
-  /* Hands the submission to the agency workflow.
+  /* Hands the submission to the registry through the authenticating proxy.
 
-     F-028. This previously sent files[0] ONLY, and substituted an empty
-     FileContentBase64 whenever that file exceeded 4 MB — while the submission
-     still reported success. The form accepts five files at 10 MB each, so a
-     submitter could attach five documents, be told they were received, and have
-     four silently discarded. On an external document-intake channel that is the
-     whole purpose failing quietly.
+     TWO PHASES (TARGET_ARCHITECTURE.md §3.3):
+       1. POST /intake/submission — metadata only. The registry validates it, mints a
+          reference and returns one short-lived upload ticket per declared attachment.
+       2. PUT /intake/upload per ticket — the raw file.
 
-     Every attachment is now dispatched, one call per file, each carrying the same
-     reference plus its part number so the registry can reassemble the set.
+     What this replaced, and why it matters: attachments used to be base64-encoded into a
+     JSON workflow payload. Base64 inflates by a third, so a transport limit became a
+     silent data-loss bug — only files[0] was sent, and an empty payload was substituted
+     above 4 MB while the submission still reported success (F-028). Bytes no longer
+     travel inside the payload, so neither limit exists.
 
-     INLINE_CAP is a real transport limit, not a policy: base64 inflates a payload
-     by about a third, so a 4 MB file becomes roughly 5.3 MB of JSON. What changed
-     is the failure mode — anything over the cap is queued in the outbox and written
-     to the audit trail as UNDELIVERED. It is never silently replaced with an empty
-     payload, and the submitter is told.
+     The portal holds no credential. The proxy does. */
 
-     The durable fix is upload brokering (TARGET_ARCHITECTURE.md §3.3): file bytes
-     go straight to SharePoint and stop travelling inside a workflow payload at all.
-     Until that exists, this at least stops losing documents without saying so. */
-  var INLINE_CAP = 4 * 1048576;
+  function digestOf(file) {
+    if (!(window.crypto && crypto.subtle && file)) return Promise.resolve('');
+    return file.arrayBuffer()
+      .then(function (buf) { return crypto.subtle.digest('SHA-256', buf); })
+      .then(function (h) {
+        return Array.prototype.map.call(new Uint8Array(h), function (b) {
+          return b.toString(16).padStart(2, '0');
+        }).join('');
+      })
+      .catch(function () { return ''; });
+  }
 
   function dispatchToWorkflow(rec) {
-    var total = files.length;
-    var undelivered = [];
+    if (!PF.backendConfigured()) {
+      PF.store.log('integration', rec.id, 'No registry endpoint configured — submission held locally');
+      return;
+    }
 
-    var envelope = function (f, index, base64) {
-      return {
-        UserId: rec.id,
-        SubmitterName: rec.name,
-        EmailAddress: rec.email,
-        CompanyName: rec.org,
-        DocumentType: rec.typeLabel,
-        Category: rec.category,
-        FileName: f ? f.name : '',
-        FileContentBase64: base64 || '',
-        /* Part metadata so N calls reassemble into one submission rather than
-           looking like N unrelated submissions with a coincidental reference. */
-        PartNumber: index + 1,
-        PartCount: total,
-        PartSizeBytes: f ? f.size : 0
-      };
-    };
+    /* Declare a digest per attachment so the proxy can verify that what arrives is what
+       was described. Files restored from a draft have no bytes and are declared without
+       one — they are reported as undelivered below rather than silently skipped. */
+    var withBytes = files.filter(function (f) { return f && f.file; });
+    Promise.all(withBytes.map(function (f) { return digestOf(f.file); }))
+      .then(function (digests) {
+        var declared = withBytes.map(function (f, i) {
+          return { name: f.name, size: f.size, sha256: digests[i] || '' };
+        });
+        var missing = files.filter(function (f) { return !f || !f.file; });
 
-    var report = function () {
-      if (!undelivered.length) {
-        if (total) PF.store.log('integration', rec.id, total + ' attachment(s) dispatched to the registry workflow');
+        return PF.intake.submit({
+          localId: rec.id,
+          channel: 'Portal',
+          correspondenceType: 'Incoming',
+          subject: rec.title,
+          category: rec.category,
+          sender: { name: rec.name, organisation: rec.org, organisationType: rec.orgType },
+          senderEmail: rec.email,
+          senderPhone: rec.phone,
+          eventDate: rec.eventDate || '',
+          description: rec.description,
+          attachments: declared,
+          submittedAt: rec.submittedAt
+        }).then(function (res) {
+          if (!res.delivered) return;
+
+          /* The registry reference supersedes the local id. Recording it is what makes a
+             later status lookup possible at all — a local id means nothing to the registry. */
+          if (res.referenceId) {
+            PF.store.update(rec.id, { referenceId: res.referenceId }, {
+              status: rec.status, label: 'Registry reference issued: ' + res.referenceId, actor: 'Registry'
+            });
+          }
+          if (missing.length) {
+            PF.store.log('integration', res.referenceId || rec.id,
+              missing.length + ' attachment(s) could not be sent — bytes were not available after a draft restore');
+          }
+          return uploadAll(res.uploads || [], withBytes, res.referenceId || rec.id);
+        });
+      })
+      .catch(function () {
+        PF.store.log('integration', rec.id, 'Submission could not be prepared — queued for delivery');
+      });
+  }
+
+  /* Redeem tickets one at a time. Sequential rather than parallel: a citizen on a slow
+     connection uploading five documents at once is how uploads fail, and nothing here is
+     time-critical enough to justify it. */
+  function uploadAll(tickets, withBytes, ref) {
+    var failed = [];
+    var i = 0;
+    function next() {
+      if (i >= tickets.length) {
+        if (!failed.length) {
+          PF.store.log('integration', ref, tickets.length + ' attachment(s) delivered to the registry');
+          return;
+        }
+        PF.store.log('integration', ref, failed.length + ' attachment(s) not yet delivered: ' + failed.join(', '));
+        PF.toast('warn', 'Some attachments are still uploading',
+          failed.join(', ') + ' did not complete. Your reference is recorded and the registry ' +
+          'will follow up — do not resubmit.', 9000);
         return;
       }
-      var names = undelivered.join(', ');
-      PF.store.log('integration', rec.id,
-        undelivered.length + ' attachment(s) too large to transmit inline and queued for delivery: ' + names);
-      PF.toast('warn', 'Some attachments are still uploading',
-        names + ' exceeded the inline transfer limit. Your reference is recorded and the ' +
-        'registry will receive them on retry — do not resubmit.', 9000);
-    };
-
-    /* No attachments at all: still register the submission itself. */
-    if (!total) { PF.flow('submission', envelope(null, 0, ''), rec.id); return; }
-
-    var index = 0;
-    var next = function () {
-      if (index >= total) return report();
-      var f = files[index], at = index;
-      index++;
-
-      if (!f || !f.file) {                       // restored from a draft — bytes are gone
-        undelivered.push(f ? f.name : 'attachment ' + (at + 1));
-        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
-        return next();
-      }
-      if (f.size > INLINE_CAP) {                 // queued, recorded, NOT silently emptied
-        undelivered.push(f.name);
-        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
-        return next();
-      }
-
-      var reader = new FileReader();
-      reader.onload = function () {
-        PF.flow('submission', envelope(f, at, String(reader.result || '').split(',')[1] || ''), rec.id);
+      var t = tickets[i];
+      var f = withBytes[i];
+      i++;
+      if (!t || !f || !f.file) { failed.push(t ? t.name : 'attachment ' + i); return next(); }
+      return PF.intake.upload(t.ticket, f.file).then(function (r) {
+        if (!r.ok) failed.push(f.name);
         next();
-      };
-      reader.onerror = function () {
-        undelivered.push(f.name);
-        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
-        next();
-      };
-      try { reader.readAsDataURL(f.file); }
-      catch (e) {
-        undelivered.push(f.name);
-        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
-        next();
-      }
-    };
+      });
+    }
     next();
   }
+
 
   function finish() {
     var s = PF.correspondenceType(val('service'));

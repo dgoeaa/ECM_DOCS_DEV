@@ -92,7 +92,11 @@ PF.page = function () {
       btn.removeAttribute('data-loading'); btn.disabled = false;
       var rec = PF.store.get(id);
       PF.store.log('lookup', id, 'Status lookup for ' + id);
-      PF.flow('tracking', { emailAddress: email, trackingId: id }, id, { queue: false });
+      /* The tracking flow used to be called here. It did nothing: PF.flow only ever read
+         r.ok, never a response body, so a lookup was fire-and-forget and every result
+         shown came from this browser's own store. Removing the call loses no behaviour and
+         removes one signed credential. Genuine read-back from the registry is step 6 of
+         docs/architecture/TARGET_ARCHITECTURE.md. */
       if (!rec) return notFound(id);
       if (rec.email.toLowerCase() !== email.toLowerCase()) return mismatch(id);
       history.replaceState(null, '', location.pathname + '?id=' + encodeURIComponent(id) + '&email=' + encodeURIComponent(email));

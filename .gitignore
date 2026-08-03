@@ -6,6 +6,7 @@ node_modules/
 # config.example.js and fill it in locally instead.
 config/config.local.js
 ECM_ActivityHub_Portal/config.local.js
+document-portal/config.local.js
 ECM_ActivityHub_Portal/htdocs/config.local.js
 
 # Ad-hoc runtime state exports

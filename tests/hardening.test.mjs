@@ -102,29 +102,69 @@ console.log('\nF-017 · secret scanner reads archive members');
 }
 
 /* ---------------------------------------------------------------- F-028
-   The portal accepted five attachments and transmitted one, substituting an
-   empty payload when that one exceeded 4 MB while still reporting success.
-   Every attachment must now be dispatched, and anything undeliverable must be
-   queued and surfaced rather than silently emptied. */
-console.log('\nF-028 · document portal transmits every attachment');
+   Two fixes, in sequence. Step 1 made the portal dispatch every attachment
+   instead of only files[0]. Step 5 then removed the base64-in-JSON transport
+   entirely, which is what created the 4 MB ceiling in the first place — so the
+   assertions below describe the CURRENT shape, not the intermediate one. */
+console.log('\nF-028 · every attachment is transmitted, and not inside a JSON payload');
 {
   const s = read('document-portal/js/submit.js');
   const fn = (s.match(/function dispatchToWorkflow[\s\S]*?\n  \}/) || [''])[0];
 
   ok('dispatchToWorkflow was located', fn.length > 200);
-  ok('no single-file dispatch remains', !/var primary = files\[0\]/.test(fn));
-  ok('it iterates the attachment list', /files\.length/.test(fn) && /files\[index\]|files\[at\]/.test(fn));
-  ok('oversize attachments are queued, not emptied',
-     /PF\.outbox\.queue/.test(fn),
-     'an attachment that cannot be inlined must reach the outbox');
-  ok('undelivered attachments are written to the audit trail', /PF\.store\.log/.test(fn));
-  ok('the submitter is told when something did not go', /PF\.toast/.test(fn));
-  ok('part metadata lets N calls reassemble into one submission',
-     /PartNumber/.test(fn) && /PartCount/.test(fn));
+  ok('no single-file dispatch remains', !/files\[0\]/.test(fn));
+  ok('every attachment with bytes is declared', /withBytes/.test(fn));
+  ok('uploads are redeemed one ticket at a time', /uploadAll/.test(s));
+  ok('undelivered attachments are written to the audit trail', /PF\.store\.log/.test(s));
+  ok('the submitter is told when something did not go', /PF\.toast\('warn'/.test(s));
+  ok('attachments restored from a draft are reported, not skipped silently',
+     /bytes were not available after a draft restore/.test(s));
 
-  // The old bug in one line: an early return that sent '' for a too-large file.
+  // The two shapes this replaced, neither of which may return.
   ok('no early return substitutes an empty payload for an oversize file',
      !/size > 4 \* 1048576\) return send\(''\)/.test(s));
+  ok('no base64 transport remains', !/FileContentBase64|readAsDataURL/.test(s),
+     'bytes must travel as bytes; base64-in-JSON is what forced the 4 MB limit');
+}
+
+/* ---------------------------------------------------------------- F-013 / F-001
+   The portal held three SAS-signed Power Automate URLs and posted to them
+   directly, with no code path to the proxy at all. It now holds no credential
+   and talks only to the proxy. */
+console.log('\nF-013 / F-001 · document portal holds no credential');
+{
+  const data = read('document-portal/js/data.js');
+  ok('no SAS signature remains in the portal bundle', !/sig=[A-Za-z0-9_-]{20,}/.test(data));
+  ok('PF.ENDPOINTS is gone', !/PF\.ENDPOINTS\s*=/.test(data));
+  ok('the portal reads a proxy base URL instead', /proxyBaseUrl/.test(data));
+
+  const core = read('document-portal/js/core.js');
+  ok('PF.flow is gone', !/PF\.flow\s*=\s*function/.test(core));
+  ok('PF.intake replaces it', /PF\.intake\s*=/.test(core));
+  ok('submission targets the proxy intake route', /\/intake\/submission/.test(core));
+  ok('uploads target the proxy upload route', /\/intake\/upload/.test(core));
+  ok('an unconfigured proxy yields no URL rather than a default host',
+     /if \(!base\) return ''/.test(core));
+
+  for (const f of ['submit.js', 'support.js', 'track.js', 'admin.js', 'home.js']) {
+    const src = read(`document-portal/js/${f}`);
+    ok(`${f} makes no PF.flow call`, !/PF\.flow\(/.test(src));
+    ok(`${f} carries no signed URL`, !/sig=[A-Za-z0-9_-]{20,}/.test(src));
+  }
+
+  const submit = read('document-portal/js/submit.js');
+  ok('attachments are no longer base64-encoded into a payload',
+     !/FileContentBase64/.test(submit),
+     'bytes must travel as bytes, not inside JSON');
+  ok('a per-attachment digest is declared so the proxy can verify it',
+     /crypto\.subtle\.digest/.test(submit));
+
+  // Comment lines explain why the portal was removed, so only entries count.
+  const baselineEntries = read('tests/secrets-baseline.txt')
+    .split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  ok('the portal is no longer a baselined credential file',
+     !baselineEntries.some(l => l.startsWith('document-portal')),
+     `entries: ${baselineEntries.join(', ')}`);
 }
 
 console.log(`\n${failed ? '❌' : '✅'} ${passed} passed, ${failed} failed\n`);

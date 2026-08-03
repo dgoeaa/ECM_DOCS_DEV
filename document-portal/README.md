@@ -38,20 +38,33 @@ manifest.webmanifest, favicon.svg, robots.txt, sitemap.xml
 
 ## Configuration
 
-**Workflow endpoints** — `js/data.js` → `PF.ENDPOINTS`. The three Power Automate flow URLs
-carried over from the source portals are already in place, with their original payload schemas:
+**Backend** — `config.example.js` → `config.local.js`, which is git-ignored.
 
-| Key | Payload |
+The portal holds **no credential**. It previously carried three SAS-signed Power Automate
+URLs in `js/data.js`; a signed URL is a bearer credential, and those were delivered to every
+browser that opened any page, cached by the service worker, and readable by anyone who could
+fetch a static asset. They are gone.
+
+It now talks only to the **authenticating proxy**, which is the one component that holds a
+credential. Two routes:
+
+| Route | Purpose |
 | --- | --- |
-| `submission` | `UserId`, `SubmitterName`, `EmailAddress`, `CompanyName`, `DocumentType`, `FileName`, `FileContentBase64` |
-| `tracking` | `emailAddress`, `trackingId` |
-| `support` | `emailAddress`, `Comments` |
+| `POST /intake/submission` | Registers the correspondence, returns a registry reference and one short-lived upload ticket per attachment |
+| `PUT /intake/upload` | Redeems one ticket with the raw file. Bytes never travel base64-encoded inside a JSON payload |
+| `POST /intake/support` | Opens a helpdesk case. A create, but not correspondence — it gets a `CASE-` reference and never enters the registry |
 
-Set any value to `''` to disable that integration. Delivery never blocks the user: the portal
-records everything locally first, and anything a flow refuses (or that was sent while offline)
-is queued in the outbox and retried on the next page load, up to five attempts. Every attempt
-writes a line to the audit trail, and the support page reports the queue depth under
-*Portal status*.
+```js
+window.PF_CONFIG = { proxyBaseUrl: "https://dgo-proxy.nitda.gov.ng" };
+```
+
+Leaving `proxyBaseUrl` empty puts the portal in **demo mode**: everything stays local and
+nothing is transmitted. That is the safe failure for a public channel — it degrades to
+visibly doing nothing rather than quietly reaching an unintended host.
+
+**Status tracking is local for now.** The old tracking call was fire-and-forget — it never
+read a response, so every result shown already came from this browser's own store. Genuine
+read-back from the registry is step 6 of `docs/architecture/TARGET_ARCHITECTURE.md`.
 
 **Service catalogue** — `js/data.js` → `PF.SERVICES`: code, owning unit, working-day target and
 required documents per service. Adding an entry adds it to the submission form, the home

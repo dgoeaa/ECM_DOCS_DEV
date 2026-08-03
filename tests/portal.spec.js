@@ -16,6 +16,11 @@ import { test, expect } from '@playwright/test';
 const EXTERNAL = [/fonts\.googleapis\.com/, /fonts\.gstatic\.com/, /cdn\.tailwindcss\.com/, /unpkg\.com/];
 const isExternal = url => EXTERNAL.some(re => re.test(url));
 
+/** Git-ignored deployment config. A 404 on a clean checkout is expected and is why the
+ *  tag carries onerror="void 0" — the portal falls back to demo mode. */
+const OPTIONAL_404 = [/\/document-portal\/config\.local\.js$/];
+const isOptional = url => OPTIONAL_404.some(re => re.test(url));
+
 /** Same-origin failures only, and never the unattributable bare console line. */
 function watch(page) {
   const errs = [];
@@ -31,7 +36,7 @@ function watch(page) {
   });
   page.on('response', r => {
     const url = r.url();
-    if (r.status() < 400 || isExternal(url)) return;
+    if (r.status() < 400 || isExternal(url) || isOptional(url)) return;
     if (new URL(url).origin !== 'http://localhost:8080') return;
     errs.push(`${r.status()} ${url}`);
   });

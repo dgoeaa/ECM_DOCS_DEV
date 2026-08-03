@@ -183,6 +183,36 @@ export function validateSubmission(body, { categories = INTAKE_CATEGORIES, limit
 }
 
 /**
+ * Validate a helpdesk case.
+ *
+ * A support case is a create, like a submission, but it is NOT correspondence: it does not
+ * enter the registry, does not get a registry reference, and must not be mapped onto a
+ * correspondence category. Giving it its own shape keeps the two from being conflated in
+ * the system of record.
+ */
+export function validateSupportCase(body, { limits = INTAKE_LIMITS } = {}) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) throw new IntakeError('malformed_body');
+
+  const name = str(body.name);
+  if (!name) throw new IntakeError('missing_name');
+
+  const email = str(body.email).toLowerCase();
+  if (!email) throw new IntakeError('missing_email');
+  if (!EMAIL.test(email)) throw new IntakeError('invalid_email');
+
+  const message = str(body.message);
+  if (!message) throw new IntakeError('missing_message');
+  if (message.length > limits.maxDescriptionChars) throw new IntakeError('message_too_long', `${message.length} chars`);
+
+  const topic = str(body.topic);
+  // A submitter may quote a registry reference they are asking about. It is a hint for the
+  // helpdesk, never a lookup key — this route cannot read a record under any circumstance.
+  const aboutReference = str(body.aboutReference).slice(0, 64);
+
+  return { name, email, topic, message, aboutReference };
+}
+
+/**
  * Handle POST /intake/submission.
  *
  * Deliberately returns 202 rather than 200: the registry has accepted the submission for
@@ -196,7 +226,7 @@ export async function handleIntake(req, deps) {
   } = deps;
 
   const action = String(req.path || '').split('/').filter(Boolean).pop() || '';
-  if (action !== 'submission') {
+  if (action !== 'submission' && action !== 'support') {
     return { status: 404, headers: { 'Content-Type': 'application/json' },
              body: { ok: false, error: 'unknown_intake_action', action, correlationId } };
   }
@@ -208,6 +238,38 @@ export async function handleIntake(req, deps) {
     return { status: 429,
              headers: { 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfterSec) },
              body: { ok: false, error: 'rate_limited', retryAfterSeconds: rl.retryAfterSec, correlationId } };
+  }
+
+  if (action === 'support') {
+    let sup;
+    try {
+      sup = validateSupportCase(req.body, { limits: config.intakeLimits || INTAKE_LIMITS });
+    } catch (e) {
+      audit({ event: 'intake:support-rejected', correlationId, source: key,
+              reason: e.reason || 'error', at: now().toISOString() });
+      return { status: e.status || 400, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'invalid_support_case', reason: e.reason || 'error', correlationId } };
+    }
+    // A case reference, not a registry reference — deliberately a different prefix so the
+    // two can never be mistaken for one another in a log or by a person.
+    const caseRef = `CASE-${minter.mint().split('-').slice(1).join('-')}`;
+    const at = now().toISOString();
+    audit({ event: 'intake:support-accepted', correlationId, source: key, caseRef, at });
+
+    const supTarget = config.endpoints?.INTAKE_SUPPORT;
+    let delivered = false;
+    if (supTarget) {
+      try {
+        const res = await fetchImpl(supTarget, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+          body: JSON.stringify({ ...sup, caseRef, receivedAt: at, source: 'document-portal' }),
+        });
+        delivered = res.ok;
+      } catch { /* reported below as delivered:false */ }
+    }
+    return { status: 202, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+             body: { ok: true, caseRef, receivedAt: at, delivered, correlationId } };
   }
 
   let record;

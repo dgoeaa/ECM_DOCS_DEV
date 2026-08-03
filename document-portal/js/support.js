@@ -214,13 +214,13 @@ PF.page = function () {
         at: now, updatedAt: now, replies: []
       };
       PF.store.addTicket(ticket);
-      PF.flow('support', {
-        emailAddress: ticket.email,
-        Comments: 'Case ' + ticket.ref + ' · ' + ticket.topicLabel +
-          '\nName: ' + ticket.name +
-          (ticket.requestId ? '\nTracking ID: ' + ticket.requestId : '') +
-          '\n\n' + ticket.message
-      }, ticket.ref);
+      PF.intake.support({
+        name: ticket.name,
+        email: ticket.email,
+        topic: ticket.topicLabel,
+        aboutReference: ticket.requestId || '',
+        message: ticket.message
+      });
 
       btn.removeAttribute('data-loading'); btn.disabled = false;
       PF.$('#casePanel').hidden = true;

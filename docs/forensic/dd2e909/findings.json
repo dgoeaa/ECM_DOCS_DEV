@@ -19,7 +19,7 @@
         "lines": "n/a \u2014 31 signatures across 18 of 837 members"
       }
     ],
-    "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool.",
+    "impact": "Any holder of a signature can invoke NITDA Power Automate workflows without authentication; 18 were deleted from the tree but remain reachable from origin/main history and 9 more were never visible to any tool. At step 5 the portal stopped holding its three signatures; the archive is now the only baselined file. All 31 still require rotation -- see docs/architecture/ROTATION_REGISTER.md.",
     "remediation": "Rotate all 31 signatures in Power Automate before deleting any file; deletion revokes nothing."
   },
   {
@@ -65,8 +65,9 @@
         "lines": "4"
       }
     ],
-    "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement. newack has since been retired, leaving document-portal as the sole tree with no proxy path.",
-    "remediation": "Add proxy-aware endpoint resolution to both trees, or retire them."
+    "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement. newack has since been retired, leaving document-portal as the sole tree with no proxy path. CLOSED at step 5: newack retired, and document-portal now routes through the proxy intake route holding no credential of its own.",
+    "remediation": "Add proxy-aware endpoint resolution to both trees, or retire them.",
+    "outcome": "fixed"
   },
   {
     "id": "F-017",

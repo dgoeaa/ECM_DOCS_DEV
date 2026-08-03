@@ -5,7 +5,7 @@
    Asset requests below are cache-first, so a stale entry survives a redeploy: rotating a
    signature without bumping this constant leaves returning visitors pinned to an endpoint
    that no longer exists. */
-const CACHE = 'nitda-portal-v3';
+const CACHE = 'nitda-portal-v4';
 
 /* js/data.js is deliberately NOT precached — it carries the workflow endpoints, and
    precaching wrote them durably into Cache Storage where they outlived the tab.

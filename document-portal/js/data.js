@@ -15,17 +15,27 @@ PF.ORG = {
 };
 
 /* ---------------------------------------------------------------
-   Workflow integration — Power Automate flows carried over from the
-   two source portals. Payload schemas are unchanged so the existing
-   flows keep working; set a value to '' to disable that integration.
-   Delivery is never blocking: the portal records everything locally
-   first and the outbox in core.js retries whatever did not go out.
+   Backend.
+
+   This replaced PF.ENDPOINTS, which held three SAS-signed Power Automate
+   URLs. A signed URL is a bearer credential: possession alone authorises
+   invoking the flow, and these were delivered to every browser that opened
+   any page of this portal, cached by the service worker, and readable by
+   anyone who could fetch a static asset.
+
+   The portal now holds NO credential. It talks to the authenticating proxy,
+   which is the only component that holds one (see proxy/README.md and
+   docs/architecture/TARGET_ARCHITECTURE.md §3.1). That is what retires the
+   problem class rather than rotating it: there is no signature left in any
+   shipped asset to leak.
+
+   Set at deploy time by copying config.example.js to config.local.js — which
+   is git-ignored — or by injecting window.PF_CONFIG before this file loads.
+   Empty means DEMO MODE: everything stays local and nothing is transmitted,
+   which is the safe failure for a public channel.
    --------------------------------------------------------------- */
-PF.ENDPOINTS = {
-  submission: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ff7714c11a74fa4a876f8f6a79b64d2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jVUOseIHw17BG3tMiZfBMCEVSN1a65vOSLtsKURgr98',
-  tracking: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ca0bafc172114e0bb4853c135246654c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Yef7pmj6yGBRszqaS9BT7gosu2gYlaheAfqhmSgAJuo',
-  support: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3fc71cc29d15481291fd341def327572/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FUeporOryvRDWA7z561j4LsLY4ey3YjUsgUCIqhEzyU'
-};
+PF.CONFIG = Object.assign({ proxyBaseUrl: '' },
+  (typeof window !== 'undefined' && window.PF_CONFIG) || {});
 
 /* ---------------------------------------------------------------
    Status model — four visible stages, seven internal states.
