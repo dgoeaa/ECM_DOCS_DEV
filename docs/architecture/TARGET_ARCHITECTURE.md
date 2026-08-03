@@ -189,11 +189,23 @@ It already does token validation, role derivation, per-action authorization, ide
 | **Upload brokering** | Mint short-lived, single-use SharePoint upload URLs so file bytes never traverse a workflow payload |
 | **Reference minting** | Server-side registry references, so two submitters cannot collide and a client cannot choose its own |
 
-### 3.7 Role vocabulary — reconcile before activation
+### 3.7 Role vocabulary — one vocabulary, and what is left to do
 
-`config/rbac.config.js` defines `systemAdmin · userAdmin · executive · director · operator · viewer`, and `proxy/src/authorize.js:10` imports it. `ECM_ActivityHub_Portal/js/core/router.js:12-16` guards on `SystemAdmin · DGCEO · COS`. **Zero overlap.**
+**Largely closed by D6(b).** The conflict was between `config/rbac.config.js`
+(`systemAdmin · userAdmin · executive · director · operator · viewer`, imported by
+`proxy/src/authorize.js:10`) and the ECM Activity Hub's disjoint
+`SystemAdmin · DGCEO · COS`. That second vocabulary lived in the Hub's router, which is
+deleted, so there is now **one role model** and the proxy already imports it rather than
+restating it.
 
-Target: **one vocabulary**, `config/rbac.config.js`, with the ActivityHub deriving `ROUTE_ROLES` from it. `DGCEO` and `COS` become *positions* mapped onto roles (`DGCEO → executive`, `COS → director`), not a parallel role system. Left as-is, activation silently locks three ActivityHub routes for every principal.
+What remains is not a reconciliation but a mapping, and it is **owner-side**: the six roles
+must exist as Entra app roles, and `DGO_ROLE_MAP` must map the claim values onto them. The
+proxy refuses to start without that map and denies any principal whose claim is unmapped —
+`tests/auth-posture.test.mjs` asserts both, so an incomplete mapping fails closed rather than
+falling back to a local role.
+
+`DGCEO` and `COS` were positions, not roles. If they are wanted as claim values they map onto
+`executive` and `director` in `DGO_ROLE_MAP`; nothing in the platform needs to know about them.
 
 ---
 
@@ -311,7 +323,7 @@ Each step is independently deployable and leaves the platform working.
 | **D1** | Correspondence category vocabulary for external submitters | (a) reuse root's `categories` reference data · (b) a simplified public-facing subset mapped to it | **(b)** — a submitter should not choose from an internal taxonomy, but every value must map to one |
 | **D2** | `newack/` | (a) retire · (b) adopt and wire | **(a) retire** — orphaned, unowned, untested, and it holds a live credential. If acknowledgement is needed, the root platform already implements it |
 | **D3** | Portal SLA display | (a) keep per-service SLAs · (b) show a registry acknowledgement target only | **(b)** — per-service SLAs belong to a service desk. A correspondence channel acknowledges receipt and reports status |
-| **D4** | Anonymous or verified submission | (a) fully anonymous · (b) email verification before reference is issued | **(b)** — one round-trip stops trivial abuse of an unauthenticated create endpoint and gives the submitter a real receipt |
+| ~~**D4**~~ | ~~Anonymous or verified submission~~ — **DECIDED (b) AND DONE**: `/intake/verify` + `/intake/verify-confirm`, single-use address-bound proofs, checked before the reference is minted. Off by default; `DGO_REQUIRE_VERIFICATION` turns it on | — | — |
 | **D5** | `ECM_DOCS_DEV.zip` | (a) keep and scan · (b) move out of the repository | **(b)** — it is 87% of repository bytes and holds 9 credentials found nowhere else. It is a reference archive, not source |
 | ~~**D6**~~ | ~~`ECM_ActivityHub_Portal/`~~ — **DECIDED (b) AND DONE**: briefs, meetings and projects ported to root modules; the tree is deleted. Closes F-023 and F-024 by deletion and halves F-025 | — | — |
 

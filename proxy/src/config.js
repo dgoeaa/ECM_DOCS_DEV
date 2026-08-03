@@ -63,6 +63,11 @@ export function loadConfig(source = process.env) {
   const scanEndpoint = get('DGO_ENDPOINT_SCAN_UPLOAD');
   if (scanEndpoint) endpoints.SCAN_UPLOAD = scanEndpoint;
 
+  // D4 · where a verification code is sent. Absent, a challenge is still issued and audited
+  // but the response says sent:false, so a deployment can see verification is unreachable.
+  const verifyEndpoint = get('DGO_ENDPOINT_INTAKE_VERIFY_EMAIL');
+  if (verifyEndpoint) endpoints.INTAKE_VERIFY_EMAIL = verifyEndpoint;
+
   return {
     tenantId,
     issuer: get('DGO_ISSUER') || (tenantId ? `https://login.microsoftonline.com/${tenantId}/v2.0` : ''),
@@ -82,6 +87,15 @@ export function loadConfig(source = process.env) {
     // document library, so there is no default and no fallback: absent means uploads are
     // unavailable, not that uploads are unsigned.
     uploadSecret: get('DGO_UPLOAD_SECRET') || '',
+    // D4 · signs verification challenges and proofs. Same rule as the upload secret: absent
+    // means the capability is unavailable, never that it runs unsigned.
+    verifySecret: get('DGO_VERIFY_SECRET') || '',
+    /* Defaults to FALSE deliberately. With no mail endpoint configured the proxy cannot send
+       a code, so REQUIRING one would take the public submission channel offline — a control
+       that silently stops citizens writing to a government registry is worse than the abuse
+       it prevents. Turning it on is a deployment decision, and every submission response
+       reports which posture issued it. */
+    requireVerification: String(get('DGO_REQUIRE_VERIFICATION') || '') === 'true',
     endpoints,
     missing,
     configuredEndpoints: Object.keys(endpoints),

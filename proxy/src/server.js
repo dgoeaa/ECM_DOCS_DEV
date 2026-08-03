@@ -11,6 +11,7 @@ import { createJwks } from './jwt.js';
 import { handleRequest, createIdempotencyStore } from './handler.js';
 import { createRateLimiter, createReferenceMinter, STATUS_LIMITS } from './intake.js';
 import { createUploadBroker } from './upload.js';
+import { createVerificationService } from './verification.js';
 
 const cfg = assertUsable(loadConfig());
 const jwks = createJwks({ jwksUri: cfg.jwksUri });
@@ -32,6 +33,19 @@ const minter = createReferenceMinter({ prefix: cfg.intakeRefPrefix });
 // Upload brokering is optional and fails CLOSED: without DGO_UPLOAD_SECRET no tickets are
 // issued and PUT /intake/upload answers 503. Starting with unsigned tickets would be worse
 // than starting without uploads.
+// D4 · email verification. Fails CLOSED in the same way: without DGO_VERIFY_SECRET no
+// challenge can be signed, so the routes answer 503 rather than issuing unsigned proofs.
+let verifier = null;
+if (cfg.verifySecret) {
+  verifier = createVerificationService({ secret: cfg.verifySecret });
+} else if (cfg.requireVerification) {
+  throw new Error(
+    'DGO_REQUIRE_VERIFICATION=true but DGO_VERIFY_SECRET is not set. Refusing to start: ' +
+    'requiring a verification the proxy cannot issue would take the public channel offline.');
+} else {
+  console.log(JSON.stringify({ event: 'proxy:verification-disabled', reason: 'DGO_VERIFY_SECRET not set' }));
+}
+
 let broker = null;
 if (cfg.uploadSecret) {
   broker = createUploadBroker({ secret: cfg.uploadSecret });
@@ -92,7 +106,7 @@ const server = http.createServer(async (req, res) => {
   }
   const out = await handleRequest(
     { method: req.method, path, headers: req.headers, body, remoteAddress: req.socket?.remoteAddress },
-    { config: cfg, jwks, idempotency, audit, rateLimiter, statusRateLimiter, minter, broker }
+    { config: cfg, jwks, idempotency, audit, rateLimiter, statusRateLimiter, minter, broker, verifier }
   );
   res.writeHead(out.status, out.headers);
   res.end(JSON.stringify(out.body));

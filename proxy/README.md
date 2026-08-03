@@ -71,6 +71,9 @@ Everything sensitive comes from the environment. Nothing is committed.
 | `DGO_ENDPOINT_INTAKE_SUPPORT` | | Downstream for helpdesk cases. Absent ⇒ a case reference is still minted and `delivered:false` is returned |
 | `DGO_ENDPOINT_INTAKE_STATUS` | | Registry lookup for status read-back. **Absent ⇒ `/intake/status` answers `503`, never `404`** |
 | `DGO_ENDPOINT_SCAN_UPLOAD` | | Library destination for registry counter deposits. Falls back to `INTAKE_UPLOAD` when unset |
+| `DGO_VERIFY_SECRET` | for verification | ≥32 chars, signs verification challenges and proofs. **Absent ⇒ verification is unavailable, never unsigned** |
+| `DGO_ENDPOINT_INTAKE_VERIFY_EMAIL` | | Where a verification code is sent. Absent ⇒ the challenge is issued and audited but the response says `sent:false` |
+| `DGO_REQUIRE_VERIFICATION` | | `true` to require a verified address before a reference is minted. **Defaults to false** — see below |
 
 Contract keys are the 19 in `config/endpoints.config.js`. `GET /healthz` reports which are configured and which are still missing.
 
@@ -181,6 +184,42 @@ documents nobody can vouch for.
 
 `ROUTE_MANAGE` is the required permission, so a `viewer` cannot deposit and neither can an
 `executive` — depositing is an operational act, not a reporting one.
+
+## Email verification (D4)
+
+`POST /intake/verify` mails a code to an address; `POST /intake/verify-confirm` exchanges the
+code for a single-use proof that `/intake/submission` accepts. Both are anonymous and both are
+rate limited.
+
+**What it buys, in order of how often it matters:**
+
+1. **A receipt that reaches the submitter.** A typo in the address currently produces a
+   reference nobody can ever use — tracking needs the pair, and the wrong half is
+   unrecoverable. This is the common failure.
+2. **The cost of bulk abuse goes up.** An open create endpoint on a government registry can
+   be driven at the rate limit with fabricated addresses. A round-trip through a real mailbox
+   does not stop a determined attacker — they can verify one address and reuse it — but it
+   stops the trivial case, which is the one that happens.
+
+**What it is not: identity.** A verified address proves someone reads that mailbox. Nothing
+downstream may treat it as proof of who they are.
+
+**The proof is single-use and address-bound.** One verification buys one submission, and a
+token earned for one mailbox cannot submit under another. Both are signed, so neither can be
+forged or retargeted. `proxy/test/verification.test.mjs` asserts each as a negative control.
+
+**Verification is checked BEFORE the reference is minted.** Otherwise the registry sequence
+advances on every refused attempt and the gaps are unexplainable later.
+
+**Every confirm failure returns one reason.** "No challenge", "expired" and "wrong code" are
+three different facts about an address; telling them apart tells a prober whether an address
+has a live challenge. The distinctions are kept in the audit log, where detection needs them.
+
+**`DGO_REQUIRE_VERIFICATION` defaults to false, deliberately.** With no mail endpoint the
+proxy cannot send a code, and a control that silently stops citizens writing to a government
+registry is worse than the abuse it prevents. Turning it on is a deployment decision; the
+server refuses to start if it is on without a signing secret, and every submission response
+carries `verified: true|false` so a deployment cannot be wrong about its own posture.
 
 ### Three things that must change before scaling out
 

@@ -1,4 +1,5 @@
 import { PUBLIC_DOCUMENT_KINDS } from '../../config/correspondence-categories.config.js';
+import { VerificationError } from './verification.js';
 
 // Anonymous correspondence intake — TARGET_ARCHITECTURE.md §3.5, §3.6.
 //
@@ -330,11 +331,11 @@ export function projectStatus(upstream, { limits = STATUS_LIMITS } = {}) {
  */
 export async function handleIntake(req, deps) {
   const {
-    config = {}, rateLimiter, statusRateLimiter, minter, broker, audit = () => {},
-    fetchImpl = fetch, correlationId = '', now = () => new Date(),
+    config = {}, rateLimiter, statusRateLimiter, minter, broker, verifier,
+    audit = () => {}, fetchImpl = fetch, correlationId = '', now = () => new Date(),
   } = deps;
 
-  const ACTIONS = ['submission', 'support', 'status'];
+  const ACTIONS = ['submission', 'support', 'status', 'verify', 'verify-confirm'];
   const action = String(req.path || '').split('/').filter(Boolean).pop() || '';
   if (!ACTIONS.includes(action)) {
     return { status: 404, headers: { 'Content-Type': 'application/json' },
@@ -352,6 +353,68 @@ export async function handleIntake(req, deps) {
     return { status: 429,
              headers: { 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfterSec) },
              body: { ok: false, error: 'rate_limited', retryAfterSeconds: rl.retryAfterSec, correlationId } };
+  }
+
+  /* ── D4 · email verification ────────────────────────────────────────────────
+     Two steps, both anonymous and both rate limited. `verify` issues a code to an address;
+     `verify-confirm` exchanges the code for a single-use proof that /intake/submission
+     accepts. See proxy/src/verification.js for what this does and does not buy. */
+  if (action === 'verify' || action === 'verify-confirm') {
+    if (!verifier) {
+      return { status: 503, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'verification_not_available', correlationId } };
+    }
+    const email = str(req.body?.email).toLowerCase();
+    if (!email || !EMAIL.test(email)) {
+      return { status: 400, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'invalid_email', correlationId } };
+    }
+
+    if (action === 'verify') {
+      let challenge;
+      try { challenge = verifier.issue(email); }
+      catch (e) {
+        audit({ event: 'intake:verify-throttled', correlationId, source: key, at: now().toISOString() });
+        return { status: e.status || 400, headers: { 'Content-Type': 'application/json' },
+                 body: { ok: false, error: e.reason, correlationId } };
+      }
+
+      /* The code goes out by mail, and this module never returns it to the caller — doing so
+         would make the whole exercise decorative. With no mail endpoint configured the
+         challenge is still issued and audited, and the response says `sent: false` so a
+         deployment can see that verification is not actually reachable. */
+      const target = config.endpoints?.INTAKE_VERIFY_EMAIL;
+      let sent = false;
+      if (target) {
+        try {
+          const res = await fetchImpl(target, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+            body: JSON.stringify({ to: email, code: challenge.code, expiresAt: challenge.expiresAt }),
+          });
+          sent = res.ok;
+        } catch { /* reported as sent:false */ }
+      }
+      audit({ event: 'intake:verify-issued', correlationId, source: key, sent, at: now().toISOString() });
+      return { status: 202, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+               body: { ok: true, sent, expiresAt: challenge.expiresAt, correlationId } };
+    }
+
+    // verify-confirm
+    let proof;
+    try { proof = verifier.redeem(email, req.body?.code); }
+    catch (e) {
+      audit({ event: 'intake:verify-failed', correlationId, source: key,
+              reason: e.reason, at: now().toISOString() });
+      /* ONE reason for every failure. "no challenge", "expired" and "wrong code" are three
+         different facts about an address, and telling them apart tells a caller whether an
+         address has a live challenge — which is exactly what someone probing would want. */
+      return { status: e.status || 400, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'verification_failed', correlationId } };
+    }
+    audit({ event: 'intake:verify-confirmed', correlationId, source: key, at: now().toISOString() });
+    return { status: 200, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
+             body: { ok: true, verification: proof.token, expiresAt: proof.expiresAt, correlationId } };
   }
 
   if (action === 'status') {
@@ -471,6 +534,24 @@ export async function handleIntake(req, deps) {
              body: { ok: false, error: 'invalid_submission', reason: e.reason || 'error', correlationId } };
   }
 
+  /* D4 · verification is checked BEFORE the reference is minted. Minting first and then
+     refusing would burn a registry sequence number on a rejected submission. */
+  const verificationRequired = !!config.requireVerification;
+  if (verificationRequired) {
+    if (!verifier) {
+      return { status: 503, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'verification_not_available', correlationId } };
+    }
+    try {
+      verifier.consume(req.body?.verification, record.senderEmail);
+    } catch (e) {
+      audit({ event: 'intake:unverified-rejected', correlationId, source: key,
+              reason: e.reason, at: now().toISOString() });
+      return { status: e.status || 403, headers: { 'Content-Type': 'application/json' },
+               body: { ok: false, error: 'verification_required', reason: e.reason, correlationId } };
+    }
+  }
+
   const referenceId = minter.mint();
   const receivedAt = now().toISOString();
 
@@ -498,7 +579,7 @@ export async function handleIntake(req, deps) {
     audit({ event: 'intake:endpoint-not-configured', correlationId, referenceId, at: receivedAt });
     return { status: 202, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
              body: { ok: true, referenceId, receivedAt, delivered: false,
-                     reason: 'endpoint_not_configured', uploads, correlationId } };
+                     reason: 'endpoint_not_configured', uploads, verified: verificationRequired, correlationId } };
   }
 
   let delivered = false, upstreamStatus = 0;
@@ -528,6 +609,9 @@ export async function handleIntake(req, deps) {
       // One ticket per attachment. Redeem each at PUT /intake/upload with the ticket in
       // an X-Upload-Ticket header and the raw file as the body.
       uploads,
+      // Whether this reference was issued against a verified address. Stated rather than
+      // implied: a deployment must not have to guess which posture it is running.
+      verified: verificationRequired,
       correlationId,
     },
   };

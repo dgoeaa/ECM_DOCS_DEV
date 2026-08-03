@@ -315,9 +315,16 @@
       }
       return fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(record)
+        // The proof, when the wizard has one. Absent when verification is not required.
+        body: JSON.stringify(opts.verification ? Object.assign({}, record, { verification: opts.verification }) : record)
       }).then(function (r) {
         return readJson(r).then(function (data) {
+          if (r.status === 403 && data.error === 'verification_required') {
+            /* Not a failure to queue. The submission is well-formed; the address has not
+               been verified. Queuing it would retry forever against a control that is
+               working as intended, so it is handed back for the wizard to resolve. */
+            return { delivered: false, status: 403, reason: 'verification-required' };
+          }
           if (!r.ok) {
             if (opts.queue !== false) PF.outbox.queue('submission', record, record.localId || '');
             PF.store.log('integration', record.localId || '', 'Registry refused the submission (HTTP ' + r.status + ')');
@@ -373,6 +380,46 @@
         PF.outbox.queue('support', payload, '');
         return { delivered: false, reason: 'unreachable' };
       });
+    },
+
+    /* D4 · email verification.
+
+       Two calls: `verifyRequest` asks the proxy to mail a code to an address, and
+       `verifyConfirm` exchanges the code for a single-use proof that `submit` passes along.
+
+       The proxy decides whether verification is REQUIRED — the portal cannot know, and
+       should not guess. When it is not required these are simply never called; when it is,
+       a submission without a proof comes back 403 and the wizard asks for the code. That
+       keeps one source of truth for the posture, which is the proxy. */
+    verifyRequest: function (email) {
+      var url = proxyUrl('/intake/verify');
+      if (!url) return Promise.resolve({ ok: false, reason: 'not-configured' });
+      return fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          if (r.status === 429) return { ok: false, reason: 'too-many-requests' };
+          if (!r.ok) return { ok: false, reason: data.error || 'refused' };
+          // `sent:false` means the proxy issued a challenge it could not deliver. Telling the
+          // submitter to check their inbox would be a lie.
+          return { ok: true, sent: data.sent === true, expiresAt: data.expiresAt };
+        });
+      }).catch(function () { return { ok: false, reason: 'unreachable' }; });
+    },
+
+    verifyConfirm: function (email, code) {
+      var url = proxyUrl('/intake/verify-confirm');
+      if (!url) return Promise.resolve({ ok: false, reason: 'not-configured' });
+      return fetch(url, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, code: code })
+      }).then(function (r) {
+        return readJson(r).then(function (data) {
+          if (!r.ok) return { ok: false, reason: 'verification-failed' };
+          return { ok: true, verification: data.verification, expiresAt: data.expiresAt };
+        });
+      }).catch(function () { return { ok: false, reason: 'unreachable' }; });
     },
 
     /* Read a request's status back from the registry.
