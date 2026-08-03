@@ -121,7 +121,9 @@
       }
     ],
     "impact": "On a fresh clone or any deployment lacking the git-ignored config.local.js, every API request carrying correspondence payloads is sent to a third-party-controlled origin that is not a NITDA domain.",
-    "remediation": "Default API_URL to an empty string so the SPA falls back to its documented DEMO mode instead of a live third-party host."
+    "remediation": "Default API_URL to an empty string so the SPA falls back to its documented DEMO mode instead of a live third-party host.",
+    "outcome": "fixed",
+    "note": "CLOSED BY DELETION at decision D6(b). This was fixed in place first, then the whole ECM_ActivityHub_Portal tree was retired -- 15 of its 19 pages duplicated root routes, it shared no backend, state, identity or code with the platform, and it had no backend at all. There is no module left to regress. tests/hardening.test.mjs now asserts the deletion holds and that the three capabilities the Hub uniquely had were ported, not dropped."
   },
   {
     "id": "F-024",
@@ -136,7 +138,9 @@
       }
     ],
     "impact": "Whoever controls the lucide package, unpkg, or cdn.tailwindcss.com can execute arbitrary JavaScript in the portal's origin with access to its localStorage and session.",
-    "remediation": "Pin exact versions with integrity hashes, or vendor both locally as the root platform already does."
+    "remediation": "Pin exact versions with integrity hashes, or vendor both locally as the root platform already does.",
+    "outcome": "fixed",
+    "note": "CLOSED BY DELETION at decision D6(b). This was fixed in place first, then the whole ECM_ActivityHub_Portal tree was retired -- 15 of its 19 pages duplicated root routes, it shared no backend, state, identity or code with the platform, and it had no backend at all. There is no module left to regress. tests/hardening.test.mjs now asserts the deletion holds and that the three capabilities the Hub uniquely had were ported, not dropped."
   },
   {
     "id": "F-028",
@@ -500,8 +504,9 @@
         "lines": "10"
       }
     ],
-    "impact": "The portal guards on SystemAdmin/DGCEO/COS while the proxy authorizes against config/rbac.config.js, which contains none of those names; configuring the portal to the server vocabulary makes /admin, /audit and /directory unreachable for every principal.",
-    "remediation": "Derive ROUTE_ROLES from config/rbac.config.js so both sides share one vocabulary, and add a test asserting the two claim mappings agree."
+    "impact": "The portal guards on SystemAdmin/DGCEO/COS while the proxy authorizes against config/rbac.config.js, which contains none of those names; configuring the portal to the server vocabulary makes /admin, /audit and /directory unreachable for every principal. HALF CLOSED at D6(b): the disjoint vocabulary lived in ECM_ActivityHub_Portal/js/core/router.js, which is deleted. One role model remains -- config/rbac.config.js -- so step 8 reconciles one vocabulary against the identity provider rather than two.",
+    "remediation": "Derive ROUTE_ROLES from config/rbac.config.js so both sides share one vocabulary, and add a test asserting the two claim mappings agree.",
+    "note": "Remaining scope is the root platform's own role model against Entra ID app roles. The second, conflicting vocabulary is gone with the tree that held it."
   },
   {
     "id": "F-026",
@@ -624,5 +629,22 @@
     "remediation": "Fixed in two parts, deliberately unequal. (1) The fallthrough is a bug regardless of any mapping decision and is fixed outright: an unmatched category now lands on a NAMED default (General Administration -> Registry, normal priority) rather than on whatever sorts first. (2) Which document kind belongs to which directorate is an operating-model decision, so DocumentKindRouting in config/correspondence-categories.config.js is marked PROVISIONAL and is for the owner to confirm against registry reference data. Runtime reference data always wins -- the mapping is consulted only when the raw value matches no rule. The proxy now imports PUBLIC_DOCUMENT_KINDS instead of restating its allow-list, and the portal aligned to 'Event Invitation'.",
     "outcome": "fixed",
     "note": "Reframed after measuring the actual routing rather than reasoning from the lists. My original entry conflated two legitimate axes and missed the consequence entirely. Remaining owner-side: confirm the provisional kind->domain mapping, and decide whether 'Proposal'/'Project Proposal' and 'Official Correspondence'/'General Correspondence' are genuinely distinct kinds -- they are left unresolved because collapsing them would change what existing records mean."
+  },
+  {
+    "id": "F-033",
+    "title": "A git-ignored local config for the retired ECM Activity Hub held a live SAS signature on disk",
+    "severity": "low",
+    "confidence": "confirmed-present",
+    "scope": "activityhub",
+    "files": [
+      {
+        "path": "ECM_ActivityHub_Portal/config.local.js",
+        "lines": "untracked, now deleted"
+      }
+    ],
+    "impact": "Found while deleting the tree at D6(b). The file was git-ignored, so it never entered version control and this is not a repository exposure -- but it sat on the working copy holding a live signature for workflow 6b3bad3005b44bf6bced0f8074d3f2ed (SINGLE_ASSIGNMENT, row 14 of the register). It shows that git-ignoring a config file protects the repository, not the machine, and that `git rm -r` on a tree leaves untracked files behind.",
+    "remediation": "The file is deleted. The workflow it named was already row 14 of docs/architecture/ROTATION_REGISTER.md and is covered by the cutover decommission -- deleting the file revokes nothing, as always.",
+    "outcome": "fixed",
+    "note": "Recorded because it is a repeatable trap rather than a one-off: any future tree deletion should check for untracked config alongside the tracked files."
   }
 ]

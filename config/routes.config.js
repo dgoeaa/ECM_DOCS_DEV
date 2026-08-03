@@ -98,6 +98,27 @@ export const Routes = [
     "kpi": true
   },
   {
+    "path": "briefs",
+    "label": "Briefs & Submissions",
+    "group": "CONTROL",
+    "kind": "workspace",
+    "kpi": false
+  },
+  {
+    "path": "meetings",
+    "label": "Meetings",
+    "group": "CONTROL",
+    "kind": "workspace",
+    "kpi": false
+  },
+  {
+    "path": "projects",
+    "label": "Projects",
+    "group": "CONTROL",
+    "kind": "workspace",
+    "kpi": false
+  },
+  {
     "path": "comments",
     "label": "Comments",
     "group": "OPERATIONS",

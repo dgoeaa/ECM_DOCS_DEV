@@ -2,9 +2,9 @@ export const Personas = ['admin','executive','registry','general'];
 export const RoleRouteAccess = Object.freeze({
   systemAdmin: ['*'],
   userAdmin: ['home','settings','user-admin','diagnostics','operator-hud'],
-  executive: ['home','executive','response-tracking','approvals','reports','statistics','lookup','assistant','archive'],
-  director: ['home','activities','correspondence','response-tracking','orchestrator','approvals','dispatch','scan-intake','reports','statistics','lookup','assistant'],
-  operator: ['home','activities','correspondence','response-tracking','orchestrator','single-assignment','bulk-assignment','scan-intake','registry','comments','dispatch','correspondence-email','lookup','assistant'],
+  executive: ['home','executive','response-tracking','approvals','briefs','meetings','projects','reports','statistics','lookup','assistant','archive'],
+  director: ['home','activities','correspondence','response-tracking','orchestrator','approvals','dispatch','scan-intake','briefs','meetings','projects','reports','statistics','lookup','assistant'],
+  operator: ['home','activities','correspondence','response-tracking','orchestrator','single-assignment','bulk-assignment','scan-intake','registry','comments','dispatch','correspondence-email','meetings','projects','lookup','assistant'],
   viewer: ['home','response-tracking','reports','statistics','lookup']
 });
 export const RolePersonaMap = Object.freeze({systemAdmin:'admin', userAdmin:'admin', executive:'executive', director:'registry', operator:'registry', viewer:'general'});

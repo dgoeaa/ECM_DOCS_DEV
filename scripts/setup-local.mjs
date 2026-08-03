@@ -129,7 +129,6 @@ window.DGO_CONFIG = Object.assign(window.DGO_CONFIG || {}, {
 `;
 
 writeIfAbsent('config/config.local.js', rootCfg, 'Root runtime config');
-writeIfAbsent('ECM_ActivityHub_Portal/config.local.js', portalCfg, 'ECM Portal config');
 
 console.log(`\n  ${Object.keys(endpoints).length} of ${EndpointKeys.length} endpoint contracts configured.`);
 if (unset.length) console.log(`  Unset (no pilot endpoint exists): ${unset.join(', ')}`);
@@ -141,7 +140,6 @@ console.log(`
 
   Then open:
      Root runtime    http://localhost:8080/
-     ECM Portal      http://localhost:8080/ECM_ActivityHub_Portal/
      Document Portal http://localhost:8080/document-portal/
 
   Check wiring at  http://localhost:8080/#/diagnostics  (URLs are redacted there).

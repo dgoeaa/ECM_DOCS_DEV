@@ -167,6 +167,18 @@ export const HiddenTechnicalRoutes = Object.freeze({
     "visibleThrough": "Intake",
     "reason": "Official file control is a sub-workflow of intake."
   },
+  "briefs": {
+    "visibleThrough": "Review & Approval",
+    "reason": "A brief pack is raised for a decision, so it belongs to the review and approval journey. Ported from the ECM Activity Hub under decision D6(b)."
+  },
+  "meetings": {
+    "visibleThrough": "Review & Approval",
+    "reason": "A meeting request is approved or declined, and its agreed actions become tasks in My Work. Ported from the ECM Activity Hub under decision D6(b)."
+  },
+  "projects": {
+    "visibleThrough": "Tracking & Monitoring",
+    "reason": "A register of projects and the measures they are tracked against. Ported from the ECM Activity Hub under decision D6(b)."
+  },
   "scan-intake": {
     "visibleThrough": "Intake & Assignment",
     "reason": "Counter deposit of physically-received documents (channel C). It produces correspondence, so it is reached from Intake & Assignment rather than standing alone."

@@ -32,7 +32,7 @@ Four independently bootable applications share the repository. Only the first us
 | Application | Entry | Scale | Role |
 |---|---|---|---|
 | **DGO R11.6 Runtime** | `index.html` | 137 files reachable · 25 routes | The platform shell |
-| **ECM Activity Hub Portal** | `ECM_ActivityHub_Portal/index.html` | 50 files | Executive SPA |
+| ~~**ECM Activity Hub Portal**~~ | — | — | **Retired at D6(b)**; briefs, meetings and projects are now root modules |
 | **Document Portal** | `document-portal/index.html` | 34 files | Public submission & tracking (PWA) |
 | **AckFlow** | `newack/index.html` | 5 files | Acknowledgement prototype |
 
@@ -297,7 +297,7 @@ modules/           25 files    Lazy-loaded route modules
 shared/             8 files    Shell, adapters, welcome runtime
 styles/            18 files    @layer cascade + design tokens
 tests/              6 files    Import, secret, auth and smoke suites
-ECM_ActivityHub_Portal/        Executive SPA
+modules/briefs.js …             briefs, meetings and projects (ported from the retired ECM Activity Hub)
 document-portal/               Public portal (PWA)
 newack/                        Acknowledgement prototype
 ECM_DOCS_DEV.zip               Archive of record — reference material
@@ -312,7 +312,7 @@ Documents: `PLATFORM_DOCUMENTATION.md` · `STATUS_REPORT.md` · `AUTHENTICATION_
 Recorded plainly; each is tracked in `STATUS_REPORT.md`.
 
 1. **Nothing is enforced server-side.** All governance is browser-side. Until `AUTHENTICATION_CONTRACT.md` §2 is implemented, controls are advisory.
-2. **The ECM Portal has no auth work at all** — hardcoded identity, an in-browser role switch, and an envelope asserting user and role (`F-001`/`F-002`/`F-003`).
+2. ~~**The ECM Portal has no auth work at all**~~ — moot since D6(b): the tree is deleted, so there is one auth surface rather than two.
 3. **Four signed URLs remain** in `document-portal/js/data.js` and `newack/config.js`; 22 pilot signatures still require rotation.
 4. **The governance spine is untested.**
 5. **No rendered-appearance regression coverage**; the `overrides` cascade debt is unmeasured.

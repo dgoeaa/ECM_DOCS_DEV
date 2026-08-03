@@ -189,7 +189,13 @@ create → submit → decide lifecycle, not just a list view).
 
 ---
 
-## 5. Recommendation
+## 5. Recommendation — accepted and implemented
+
+> **OUTCOME.** Option B was chosen and executed. `briefs`, `meetings` and `projects` are now
+> root modules over `core/executive-register.js`; `ECM_ActivityHub_Portal/` is deleted (53
+> tracked files, plus one untracked local config recorded as **F-033**). F-023 and F-024 are
+> closed by deletion and F-025 is halved. Three defects were fixed in the port rather than
+> transcribed — see §5.1.
 
 **Option B — merge the three unique capabilities into the root platform and retire the
 Activity Hub shell.**
@@ -213,6 +219,21 @@ The reasoning, in order of weight:
 actually wanted — I have no evidence either way about whether they are used or merely built.
 That is the one input this repository cannot supply, and it is the question worth asking
 before committing to B over C.
+
+### 5.1 What the port changed rather than copied
+
+A straight transcription would have carried three defects across. Each is now covered by a
+test in `tests/executive-register.test.mjs`.
+
+| Defect in the Activity Hub | In the port |
+|---|---|
+| `decideBrief` rewrote status from **any** state, so a rejected brief could be re-decided and a draft approved without ever being submitted | Transitions are guarded; an illegal one is refused |
+| `updateProject` spread an arbitrary patch onto the record (`{...p, ...patch}`), so a caller could overwrite `id` or invent fields | Allow-listed patch of four fields |
+| `minutesToTasks` was a remote call only — with no backend it told the user to create tasks by hand | Conversion happens locally and produces real `operations` records linked back to the meeting |
+
+Also changed: the Activity Hub reported success whether or not the call succeeded, recording
+the failure on the record as `_local` while still toasting "saved". The ported modules follow
+this platform's convention — local state is authoritative, and a failed sync says so.
 
 ---
 

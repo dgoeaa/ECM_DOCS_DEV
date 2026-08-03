@@ -185,7 +185,9 @@ group("Boundary integrity — cross-config consistency");
 
   // 26 since step 7 added scan-intake (channel C). It is a HIDDEN technical route under
   // Intake & Assignment, so the visible-workspace count is deliberately unchanged.
-  check("26 routes are declared", declared.length === 26, `got ${declared.length}`);
+  // 29 since D6(b) brought briefs, meetings and projects across from the ECM Activity
+  // Hub. All three are HIDDEN technical routes, so the visible-workspace count is unchanged.
+  check("29 routes are declared", declared.length === 29, `got ${declared.length}`);
   check("9 visible workspaces", VisibleWorkspaces.length === 9, `got ${VisibleWorkspaces.length}`);
 }
 

@@ -68,7 +68,7 @@ An externally submitted document today cannot be assigned, tracked, acknowledged
 |---|---|---|---|
 | **Public** | `document-portal/` | Anyone on the internet | None — anonymous submission is the point |
 | **Enforcement** | `proxy/` | Public zone + internal zone | Validates every request; the only path onward |
-| **Internal** | root platform (and the ECM Activity Hub, pending **D6**) | NITDA staff | Entra ID, mandatory |
+| **Internal** | root platform — the only internal application, since **D6(b)** | NITDA staff | Entra ID, mandatory |
 | **Systems of record** | SharePoint lists + document library, Power Automate | **Enforcement zone only** | Private endpoint / IP-restricted |
 
 **The rule that makes this an architecture rather than a diagram: no client, internal or external, holds a credential for the systems of record.** The proxy is the only component that does. That single rule retires the entire SAS-in-client-code problem class instead of rotating it.
@@ -292,6 +292,7 @@ Each step is independently deployable and leaves the platform working.
 | ~~**13**~~ | ~~Separate document kind from routing domain~~ — **DONE**: unmatched categories no longer default to the executive queue at urgent priority | **F-032** | — | — |
 | **14** | Confirm the provisional document-kind → routing-domain mapping against registry reference data | **F-032** (owner half) | owner-side | — |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
+| ~~**15**~~ | ~~Retire the ECM Activity Hub~~ — **DONE** at D6(b): 3 capabilities ported, 53 files deleted, one auth surface left instead of two | **F-023**, **F-024**, F-025 (half) | — | — |
 | **11** | **Cutover** — decommission all 25 development/pilot workflows, provision replacements behind proxy egress only | **F-001** | owner-side | steps 8, 10 |
 
 **Steps 1 and 2 are worth doing regardless of everything else** — step 1 stops losing citizens' documents today, and step 2 is the model correction you asked for. Neither depends on any infrastructure decision.
@@ -307,7 +308,7 @@ Each step is independently deployable and leaves the platform working.
 | **D3** | Portal SLA display | (a) keep per-service SLAs · (b) show a registry acknowledgement target only | **(b)** — per-service SLAs belong to a service desk. A correspondence channel acknowledges receipt and reports status |
 | **D4** | Anonymous or verified submission | (a) fully anonymous · (b) email verification before reference is issued | **(b)** — one round-trip stops trivial abuse of an unauthenticated create endpoint and gives the submitter a real receipt |
 | **D5** | `ECM_DOCS_DEV.zip` | (a) keep and scan · (b) move out of the repository | **(b)** — it is 87% of repository bytes and holds 9 credentials found nowhere else. It is a reference archive, not source |
-| **D6** | `ECM_ActivityHub_Portal/` | (a) keep both · (b) merge its 3 unique capabilities into the root and retire the shell · (c) drop entirely | **(b)** — 15 of its 19 pages already exist in the root, it shares no backend, state, identity or code with it, and it has no backend at all today. See `CONSOLIDATION_ANALYSIS.md` |
+| ~~**D6**~~ | ~~`ECM_ActivityHub_Portal/`~~ — **DECIDED (b) AND DONE**: briefs, meetings and projects ported to root modules; the tree is deleted. Closes F-023 and F-024 by deletion and halves F-025 | — | — |
 
 ---
 

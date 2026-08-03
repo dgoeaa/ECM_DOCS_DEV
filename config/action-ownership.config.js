@@ -3,6 +3,14 @@ export const ActionOwnership = Object.freeze({
   // not a second owner: one action, one owner, so the audit event and the service stay
   // identical whichever channel a record came in through.
   'create-correspondence': { owner:'correspondence', allowedInvokers:['scan-intake'], service:'Entities.create', audit:'audit:correspondence-created', backend:'DYNAMIC_ACTIONS.optional' },
+  'create-brief': { owner:'briefs', service:'Briefs.create', audit:'audit:brief-created', backend:'DYNAMIC_ACTIONS.optional' },
+  'submit-brief': { owner:'briefs', service:'Briefs.transition', audit:'audit:brief-submitted', backend:'DYNAMIC_ACTIONS.optional' },
+  'decide-brief': { owner:'briefs', service:'Briefs.transition', audit:'audit:brief-decided', backend:'DYNAMIC_ACTIONS.optional' },
+  'request-meeting': { owner:'meetings', service:'Meetings.create', audit:'audit:meeting-requested', backend:'DYNAMIC_ACTIONS.optional' },
+  'decide-meeting': { owner:'meetings', service:'Meetings.transition', audit:'audit:meeting-decided', backend:'DYNAMIC_ACTIONS.optional' },
+  'meeting-actions-to-tasks': { owner:'meetings', service:'Meetings.actionsToTasks', audit:'audit:meeting-actions-converted', backend:'DYNAMIC_ACTIONS.optional' },
+  'create-project': { owner:'projects', service:'Projects.create', audit:'audit:project-created', backend:'DYNAMIC_ACTIONS.optional' },
+  'update-project': { owner:'projects', service:'Projects.update', audit:'audit:project-updated', backend:'DYNAMIC_ACTIONS.optional' },
   'scan-deposit': { owner:'scan-intake', service:'ScanIntakeService.depositScan', audit:'audit:scan-deposited', backend:'SCAN_UPLOAD.required' },
   triage: { owner:'correspondence', service:'Entities.transitionStatus', audit:'audit:triage-completed', backend:'DYNAMIC_ACTIONS.optional' },
   'assign-one': { owner:'single-assignment', service:'Entities.create(task)', audit:'audit:assigned', backend:'SINGLE_ASSIGNMENT' },

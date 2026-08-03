@@ -25,7 +25,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const JSON_OUT = process.argv.includes('--json');
 
 /** HTML entry points; their `<script type="module">` tags seed the graph. */
-const HTML_ENTRIES = ['index.html', 'ECM_ActivityHub_Portal/index.html'];
+const HTML_ENTRIES = ['index.html'];
 
 /** Extra roots that are loaded dynamically rather than via a module tag. */
 const EXTRA_ENTRIES = [];

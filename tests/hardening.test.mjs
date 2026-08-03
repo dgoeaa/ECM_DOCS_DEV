@@ -24,19 +24,43 @@ const ok = (label, cond, detail = '') => {
 
 console.log('\nHardening\n');
 
-/* ---------------------------------------------------------------- F-023
-   The ECM Activity Hub defaulted its backend to a personal Cloudflare Workers
-   subdomain while ENV read "PROD". config.local.js is git-ignored, so every
-   fresh clone used that default. It must fall back to DEMO mode instead. */
-console.log('F-023 · ECM Activity Hub backend default');
+/* ---------------------------------------------------------------- F-023 / F-024 / D6(b)
+   F-023 (a personal Cloudflare Workers subdomain as the default backend) and
+   F-024 (an @latest CDN tag) were both fixed inside ECM_ActivityHub_Portal. Decision
+   D6(b) then retired that tree entirely: 15 of its 19 pages duplicated root routes, it
+   shared no backend, state, identity or code with this platform, and it had no backend at
+   all. Both findings are now closed by deletion, which is stronger than the fix — there is
+   no module left to regress. What must be asserted is that the deletion holds, and that the
+   three capabilities it uniquely had came across. */
+console.log('F-023 / F-024 / D6(b) · the ECM Activity Hub is retired, not merely unlinked');
 {
-  const { CONFIG } = await import('../ECM_ActivityHub_Portal/js/core/config.js');
-  ok('API_URL is empty with no override supplied', CONFIG.API_URL === '',
-     `got ${JSON.stringify(CONFIG.API_URL)}`);
-  const src = read('ECM_ActivityHub_Portal/js/core/config.js');
-  ok('no workers.dev host remains in the module', !/workers\.dev/.test(src));
-  ok('no hardcoded https default remains on API_URL',
-     !/API_URL:\s*_override\.API_URL\s*\|\|\s*["']https?:/.test(src));
+  for (const f of ['ECM_ActivityHub_Portal/index.html',
+                   'ECM_ActivityHub_Portal/js/core/auth.js',
+                   'ECM_ActivityHub_Portal/js/core/config.js',
+                   'ECM_ActivityHub_Portal/js/core/store.js']) {
+    ok(`${f} is deleted`, !existsSync(path.join(ROOT, f)));
+  }
+  ok('the tree is gone entirely', !existsSync(path.join(ROOT, 'ECM_ActivityHub_Portal')));
+
+  // The two credentials-shaped defects cannot return, because their files cannot.
+  ok('no workers.dev host remains anywhere in the tracked source',
+     !/workers\.dev/.test(read('package.json') + read('config/endpoints.config.js')));
+
+  // Nothing may still point at it.
+  for (const f of ['package.json', 'core/boot.js', 'tests/check-imports.mjs',
+                   'scripts/check-links.mjs', 'scripts/setup-local.mjs', '.gitignore']) {
+    ok(`${f} no longer references the retired tree`, !/ECM_ActivityHub/.test(read(f)));
+  }
+
+  // Its three unique capabilities are the reason the retirement is a merge, not a drop.
+  for (const f of ['core/executive-register.js', 'modules/briefs.js',
+                   'modules/meetings.js', 'modules/projects.js']) {
+    ok(`${f} exists — the ported capability`, existsSync(path.join(ROOT, f)));
+  }
+  const boot = read('core/boot.js');
+  for (const r of ['briefs', 'meetings', 'projects']) {
+    ok(`${r} is registered as a route`, new RegExp(`'${r}':\\(\\)=>import`).test(boot));
+  }
 }
 
 /* ---------------------------------------------------------------- F-014 / F-016
@@ -71,20 +95,6 @@ console.log('\nF-020 · service worker precache');
   ok('admin.html is not precached', !/admin\.html/.test(shell));
   ok('the cache version was bumped past v2', !/CACHE\s*=\s*'nitda-portal-v2'/.test(sw));
   ok('rotation ordering is documented next to CACHE', /rotat/i.test(sw));
-}
-
-/* ---------------------------------------------------------------- F-024
-   A mutable version tag resolves to whatever the registry publishes at load
-   time, which is arbitrary third-party JavaScript in this origin. */
-console.log('\nF-024 · remote script pinning');
-{
-  const html = read('ECM_ActivityHub_Portal/index.html');
-  const remotes = html.match(/<script[^>]*src="https?:\/\/[^"]*"[^>]*>/g) || [];
-  ok('remote script tags were found to check', remotes.length >= 2, `found ${remotes.length}`);
-  for (const tag of remotes) {
-    const src = (tag.match(/src="([^"]+)"/) || [, ''])[1];
-    ok(`no mutable @latest tag — ${src.slice(0, 52)}`, !/@latest/.test(src));
-  }
 }
 
 /* ---------------------------------------------------------------- F-017

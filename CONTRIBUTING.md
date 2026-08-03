@@ -26,7 +26,6 @@ git checkout -b your-username/short-description
 ```bash
 npm start
 # Root runtime:  http://localhost:8080/
-# ECM portal:    http://localhost:8080/ECM_ActivityHub_Portal/
 ```
 
 ### 4. Make your changes
@@ -112,7 +111,7 @@ Change the theme through `setTheme()` / `setDensity()` in `shared/design-system-
 
 **Never commit a Power Automate SAS URL or API key.** A SAS-signed URL is a bearer credential — possession alone authorizes invoking the flow.
 
-Local configuration goes in `config/config.local.js` and `ECM_ActivityHub_Portal/config.local.js`. Both are git-ignored — copy the matching `config.example.js` and fill it in. Because they are ignored, real URLs placed there stay local; do not `git add -f` them.
+Local configuration goes in `config/config.local.js`, which is git-ignored — copy `config/config.example.js` and fill it in. Because it is ignored, real URLs placed there stay local; do not `git add -f` it. Note that git-ignoring protects the repository, not the machine: F-033 records a live signature found sitting in an untracked local config, so delete these when a tree is retired.
 
 `npm run test:secrets` fails if a new signature enters a tracked file. It does *not* fail on the files already listed in `tests/secrets-baseline.txt` — those are known, recorded in `CAPABILITY_ASSESSMENT_R11.6.md` (G-03), and must be **rotated in Power Automate** before removal, since deleting a file revokes nothing. The baseline may only shrink.
 

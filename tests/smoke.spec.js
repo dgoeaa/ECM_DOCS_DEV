@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 const EXTERNAL = [/fonts\.googleapis\.com/, /fonts\.gstatic\.com/, /cdn\.tailwindcss\.com/, /unpkg\.com/];
 
 /** Optional, git-ignored, expected to 404 on a clean checkout. */
-const OPTIONAL_404 = [/\/config\/config\.local\.js$/, /\/ECM_ActivityHub_Portal\/config\.local\.js$/];
+const OPTIONAL_404 = [/\/config\/config\.local\.js$/];
 
 const isExternal = url => EXTERNAL.some(re => re.test(url));
 const isOptional = url => OPTIONAL_404.some(re => re.test(url));
@@ -166,12 +166,32 @@ test.describe('DGO R11.6 root runtime', () => {
   });
 });
 
-test.describe('ECM Activity Hub Portal', () => {
-  test('loads and mounts without same-origin failures', async ({ page }) => {
-    const w = watch(page);
-    const response = await page.goto('/ECM_ActivityHub_Portal/index.html', { waitUntil: 'networkidle' });
-    expect(response?.status()).toBe(200);
-    expect(w.badResponses, 'same-origin 4xx/5xx').toEqual([]);
-    expect(w.pageErrors, 'uncaught page errors').toEqual([]);
+test.describe('ECM Activity Hub retirement (D6(b))', () => {
+  /* The Hub was a second internal application: 15 of its 19 pages duplicated root routes,
+   * it shared no backend, state, identity or code with this platform, and it had no backend
+   * at all. Its three unique capabilities — briefs, meetings, projects — were ported to
+   * root modules; the shell was retired. These assert the retirement is real, because
+   * "we removed it" stays true only while nothing serves it again. */
+  test('the tree is not served', async ({ request }) => {
+    for (const p of ['/ECM_ActivityHub_Portal/index.html',
+                     '/ECM_ActivityHub_Portal/js/core/auth.js',
+                     '/ECM_ActivityHub_Portal/js/core/store.js']) {
+      expect((await request.get(p)).status(), `${p} must not be served`).toBe(404);
+    }
+  });
+
+  test('its three unique capabilities live in the root platform', async ({ page }) => {
+    await page.goto('/index.html?skipWelcome=1', { waitUntil: 'networkidle' });
+    await expect.poll(() => page.evaluate(() => window.__DGO_BOOTED__ === true), { timeout: 15_000 }).toBe(true);
+
+    for (const [route, heading] of [['briefs', /Briefs & Submissions/], ['meetings', /Meetings/], ['projects', /Projects/]]) {
+      const w = watch(page);
+      await page.evaluate(r => { location.hash = '#/' + r; }, route);
+      await page.waitForSelector('[data-outlet] .route-stage .workspace');
+      const text = await page.textContent('[data-outlet]');
+      expect(text, `${route} did not mount`).not.toMatch(/Workspace not found|Module failed|Access denied/);
+      expect(text).toMatch(heading);
+      expect(w.pageErrors, `uncaught errors on ${route}`).toEqual([]);
+    }
   });
 });

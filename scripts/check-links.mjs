@@ -23,7 +23,6 @@ const SKIP_PATTERNS = [
   'powerautomate\\.com',
   'kanihamza\\.workers\\.dev',
   'localhost:\\d+/config/config\\.local\\.js$',
-  'localhost:\\d+/ECM_ActivityHub_Portal/config\\.local\\.js$',
 ];
 
 async function main() {
@@ -42,7 +41,6 @@ async function main() {
     const skipArg = SKIP_PATTERNS.join('|');
     const urls = [
       `http://localhost:${PORT}/index.html`,
-      `http://localhost:${PORT}/ECM_ActivityHub_Portal/index.html`,
     ];
 
     for (const url of urls) {

@@ -31,7 +31,6 @@ Both items are open. See G-03 and G-04 of the capability assessment.
 | App | Entry point | Description |
 |-----|------------|-------------|
 | **DGO R11.6 Runtime** | `index.html` | Obsidian Harmonized Design System runtime — platform shell with routing, client-side RBAC, state, module boundaries, accessibility and theming. 25 routes. |
-| **ECM Activity Hub Portal** | `ECM_ActivityHub_Portal/index.html` | Executive SPA — correspondence, approvals, meetings, briefs, decisions, tasks and AI-assisted operations. |
 | **Document Portal** | `document-portal/index.html` | Public document submission and tracking portal (PWA — service worker, manifest, offline). |
 | **Acknowledgement flow** | `newack/index.html` | Acknowledgement / unified hub prototype. |
 
@@ -69,7 +68,7 @@ npm install && npm run go
 
 It recovers the Power Automate endpoints from the archived operations manifest in
 `ECM_DOCS_DEV.zip` and writes `config/config.local.js` and
-`ECM_ActivityHub_Portal/config.local.js` — both git-ignored, so nothing is committed.
+git-ignored, so nothing is committed.
 It never overwrites an existing config unless you pass `--force`.
 
 Authentication stays **inert** for local testing: no sign-in, no token, identity from the
@@ -84,7 +83,6 @@ npm start                # serve
 Then open:
 
 - Root runtime — <http://localhost:8080/>
-- ECM portal — <http://localhost:8080/ECM_ActivityHub_Portal/>
 - Document portal — <http://localhost:8080/document-portal/>
 
 To serve only the ECM portal on port 8080:
@@ -146,14 +144,6 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 
 `config/endpoints.config.js` contains **no** hardcoded URLs; it reads from `window.DGO_CONFIG.endpoints` and resolves through `core/endpoint-registry.js`, which redacts `sig`/`sv`/`sp`/`code` before any URL is logged or exported.
 
-### ECM Activity Hub Portal
-
-Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Portal/config.example.js` → `ECM_ActivityHub_Portal/config.local.js`. Also git-ignored and optional.
-
-`powerAutomateClient.js` contains no hardcoded secrets — it is a generic fetch wrapper.
-
----
-
 ## Repo structure
 
 ```
@@ -173,7 +163,6 @@ Reads its backend URL from `window.DGO_CONFIG.API_URL`. Copy `ECM_ActivityHub_Po
 ├── shared/                             Shell, components, design-system adapter
 ├── styles/                             CSS @layer cascade
 │   └── dgo-design-system/              Self-hosted design tokens + fonts
-├── ECM_ActivityHub_Portal/             ECM portal (index.html at its root)
 ├── document-portal/                    Public document portal (PWA)
 ├── newack/                             Acknowledgement flow prototype
 ├── tests/
@@ -226,5 +215,5 @@ These are open questions, recorded here rather than guessed at:
 
 - **Deployment.** There is no Pages workflow, `.nojekyll`, or staging allow-list in this repository. If GitHub Pages is adopted, decide which of the five apps are published and add a staging step — a new top-level runtime directory will 404 in production while working locally otherwise. Note the security status above: publishing before rotation would expose live credentials.
 - **Codespaces.** No `.devcontainer/` exists; the previous one-click setup instructions did not apply here.
-- **Portal layout.** The ECM portal lives flat at `ECM_ActivityHub_Portal/`. Earlier documentation assumed an `htdocs/` subdirectory. The flat layout is canonical.
+- **The ECM Activity Hub is gone.** Retired at decision D6(b); its briefs, meetings and projects capabilities are root modules. Earlier documentation describes it as a live second application — that is historical. See `docs/architecture/CONSOLIDATION_ANALYSIS.md`.
 - **Rendered-appearance regression coverage.** None exists beyond the smoke suite's theme check. `styles/index.css` documents unresolved, measured cascade debt in its `overrides` layer.
