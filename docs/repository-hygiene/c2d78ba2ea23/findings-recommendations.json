@@ -1,0 +1,5231 @@
+{
+  "scope_commit_short_sha": "c2d78ba2ea23",
+  "analysis_command": "python3 Phase 3 findings/recommendation analyzer over docs/repository-hygiene/c2d78ba2ea23/inventory.json, reference-graph.json and duplicate-obsolescence.json using scope re-hashing, signature-carrier detection against tests/secrets-baseline.txt, removal-blocker resolution and disposition/priority derivation",
+  "summary": {
+    "scope_file_count": 294,
+    "scope_integrity_mismatches": 0,
+    "tracked_bytes": 19080145,
+    "findings": 8,
+    "severity_counts": {
+      "critical": 1,
+      "high": 2,
+      "medium": 2,
+      "low": 3
+    },
+    "recommendations": 8,
+    "priority_counts": {
+      "P1": 1,
+      "P2": 3,
+      "P3": 2,
+      "P4": 2
+    },
+    "disposition_counts": {
+      "keep-as-is": 248,
+      "correct-stale-claim": 9,
+      "rotate-decouple-then-untrack": 1,
+      "rotate-then-remove-carrier": 2,
+      "rotate-then-decide-jointly": 3,
+      "owner-decision-required": 9,
+      "reconcile-two-way-drift": 18,
+      "consolidate-into-single-source": 4
+    },
+    "secret_carriers": 4,
+    "unbaselined_carriers": 2,
+    "globally_distinct_signatures": 31,
+    "secret_gate_status": "FAILING",
+    "secret_gate_exit_code": 1,
+    "archive_bytes": 16783981,
+    "archive_hard_blockers": 2,
+    "archive_documentation_mentions": 18,
+    "archive_mentions_in_out_of_scope_hygiene_artifacts": 397,
+    "design_system_pairs": 11,
+    "design_system_pairs_both_diverged": 7,
+    "design_system_census_relations": 18,
+    "design_system_below_threshold_counterparts": 1,
+    "design_system_unpaired_files": 6,
+    "design_system_resolvable_by_deleting_one_side": 2,
+    "stale_references_in_code": 7,
+    "stale_references_in_documentation": 32,
+    "superseded_directory": "docs/forensic/177d992",
+    "superseded_directory_incoming_references": [
+      "docs/forensic/18e9f4d/00-provenance.md",
+      "docs/forensic/18e9f4d/01-architecture.md"
+    ],
+    "superseded_referrers_inside_unresolved_set": [
+      "docs/forensic/18e9f4d/00-provenance.md",
+      "docs/forensic/18e9f4d/01-architecture.md"
+    ],
+    "bytes_recommended_for_removal_after_prerequisites": 16783981,
+    "bytes_awaiting_owner_answer": 158389
+  },
+  "scope_integrity_mismatches": [],
+  "secret_gate": {
+    "command": "node tests/check-secrets.mjs",
+    "exit_code": 1,
+    "output": "\u274c NEW files carrying a Power Automate SAS signature:\n\n   docs/forensic/177d992/00-provenance.md  (4 distinct)\n   docs/forensic/18e9f4d/00-provenance.md  (4 distinct)\n\nA SAS URL is a credential. Rotate it in Power Automate and keep it out of\nthe tree \u2014 use config/config.local.js, which is git-ignored.",
+    "carriers": [
+      {
+        "carrier": "ECM_DOCS_DEV.zip",
+        "kind": "tracked-archive",
+        "distinct_signatures": 31,
+        "carrying_members": 18,
+        "baselined": true
+      },
+      {
+        "carrier": "docs/forensic/177d992/00-provenance.md",
+        "kind": "tracked-text-file",
+        "distinct_signatures": 4,
+        "carrying_members": 0,
+        "baselined": false
+      },
+      {
+        "carrier": "docs/forensic/18e9f4d/00-provenance.md",
+        "kind": "tracked-text-file",
+        "distinct_signatures": 4,
+        "carrying_members": 0,
+        "baselined": false
+      },
+      {
+        "carrier": "newack/config.js",
+        "kind": "tracked-text-file",
+        "distinct_signatures": 1,
+        "carrying_members": 0,
+        "baselined": true
+      }
+    ],
+    "unbaselined_carriers": [
+      "docs/forensic/177d992/00-provenance.md",
+      "docs/forensic/18e9f4d/00-provenance.md"
+    ],
+    "stale_baseline_rows": []
+  },
+  "archive_removal_blockers": {
+    "archive": "ECM_DOCS_DEV.zip",
+    "hard": [
+      {
+        "blocker": "scripts/setup-local.mjs",
+        "line": 26,
+        "kind": "runtime-read",
+        "quote": "const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');"
+      },
+      {
+        "blocker": "tests/secrets-baseline.txt",
+        "line": 16,
+        "kind": "gate-data-row",
+        "quote": "ECM_DOCS_DEV.zip"
+      }
+    ],
+    "documentation_mentions": [
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 45,
+        "kind": "documentation-mention",
+        "quote": "With the 13 missing config modules restored from `ECM_DOCS_DEV.zip`, a headless Chromium boot produced `window.__DGO_BOOTED__ === true`, a mounted `<dgo-shell>`, 17 primary navigation entries, and exa"
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 115,
+        "kind": "documentation-mention",
+        "quote": "**The files exist and are correct.** `ECM_DOCS_DEV.zip` (tracked, 16 MB) contains `DGO_Targets_Platform/`, a complete copy of the platform. A recursive diff against the working tree shows `config/` is"
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 117,
+        "kind": "documentation-mention",
+        "quote": "**Fix:** copy the 13 files from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/` into `config/` and commit. Verified working. Effort: minutes."
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 220,
+        "kind": "documentation-mention",
+        "quote": "The README documents a UI-contract suite, a baseline ratchet, three GitHub workflows, a bundle drift check, and a Pages deploy gate. **None of it is in the repository** \u2014 and none of it is in `ECM_DOC"
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 263,
+        "kind": "documentation-mention",
+        "quote": "2. **Restore the 13 config modules** from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. Verified to produce a clean boot and 25/25 route pass."
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 284,
+        "kind": "documentation-mention",
+        "quote": "- **Zip comparison:** `diff -rq` of `ECM_DOCS_DEV.zip::DGO_Targets_Platform/` against the working tree, per directory."
+      },
+      {
+        "blocker": "CAPABILITY_ASSESSMENT_R11.6.md",
+        "line": 299,
+        "kind": "documentation-mention",
+        "quote": "| `7204da7` | G-01 | Restored the 13 config modules byte-identical from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. |"
+      },
+      {
+        "blocker": "FORENSIC_REPOSITORY_AUDIT.md",
+        "line": 243,
+        "kind": "documentation-mention",
+        "quote": "| `ECM_DOCS_DEV.zip` | 1 | 17 MB, 838 entries \u2014 a snapshot of this platform, superseded by the tree it was used to repair |"
+      },
+      {
+        "blocker": "FORENSIC_REPOSITORY_AUDIT.md",
+        "line": 250,
+        "kind": "documentation-mention",
+        "quote": "**On the archives:** `ECM_DOCS_DEV.zip` served a real purpose \u2014 it was the only source of the 13 config modules restored in commit `7204da7`. That purpose is now discharged. It should be retained *out"
+      },
+      {
+        "blocker": "FORENSIC_REPOSITORY_AUDIT.md",
+        "line": 332,
+        "kind": "documentation-mention",
+        "quote": "| 13 | Untrack `ECM_DOCS_DEV.zip` and `HTML_OPS_Templates.zip`; retain externally | 2 |"
+      },
+      {
+        "blocker": "PLATFORM_DOCUMENTATION.md",
+        "line": 303,
+        "kind": "documentation-mention",
+        "quote": "ECM_DOCS_DEV.zip               Archive of record \u2014 reference material"
+      },
+      {
+        "blocker": "README.md",
+        "line": 44,
+        "kind": "documentation-mention",
+        "quote": "| `ECM_DOCS_DEV.zip` | **Archive of record.** Contains the full platform snapshot plus every reference artefact: Power Automate flow exports, the BRD/FRD, the DGCEO data model, the SharePoint provisio"
+      },
+      {
+        "blocker": "README.md",
+        "line": 71,
+        "kind": "documentation-mention",
+        "quote": "`ECM_DOCS_DEV.zip` and writes `config/config.local.js` and"
+      },
+      {
+        "blocker": "REPOSITORY_AUDIT.md",
+        "line": 178,
+        "kind": "documentation-mention",
+        "quote": "| **Redundant archives** | `ECM_DOCS_DEV.zip` (17 MB, 838 entries) duplicates the platform tree; `HTML_OPS_Templates.zip` (244 K, 115 entries) | ~40 % of repo size; the zip is *also* a second copy of "
+      },
+      {
+        "blocker": "REPOSITORY_AUDIT.md",
+        "line": 186,
+        "kind": "documentation-mention",
+        "quote": "Note the archive point is not merely about size: `ECM_DOCS_DEV.zip` contains its own copy of the credential-bearing files, so any scrub that ignores the zip leaves the secrets in place."
+      },
+      {
+        "blocker": "REPOSITORY_AUDIT.md",
+        "line": 214,
+        "kind": "documentation-mention",
+        "quote": "5. **Scrub the credential-bearing files** \u2014 including inside `ECM_DOCS_DEV.zip`, which holds its own copy."
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 91,
+        "kind": "documentation-mention",
+        "quote": "| `tests/secrets-baseline.txt` contains `document-portal/js/data.js` and `newack/config.js` | True at `177d992`. **At HEAD it contains `ECM_DOCS_DEV.zip` and `newack/config.js`** | `CONFIRMED-PRESENT`"
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 222,
+        "kind": "documentation-mention",
+        "quote": "ECM_DOCS_DEV.zip  (31 distinct, in 18 archived file(s))"
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 234,
+        "kind": "documentation-mention",
+        "quote": "At `177d992` any file containing a NUL byte was skipped, so `ECM_DOCS_DEV.zip` was never"
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 263,
+        "kind": "documentation-mention",
+        "quote": "Hygiene leads carried to the ledger: `ECM_DOCS_DEV.zip` (16.99 MB \u2014 90% of repository bytes,"
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 370,
+        "kind": "documentation-mention",
+        "quote": "| P0-E | `ECM_DOCS_DEV.zip` \u2014 16.99 MB archive, 90% of repo, holds 31 signatures | Medium | `CONFIRMED-PRESENT` | `CROSS` |"
+      },
+      {
+        "blocker": "docs/forensic/177d992/00-provenance.md",
+        "line": 383,
+        "kind": "documentation-mention",
+        "quote": "| OQ-4 | Do the 31 archive signatures duplicate the 4 in source, or are they additional? | Requires opening `ECM_DOCS_DEV.zip`, excluded by \u00a74 | Escalation to open the archive |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 22,
+        "kind": "documentation-mention",
+        "quote": "| `tests/secrets-baseline.txt` entries | `ECM_DOCS_DEV.zip`, `newack/config.js` \u2705 | `document-portal/js/data.js`, `newack/config.js` \u2717 |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 139,
+        "kind": "documentation-mention",
+        "quote": "### 2. `ECM_DOCS_DEV.zip` \u2014 scanned independently, per v3.1 \u00a74"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 145,
+        "kind": "documentation-mention",
+        "quote": "$ python3 -c \"import zipfile,re; z=zipfile.ZipFile('ECM_DOCS_DEV.zip'); \u2026\""
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 274,
+        "kind": "documentation-mention",
+        "quote": "| root files | 16 | 4,008 | **16.99** | `ECM_DOCS_DEV.zip` dominates |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 286,
+        "kind": "documentation-mention",
+        "quote": "Flagged: `ECM_DOCS_DEV.zip` (committed archive, 90% of bytes, 31 signatures);"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 369,
+        "kind": "documentation-mention",
+        "quote": "| P0-B | `ECM_DOCS_DEV.zip` carries 31 distinct signatures + an UNREDACTED manifest | High | `CONFIRMED-PRESENT` | `CROSS` |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/00-provenance.md",
+        "line": 391,
+        "kind": "documentation-mention",
+        "quote": "| OQ-3 | Is `ECM_DOCS_DEV.zip` referenced by any build or deploy path? | No deploy step in-repo | Hosting/CD configuration \u2192 resolved in Phase 3 |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/02-security.md",
+        "line": 277,
+        "kind": "documentation-mention",
+        "quote": "| `ECM_DOCS_DEV.zip` | **31 distinct signatures, 18 members** + UNREDACTED manifest | committed archive | n/a | n/a | `CONFIRMED-PRESENT` |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 30,
+        "kind": "documentation-mention",
+        "quote": "| `start` | `http-server . -p 8080` | **The repository root** \u2014 therefore *every* tree at once, including `newack/`, `document-portal/`, `ECM_ActivityHub_Portal/`, `docs/`, and `ECM_DOCS_DEV.zip` |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 69,
+        "kind": "documentation-mention",
+        "quote": "output and `*.state.json`. **It does not exclude `ECM_DOCS_DEV.zip`** \u2014 see \u00a73.2."
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 80,
+        "kind": "documentation-mention",
+        "quote": "scripts/setup-local.mjs:8:  * inside ECM_DOCS_DEV.zip and writes the two git-ignored config.local.js files the"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 81,
+        "kind": "documentation-mention",
+        "quote": "scripts/setup-local.mjs:26: const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 86,
+        "kind": "documentation-mention",
+        "quote": "> const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/03-build-deploy.md",
+        "line": 202,
+        "kind": "documentation-mention",
+        "quote": "| P3-A | `ECM_DOCS_DEV.zip` is a scripted credential-distribution path: `npm run go` materialises 9 signed URLs across 11 of 19 contract keys | High | `CONFIRMED-PRESENT` | `CROSS` |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/04-report.md",
+        "line": 63,
+        "kind": "documentation-mention",
+        "quote": "> const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/04-report.md",
+        "line": 102,
+        "kind": "documentation-mention",
+        "quote": "**Evidence** \u2014 independent Python scan of `ECM_DOCS_DEV.zip`: 837 members, 18 carrying `sig=`,"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/04-report.md",
+        "line": 485,
+        "kind": "documentation-mention",
+        "quote": "| `ECM_DOCS_DEV.zip` | 836 of 837 members | All secret-scanned; only the manifest was read; **none** audited for behaviour, per \u00a74 |"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd",
+        "line": 12,
+        "kind": "documentation-mention",
+        "quote": "ZIP[\"ECM_DOCS_DEV.zip - 16.99 MB<br/>31 SAS signatures / 18 members<br/>+ UNREDACTED manifest\"]"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd",
+        "line": 16,
+        "kind": "documentation-mention",
+        "quote": "UNZ[\"unzip -p ECM_DOCS_DEV.zip<br/>DGO_Targets_References/<br/>NITDA_operations_manifest_ai_ready_UNREDACTED-1.json\"]"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/findings.json",
+        "line": 3,
+        "kind": "documentation-mention",
+        "quote": "\"files\":[{\"path\":\"scripts/setup-local.mjs\",\"lines\":\"26-27\"},{\"path\":\"scripts/setup-local.mjs\",\"lines\":\"40-48\"},{\"path\":\"scripts/setup-local.mjs\",\"lines\":\"50-54\"},{\"path\":\"ECM_DOCS_DEV.zip\",\"lines\":\"n/"
+      },
+      {
+        "blocker": "docs/forensic/18e9f4d/findings.json",
+        "line": 11,
+        "kind": "documentation-mention",
+        "quote": "\"files\":[{\"path\":\"ECM_DOCS_DEV.zip\",\"lines\":\"18 of 837 members\"}],"
+      },
+      {
+        "blocker": "document-portal/README.md",
+        "line": 50,
+        "kind": "documentation-mention",
+        "quote": "> Git history and inside the tracked `ECM_DOCS_DEV.zip`. **They must be rotated in Power"
+      },
+      {
+        "blocker": "document-portal/config.example.js",
+        "line": 14,
+        "kind": "documentation-mention",
+        "quote": "still readable in Git history and in ECM_DOCS_DEV.zip."
+      },
+      {
+        "blocker": "document-portal/js/data.js",
+        "line": 30,
+        "kind": "documentation-mention",
+        "quote": "ECM_DOCS_DEV.zip. Deleting a file revokes nothing."
+      },
+      {
+        "blocker": "scripts/setup-local.mjs",
+        "line": 8,
+        "kind": "documentation-mention",
+        "quote": "* inside ECM_DOCS_DEV.zip and writes the two git-ignored config.local.js files the"
+      },
+      {
+        "blocker": "scripts/setup-local.mjs",
+        "line": 105,
+        "kind": "documentation-mention",
+        "quote": "// ECM_DOCS_DEV.zip. These are DEVELOPMENT/PILOT credentials, not production endpoints."
+      },
+      {
+        "blocker": "tests/check-secrets.mjs",
+        "line": 39,
+        "kind": "documentation-mention",
+        "quote": "* skipped outright \u2014 and the repository tracks ECM_DOCS_DEV.zip (17 MB), which carries"
+      },
+      {
+        "blocker": "tests/secrets-baseline.txt",
+        "line": 12,
+        "kind": "documentation-mention",
+        "quote": "# ECM_DOCS_DEV.zip was invisible to this check until the scanner learned to read archives."
+      }
+    ]
+  },
+  "fork_reconciliation": [
+    {
+      "path_a": "document-portal/ds/tokens/tokens.density.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.density.css",
+      "relation": "exact-duplicate",
+      "similarity_ratio": 1.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 0,
+      "direction": "identical"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.component.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.component.css",
+      "relation": "exact-duplicate",
+      "similarity_ratio": 1.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 0,
+      "direction": "identical"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.primitive.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.primitive.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9933,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 2,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/styles/layout.css",
+      "path_b": "styles/dgo-design-system/layout.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9886,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 1,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/styles/reset.css",
+      "path_b": "styles/dgo-design-system/reset.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9859,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 0,
+      "direction": "a-is-superset"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-light.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-light.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9714,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 0,
+      "direction": "a-is-superset"
+    },
+    {
+      "path_a": "document-portal/ds/styles/components.css",
+      "path_b": "styles/dgo-design-system/components.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9531,
+      "lines_only_in_a": 9,
+      "lines_only_in_b": 86,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.semantic.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.semantic.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9412,
+      "lines_only_in_a": 9,
+      "lines_only_in_b": 6,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/styles/base.css",
+      "path_b": "styles/dgo-design-system/base.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9295,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 16,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-hc.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-hc.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9078,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 12,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-dark.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-dark.css",
+      "relation": "partial-fork",
+      "similarity_ratio": 0.8375,
+      "lines_only_in_a": 4,
+      "lines_only_in_b": 22,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/inward.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/outward.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.7473,
+      "lines_only_in_a": 12,
+      "lines_only_in_b": 11,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6744,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6744,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6744,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6667,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 16,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6591,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6591,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6591,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6517,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 16,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6517,
+      "lines_only_in_a": 16,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6517,
+      "lines_only_in_a": 16,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/audit.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/directory.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6479,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 12,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6452,
+      "lines_only_in_a": 18,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6444,
+      "lines_only_in_a": 13,
+      "lines_only_in_b": 19,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "document-portal/submit.html",
+      "path_b": "document-portal/track.html",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6346,
+      "lines_only_in_a": 90,
+      "lines_only_in_b": 24,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6304,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 19,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6304,
+      "lines_only_in_a": 19,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6304,
+      "lines_only_in_a": 19,
+      "lines_only_in_b": 15,
+      "direction": "both-diverged"
+    },
+    {
+      "path_a": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "path_b": "ECM_ActivityHub_Portal/js/views/pages/notifications.js",
+      "relation": "shared-lineage",
+      "similarity_ratio": 0.6076,
+      "lines_only_in_a": 18,
+      "lines_only_in_b": 13,
+      "direction": "both-diverged"
+    }
+  ],
+  "design_system_census": [
+    {
+      "path_a": "document-portal/ds/colors_and_type.css",
+      "path_b": "styles/dgo-design-system/colors_and_type.css",
+      "relation": "counterpart-below-threshold",
+      "similarity_ratio": 0.548,
+      "lines_only_in_a": 150,
+      "lines_only_in_b": 43,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-below-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/ds.css",
+      "path_b": "(none)",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 15,
+      "lines_only_in_b": 0,
+      "direction": "unique-to-document-portal",
+      "counterpart_status": "unpaired"
+    },
+    {
+      "path_a": "document-portal/ds/styles/base.css",
+      "path_b": "styles/dgo-design-system/base.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9295,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 16,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/styles/components.css",
+      "path_b": "styles/dgo-design-system/components.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9531,
+      "lines_only_in_a": 9,
+      "lines_only_in_b": 86,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/styles/components/command-palette.css",
+      "path_b": "(none)",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 313,
+      "lines_only_in_b": 0,
+      "direction": "unique-to-document-portal",
+      "counterpart_status": "unpaired"
+    },
+    {
+      "path_a": "document-portal/ds/styles/layout.css",
+      "path_b": "styles/dgo-design-system/layout.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9886,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 1,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/styles/reset.css",
+      "path_b": "styles/dgo-design-system/reset.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9859,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 0,
+      "direction": "a-is-superset",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.component.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.component.css",
+      "relation": "exact-duplicate",
+      "similarity_ratio": 1.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 0,
+      "direction": "identical",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.density.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.density.css",
+      "relation": "exact-duplicate",
+      "similarity_ratio": 1.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 0,
+      "direction": "identical",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.primitive.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.primitive.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9933,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 2,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.semantic.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.semantic.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9412,
+      "lines_only_in_a": 9,
+      "lines_only_in_b": 6,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-dark.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-dark.css",
+      "relation": "partial-fork",
+      "similarity_ratio": 0.8375,
+      "lines_only_in_a": 4,
+      "lines_only_in_b": 22,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-hc.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-hc.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9078,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 12,
+      "direction": "both-diverged",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "document-portal/ds/tokens/tokens.theme-light.css",
+      "path_b": "styles/dgo-design-system/tokens/tokens.theme-light.css",
+      "relation": "divergent-copy",
+      "similarity_ratio": 0.9714,
+      "lines_only_in_a": 1,
+      "lines_only_in_b": 0,
+      "direction": "a-is-superset",
+      "counterpart_status": "paired-above-threshold"
+    },
+    {
+      "path_a": "(none)",
+      "path_b": "styles/dgo-design-system/brand-type.css",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 126,
+      "direction": "unique-to-styles",
+      "counterpart_status": "unpaired"
+    },
+    {
+      "path_a": "(none)",
+      "path_b": "styles/dgo-design-system/platform-authority.css",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 122,
+      "direction": "unique-to-styles",
+      "counterpart_status": "unpaired"
+    },
+    {
+      "path_a": "(none)",
+      "path_b": "styles/dgo-design-system/tokens/tokens.enhanced.css",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 28,
+      "direction": "unique-to-styles",
+      "counterpart_status": "unpaired"
+    },
+    {
+      "path_a": "(none)",
+      "path_b": "styles/dgo-design-system/tokens/tokens.legacy-bridge.css",
+      "relation": "no-counterpart",
+      "similarity_ratio": 0.0,
+      "lines_only_in_a": 0,
+      "lines_only_in_b": 38,
+      "direction": "unique-to-styles",
+      "counterpart_status": "unpaired"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "H-01",
+      "title": "Two tracked files carry unrotated Power Automate SAS signatures and are absent from the secret baseline, so the repository's own secret gate exits non-zero",
+      "category": "credential-exposure",
+      "severity": "critical",
+      "confidence": "high",
+      "affected_file_count": 2,
+      "affected_paths": [
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/18e9f4d/00-provenance.md"
+      ],
+      "basis": "`node tests/check-secrets.mjs` exits 1; 2 carrier(s) are not listed in tests/secrets-baseline.txt.",
+      "evidence": [
+        [
+          "tests/check-secrets.mjs",
+          "163-172"
+        ],
+        [
+          "tests/secrets-baseline.txt",
+          "1-3"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-02",
+      "title": "A 16 MB build artefact holding the majority of the repository's distinct SAS signatures is tracked, and tracked tooling reads it at runtime",
+      "category": "credential-exposure",
+      "severity": "high",
+      "confidence": "high",
+      "affected_file_count": 1,
+      "affected_paths": [
+        "ECM_DOCS_DEV.zip"
+      ],
+      "basis": "ECM_DOCS_DEV.zip is 16,783,981 of 19,080,145 tracked bytes (88.0%), carries 31 distinct signatures across 18 members, and 2 tracked file(s) depend on it programmatically.",
+      "evidence": [
+        [
+          "tests/secrets-baseline.txt",
+          "12-16"
+        ],
+        [
+          "scripts/setup-local.mjs",
+          "26-26"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-03",
+      "title": "The design system exists as two live forks that have drifted apart in both directions",
+      "category": "duplication-drift",
+      "severity": "high",
+      "confidence": "high",
+      "affected_file_count": 30,
+      "affected_paths": [
+        "document-portal/ds/colors_and_type.css",
+        "document-portal/ds/ds.css",
+        "document-portal/ds/styles/base.css",
+        "document-portal/ds/styles/components.css",
+        "document-portal/ds/styles/components/command-palette.css",
+        "document-portal/ds/styles/layout.css",
+        "document-portal/ds/styles/reset.css",
+        "document-portal/ds/tokens/tokens.component.css",
+        "document-portal/ds/tokens/tokens.density.css",
+        "document-portal/ds/tokens/tokens.primitive.css",
+        "document-portal/ds/tokens/tokens.semantic.css",
+        "document-portal/ds/tokens/tokens.theme-dark.css",
+        "document-portal/ds/tokens/tokens.theme-hc.css",
+        "document-portal/ds/tokens/tokens.theme-light.css",
+        "styles/dgo-design-system/base.css",
+        "styles/dgo-design-system/brand-type.css",
+        "styles/dgo-design-system/colors_and_type.css",
+        "styles/dgo-design-system/components.css",
+        "styles/dgo-design-system/layout.css",
+        "styles/dgo-design-system/platform-authority.css",
+        "styles/dgo-design-system/reset.css",
+        "styles/dgo-design-system/tokens/tokens.component.css",
+        "styles/dgo-design-system/tokens/tokens.density.css",
+        "styles/dgo-design-system/tokens/tokens.enhanced.css",
+        "styles/dgo-design-system/tokens/tokens.legacy-bridge.css",
+        "styles/dgo-design-system/tokens/tokens.primitive.css",
+        "styles/dgo-design-system/tokens/tokens.semantic.css",
+        "styles/dgo-design-system/tokens/tokens.theme-dark.css",
+        "styles/dgo-design-system/tokens/tokens.theme-hc.css",
+        "styles/dgo-design-system/tokens/tokens.theme-light.css"
+      ],
+      "basis": "18 counterpart relation(s) span document-portal/ds/ and styles/dgo-design-system/: 2 byte-identical, 2 where one side is a clean superset, 8 with content unique to BOTH sides, and 6 with no counterpart at all. Only the identical pairs can be resolved by deleting one side.",
+      "evidence": [
+        [
+          "docs/repository-hygiene/c2d78ba2ea23/03-exact-duplicates.tsv",
+          "2-3"
+        ],
+        [
+          "docs/repository-hygiene/c2d78ba2ea23/03-near-duplicates.tsv",
+          "2-10"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-04",
+      "title": "Shipped source comments cite verification tooling that does not exist in the repository",
+      "category": "false-assurance",
+      "severity": "medium",
+      "confidence": "high",
+      "affected_file_count": 5,
+      "affected_paths": [
+        "config/activity-parity.config.js",
+        "core/endpoint-registry.js",
+        "styles/app.css",
+        "styles/dgo-design-system/colors_and_type.css",
+        "styles/index.css"
+      ],
+      "basis": "7 stale reference(s) in 5 code file(s) name a test, tool or evidence file that resolves nowhere in scope.",
+      "evidence": [
+        [
+          "config/activity-parity.config.js",
+          "50-50"
+        ],
+        [
+          "core/endpoint-registry.js",
+          "101-101"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-05",
+      "title": "A directory that declares itself superseded is kept alive only by citations from the directory whose own future is unresolved, and one of its files is a signature carrier",
+      "category": "obsolescence",
+      "severity": "medium",
+      "confidence": "high",
+      "affected_file_count": 4,
+      "affected_paths": [
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/177d992/01-architecture.md",
+        "docs/forensic/177d992/README.md",
+        "docs/forensic/177d992/diagrams/01-architecture.mmd"
+      ],
+      "basis": "docs/forensic/177d992/README.md declares the directory superseded and states its own retention rationale; the directory holds 4 file(s) totalling 40,279 bytes, one of which is an unbaselined signature carrier, and every incoming citation originates inside the unresolved set of H-07.",
+      "evidence": [
+        [
+          "docs/forensic/177d992/README.md",
+          "1-1"
+        ],
+        [
+          "docs/forensic/177d992/README.md",
+          "9-11"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-06",
+      "title": "Documentation describes a pre-consolidation directory layout that no longer exists",
+      "category": "stale-documentation",
+      "severity": "low",
+      "confidence": "high",
+      "affected_file_count": 8,
+      "affected_paths": [
+        "AUDIT.md",
+        "CAPABILITY_ASSESSMENT_R11.6.md",
+        "FORENSIC_REPOSITORY_AUDIT.md",
+        "REPOSITORY_AUDIT.md",
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/177d992/01-architecture.md",
+        "docs/forensic/177d992/diagrams/01-architecture.mmd",
+        "docs/forensic/18e9f4d/00-provenance.md"
+      ],
+      "basis": "32 stale reference(s) in 8 documentation file(s) point at trees that are absent from the working tree, from git-ignore rules and from the tracked archive.",
+      "evidence": [
+        [
+          "AUDIT.md",
+          "87-87"
+        ],
+        [
+          "docs/repository-hygiene/c2d78ba2ea23/03-stale-references.tsv",
+          "2-87"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-07",
+      "title": "A second forensic evidence directory and one portal README have no incoming tracked reference and no signal that resolves whether they are current",
+      "category": "unclear-ownership",
+      "severity": "low",
+      "confidence": "low",
+      "affected_file_count": 10,
+      "affected_paths": [
+        "docs/forensic/18e9f4d/00-provenance.md",
+        "docs/forensic/18e9f4d/01-architecture.md",
+        "docs/forensic/18e9f4d/03-build-deploy.md",
+        "docs/forensic/18e9f4d/04-report.md",
+        "docs/forensic/18e9f4d/diagrams/01-architecture.mmd",
+        "docs/forensic/18e9f4d/diagrams/02-trust-boundaries.mmd",
+        "docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd",
+        "docs/forensic/18e9f4d/diagrams/04-fork-comparison.mmd",
+        "docs/forensic/18e9f4d/findings.json",
+        "document-portal/README.md"
+      ],
+      "basis": "10 file(s) totalling 118,110 bytes are unreachable from every Phase 1 root and carry no duplicate or supersession signal in Phase 2.",
+      "evidence": [
+        [
+          "docs/repository-hygiene/c2d78ba2ea23/02-reference-graph.md",
+          "13-25"
+        ]
+      ]
+    },
+    {
+      "finding_id": "H-08",
+      "title": "Two design-system token sheets are byte-identical across both trees, so one is pure redundancy that can drift at any time",
+      "category": "duplication-drift",
+      "severity": "low",
+      "confidence": "high",
+      "affected_file_count": 4,
+      "affected_paths": [
+        "document-portal/ds/tokens/tokens.component.css",
+        "document-portal/ds/tokens/tokens.density.css",
+        "styles/dgo-design-system/tokens/tokens.component.css",
+        "styles/dgo-design-system/tokens/tokens.density.css"
+      ],
+      "basis": "4 file(s) in 2 sha256 group(s) are byte-identical, wasting 7,071 bytes; both copies are asset-referenced, so neither is dead.",
+      "evidence": [
+        [
+          "docs/repository-hygiene/c2d78ba2ea23/03-exact-duplicates.tsv",
+          "2-3"
+        ]
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation_id": "R-01",
+      "finding_id": "H-01",
+      "priority": "P1",
+      "action": "Rotate every Power Automate signature reachable from the tree, then reconcile tests/secrets-baseline.txt with the carriers that remain",
+      "target_paths": [
+        "ECM_DOCS_DEV.zip",
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/18e9f4d/00-provenance.md",
+        "newack/config.js"
+      ],
+      "prerequisite": "Rotation happens in Power Automate first. Editing the tree revokes nothing.",
+      "risk_if_done": "None to runtime: no tracked runtime module imports the affected files.",
+      "risk_if_deferred": "The secret gate stays red, so it can no longer distinguish a genuinely new leak from the known ones - the ratchet is inert while it is failing.",
+      "blast_radius": "4 carrier file(s); CI job 'Secret scan'.",
+      "verification": "node tests/check-secrets.mjs (expect exit 0)",
+      "reversibility": "fully-reversible",
+      "note": "Do this before any removal recommendation below: several of them delete a carrier, and a deleted carrier is still readable in Git history."
+    },
+    {
+      "recommendation_id": "R-02",
+      "finding_id": "H-02",
+      "priority": "P2",
+      "action": "Decouple tracked tooling from ECM_DOCS_DEV.zip, then untrack the archive and publish it out-of-band",
+      "target_paths": [
+        "ECM_DOCS_DEV.zip",
+        "scripts/setup-local.mjs",
+        "tests/secrets-baseline.txt"
+      ],
+      "prerequisite": "R-01 must land first (the archive holds 31 distinct signatures), and scripts/setup-local.mjs, tests/secrets-baseline.txt must stop depending on the archive.",
+      "risk_if_done": "`npm run setup` stops working until it sources endpoints from somewhere else; tests/check-secrets.mjs fails on a stale baseline row unless the baseline is edited in the same change.",
+      "risk_if_deferred": "88.0% of the repository stays as a tracked credential-bearing artefact that GitHub serves over HTTPS to anyone with read access.",
+      "blast_radius": "2 hard blocker(s), 18 documentation mention(s).",
+      "verification": "node tests/check-secrets.mjs && node scripts/setup-local.mjs --force",
+      "reversibility": "reversible-in-history-only",
+      "note": "The repository already states this intent in tests/secrets-baseline.txt; Phase 3 only supplies the blocker list needed to act on it."
+    },
+    {
+      "recommendation_id": "R-03",
+      "finding_id": "H-03",
+      "priority": "P2",
+      "action": "Pick one design-system tree as the source of truth and make the other consume it, reconciling the two-way drift first",
+      "target_paths": [
+        "document-portal/ds/colors_and_type.css",
+        "document-portal/ds/ds.css",
+        "document-portal/ds/styles/base.css",
+        "document-portal/ds/styles/components.css",
+        "document-portal/ds/styles/components/command-palette.css",
+        "document-portal/ds/styles/layout.css",
+        "document-portal/ds/styles/reset.css",
+        "document-portal/ds/tokens/tokens.component.css",
+        "document-portal/ds/tokens/tokens.density.css",
+        "document-portal/ds/tokens/tokens.primitive.css",
+        "document-portal/ds/tokens/tokens.semantic.css",
+        "document-portal/ds/tokens/tokens.theme-dark.css",
+        "document-portal/ds/tokens/tokens.theme-hc.css",
+        "document-portal/ds/tokens/tokens.theme-light.css",
+        "styles/dgo-design-system/base.css",
+        "styles/dgo-design-system/brand-type.css",
+        "styles/dgo-design-system/colors_and_type.css",
+        "styles/dgo-design-system/components.css",
+        "styles/dgo-design-system/layout.css",
+        "styles/dgo-design-system/platform-authority.css",
+        "styles/dgo-design-system/reset.css",
+        "styles/dgo-design-system/tokens/tokens.component.css",
+        "styles/dgo-design-system/tokens/tokens.density.css",
+        "styles/dgo-design-system/tokens/tokens.enhanced.css",
+        "styles/dgo-design-system/tokens/tokens.legacy-bridge.css",
+        "styles/dgo-design-system/tokens/tokens.primitive.css",
+        "styles/dgo-design-system/tokens/tokens.semantic.css",
+        "styles/dgo-design-system/tokens/tokens.theme-dark.css",
+        "styles/dgo-design-system/tokens/tokens.theme-hc.css",
+        "styles/dgo-design-system/tokens/tokens.theme-light.css"
+      ],
+      "prerequisite": "A per-counterpart diff review, because outside the identical pairs no copy is a superset.",
+      "risk_if_done": "Visual regression across both portals; the two barrels load different files in different orders, so a naive merge changes the cascade.",
+      "risk_if_deferred": "Every fix must be applied twice, and a fix applied once silently makes the portals disagree.",
+      "blast_radius": "18 counterpart relation(s) across two runtime surfaces (styles/index.css and document-portal/ds/ds.css).",
+      "verification": "npm run test:smoke",
+      "reversibility": "fully-reversible",
+      "note": "8 relation(s) have unique content on both sides and 6 file(s) exist on one side only. Deleting either tree loses content."
+    },
+    {
+      "recommendation_id": "R-04",
+      "finding_id": "H-04",
+      "priority": "P2",
+      "action": "Either add the cited verification tooling or delete the claim from the comment",
+      "target_paths": [
+        "config/activity-parity.config.js",
+        "core/endpoint-registry.js",
+        "styles/app.css",
+        "styles/dgo-design-system/colors_and_type.css",
+        "styles/index.css"
+      ],
+      "prerequisite": "None.",
+      "risk_if_done": "None: comment-only edits.",
+      "risk_if_deferred": "Shipped source asserts a guarantee the repository cannot honour, which is the failure mode the CI module-graph job exists to prevent.",
+      "blast_radius": "7 comment line(s) in 5 file(s).",
+      "verification": "node tests/check-imports.mjs && node tests/governance.test.mjs",
+      "reversibility": "fully-reversible",
+      "note": "The lowest-cost item on this list: no runtime behaviour depends on any of these lines."
+    },
+    {
+      "recommendation_id": "R-05",
+      "finding_id": "H-05",
+      "priority": "P3",
+      "action": "Rotate the carrier inside docs/forensic/177d992/, then settle the directory together with R-07 rather than on its own",
+      "target_paths": [
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/177d992/01-architecture.md",
+        "docs/forensic/177d992/README.md",
+        "docs/forensic/177d992/diagrams/01-architecture.mmd"
+      ],
+      "prerequisite": "R-01, because one of these files is an unbaselined signature carrier; and R-07, because every citation of this directory originates inside the set R-07 leaves undecided.",
+      "risk_if_done": "2 tracked file(s) cite this directory, and 2 of them sit inside the set R-07 leaves undecided; removing either side alone breaks the citations or strands the other.",
+      "risk_if_deferred": "40,279 bytes stay in a state no single decision can resolve, and the directory keeps a live credential in the tree.",
+      "blast_radius": "4 file(s); 2 incoming documentation reference(s).",
+      "verification": "node tests/check-secrets.mjs && npm run test:links",
+      "reversibility": "reversible-in-history-only",
+      "note": "This is deliberately not a removal recommendation. The directory's README already states why it is retained and qualifies rather than forbids citation, so the evidence does not support deleting it; what the evidence does support is rotating its credential and resolving it jointly with R-07."
+    },
+    {
+      "recommendation_id": "R-06",
+      "finding_id": "H-06",
+      "priority": "P3",
+      "action": "Correct the documented directory layout, or mark the affected documents as historical records of a layout that has since changed",
+      "target_paths": [
+        "AUDIT.md",
+        "CAPABILITY_ASSESSMENT_R11.6.md",
+        "FORENSIC_REPOSITORY_AUDIT.md",
+        "REPOSITORY_AUDIT.md",
+        "docs/forensic/177d992/00-provenance.md",
+        "docs/forensic/177d992/01-architecture.md",
+        "docs/forensic/177d992/diagrams/01-architecture.mmd",
+        "docs/forensic/18e9f4d/00-provenance.md"
+      ],
+      "prerequisite": "None.",
+      "risk_if_done": "None: documentation-only edits.",
+      "risk_if_deferred": "Onboarding and audit readers are pointed at paths that do not exist, which is how the pre-consolidation layout keeps propagating into new documents.",
+      "blast_radius": "32 reference(s) in 8 document(s).",
+      "verification": "npm run test:links",
+      "reversibility": "fully-reversible",
+      "note": "Several of these documents are audit records; correcting them in place may be wrong. Dating them is a legitimate alternative and is why this is not a delete recommendation."
+    },
+    {
+      "recommendation_id": "R-07",
+      "finding_id": "H-07",
+      "priority": "P4",
+      "action": "Ask the owner whether the second forensic directory and document-portal/README.md are still wanted; record the answer either way",
+      "target_paths": [
+        "docs/forensic/18e9f4d/00-provenance.md",
+        "docs/forensic/18e9f4d/01-architecture.md",
+        "docs/forensic/18e9f4d/03-build-deploy.md",
+        "docs/forensic/18e9f4d/04-report.md",
+        "docs/forensic/18e9f4d/diagrams/01-architecture.mmd",
+        "docs/forensic/18e9f4d/diagrams/02-trust-boundaries.mmd",
+        "docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd",
+        "docs/forensic/18e9f4d/diagrams/04-fork-comparison.mmd",
+        "docs/forensic/18e9f4d/findings.json",
+        "document-portal/README.md"
+      ],
+      "prerequisite": "An owner decision. Phase 2 explicitly declined to convert unreferenced into unnecessary.",
+      "risk_if_done": "Deleting a current-but-unlinked audit record would destroy evidence.",
+      "risk_if_deferred": "118,110 bytes stay in an unresolved state and will be re-surfaced by every future audit at the same cost.",
+      "blast_radius": "10 file(s), no incoming tracked references.",
+      "verification": "node tests/check-imports.mjs",
+      "reversibility": "not-applicable",
+      "note": "Being unreferenced is not being unnecessary. This item asks a question; it does not recommend removal."
+    },
+    {
+      "recommendation_id": "R-08",
+      "finding_id": "H-08",
+      "priority": "P4",
+      "action": "Fold the two byte-identical token sheets into the single source of truth chosen in R-03",
+      "target_paths": [
+        "document-portal/ds/tokens/tokens.component.css",
+        "document-portal/ds/tokens/tokens.density.css",
+        "styles/dgo-design-system/tokens/tokens.component.css",
+        "styles/dgo-design-system/tokens/tokens.density.css"
+      ],
+      "prerequisite": "R-03 must choose the surviving tree first.",
+      "risk_if_done": "A cascade change if the surviving copy is imported at a different point in the barrel order.",
+      "risk_if_deferred": "7,071 bytes of exact redundancy remain, and two files that agree today can disagree after any single-sided edit.",
+      "blast_radius": "4 file(s), all asset-referenced.",
+      "verification": "npm run test:smoke",
+      "reversibility": "fully-reversible",
+      "note": "Strictly a subset of R-03; listed separately because it is the part that carries no drift risk and can be done mechanically once the source of truth is chosen."
+    }
+  ],
+  "file_dispositions": [
+    {
+      "path": ".devcontainer/devcontainer.json",
+      "top_level_tree": ".devcontainer",
+      "size_bytes": 738,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "top_level_tree": ".github",
+      "size_bytes": 3026,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": ".gitignore",
+      "top_level_tree": "root runtime",
+      "size_bytes": 525,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "AUDIT.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 10046,
+      "reachability": "test-reachable",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-06"
+      ],
+      "confidence": "low",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "AUTHENTICATION_CONTRACT.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 7041,
+      "reachability": "test-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "CAPABILITY_ASSESSMENT_R11.6.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 31640,
+      "reachability": "test-reachable",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-06"
+      ],
+      "confidence": "low",
+      "signals": [
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 4972,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/README.md",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1370,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/config.example.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1100,
+      "reachability": "config-template",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/index.html",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1967,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/api/client.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1998,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/controllers/actions.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 10820,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/core/auth.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 6259,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/core/config.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2332,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/core/router.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2180,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/core/store.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 3462,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/data/demo.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 3934,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/events/bindings.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 991,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/main.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1068,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/ai.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 328,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/approvals.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 991,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/bootstrap.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1270,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/briefs.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1916,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/correspondence.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2343,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/decisions.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1059,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/inbox.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1694,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/kpi.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 457,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/meetings.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1867,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/minutes.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1967,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/ops.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1686,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/projects.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 818,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/services/tasks.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1844,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/utils/fn.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 848,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/utils/toast.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 359,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/components/modals.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 19736,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/components/ui.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 3151,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/header.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1242,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/layout.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1894,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/admin.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1425,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/ai.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1293,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/approvals.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1985,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/audit.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1401,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/briefs.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2242,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/dashboard.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2472,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/decisions.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1476,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/directory.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1346,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/inbox.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 3495,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/inward.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2161,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/kpi.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1253,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/meetings.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2614,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/minutes.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2191,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/notfound.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1145,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/notifications.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1738,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/outward.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2115,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/projects.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2368,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/reports.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 942,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/pages/tasks.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2267,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/router.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 2037,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/js/views/sidebar.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 3575,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_ActivityHub_Portal/powerAutomateClient.js",
+      "top_level_tree": "ECM_ActivityHub_Portal",
+      "size_bytes": 1389,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "ECM_DOCS_DEV.zip",
+      "top_level_tree": "root runtime",
+      "size_bytes": 16783981,
+      "reachability": "test-reachable",
+      "phase2_verdict": "load-bearing-archive",
+      "phase3_disposition": "rotate-decouple-then-untrack",
+      "recommendation_ids": [
+        "R-01",
+        "R-02"
+      ],
+      "confidence": "high",
+      "signals": [
+        "declared-obsolete-by-another-tracked-file",
+        "tracked-archive",
+        "read-at-runtime-by-tracked-script"
+      ]
+    },
+    {
+      "path": "FORENSIC_REPOSITORY_AUDIT.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 21013,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-06"
+      ],
+      "confidence": "low",
+      "signals": [
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "LICENSE",
+      "top_level_tree": "root runtime",
+      "size_bytes": 991,
+      "reachability": "legal-or-license",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "PLATFORM_DOCUMENTATION.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 17532,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "README.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 12092,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "REPOSITORY_AUDIT.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 16416,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-06"
+      ],
+      "confidence": "low",
+      "signals": [
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "STATUS_REPORT.md",
+      "top_level_tree": "root runtime",
+      "size_bytes": 9064,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "assets/dgo-mark.svg",
+      "top_level_tree": "assets",
+      "size_bytes": 329,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/acknowledgement-flow.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1023,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/action-ownership.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 8119,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/action-routing.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 20851,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/activity-parity.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 2808,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-04"
+      ],
+      "confidence": "low",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "config/app.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 621,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/assignment-cascade.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 3808,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/auth.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 4953,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "config/browser-certification.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1309,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/cache-policy.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 725,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/config.example.js",
+      "top_level_tree": "config",
+      "size_bytes": 3087,
+      "reachability": "config-template",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/correspondence-email-templates.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 4532,
+      "reachability": "config-template",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/deeplink.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1322,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/dynamic-actions.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 4764,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/endpoints.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 5881,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/fetch-policy.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1303,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/module-boundaries.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 6494,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/nav.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 605,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/navigation-relationships.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 3976,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/performance-budget.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 284,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/platform-provisioning.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 17456,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/priority.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1524,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/product-definition.config.json",
+      "top_level_tree": "config",
+      "size_bytes": 2284,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/rbac.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 3804,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/receipt-ledger.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 445,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/routes.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 3340,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/source-routing.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 4089,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/source-views.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1285,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/state-schema.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 755,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/support-routing.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 1061,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/welcome-experience.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 2684,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "config/workflow-clarity.config.js",
+      "top_level_tree": "config",
+      "size_bytes": 7322,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/acknowledgement-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 10927,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/action-authority.js",
+      "top_level_tree": "core",
+      "size_bytes": 2869,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/action-runtime.js",
+      "top_level_tree": "core",
+      "size_bytes": 1501,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/activity-parity.js",
+      "top_level_tree": "core",
+      "size_bytes": 16779,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/api.js",
+      "top_level_tree": "core",
+      "size_bytes": 1751,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/archive.js",
+      "top_level_tree": "core",
+      "size_bytes": 3254,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/assignment-cascade.js",
+      "top_level_tree": "core",
+      "size_bytes": 10446,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/assignment-payload.js",
+      "top_level_tree": "core",
+      "size_bytes": 9376,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/audit-log.js",
+      "top_level_tree": "core",
+      "size_bytes": 1431,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/auth.js",
+      "top_level_tree": "core",
+      "size_bytes": 7077,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "core/boot.js",
+      "top_level_tree": "core",
+      "size_bytes": 3692,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/cache-manager.js",
+      "top_level_tree": "core",
+      "size_bytes": 2893,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/contracts.js",
+      "top_level_tree": "core",
+      "size_bytes": 2004,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/correspondence-email-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 10739,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/current-user.js",
+      "top_level_tree": "core",
+      "size_bytes": 4813,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/data-client.js",
+      "top_level_tree": "core",
+      "size_bytes": 5823,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/data-loader.js",
+      "top_level_tree": "core",
+      "size_bytes": 5338,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/data-reconciler.js",
+      "top_level_tree": "core",
+      "size_bytes": 955,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/data-selectors.js",
+      "top_level_tree": "core",
+      "size_bytes": 2869,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/deeplink-resolver.js",
+      "top_level_tree": "core",
+      "size_bytes": 2046,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/directorate-scope.js",
+      "top_level_tree": "core",
+      "size_bytes": 1616,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/dispatch-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 2880,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/domain.js",
+      "top_level_tree": "core",
+      "size_bytes": 5898,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/endpoint-registry.js",
+      "top_level_tree": "core",
+      "size_bytes": 4687,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-04"
+      ],
+      "confidence": "low",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "core/enterprise-domain.js",
+      "top_level_tree": "core",
+      "size_bytes": 7093,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/entity-store.js",
+      "top_level_tree": "core",
+      "size_bytes": 8930,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/errors.js",
+      "top_level_tree": "core",
+      "size_bytes": 1853,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/export-bundle.js",
+      "top_level_tree": "core",
+      "size_bytes": 1157,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/fetch-manager.js",
+      "top_level_tree": "core",
+      "size_bytes": 1725,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/flow-confirmation.js",
+      "top_level_tree": "core",
+      "size_bytes": 2275,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/focus-trap.js",
+      "top_level_tree": "core",
+      "size_bytes": 5078,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/governed-actions.js",
+      "top_level_tree": "core",
+      "size_bytes": 748,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/idempotency.js",
+      "top_level_tree": "core",
+      "size_bytes": 1039,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/lifecycle.js",
+      "top_level_tree": "core",
+      "size_bytes": 2405,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/loading-state.js",
+      "top_level_tree": "core",
+      "size_bytes": 2306,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/metrics-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 1201,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/nitda-module-adapter.js",
+      "top_level_tree": "core",
+      "size_bytes": 6679,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/offline-action-queue.js",
+      "top_level_tree": "core",
+      "size_bytes": 2072,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/otp-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 1746,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/pending-queue.js",
+      "top_level_tree": "core",
+      "size_bytes": 1941,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/performance-monitor.js",
+      "top_level_tree": "core",
+      "size_bytes": 1651,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/platform-provisioner.js",
+      "top_level_tree": "core",
+      "size_bytes": 2247,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/query-store.js",
+      "top_level_tree": "core",
+      "size_bytes": 1059,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/receipt-ledger.js",
+      "top_level_tree": "core",
+      "size_bytes": 2699,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/render-budget.js",
+      "top_level_tree": "core",
+      "size_bytes": 1119,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/report-export-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 4388,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/retention.js",
+      "top_level_tree": "core",
+      "size_bytes": 970,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/router.js",
+      "top_level_tree": "core",
+      "size_bytes": 1481,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/security-actions.js",
+      "top_level_tree": "core",
+      "size_bytes": 1138,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/source-views.js",
+      "top_level_tree": "core",
+      "size_bytes": 2838,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/state.js",
+      "top_level_tree": "core",
+      "size_bytes": 3397,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/support-service.js",
+      "top_level_tree": "core",
+      "size_bytes": 1378,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/ui-interactions.js",
+      "top_level_tree": "core",
+      "size_bytes": 1805,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/ui-state.js",
+      "top_level_tree": "core",
+      "size_bytes": 820,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/ui.js",
+      "top_level_tree": "core",
+      "size_bytes": 9467,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/welcome-experience.js",
+      "top_level_tree": "core",
+      "size_bytes": 24370,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "core/write-manager.js",
+      "top_level_tree": "core",
+      "size_bytes": 1583,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "docs/forensic/177d992/00-provenance.md",
+      "top_level_tree": "docs",
+      "size_bytes": 19426,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "obsolete-superseded",
+      "phase3_disposition": "rotate-then-remove-carrier",
+      "recommendation_ids": [
+        "R-01",
+        "R-05",
+        "R-06"
+      ],
+      "confidence": "high",
+      "signals": [
+        "inside-directory-declared-superseded",
+        "no-incoming-tracked-reference",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "docs/forensic/177d992/01-architecture.md",
+      "top_level_tree": "docs",
+      "size_bytes": 16693,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "obsolete-superseded",
+      "phase3_disposition": "rotate-then-decide-jointly",
+      "recommendation_ids": [
+        "R-05",
+        "R-06"
+      ],
+      "confidence": "high",
+      "signals": [
+        "inside-directory-declared-superseded",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "docs/forensic/177d992/README.md",
+      "top_level_tree": "docs",
+      "size_bytes": 593,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "obsolete-superseded",
+      "phase3_disposition": "rotate-then-decide-jointly",
+      "recommendation_ids": [
+        "R-05"
+      ],
+      "confidence": "high",
+      "signals": [
+        "self-declared-superseded",
+        "inside-directory-declared-superseded",
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/177d992/diagrams/01-architecture.mmd",
+      "top_level_tree": "docs",
+      "size_bytes": 3567,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "obsolete-superseded",
+      "phase3_disposition": "rotate-then-decide-jointly",
+      "recommendation_ids": [
+        "R-05",
+        "R-06"
+      ],
+      "confidence": "high",
+      "signals": [
+        "inside-directory-declared-superseded",
+        "no-incoming-tracked-reference",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/00-provenance.md",
+      "top_level_tree": "docs",
+      "size_bytes": 23021,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "rotate-then-remove-carrier",
+      "recommendation_ids": [
+        "R-01",
+        "R-06",
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/01-architecture.md",
+      "top_level_tree": "docs",
+      "size_bytes": 19760,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/02-security.md",
+      "top_level_tree": "docs",
+      "size_bytes": 22744,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "docs/forensic/18e9f4d/03-build-deploy.md",
+      "top_level_tree": "docs",
+      "size_bytes": 13269,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/04-report.md",
+      "top_level_tree": "docs",
+      "size_bytes": 28848,
+      "reachability": "unreferenced-obsolete-candidate",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/diagrams/01-architecture.mmd",
+      "top_level_tree": "docs",
+      "size_bytes": 3860,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/diagrams/02-trust-boundaries.mmd",
+      "top_level_tree": "docs",
+      "size_bytes": 2667,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd",
+      "top_level_tree": "docs",
+      "size_bytes": 2757,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/diagrams/04-fork-comparison.mmd",
+      "top_level_tree": "docs",
+      "size_bytes": 3687,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "docs/forensic/18e9f4d/findings.json",
+      "top_level_tree": "docs",
+      "size_bytes": 11045,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "document-portal/404.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 4814,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/README.md",
+      "top_level_tree": "document-portal",
+      "size_bytes": 9196,
+      "reachability": "unreferenced-but-plausibly-current",
+      "phase2_verdict": "unreferenced-review",
+      "phase3_disposition": "owner-decision-required",
+      "recommendation_ids": [
+        "R-07"
+      ],
+      "confidence": "low",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive",
+        "no-incoming-tracked-reference"
+      ]
+    },
+    {
+      "path": "document-portal/admin.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 9064,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/config.example.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 2819,
+      "reachability": "config-template",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "document-portal/ds/colors_and_type.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 10767,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/ds.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 722,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/fonts/CascadiaMono-Regular.woff2",
+      "top_level_tree": "document-portal",
+      "size_bytes": 143932,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/icons/sprite.svg",
+      "top_level_tree": "document-portal",
+      "size_bytes": 8017,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/logo/nitda-lockup-white.png",
+      "top_level_tree": "document-portal",
+      "size_bytes": 12383,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "document-portal/ds/logo/nitda-lockup.png",
+      "top_level_tree": "document-portal",
+      "size_bytes": 112180,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "document-portal/ds/logo/nitda-symbol.png",
+      "top_level_tree": "document-portal",
+      "size_bytes": 56669,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "document-portal/ds/styles/base.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 4566,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/styles/components.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 39333,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/styles/components/command-palette.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 11685,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/styles/layout.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 3252,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/styles/reset.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 1152,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.component.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 5786,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-exact",
+      "phase3_disposition": "consolidate-into-single-source",
+      "recommendation_ids": [
+        "R-03",
+        "R-08"
+      ],
+      "confidence": "high",
+      "signals": [
+        "exact-duplicate-of-tracked-file",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.density.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 1285,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-exact",
+      "phase3_disposition": "consolidate-into-single-source",
+      "recommendation_ids": [
+        "R-03",
+        "R-08"
+      ],
+      "confidence": "high",
+      "signals": [
+        "exact-duplicate-of-tracked-file",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.primitive.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 8731,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.semantic.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 7088,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.theme-dark.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 3096,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "partial-fork-review",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "low",
+      "signals": [
+        "partial-fork",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.theme-hc.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 2575,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/ds/tokens/tokens.theme-light.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 753,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/favicon.svg",
+      "top_level_tree": "document-portal",
+      "size_bytes": 262,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/index.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 14922,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/admin-panels.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 18043,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/admin.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 36176,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/core.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 29931,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/data.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 24555,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/home.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 7582,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/icons.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 14116,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/submit.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 23733,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/support.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 16110,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/js/track.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 18217,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/manifest.webmanifest",
+      "top_level_tree": "document-portal",
+      "size_bytes": 736,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/portal.css",
+      "top_level_tree": "document-portal",
+      "size_bytes": 26129,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/robots.txt",
+      "top_level_tree": "document-portal",
+      "size_bytes": 67,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/sitemap.xml",
+      "top_level_tree": "document-portal",
+      "size_bytes": 381,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/submit.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 15541,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/support.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 14189,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/sw.js",
+      "top_level_tree": "document-portal",
+      "size_bytes": 2654,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "document-portal/track.html",
+      "top_level_tree": "document-portal",
+      "size_bytes": 9136,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "shared-lineage",
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "index.html",
+      "top_level_tree": "root runtime",
+      "size_bytes": 4387,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/acknowledgment.js",
+      "top_level_tree": "modules",
+      "size_bytes": 13959,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/activities.js",
+      "top_level_tree": "modules",
+      "size_bytes": 24852,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/approvals.js",
+      "top_level_tree": "modules",
+      "size_bytes": 7129,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/archive.js",
+      "top_level_tree": "modules",
+      "size_bytes": 4008,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/assistant.js",
+      "top_level_tree": "modules",
+      "size_bytes": 4329,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/bulk-assignment.js",
+      "top_level_tree": "modules",
+      "size_bytes": 8354,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/comments.js",
+      "top_level_tree": "modules",
+      "size_bytes": 2658,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/correspondence-email.js",
+      "top_level_tree": "modules",
+      "size_bytes": 12054,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/correspondence.js",
+      "top_level_tree": "modules",
+      "size_bytes": 20790,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/diagnostics.js",
+      "top_level_tree": "modules",
+      "size_bytes": 8238,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/dispatch.js",
+      "top_level_tree": "modules",
+      "size_bytes": 9654,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/ecm-erp-charter.js",
+      "top_level_tree": "modules",
+      "size_bytes": 16698,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/executive.js",
+      "top_level_tree": "modules",
+      "size_bytes": 11697,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/fasttrack.js",
+      "top_level_tree": "modules",
+      "size_bytes": 10007,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/home.js",
+      "top_level_tree": "modules",
+      "size_bytes": 4435,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/lookup.js",
+      "top_level_tree": "modules",
+      "size_bytes": 14208,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/operator-hud.js",
+      "top_level_tree": "modules",
+      "size_bytes": 4810,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/orchestrator.js",
+      "top_level_tree": "modules",
+      "size_bytes": 6354,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/registry.js",
+      "top_level_tree": "modules",
+      "size_bytes": 11592,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/reports.js",
+      "top_level_tree": "modules",
+      "size_bytes": 9107,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/response-tracking.js",
+      "top_level_tree": "modules",
+      "size_bytes": 11154,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/settings.js",
+      "top_level_tree": "modules",
+      "size_bytes": 7852,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/single-assignment.js",
+      "top_level_tree": "modules",
+      "size_bytes": 15388,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/statistics.js",
+      "top_level_tree": "modules",
+      "size_bytes": 10053,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "modules/user-admin.js",
+      "top_level_tree": "modules",
+      "size_bytes": 9119,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "newack/ack.html",
+      "top_level_tree": "newack",
+      "size_bytes": 7654,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "newack/config.js",
+      "top_level_tree": "newack",
+      "size_bytes": 2636,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-01"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "newack/email.html",
+      "top_level_tree": "newack",
+      "size_bytes": 6371,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "newack/index.html",
+      "top_level_tree": "newack",
+      "size_bytes": 7893,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "newack/styles.css",
+      "top_level_tree": "newack",
+      "size_bytes": 7035,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "package-lock.json",
+      "top_level_tree": "root runtime",
+      "size_bytes": 63368,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "package.json",
+      "top_level_tree": "root runtime",
+      "size_bytes": 1234,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "playwright.config.js",
+      "top_level_tree": "root runtime",
+      "size_bytes": 1986,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "proxy/README.md",
+      "top_level_tree": "proxy",
+      "size_bytes": 6618,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/src/authorize.js",
+      "top_level_tree": "proxy",
+      "size_bytes": 4645,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/src/config.js",
+      "top_level_tree": "proxy",
+      "size_bytes": 2848,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/src/handler.js",
+      "top_level_tree": "proxy",
+      "size_bytes": 7349,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/src/jwt.js",
+      "top_level_tree": "proxy",
+      "size_bytes": 6722,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/src/server.js",
+      "top_level_tree": "proxy",
+      "size_bytes": 2440,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "proxy/test/proxy.test.mjs",
+      "top_level_tree": "proxy",
+      "size_bytes": 13830,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "scripts/check-links.mjs",
+      "top_level_tree": "scripts",
+      "size_bytes": 2051,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "scripts/setup-local.mjs",
+      "top_level_tree": "scripts",
+      "size_bytes": 5809,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-02"
+      ],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "shared/accessibility.js",
+      "top_level_tree": "shared",
+      "size_bytes": 493,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/components.js",
+      "top_level_tree": "shared",
+      "size_bytes": 12139,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/design-system-adapter.js",
+      "top_level_tree": "shared",
+      "size_bytes": 6177,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/figma-uiux-runtime.js",
+      "top_level_tree": "shared",
+      "size_bytes": 5956,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/relationship-runtime.js",
+      "top_level_tree": "shared",
+      "size_bytes": 3628,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/shell.js",
+      "top_level_tree": "shared",
+      "size_bytes": 14000,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/welcome-runtime.js",
+      "top_level_tree": "shared",
+      "size_bytes": 8589,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "shared/workspace-guide.js",
+      "top_level_tree": "shared",
+      "size_bytes": 620,
+      "reachability": "runtime-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/app.css",
+      "top_level_tree": "styles",
+      "size_bytes": 81442,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-04"
+      ],
+      "confidence": "low",
+      "signals": [
+        "stale-copy-at-same-path-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/base.css",
+      "top_level_tree": "styles",
+      "size_bytes": 5499,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/brand-type.css",
+      "top_level_tree": "styles",
+      "size_bytes": 4989,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/colors_and_type.css",
+      "top_level_tree": "styles",
+      "size_bytes": 8817,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-03",
+        "R-04"
+      ],
+      "confidence": "low",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/components.css",
+      "top_level_tree": "styles",
+      "size_bytes": 47239,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "stale-copy-at-same-path-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/layout.css",
+      "top_level_tree": "styles",
+      "size_bytes": 3263,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/platform-authority.css",
+      "top_level_tree": "styles",
+      "size_bytes": 10288,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/reset.css",
+      "top_level_tree": "styles",
+      "size_bytes": 1129,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.component.css",
+      "top_level_tree": "styles",
+      "size_bytes": 5786,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-exact",
+      "phase3_disposition": "consolidate-into-single-source",
+      "recommendation_ids": [
+        "R-03",
+        "R-08"
+      ],
+      "confidence": "high",
+      "signals": [
+        "exact-duplicate-of-tracked-file",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.density.css",
+      "top_level_tree": "styles",
+      "size_bytes": 1285,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-exact",
+      "phase3_disposition": "consolidate-into-single-source",
+      "recommendation_ids": [
+        "R-03",
+        "R-08"
+      ],
+      "confidence": "high",
+      "signals": [
+        "exact-duplicate-of-tracked-file",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.enhanced.css",
+      "top_level_tree": "styles",
+      "size_bytes": 1094,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.legacy-bridge.css",
+      "top_level_tree": "styles",
+      "size_bytes": 3062,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.primitive.css",
+      "top_level_tree": "styles",
+      "size_bytes": 8820,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.semantic.css",
+      "top_level_tree": "styles",
+      "size_bytes": 7077,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.theme-dark.css",
+      "top_level_tree": "styles",
+      "size_bytes": 4237,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "partial-fork-review",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "low",
+      "signals": [
+        "partial-fork",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.theme-hc.css",
+      "top_level_tree": "styles",
+      "size_bytes": 3159,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/dgo-design-system/tokens/tokens.theme-light.css",
+      "top_level_tree": "styles",
+      "size_bytes": 729,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "duplicate-divergent",
+      "phase3_disposition": "reconcile-two-way-drift",
+      "recommendation_ids": [
+        "R-03"
+      ],
+      "confidence": "medium",
+      "signals": [
+        "divergent-copy",
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "styles/index.css",
+      "top_level_tree": "styles",
+      "size_bytes": 3012,
+      "reachability": "asset-referenced",
+      "phase2_verdict": "stale-content-review",
+      "phase3_disposition": "correct-stale-claim",
+      "recommendation_ids": [
+        "R-04"
+      ],
+      "confidence": "low",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive",
+        "carries-stale-outbound-references"
+      ]
+    },
+    {
+      "path": "tests/README.md",
+      "top_level_tree": "tests",
+      "size_bytes": 3924,
+      "reachability": "script-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/auth-posture.test.mjs",
+      "top_level_tree": "tests",
+      "size_bytes": 9719,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/check-imports.mjs",
+      "top_level_tree": "tests",
+      "size_bytes": 4602,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/check-secrets.mjs",
+      "top_level_tree": "tests",
+      "size_bytes": 7320,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/governance.test.mjs",
+      "top_level_tree": "tests",
+      "size_bytes": 14290,
+      "reachability": "standalone-entrypoint",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/secrets-baseline.txt",
+      "top_level_tree": "tests",
+      "size_bytes": 1056,
+      "reachability": "test-reachable",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [
+        "R-02"
+      ],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "tests/smoke.spec.js",
+      "top_level_tree": "tests",
+      "size_bytes": 11864,
+      "reachability": "documentation-referenced",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": []
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_ai_machine_usage.json",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 4247,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_one_page_memo.pdf",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 2809,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_sop.md",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 2995,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_sop.txt",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 2381,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_team_handbook.pdf",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 5683,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    },
+    {
+      "path": "universal_filename_policy_deliverables/universal_filename_policy_word_version.docx",
+      "top_level_tree": "universal_filename_policy_deliverables",
+      "size_bytes": 38946,
+      "reachability": "archive-contained",
+      "phase2_verdict": "no-duplicate-or-obsolescence-signal",
+      "phase3_disposition": "keep-as-is",
+      "recommendation_ids": [],
+      "confidence": "high",
+      "signals": [
+        "byte-identical-copy-inside-tracked-archive"
+      ]
+    }
+  ]
+}

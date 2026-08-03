@@ -1,0 +1,53 @@
+archive	blocker	line	kind	blocking	quote
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	45	documentation-mention	no	With the 13 missing config modules restored from `ECM_DOCS_DEV.zip`, a headless Chromium boot produced `window.__DGO_BOOTED__ === true`, a mounted `<dgo-shell>`, 17 primary navigation entries, and exa
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	115	documentation-mention	no	**The files exist and are correct.** `ECM_DOCS_DEV.zip` (tracked, 16 MB) contains `DGO_Targets_Platform/`, a complete copy of the platform. A recursive diff against the working tree shows `config/` is
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	117	documentation-mention	no	**Fix:** copy the 13 files from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/` into `config/` and commit. Verified working. Effort: minutes.
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	220	documentation-mention	no	The README documents a UI-contract suite, a baseline ratchet, three GitHub workflows, a bundle drift check, and a Pages deploy gate. **None of it is in the repository** — and none of it is in `ECM_DOC
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	263	documentation-mention	no	2. **Restore the 13 config modules** from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. Verified to produce a clean boot and 25/25 route pass.
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	284	documentation-mention	no	- **Zip comparison:** `diff -rq` of `ECM_DOCS_DEV.zip::DGO_Targets_Platform/` against the working tree, per directory.
+ECM_DOCS_DEV.zip	CAPABILITY_ASSESSMENT_R11.6.md	299	documentation-mention	no	| `7204da7` | G-01 | Restored the 13 config modules byte-identical from `ECM_DOCS_DEV.zip::DGO_Targets_Platform/config/`. |
+ECM_DOCS_DEV.zip	FORENSIC_REPOSITORY_AUDIT.md	243	documentation-mention	no	| `ECM_DOCS_DEV.zip` | 1 | 17 MB, 838 entries — a snapshot of this platform, superseded by the tree it was used to repair |
+ECM_DOCS_DEV.zip	FORENSIC_REPOSITORY_AUDIT.md	250	documentation-mention	no	**On the archives:** `ECM_DOCS_DEV.zip` served a real purpose — it was the only source of the 13 config modules restored in commit `7204da7`. That purpose is now discharged. It should be retained *out
+ECM_DOCS_DEV.zip	FORENSIC_REPOSITORY_AUDIT.md	332	documentation-mention	no	| 13 | Untrack `ECM_DOCS_DEV.zip` and `HTML_OPS_Templates.zip`; retain externally | 2 |
+ECM_DOCS_DEV.zip	PLATFORM_DOCUMENTATION.md	303	documentation-mention	no	ECM_DOCS_DEV.zip               Archive of record — reference material
+ECM_DOCS_DEV.zip	README.md	44	documentation-mention	no	| `ECM_DOCS_DEV.zip` | **Archive of record.** Contains the full platform snapshot plus every reference artefact: Power Automate flow exports, the BRD/FRD, the DGCEO data model, the SharePoint provisio
+ECM_DOCS_DEV.zip	README.md	71	documentation-mention	no	`ECM_DOCS_DEV.zip` and writes `config/config.local.js` and
+ECM_DOCS_DEV.zip	REPOSITORY_AUDIT.md	178	documentation-mention	no	| **Redundant archives** | `ECM_DOCS_DEV.zip` (17 MB, 838 entries) duplicates the platform tree; `HTML_OPS_Templates.zip` (244 K, 115 entries) | ~40 % of repo size; the zip is *also* a second copy of 
+ECM_DOCS_DEV.zip	REPOSITORY_AUDIT.md	186	documentation-mention	no	Note the archive point is not merely about size: `ECM_DOCS_DEV.zip` contains its own copy of the credential-bearing files, so any scrub that ignores the zip leaves the secrets in place.
+ECM_DOCS_DEV.zip	REPOSITORY_AUDIT.md	214	documentation-mention	no	5. **Scrub the credential-bearing files** — including inside `ECM_DOCS_DEV.zip`, which holds its own copy.
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	91	documentation-mention	no	| `tests/secrets-baseline.txt` contains `document-portal/js/data.js` and `newack/config.js` | True at `177d992`. **At HEAD it contains `ECM_DOCS_DEV.zip` and `newack/config.js`** | `CONFIRMED-PRESENT`
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	222	documentation-mention	no	ECM_DOCS_DEV.zip  (31 distinct, in 18 archived file(s))
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	234	documentation-mention	no	At `177d992` any file containing a NUL byte was skipped, so `ECM_DOCS_DEV.zip` was never
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	263	documentation-mention	no	Hygiene leads carried to the ledger: `ECM_DOCS_DEV.zip` (16.99 MB — 90% of repository bytes,
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	370	documentation-mention	no	| P0-E | `ECM_DOCS_DEV.zip` — 16.99 MB archive, 90% of repo, holds 31 signatures | Medium | `CONFIRMED-PRESENT` | `CROSS` |
+ECM_DOCS_DEV.zip	docs/forensic/177d992/00-provenance.md	383	documentation-mention	no	| OQ-4 | Do the 31 archive signatures duplicate the 4 in source, or are they additional? | Requires opening `ECM_DOCS_DEV.zip`, excluded by §4 | Escalation to open the archive |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	22	documentation-mention	no	| `tests/secrets-baseline.txt` entries | `ECM_DOCS_DEV.zip`, `newack/config.js` ✅ | `document-portal/js/data.js`, `newack/config.js` ✗ |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	139	documentation-mention	no	### 2. `ECM_DOCS_DEV.zip` — scanned independently, per v3.1 §4
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	145	documentation-mention	no	$ python3 -c "import zipfile,re; z=zipfile.ZipFile('ECM_DOCS_DEV.zip'); …"
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	274	documentation-mention	no	| root files | 16 | 4,008 | **16.99** | `ECM_DOCS_DEV.zip` dominates |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	286	documentation-mention	no	Flagged: `ECM_DOCS_DEV.zip` (committed archive, 90% of bytes, 31 signatures);
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	369	documentation-mention	no	| P0-B | `ECM_DOCS_DEV.zip` carries 31 distinct signatures + an UNREDACTED manifest | High | `CONFIRMED-PRESENT` | `CROSS` |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/00-provenance.md	391	documentation-mention	no	| OQ-3 | Is `ECM_DOCS_DEV.zip` referenced by any build or deploy path? | No deploy step in-repo | Hosting/CD configuration → resolved in Phase 3 |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/02-security.md	277	documentation-mention	no	| `ECM_DOCS_DEV.zip` | **31 distinct signatures, 18 members** + UNREDACTED manifest | committed archive | n/a | n/a | `CONFIRMED-PRESENT` |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	30	documentation-mention	no	| `start` | `http-server . -p 8080` | **The repository root** — therefore *every* tree at once, including `newack/`, `document-portal/`, `ECM_ActivityHub_Portal/`, `docs/`, and `ECM_DOCS_DEV.zip` |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	69	documentation-mention	no	output and `*.state.json`. **It does not exclude `ECM_DOCS_DEV.zip`** — see §3.2.
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	80	documentation-mention	no	scripts/setup-local.mjs:8:  * inside ECM_DOCS_DEV.zip and writes the two git-ignored config.local.js files the
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	81	documentation-mention	no	scripts/setup-local.mjs:26: const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	86	documentation-mention	no	> const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/03-build-deploy.md	202	documentation-mention	no	| P3-A | `ECM_DOCS_DEV.zip` is a scripted credential-distribution path: `npm run go` materialises 9 signed URLs across 11 of 19 contract keys | High | `CONFIRMED-PRESENT` | `CROSS` |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/04-report.md	63	documentation-mention	no	> const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/04-report.md	102	documentation-mention	no	**Evidence** — independent Python scan of `ECM_DOCS_DEV.zip`: 837 members, 18 carrying `sig=`,
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/04-report.md	485	documentation-mention	no	| `ECM_DOCS_DEV.zip` | 836 of 837 members | All secret-scanned; only the manifest was read; **none** audited for behaviour, per §4 |
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd	12	documentation-mention	no	ZIP["ECM_DOCS_DEV.zip - 16.99 MB<br/>31 SAS signatures / 18 members<br/>+ UNREDACTED manifest"]
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/diagrams/03-build-deploy.mmd	16	documentation-mention	no	UNZ["unzip -p ECM_DOCS_DEV.zip<br/>DGO_Targets_References/<br/>NITDA_operations_manifest_ai_ready_UNREDACTED-1.json"]
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/findings.json	3	documentation-mention	no	"files":[{"path":"scripts/setup-local.mjs","lines":"26-27"},{"path":"scripts/setup-local.mjs","lines":"40-48"},{"path":"scripts/setup-local.mjs","lines":"50-54"},{"path":"ECM_DOCS_DEV.zip","lines":"n/
+ECM_DOCS_DEV.zip	docs/forensic/18e9f4d/findings.json	11	documentation-mention	no	"files":[{"path":"ECM_DOCS_DEV.zip","lines":"18 of 837 members"}],
+ECM_DOCS_DEV.zip	document-portal/README.md	50	documentation-mention	no	> Git history and inside the tracked `ECM_DOCS_DEV.zip`. **They must be rotated in Power
+ECM_DOCS_DEV.zip	document-portal/config.example.js	14	documentation-mention	no	still readable in Git history and in ECM_DOCS_DEV.zip.
+ECM_DOCS_DEV.zip	document-portal/js/data.js	30	documentation-mention	no	ECM_DOCS_DEV.zip. Deleting a file revokes nothing.
+ECM_DOCS_DEV.zip	scripts/setup-local.mjs	8	documentation-mention	no	* inside ECM_DOCS_DEV.zip and writes the two git-ignored config.local.js files the
+ECM_DOCS_DEV.zip	scripts/setup-local.mjs	26	runtime-read	yes	const ARCHIVE = path.join(ROOT, 'ECM_DOCS_DEV.zip');
+ECM_DOCS_DEV.zip	scripts/setup-local.mjs	105	documentation-mention	no	// ECM_DOCS_DEV.zip. These are DEVELOPMENT/PILOT credentials, not production endpoints.
+ECM_DOCS_DEV.zip	tests/check-secrets.mjs	39	documentation-mention	no	* skipped outright — and the repository tracks ECM_DOCS_DEV.zip (17 MB), which carries
+ECM_DOCS_DEV.zip	tests/secrets-baseline.txt	12	documentation-mention	no	# ECM_DOCS_DEV.zip was invisible to this check until the scanner learned to read archives.
+ECM_DOCS_DEV.zip	tests/secrets-baseline.txt	16	gate-data-row	yes	ECM_DOCS_DEV.zip
