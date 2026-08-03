@@ -1,5 +1,9 @@
 export const ActionOwnership = Object.freeze({
-  'create-correspondence': { owner:'correspondence', service:'Entities.create', audit:'audit:correspondence-created', backend:'DYNAMIC_ACTIONS.optional' },
+  // scan-intake creates correspondence from a counter deposit. It is an ALLOWED INVOKER,
+  // not a second owner: one action, one owner, so the audit event and the service stay
+  // identical whichever channel a record came in through.
+  'create-correspondence': { owner:'correspondence', allowedInvokers:['scan-intake'], service:'Entities.create', audit:'audit:correspondence-created', backend:'DYNAMIC_ACTIONS.optional' },
+  'scan-deposit': { owner:'scan-intake', service:'ScanIntakeService.depositScan', audit:'audit:scan-deposited', backend:'SCAN_UPLOAD.required' },
   triage: { owner:'correspondence', service:'Entities.transitionStatus', audit:'audit:triage-completed', backend:'DYNAMIC_ACTIONS.optional' },
   'assign-one': { owner:'single-assignment', service:'Entities.create(task)', audit:'audit:assigned', backend:'SINGLE_ASSIGNMENT' },
   'bulk-assign': { owner:'bulk-assignment', service:'OtpService+Idempotency', audit:'audit:bulk-assignment-submitted', backend:'BULK_ASSIGNMENT' },

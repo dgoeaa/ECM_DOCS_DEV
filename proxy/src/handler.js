@@ -23,7 +23,7 @@
 import { verifyToken, identityFrom, TokenError } from './jwt.js';
 import { roleFromClaims, authorize, stripAssertedIdentity, AuthzError } from './authorize.js';
 import { handleIntake } from './intake.js';
-import { handleUpload } from './upload.js';
+import { handleUpload, handleScanIntake } from './upload.js';
 
 /** In-memory idempotency store. Swap for Redis or a table in a multi-instance deployment. */
 export function createIdempotencyStore({ ttlMs = 300_000, max = 10_000 } = {}) {
@@ -57,12 +57,54 @@ export async function handleRequest(req, deps) {
   const { config, jwks, idempotency, audit = () => {}, fetchImpl = fetch } = deps;
   const correlationId = req.headers?.['x-correlation-id'] || cryptoRandom();
 
+  /* Authenticate and authorise one request. Used by the contract path below and by the
+     registry scan route, so there is exactly ONE implementation of §2.1–§2.3 and §2.5. A
+     second copy is how an auth gate drifts: the two diverge on a clock-skew default or a
+     claim name, and only one of them is the one anybody reads.
+     Returns { identity, claims, decision } on success or { response } to return verbatim. */
+  const authenticate = async (contractKey) => {
+    let claims, identity;
+    try {
+      const authz = req.headers?.authorization || req.headers?.Authorization || '';
+      const m = /^Bearer\s+(.+)$/i.exec(authz);
+      if (!m) throw new TokenError('missing_bearer');
+      claims = await verifyToken(m[1], {
+        jwks, issuer: config.issuer, audience: config.audience, clockSkewSec: config.clockSkewSec,
+      });
+      identity = identityFrom(claims);
+    } catch (e) {
+      audit({ event: 'proxy:auth-rejected', correlationId, contractKey, reason: e.reason || 'error', at: new Date().toISOString() });
+      return { response: json(401, { ok: false, error: 'unauthorized', reason: e.reason || 'invalid_token', correlationId }) };
+    }
+    let decision;
+    try {
+      const role = roleFromClaims(claims, { rolesClaim: config.rolesClaim, roleClaimMap: config.roleClaimMap });
+      decision = authorize(role, contractKey);
+    } catch (e) {
+      audit({ event: 'proxy:authz-denied', correlationId, contractKey, subject: identity.subject,
+              email: identity.email, reason: e.reason || 'error', at: new Date().toISOString() });
+      return { response: json(403, { ok: false, error: 'forbidden', reason: e.reason || 'not_permitted', correlationId }) };
+    }
+    return { identity, claims, decision };
+  };
+
   // Upload redemption is a PUT carrying raw bytes, so it is matched before the POST-only
   // gate below. It is still inside the /intake/ namespace and still unauthenticated —
   // the ticket IS the authorization, and it grants exactly one file of one submission.
   const seg = String(req.path || '').split('/').filter(Boolean);
   if (req.method === 'PUT' && seg[0] === 'intake' && seg[1] === 'upload') {
     return handleUpload(req, { ...deps, correlationId });
+  }
+
+  // Registry scan intake (channel C). Also a PUT of raw bytes, but on the OTHER side of the
+  // trust boundary: authenticated, role-checked, and attributed to the depositing officer.
+  // Deliberately outside the /intake/ namespace — that namespace is documented as the
+  // anonymous one, and putting a staff route inside it would make the boundary a matter of
+  // reading the code rather than reading the path.
+  if (req.method === 'PUT' && seg[0] === 'documents' && seg[1] === 'scan') {
+    const auth = await authenticate('SCAN_UPLOAD');
+    if (auth.response) return auth.response;
+    return handleScanIntake(req, { ...deps, identity: auth.identity, correlationId });
   }
 
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
@@ -87,31 +129,10 @@ export async function handleRequest(req, deps) {
   const contractKey = String(req.path || '').split('/').filter(Boolean).pop() || '';
   if (!contractKey) return json(404, { ok: false, error: 'no_contract_key' });
 
-  // ── §2.1 / §2.2 — authenticate
-  let claims, identity;
-  try {
-    const authz = req.headers?.authorization || req.headers?.Authorization || '';
-    const m = /^Bearer\s+(.+)$/i.exec(authz);
-    if (!m) throw new TokenError('missing_bearer');
-    claims = await verifyToken(m[1], {
-      jwks, issuer: config.issuer, audience: config.audience, clockSkewSec: config.clockSkewSec,
-    });
-    identity = identityFrom(claims);
-  } catch (e) {
-    audit({ event: 'proxy:auth-rejected', correlationId, contractKey, reason: e.reason || 'error', at: new Date().toISOString() });
-    return json(401, { ok: false, error: 'unauthorized', reason: e.reason || 'invalid_token', correlationId });
-  }
-
-  // ── §2.3 / §2.5 — derive role, authorize the action
-  let decision;
-  try {
-    const role = roleFromClaims(claims, { rolesClaim: config.rolesClaim, roleClaimMap: config.roleClaimMap });
-    decision = authorize(role, contractKey);
-  } catch (e) {
-    audit({ event: 'proxy:authz-denied', correlationId, contractKey, subject: identity.subject,
-            email: identity.email, reason: e.reason || 'error', at: new Date().toISOString() });
-    return json(403, { ok: false, error: 'forbidden', reason: e.reason || 'not_permitted', correlationId });
-  }
+  // ── §2.1 / §2.2 authenticate · §2.3 / §2.5 derive role and authorize the action
+  const auth = await authenticate(contractKey);
+  if (auth.response) return auth.response;
+  const { identity, claims, decision } = auth;
 
   // ── §2.4 — discard anything the client asserted about who it is
   const { body: cleanBody, stripped } = stripAssertedIdentity(req.body || {});

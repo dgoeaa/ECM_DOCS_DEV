@@ -167,6 +167,10 @@ export const HiddenTechnicalRoutes = Object.freeze({
     "visibleThrough": "Intake",
     "reason": "Official file control is a sub-workflow of intake."
   },
+  "scan-intake": {
+    "visibleThrough": "Intake & Assignment",
+    "reason": "Counter deposit of physically-received documents (channel C). It produces correspondence, so it is reached from Intake & Assignment rather than standing alone."
+  },
   "single-assignment": {
     "visibleThrough": "Intake & Assignment",
     "reason": "Single assignment is merged into the Intake & Assignment workspace (assign-in-place); the route remains for reassignment and deep links."

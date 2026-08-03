@@ -84,6 +84,13 @@ export const Routes = [
     "kpi": false
   },
   {
+    "path": "scan-intake",
+    "label": "Scan Intake",
+    "group": "OPERATIONS",
+    "kind": "form",
+    "kpi": false
+  },
+  {
     "path": "registry",
     "label": "Registry",
     "group": "OPERATIONS",

@@ -70,6 +70,7 @@ Everything sensitive comes from the environment. Nothing is committed.
 | `DGO_ENDPOINT_INTAKE_UPLOAD` | | Document library destination for relayed attachment bytes |
 | `DGO_ENDPOINT_INTAKE_SUPPORT` | | Downstream for helpdesk cases. Absent ⇒ a case reference is still minted and `delivered:false` is returned |
 | `DGO_ENDPOINT_INTAKE_STATUS` | | Registry lookup for status read-back. **Absent ⇒ `/intake/status` answers `503`, never `404`** |
+| `DGO_ENDPOINT_SCAN_UPLOAD` | | Library destination for registry counter deposits. Falls back to `INTAKE_UPLOAD` when unset |
 
 Contract keys are the 19 in `config/endpoints.config.js`. `GET /healthz` reports which are configured and which are still missing.
 
@@ -151,6 +152,35 @@ the acknowledgement email. Recorded as **F-030**, not assumed away.
 With `DGO_ENDPOINT_INTAKE_STATUS` unset the route answers **503**, never 404: a 404 would
 tell the submitter their request does not exist, which is a claim about the registry this
 proxy is in no position to make when the truth is that it has nowhere to ask.
+
+## Registry scan intake — the authenticated byte path
+
+`PUT /documents/scan` brings a physically-received document into the registry. It is the
+counterpart of `PUT /intake/upload`, and the difference is entirely in **who may call it**:
+
+| | `/intake/upload` | `/documents/scan` |
+|---|---|---|
+| Caller | Anonymous | Authenticated staff |
+| Authorization | A single-use HMAC ticket naming one file of one submission | Bearer token + `ROUTE_MANAGE` |
+| Attribution | None — the submitter is a stranger | `depositedBy`, from the verified token |
+| Bytes | `verifyBytes` → `relayToLibrary` | the same two functions |
+
+**No ticket, deliberately.** A ticket exists so an anonymous caller can be granted exactly one
+narrow thing. An authenticated clerk has already presented a verified token and passed a role
+check; issuing them a ticket adds a round trip and no security, and the token carries an
+identity the ticket never could.
+
+**Not in `/intake/`.** That namespace is documented as the anonymous one. Putting a staff
+route inside it would make the trust boundary a matter of reading code rather than reading a
+path — so the route lives in its own namespace and the auth gate is visible from the URL.
+
+**One implementation of the byte rules.** Both routes call `verifyBytes` and
+`relayToLibrary`. They differ on the caller and nothing else, because two channels writing
+into the same document library under different guarantees is how a library ends up holding
+documents nobody can vouch for.
+
+`ROUTE_MANAGE` is the required permission, so a `viewer` cannot deposit and neither can an
+`executive` — depositing is an operational act, not a reporting one.
 
 ### Three things that must change before scaling out
 

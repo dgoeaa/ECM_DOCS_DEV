@@ -183,7 +183,9 @@ group("Boundary integrity — cross-config consistency");
   }
   check("RBAC never grants access to a route that does not exist", bad.length === 0, bad.join(", "));
 
-  check("25 routes are declared", declared.length === 25, `got ${declared.length}`);
+  // 26 since step 7 added scan-intake (channel C). It is a HIDDEN technical route under
+  // Intake & Assignment, so the visible-workspace count is deliberately unchanged.
+  check("26 routes are declared", declared.length === 26, `got ${declared.length}`);
   check("9 visible workspaces", VisibleWorkspaces.length === 9, `got ${VisibleWorkspaces.length}`);
 }
 

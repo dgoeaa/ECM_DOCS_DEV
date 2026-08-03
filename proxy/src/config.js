@@ -57,6 +57,12 @@ export function loadConfig(source = process.env) {
   const statusEndpoint = get('DGO_ENDPOINT_INTAKE_STATUS');
   if (statusEndpoint) endpoints.INTAKE_STATUS = statusEndpoint;
 
+  // Registry scan intake (channel C). Falls back to INTAKE_UPLOAD when unset so a single
+  // library serves both channels; set it separately to file counter deposits apart from
+  // public submissions.
+  const scanEndpoint = get('DGO_ENDPOINT_SCAN_UPLOAD');
+  if (scanEndpoint) endpoints.SCAN_UPLOAD = scanEndpoint;
+
   return {
     tenantId,
     issuer: get('DGO_ISSUER') || (tenantId ? `https://login.microsoftonline.com/${tenantId}/v2.0` : ''),

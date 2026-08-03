@@ -58,6 +58,10 @@ export const ACTION_PERMISSION = Object.freeze({
   OTP_GENERATE: null,
   OTP_VERIFY: null,
   SUBSIDIARY_ACTIONS: Permissions.ROUTE_MANAGE,
+  // Registry scan intake (channel C). ROUTE_MANAGE, so a `viewer` cannot deposit a
+  // document into the registry and an `executive` -- who can read everything -- cannot
+  // either. Depositing is an operational act, not a reporting one.
+  SCAN_UPLOAD: Permissions.ROUTE_MANAGE,
 });
 
 export function permissionsOf(role) {

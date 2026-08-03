@@ -79,7 +79,7 @@ An externally submitted document today cannot be assigned, tracked, acknowledged
 |---|---|---|---|---|
 | **A** | **Document portal** | External submitter | ❌ no path | Anonymous submit → proxy → SharePoint + registry record with `channel: 'Portal'` |
 | **B** | **Email** | Mailbox | ✅ implemented | Unchanged: `FETCH_ALL` → `state.emails` → email-to-task |
-| **C** | **Scan / physical** | Registry counter | ⚠️ metadata only | New internal upload workspace: file → SharePoint → record with the link already attached |
+| **C** | **Scan / physical** | Registry counter | ✅ **step 7** | `modules/scan-intake.js` → `PUT /documents/scan` → document library → record with `channel: 'Registry'` and the link attached |
 | **D** | **Internal origination** | NITDA staff | ✅ implemented | Unchanged: `modules/correspondence.js` |
 
 All four produce **the same correspondence record**. `channel` is what distinguishes them, and it gains one value: `Portal`. Nothing else in the model changes — which is the test of whether the model was right, and it was.
@@ -204,6 +204,53 @@ The lookup pair is `referenceId` + `senderEmail`. References are sequential (`NI
 
 The durable fix is a **high-entropy lookup token** minted at submission and sent in the acknowledgement email, used in place of — or alongside — the reference. That is owner-side work, recorded as **F-030** rather than assumed away.
 
+### 3.9 Channel C — registry counter deposit
+
+A document arrives physically. A clerk scans it, and before step 7 that was where the trail
+stopped: the platform could record that a document existed but had nowhere to put it, so the
+record and the paper lived in different places.
+
+```jsonc
+// PUT {proxyBaseUrl}/documents/scan   — AUTHENTICATED. Bearer token, ROUTE_MANAGE required.
+// Headers carry the metadata; the body is the raw file.
+//   X-DGO-Filename, X-DGO-Sha256, X-DGO-Size, X-DGO-Reference (optional)
+
+// 201 Created
+{
+  "ok": true,
+  "referenceId": "NITDA-2026-000318",       // minted server-side
+  "attachmentLink": "https://…/library/…",
+  "stored": true,
+  "depositedBy": "clerk@nitda.gov.ng",      // from the VERIFIED TOKEN, never the request
+  "sha256": "…", "bytes": 240112
+}
+```
+
+**It is deliberately not in the `/intake/` namespace.** That namespace is documented as the
+anonymous one. A staff route inside it would make the trust boundary something you learn by
+reading code rather than by reading a path.
+
+**There is no ticket.** A ticket exists so an *anonymous* caller can be granted exactly one
+narrow thing. An authenticated clerk has already presented a verified token and passed a role
+check; re-issuing them a ticket would add a round trip and no security, and the token carries
+an identity a ticket never could. What the two paths must **not** differ on is what happens
+to the bytes — same ceiling, same declared-size check, same digest check — so both call
+`verifyBytes` and `relayToLibrary`.
+
+**Two rules the workspace is built around:**
+
+1. **No record without a deposit.** If the bytes did not reach the library, no correspondence
+   record is created. `ok: true` means the proxy verified the bytes; `stored: true` means the
+   library confirmed the write; only both together justify a record. A registry record
+   pointing at an unfiled document is a broken custody record — F-028's silent loss wearing
+   an internal badge. Failed deposits stay in the tray, visible, retryable, and explained.
+2. **Custody is attributed by the server.** `depositedBy` comes from the token. A
+   client-asserted depositor is not a custody record.
+
+The record gains no new field for this channel — only `channel: 'Registry'`, plus the custody
+facts (`depositedBy`, `depositedAt`, `documentSha256`). The digest is what lets a record be
+checked against the library later.
+
 ## 4. Target request path
 
 ```
@@ -238,7 +285,7 @@ Each step is independently deployable and leaves the platform working.
 | ~~**4**~~ | ~~Upload brokering~~ — **DONE**: signed single-use tickets, byte verification, relayed through the proxy. Departs from §3.3 deliberately — see `proxy/README.md` | F-028 fully | — | — |
 | ~~**5**~~ | ~~Point the portal at the proxy~~ — **DONE**: `PF.ENDPOINTS` deleted, `PF.flow` replaced by `PF.intake`, portal holds no credential | **F-013**, **F-001** (portal) | — | — |
 | ~~**6**~~ | ~~Portal reads status back; retire `admin.html` and `PF.STAFF`~~ — **DONE**: `/intake/status` with uniform denial and an allow-listed projection; console deleted with its three hardcoded credentials; three step-2 render defects fixed along the way | **D-C2**, **F-029**, F-010, F-020 | — | — |
-| **7** | Registry scan-intake workspace in the root platform | Channel C | ~1 week | step 4 |
+| ~~**7**~~ | ~~Registry scan-intake workspace~~ — **DONE**: authenticated `PUT /documents/scan`, server-attributed custody, and no correspondence record unless the document actually reached the library | Channel C | — | — |
 | **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
 | **10** | High-entropy lookup token issued at submission, replacing the guessable reference as the status credential | **F-030** | ~2 days | step 6 |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |

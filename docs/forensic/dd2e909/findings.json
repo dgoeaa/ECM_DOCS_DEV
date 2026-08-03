@@ -581,5 +581,47 @@
     "remediation": "Mint a high-entropy lookup token at submission, return it in the acknowledgement email, and accept it in place of or alongside the reference. Rate limiting is what currently makes guessing impractical; it is not a substitute for an unguessable credential.",
     "outcome": "skipped",
     "note": "Introduced by step 6, recorded at step 6 rather than discovered later. Deliberately not fixed in the same change: the token must be issued at submission and delivered by the acknowledgement email, which is owner-side work on the Power Automate side. Tracked as roadmap step 10."
+  },
+  {
+    "id": "F-031",
+    "title": "modules/correspondence.js mints registry references in the browser from Date.now()",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "root",
+    "files": [
+      {
+        "path": "modules/correspondence.js",
+        "lines": "createRecord()"
+      }
+    ],
+    "impact": "`const id = `NITDA-${Date.now().toString().slice(-6)}`` is client-generated and takes the last six digits of a millisecond timestamp, so it repeats every 1000 seconds and two clerks logging correspondence in the same millisecond collide outright. It is also chosen by the caller, which means it is not a registry reference in any meaningful sense -- the same objection recorded against client-chosen identifiers on the intake path.",
+    "remediation": "Mint references server-side, as proxy/src/intake.js createReferenceMinter does. modules/scan-intake.js (step 7) already takes its reference from the proxy; the manual logging path in modules/correspondence.js still does not.",
+    "outcome": "skipped",
+    "note": "Found at step 7 while matching the scan-intake record shape to the existing one. NOT fixed in the same change: changing how the manual path mints references touches every record already keyed on that format, and the durable fix is the same shared minter step 7 introduced. Scoped separately rather than bundled into a channel-C change."
+  },
+  {
+    "id": "F-032",
+    "title": "Three different correspondence category vocabularies exist across the repository",
+    "severity": "medium",
+    "confidence": "confirmed-present",
+    "scope": "cross",
+    "files": [
+      {
+        "path": "modules/correspondence.js",
+        "lines": "categoryList -- 5 values"
+      },
+      {
+        "path": "document-portal/js/data.js",
+        "lines": "PF.CORRESPONDENCE_TYPES -- 7 category values"
+      },
+      {
+        "path": "config/assignment-cascade.config.js",
+        "lines": "category -- 12 values"
+      }
+    ],
+    "impact": "A record's category depends on which channel it arrived through. 'Official Correspondence' (manual logging), 'General Correspondence' (portal) and 'General Administration' (assignment cascade) are three strings for overlapping concepts, and the cascade routes on its own set -- so a portal or counter record may carry a category the routing configuration does not recognise, and fall through to whatever the default is.",
+    "remediation": "Reconcile all three against the registry's reference data and derive them from one source. Until then, any per-category figure that spans channels is unreliable.",
+    "outcome": "skipped",
+    "note": "Surfaced at step 7 when the scan workspace needed a category list. It adopted modules/correspondence.js's vocabulary rather than inventing a fourth, and the divergence is commented at the point of use. Reconciliation is owner-side -- it needs the registry's actual reference data, which is not in this repository."
   }
 ]
