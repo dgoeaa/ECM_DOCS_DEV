@@ -288,6 +288,9 @@ Each step is independently deployable and leaves the platform working.
 | ~~**7**~~ | ~~Registry scan-intake workspace~~ — **DONE**: authenticated `PUT /documents/scan`, server-attributed custody, and no correspondence record unless the document actually reached the library | Channel C | — | — |
 | **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
 | **10** | High-entropy lookup token issued at submission, replacing the guessable reference as the status credential | **F-030** | ~2 days | step 6 |
+| ~~**12**~~ | ~~One reference minter, one reference format~~ — **DONE**: `core/reference-minter.js`; the browser no longer mints a colliding six-digit timestamp | **F-031** | — | — |
+| ~~**13**~~ | ~~Separate document kind from routing domain~~ — **DONE**: unmatched categories no longer default to the executive queue at urgent priority | **F-032** | — | — |
+| **14** | Confirm the provisional document-kind → routing-domain mapping against registry reference data | **F-032** (owner half) | owner-side | — |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
 | **11** | **Cutover** — decommission all 25 development/pilot workflows, provision replacements behind proxy egress only | **F-001** | owner-side | steps 8, 10 |
 

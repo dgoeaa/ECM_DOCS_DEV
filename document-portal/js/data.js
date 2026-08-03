@@ -91,7 +91,7 @@ PF.CORRESPONDENCE_TYPES = [
   { key: 'policy', label: 'Policy or strategy document', category: 'Policy Submission',
     blurb: 'A draft policy, standard, strategy or regulatory instrument submitted for review.',
     needs: ['The document', 'Any consultation or endorsement evidence'] },
-  { key: 'invitation', label: 'Invitation or event notice', category: 'Invitation',
+  { key: 'invitation', label: 'Invitation or event notice', category: 'Event Invitation',
     blurb: 'An invitation to an event, or a request for representation or an observer.',
     needs: ['Invitation letter', 'Programme or agenda, if available'] },
   { key: 'other', label: 'Other correspondence', category: 'General Correspondence',

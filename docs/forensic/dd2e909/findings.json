@@ -596,14 +596,14 @@
       }
     ],
     "impact": "`const id = `NITDA-${Date.now().toString().slice(-6)}`` is client-generated and takes the last six digits of a millisecond timestamp, so it repeats every 1000 seconds and two clerks logging correspondence in the same millisecond collide outright. It is also chosen by the caller, which means it is not a registry reference in any meaningful sense -- the same objection recorded against client-chosen identifiers on the intake path.",
-    "remediation": "Mint references server-side, as proxy/src/intake.js createReferenceMinter does. modules/scan-intake.js (step 7) already takes its reference from the proxy; the manual logging path in modules/correspondence.js still does not.",
-    "outcome": "skipped",
+    "remediation": "Fixed. core/reference-minter.js is the single implementation; modules/correspondence.js uses it and produces NITDA-YYYY-NNNNNN, identical to proxy/src/intake.js createReferenceMinter. Client-minted references are flagged referenceProvisional:true, because a browser sees only the records it has loaded and cannot issue an authoritative registry reference.",
+    "outcome": "fixed",
     "note": "Found at step 7 while matching the scan-intake record shape to the existing one. NOT fixed in the same change: changing how the manual path mints references touches every record already keyed on that format, and the durable fix is the same shared minter step 7 introduced. Scoped separately rather than bundled into a channel-C change."
   },
   {
     "id": "F-032",
-    "title": "Three different correspondence category vocabularies exist across the repository",
-    "severity": "medium",
+    "title": "Document kind and routing domain shared one `category` field, so every intake category fell through to the executive queue at urgent priority",
+    "severity": "high",
     "confidence": "confirmed-present",
     "scope": "cross",
     "files": [
@@ -620,9 +620,9 @@
         "lines": "category -- 12 values"
       }
     ],
-    "impact": "A record's category depends on which channel it arrived through. 'Official Correspondence' (manual logging), 'General Correspondence' (portal) and 'General Administration' (assignment cascade) are three strings for overlapping concepts, and the cascade routes on its own set -- so a portal or counter record may carry a category the routing configuration does not recognise, and fall through to whatever the default is.",
-    "remediation": "Reconcile all three against the registry's reference data and derive them from one source. Until then, any per-category figure that spans channels is unreliable.",
-    "outcome": "skipped",
-    "note": "Surfaced at step 7 when the scan workspace needed a category list. It adopted modules/correspondence.js's vocabulary rather than inventing a fourth, and the divergence is commented at the point of use. Reconciliation is owner-side -- it needs the registry's actual reference data, which is not in this repository."
+    "impact": "CORRECTED FRAMING. The original entry said 'three vocabularies exist' and treated that as the defect. Two of the three are legitimately different axes: DOCUMENT KIND (what sort of document this is) written by the intake forms, and ROUTING DOMAIN (which directorate handles it) read by core/assignment-cascade.js. Both are worth having. The defect was that they shared one field, so bestRule() matched document kinds against routing rules, found nothing, and fell through to `rows[0]` -- whatever sorts first in the matrix. In the shipped fallback that is 'Executive Correspondence -> ODG -> dgs@nitda.gov.ng, urgent, 2 days'. MEASURED, NOT INFERRED: all five kinds the manual form offered and all seven the portal maps to routed to the Director-General's office at urgent priority. The executive queue was the default destination for substantially all correspondence, which makes the priority signal meaningless. A fourth list, INTAKE_CATEGORIES in the proxy, had also drifted: it carried 'Invitation' where the platform used 'Event Invitation', so every portal invitation arrived with a category no routing rule and no report would ever match.",
+    "remediation": "Fixed in two parts, deliberately unequal. (1) The fallthrough is a bug regardless of any mapping decision and is fixed outright: an unmatched category now lands on a NAMED default (General Administration -> Registry, normal priority) rather than on whatever sorts first. (2) Which document kind belongs to which directorate is an operating-model decision, so DocumentKindRouting in config/correspondence-categories.config.js is marked PROVISIONAL and is for the owner to confirm against registry reference data. Runtime reference data always wins -- the mapping is consulted only when the raw value matches no rule. The proxy now imports PUBLIC_DOCUMENT_KINDS instead of restating its allow-list, and the portal aligned to 'Event Invitation'.",
+    "outcome": "fixed",
+    "note": "Reframed after measuring the actual routing rather than reasoning from the lists. My original entry conflated two legitimate axes and missed the consequence entirely. Remaining owner-side: confirm the provisional kind->domain mapping, and decide whether 'Proposal'/'Project Proposal' and 'Official Correspondence'/'General Correspondence' are genuinely distinct kinds -- they are left unresolved because collapsing them would change what existing records mean."
   }
 ]

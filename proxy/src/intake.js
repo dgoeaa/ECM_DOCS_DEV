@@ -1,3 +1,5 @@
+import { PUBLIC_DOCUMENT_KINDS } from '../../config/correspondence-categories.config.js';
+
 // Anonymous correspondence intake — TARGET_ARCHITECTURE.md §3.5, §3.6.
 //
 // This is the ONLY unauthenticated path through the proxy, and it exists because the
@@ -27,11 +29,16 @@
 // whatever arrives: an intake channel that forwards unvalidated input is just a slower
 // way of writing junk into the system of record.
 
-/** Correspondence categories the registry accepts from the public channel. */
-export const INTAKE_CATEGORIES = Object.freeze([
-  'General Correspondence', 'Application', 'Proposal', 'Report',
-  'Compliance Filing', 'Policy Submission', 'Invitation',
-]);
+/**
+ * Correspondence categories the registry accepts from the public channel.
+ *
+ * Derived from config/correspondence-categories.config.js rather than restated, for the
+ * same reason authorize.js imports the RBAC matrix instead of copying it: two lists drift,
+ * and the drift is silent. This one had already drifted — it carried 'Invitation' where the
+ * platform used 'Event Invitation', so a portal submission arrived with a category no
+ * routing rule and no report would ever match (F-032).
+ */
+export const INTAKE_CATEGORIES = PUBLIC_DOCUMENT_KINDS;
 
 export const INTAKE_LIMITS = Object.freeze({
   maxBodyBytes: 256 * 1024,   // metadata only — file bytes never come through this route

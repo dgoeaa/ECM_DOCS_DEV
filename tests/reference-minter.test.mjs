@@ -1,0 +1,158 @@
+#!/usr/bin/env node
+/**
+ * Reference minting — F-031.
+ *
+ * The defect being guarded: `NITDA-${Date.now().toString().slice(-6)}` in
+ * modules/correspondence.js. The last six digits of a millisecond timestamp cycle every
+ * ~16.7 minutes, so it collides; and it is a different shape from the reference the proxy
+ * issues, so the registry held two key formats at once.
+ *
+ * Run: node tests/reference-minter.test.mjs
+ */
+
+import assert from 'node:assert/strict';
+import {
+  mintReference, highestSequence, sequenceOf, isReference,
+  REFERENCE_PATTERN, REFERENCE_PREFIX,
+} from '../core/reference-minter.js';
+import { createReferenceMinter } from '../proxy/src/intake.js';
+
+let passed = 0, failed = 0;
+const t = (label, fn) => {
+  try { fn(); passed++; console.log(`  ✅ ${label}`); }
+  catch (e) { failed++; console.log(`  ❌ ${label}\n       ${e.message}`); }
+};
+const section = s => console.log(`\n${s}`);
+
+const at = y => () => new Date(Date.UTC(y, 5, 1));
+
+console.log('\nReference minting');
+
+/* ── the format ────────────────────────────────────────────────────────────── */
+section('One format, shared with the server');
+
+t('a minted reference has the registry shape', () => {
+  const { reference } = mintReference([], { now: at(2026) });
+  assert.match(reference, REFERENCE_PATTERN);
+  assert.equal(reference, 'NITDA-2026-000001');
+});
+
+t('it is the SAME shape the proxy issues', () => {
+  // The whole point of F-031's second half. If these diverge the registry holds two key
+  // formats again, and this is the assertion that catches it.
+  const server = createReferenceMinter({ seed: 1, clock: at(2026) }).mint();
+  const client = mintReference([], { now: at(2026) }).reference;
+  assert.match(server, REFERENCE_PATTERN);
+  assert.equal(server, client, 'server and client minters must produce identical shapes');
+});
+
+t('the retired shape is not produced', () => {
+  const { reference } = mintReference([], { now: at(2026) });
+  assert.ok(!/^NITDA-\d{6}$/.test(reference), 'the six-digit timestamp form must not return');
+});
+
+t('the year comes from the clock', () => {
+  assert.equal(mintReference([], { now: at(2031) }).reference, 'NITDA-2031-000001');
+});
+
+/* ── it does not collide ───────────────────────────────────────────────────── */
+section('It does not collide');
+
+t('successive mints are distinct and monotonic', () => {
+  const records = [];
+  const seen = new Set();
+  for (let i = 0; i < 500; i++) {
+    const { reference } = mintReference(records, { now: at(2026) });
+    assert.ok(!seen.has(reference), `duplicate at iteration ${i}: ${reference}`);
+    seen.add(reference);
+    records.unshift({ id: reference, referenceId: reference });
+  }
+  assert.equal(seen.size, 500);
+});
+
+t('minting many times inside one millisecond does not repeat', () => {
+  // The original expression collided outright here: same millisecond, same reference.
+  const records = [];
+  const fixed = () => new Date(Date.UTC(2026, 5, 1, 12, 0, 0, 0));
+  const seen = new Set();
+  for (let i = 0; i < 50; i++) {
+    const { reference } = mintReference(records, { now: fixed });
+    assert.ok(!seen.has(reference), 'a fixed clock must not produce a repeat');
+    seen.add(reference);
+    records.unshift({ id: reference, referenceId: reference });
+  }
+});
+
+t('it advances past a reference that is already present', () => {
+  const records = [{ id: 'NITDA-2026-000004', referenceId: 'NITDA-2026-000004' }];
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000005');
+});
+
+t('it reads the id field as well as referenceId', () => {
+  // A record carrying the reference in only one field would otherwise let the other mint
+  // a duplicate.
+  assert.equal(mintReference([{ id: 'NITDA-2026-000009' }], { now: at(2026) }).reference,
+    'NITDA-2026-000010');
+  assert.equal(mintReference([{ referenceId: 'NITDA-2026-000009' }], { now: at(2026) }).reference,
+    'NITDA-2026-000010');
+});
+
+t('a gap in the sequence is not reused', () => {
+  const records = [{ referenceId: 'NITDA-2026-000001' }, { referenceId: 'NITDA-2026-000007' }];
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000008');
+});
+
+/* ── year boundaries and foreign values ────────────────────────────────────── */
+section('Years and foreign values');
+
+t('last year\'s sequence does not carry into this one', () => {
+  const records = [{ referenceId: 'NITDA-2025-000900' }];
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000001');
+});
+
+t('a reference from another year is still recognised as a reference', () => {
+  assert.equal(isReference('NITDA-2025-000900'), true);
+  assert.equal(sequenceOf('NITDA-2025-000900'), 900);
+  assert.equal(sequenceOf('NITDA-2025-000900', { year: 2026 }), 0, 'but not counted for 2026');
+});
+
+t('non-reference identifiers are ignored rather than parsed', () => {
+  const junk = [
+    { id: 'NITDA-483920' },              // the retired shape
+    { id: 'REG-0f8c…' }, { id: '' }, { id: null },
+    { referenceId: 'DGO/2026/000412' },  // a registry file number, a different concept
+    null, undefined,
+  ];
+  assert.equal(highestSequence(junk, { year: 2026 }), 0);
+  assert.equal(mintReference(junk, { now: at(2026) }).reference, 'NITDA-2026-000001');
+});
+
+t('a foreign prefix does not raise our sequence', () => {
+  assert.equal(highestSequence([{ referenceId: 'OTHER-2026-000500' }], { year: 2026 }), 0);
+});
+
+t('empty and malformed inputs do not throw', () => {
+  assert.doesNotThrow(() => mintReference(undefined, { now: at(2026) }));
+  assert.doesNotThrow(() => mintReference(null, { now: at(2026) }));
+  assert.doesNotThrow(() => highestSequence(null, { year: 2026 }));
+});
+
+/* ── provenance ────────────────────────────────────────────────────────────── */
+section('Provisional versus issued');
+
+t('a client-minted reference is marked provisional', () => {
+  // A browser cannot issue an authoritative registry reference — it only sees the records
+  // it has loaded. Saying so is what lets a later reconciliation find these.
+  const { provisional } = mintReference([], { now: at(2026) });
+  assert.equal(provisional, true);
+});
+
+t('the module never claims to issue an authoritative reference', () => {
+  const out = mintReference([], { now: at(2026) });
+  assert.ok(!('issued' in out));
+  assert.equal(out.sequence, 1);
+  assert.equal(out.year, 2026);
+});
+
+console.log(`\n${failed ? '❌' : '✅'} ${passed} passed, ${failed} failed\n`);
+process.exit(failed ? 1 : 0);

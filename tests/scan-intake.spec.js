@@ -91,6 +91,11 @@ const records = page => page.evaluate(async () => {
 async function submitDeposit(page) {
   await page.click('[data-form] button.btn:not(.ghost)');
   await page.click('[data-dialog="confirm"] [data-yes]');
+  // A second confirmation follows from core/flow-confirmation.js once the deposit reaches
+  // the DYNAMIC_ACTIONS mirror. Waiting for "no dialog" would race it; wait for THIS one to
+  // go instead, which is what unblocks the page.
+  await expect.poll(async () => page.locator('[data-dialog="confirm"] [data-yes]').count())
+    .toBeLessThanOrEqual(1);
 }
 
 test.describe('registry scan intake', () => {

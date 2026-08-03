@@ -1,6 +1,7 @@
 import { State } from './state.js';
 import { AssignmentCascadeConfig as C } from '../config/assignment-cascade.config.js';
 import { normalizePriority } from '../config/priority.config.js';
+import { routingCategoryFor, DEFAULT_ROUTING_CATEGORY } from '../config/correspondence-categories.config.js';
 const DAY=86400000;
 const clone=v=>structuredClone(v);
 const clean=v=>String(v??'').trim();
@@ -50,9 +51,30 @@ export function departments(state=State.get()){
 export function usersForDsu(dsuKey,state=State.get()){
   const k=lower(dsuKey); return (state.users||[]).filter(u=>!k || lower(u.department||u.Department||u.directorate||u.dsuKey||u.DSU_KEY).includes(k)).map(u=>({email:clean(u.email||u.Email), name:clean(u.fullName||u.name||u.Title||u.email||u.Email), dsuKey:clean(u.dsuKey||u.DSU_KEY||u.department||u.Department)})).filter(u=>u.email);
 }
+/* F-032. Two vocabularies write the `category` field — document kind ("Event Invitation")
+   from the intake forms, routing domain ("Policy / Regulation") from reference data — and
+   only the second matches a rule here. Every kind the manual form and the portal offered
+   therefore fell through to `rows[0]`, which is whatever sorts first in the matrix: in the
+   shipped fallback that is "Executive Correspondence → ODG → urgent, 2 days". The
+   Director-General's office was the default destination for substantially all
+   correspondence.
+
+   Two changes, and they are different in kind:
+     1. A document kind is resolved to a routing domain before matching. The mapping is
+        PROVISIONAL and owner-confirmable; runtime reference data always wins, because the
+        resolution only runs when the raw value matches no rule.
+     2. The last resort is a NAMED default rather than `rows[0]`. Falling through to
+        whatever sorts first is indefensible however the mapping is decided. */
 function bestRule({category='',subcategory='',dsuKey='',activity={}}, state){
-  const rows=matrix(state); const cat=lower(category||activity.category||activity.Category), sub=lower(subcategory||activity.subcategory||activity.Subcategory), dsu=lower(dsuKey||activity.dsuKey||activity.assignedDsu);
-  return rows.find(r=>lower(r.category)===cat && lower(r.subcategory)===sub) || rows.find(r=>lower(r.category)===cat && (!dsu || lower(r.dsuKey)===dsu)) || rows.find(r=>lower(r.category)===cat) || rows.find(r=>dsu && lower(r.dsuKey)===dsu) || rows[0] || normRule({},'empty');
+  const rows=matrix(state); const raw=category||activity.category||activity.Category;
+  const cat=lower(raw), sub=lower(subcategory||activity.subcategory||activity.Subcategory), dsu=lower(dsuKey||activity.dsuKey||activity.assignedDsu);
+  const direct=rows.find(r=>lower(r.category)===cat && lower(r.subcategory)===sub) || rows.find(r=>lower(r.category)===cat && (!dsu || lower(r.dsuKey)===dsu)) || rows.find(r=>lower(r.category)===cat);
+  if(direct) return direct;
+  const resolved=lower(routingCategoryFor(raw, rows.map(r=>r.category)));
+  return rows.find(r=>lower(r.category)===resolved && lower(r.subcategory)===sub) || rows.find(r=>lower(r.category)===resolved)
+    || rows.find(r=>dsu && lower(r.dsuKey)===dsu)
+    || rows.find(r=>lower(r.category)===lower(DEFAULT_ROUTING_CATEGORY))
+    || rows[0] || normRule({},'empty');
 }
 const CASCADE_DOWNSTREAM={category:['subcategory','categoryCode','subcategoryCode','dsu','supportDsu','assignedTo','supportingAssignee','copy'],subcategory:['subcategoryCode','dsu','supportDsu','assignedTo','supportingAssignee','copy'],dsu:['assignedTo','copy'],supportDsu:['supportingAssignee','copy']};
 export function cascade({activity={},draft={},state=State.get(),changed='category'}={}){

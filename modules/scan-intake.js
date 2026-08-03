@@ -29,6 +29,7 @@ import { UIState } from '../core/ui-state.js';
 import { audit } from '../core/enterprise-domain.js';
 import { invoke } from '../core/api.js';
 import { priorityOptions, normalizePriority } from '../config/priority.config.js';
+import { DocumentKinds } from '../config/correspondence-categories.config.js';
 import { depositScan, validateScan, digestOf, scanIntakeConfigured, SCAN_LIMITS } from '../core/scan-intake-service.js';
 
 /* The tray holds File objects, which are not serialisable and therefore cannot live in
@@ -36,14 +37,10 @@ import { depositScan, validateScan, digestOf, scanIntakeConfigured, SCAN_LIMITS 
    a clerk who leaves the workspace mid-deposit should not find a stale tray on return. */
 let tray = [];
 
-/* Same vocabulary as modules/correspondence.js so a scanned record and a logged one are
-   classified identically.
-   NOTE: three different category lists exist in this repository — this one, the portal's
-   eight public-facing types, and the strings in assignment-cascade.config.js. They must be
-   reconciled against the registry's reference data before go-live; that is tracked as an
-   owner-side item, not silently papered over here. */
-const CATEGORIES = ['Ministerial Directive', 'Event Invitation', 'Meeting Request',
-                    'Project Proposal', 'Official Correspondence'];
+/* One document-kind vocabulary, shared with modules/correspondence.js and the portal, so a
+   scanned record and a logged one are classified identically. See F-032: the routing
+   domains in assignment-cascade.config.js are a DIFFERENT axis, not a fourth copy of this
+   one, and config/correspondence-categories.config.js is what maps between them. */
 
 const bytes = n => n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB`
               : n >= 1024 ? `${Math.round(n / 1024)} KB` : `${n} B`;
@@ -97,7 +94,7 @@ function render(el) {
         <label>Sender *<input name="sender" required placeholder="Organisation or person the document is from"></label>
         <label>Sender email<input name="senderEmail" type="email" placeholder="Where a reply would go"></label>
         <label class="wide">Subject *<input name="subject" required placeholder="What the document is about"></label>
-        <label>Category *<select name="category" required>${CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('')}</select></label>
+        <label>Category *<select name="category" required>${DocumentKinds.map(c => `<option>${esc(c)}</option>`).join('')}</select></label>
         <label>Priority<select name="priority">${priorityOptions('normal')}</select></label>
         <label>Received at the counter *<input name="receivedAt" type="date" required value="${new Date().toISOString().slice(0, 10)}"></label>
         <label>Confidentiality<select name="confidentiality"><option>Official</option><option>Confidential</option><option>Restricted</option></select></label>
