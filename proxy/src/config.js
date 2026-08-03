@@ -40,6 +40,11 @@ export function loadConfig(source = process.env) {
     const v = get(`DGO_ENDPOINT_${key}`);
     if (v) endpoints[key] = v;
   }
+  // The anonymous intake route forwards here. It is NOT one of EndpointKeys: those are
+  // authenticated contracts, and mixing an unauthenticated destination into that list
+  // would make it reachable from the authorization matrix.
+  const intakeEndpoint = get('DGO_ENDPOINT_INTAKE_SUBMISSION');
+  if (intakeEndpoint) endpoints.INTAKE_SUBMISSION = intakeEndpoint;
 
   return {
     tenantId,
@@ -51,6 +56,11 @@ export function loadConfig(source = process.env) {
     clockSkewSec: Number(get('DGO_CLOCK_SKEW_SEC') || 60),
     upstreamTimeoutMs: Number(get('DGO_UPSTREAM_TIMEOUT_MS') || 45_000),
     port: Number(get('PORT') || 8081),
+    // Only trust X-Forwarded-For when the proxy genuinely sits behind a trusted front door.
+    // Trusting it unconditionally lets any caller spoof a source address and defeat the
+    // intake rate limit entirely.
+    trustForwardedFor: String(get('DGO_TRUST_FORWARDED_FOR') || '') === 'true',
+    intakeRefPrefix: get('DGO_INTAKE_REF_PREFIX') || 'NITDA',
     endpoints,
     missing,
     configuredEndpoints: Object.keys(endpoints),

@@ -22,6 +22,7 @@
 
 import { verifyToken, identityFrom, TokenError } from './jwt.js';
 import { roleFromClaims, authorize, stripAssertedIdentity, AuthzError } from './authorize.js';
+import { handleIntake } from './intake.js';
 
 /** In-memory idempotency store. Swap for Redis or a table in a multi-instance deployment. */
 export function createIdempotencyStore({ ttlMs = 300_000, max = 10_000 } = {}) {
@@ -56,6 +57,22 @@ export async function handleRequest(req, deps) {
   const correlationId = req.headers?.['x-correlation-id'] || cryptoRandom();
 
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
+
+  // ── /intake/* — the one unauthenticated path, and the only one.
+  //
+  // It is matched on a path SEGMENT, not a prefix: `startsWith('/intake')` would also
+  // match `/intake-anything`, and a bypass of the auth gate is not somewhere to be relaxed
+  // about string matching. Everything below this block requires a validated token.
+  //
+  // Scope is enforced inside intake.js: create-only, rate-limited, size-capped, and the
+  // registry reference is minted server-side. See TARGET_ARCHITECTURE.md §3.6.
+  const segments = String(req.path || '').split('/').filter(Boolean);
+  if (segments[0] === 'intake' || (segments.length > 1 && segments[segments.length - 2] === 'intake')) {
+    if (!deps.rateLimiter || !deps.minter) {
+      return json(503, { ok: false, error: 'intake_not_available', correlationId });
+    }
+    return handleIntake(req, { ...deps, correlationId });
+  }
 
   // The contract key is the last path segment: POST /dgo/SINGLE_ASSIGNMENT
   const contractKey = String(req.path || '').split('/').filter(Boolean).pop() || '';

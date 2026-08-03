@@ -39,9 +39,11 @@ Browser ──Bearer──▶ Proxy ──▶ validate sig/iss/aud/exp
 | `src/jwt.js` | JWKS cache, signature verification, claim validation (§2.1, §2.2) |
 | `src/authorize.js` | Role mapping, per-action authorization, identity stripping (§2.3–2.5) |
 | `src/handler.js` | Request pipeline, idempotency, audit, forwarding (§2.6, §2.7) |
+| `src/intake.js` | **Anonymous** correspondence intake: validation, rate limiting, reference minting |
 | `src/config.js` | Environment loading and start-up validation |
 | `src/server.js` | `node:http` host |
 | `test/proxy.test.mjs` | 66 assertions including the attack cases |
+| `test/intake.test.mjs` | 36 assertions on the one unauthenticated route |
 
 ## Configuration
 
@@ -59,8 +61,45 @@ Everything sensitive comes from the environment. Nothing is committed.
 | `DGO_CLOCK_SKEW_SEC` | | Default `60` |
 | `DGO_UPSTREAM_TIMEOUT_MS` | | Default `45000` |
 | `PORT` | | Default `8081` |
+| `DGO_ENDPOINT_INTAKE_SUBMISSION` | | Downstream for anonymous intake. Absent ⇒ a reference is still minted and `delivered:false` is returned |
+| `DGO_TRUST_FORWARDED_FOR` | | `true` only when genuinely behind a trusted front door — see below |
+| `DGO_INTAKE_REF_PREFIX` | | Default `NITDA` |
 
 Contract keys are the 19 in `config/endpoints.config.js`. `GET /healthz` reports which are configured and which are still missing.
+
+## The anonymous intake route
+
+`POST /intake/submission` is **the only unauthenticated path through this proxy.** It exists
+because the document portal is a public channel: a citizen sending a letter to NITDA has no
+account and should not need one.
+
+Because it is unauthenticated it is deliberately narrow:
+
+- **Create only.** It brings a new submission into the registry. There is no path from here
+  to an existing record, so an anonymous caller cannot read, list, search or mutate anything.
+- **Rate limited.** Five submissions per address per minute, fixed window.
+- **Validated, not forwarded.** The record sent downstream is rebuilt from known fields, so
+  anything extra a caller sends is dropped — the same principle as `stripAssertedIdentity`
+  on the authenticated path.
+- **Server-minted references.** A client-supplied `referenceId` never survives.
+- **Channel is fixed.** A caller cannot claim `channel: 'Registry'` or
+  `correspondenceType: 'Registry'` and mislabel where a document came from.
+
+It returns **202 Accepted**, not 200: the registry has accepted the submission and issued a
+reference, but classification and routing have not happened yet.
+
+### Two things that must change before scaling out
+
+Both are in-memory and therefore **per instance**:
+
+1. **The rate limiter.** Behind N replicas the effective limit is N × 5/min. Move it to a
+   shared store or a front-door WAF rule.
+2. **The reference minter.** Two instances will mint the same reference. Back it with a
+   durable counter or the registry's own numbering.
+
+`DGO_TRUST_FORWARDED_FOR` defaults to **false** deliberately. Trusting `X-Forwarded-For`
+unconditionally lets any caller spoof a source address and defeat the rate limit entirely;
+set it only when the proxy genuinely sits behind a front door that overwrites the header.
 
 ## Run
 

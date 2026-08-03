@@ -53,6 +53,11 @@ jobs:
       - name: Check authenticating proxy
         run: node proxy/test/proxy.test.mjs
 
+      # The anonymous intake route: validation, rate limiting, reference minting and the
+      # route isolation that keeps /intake/* from becoming a way around the auth gate.
+      - name: Check anonymous intake
+        run: node proxy/test/intake.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest

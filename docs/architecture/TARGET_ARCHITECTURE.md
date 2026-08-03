@@ -188,7 +188,7 @@ Each step is independently deployable and leaves the platform working.
 |---|---|---|---|---|
 | ~~**1**~~ | ~~Fix silent document loss~~ — **DONE**: every file dispatched, oversize queued and surfaced | **F-028** | — | — |
 | ~~**2**~~ | ~~Replace the service catalogue~~ — **DONE**: `PF.CORRESPONDENCE_TYPES` maps 8 public types onto registry categories; per-service SLAs replaced by a 3-day acknowledgement target | §2.1 | — | — |
-| **3** | Build `/intake/*` in the proxy: anonymous, rate-limited, create-only, reference minting | — | ~3 days | step 2's contract |
+| ~~**3**~~ | ~~Build `/intake/*`~~ — **DONE**: `proxy/src/intake.js`, create-only, 5/min per address, server-minted references, 36 assertions | — | — | — |
 | **4** | Add upload brokering; move file bytes to SharePoint | F-028 fully | ~3 days | step 3 |
 | **5** | Point the portal at the proxy; delete `PF.ENDPOINTS` | **F-013**, **F-001** (portal) | ~2 days | steps 3–4 |
 | **6** | Portal reads status back; retire `admin.html` and `PF.STAFF` | **D-C2**, F-010 | ~3 days | step 5 |

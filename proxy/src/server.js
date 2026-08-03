@@ -9,10 +9,18 @@ import http from 'node:http';
 import { loadConfig, assertUsable } from './config.js';
 import { createJwks } from './jwt.js';
 import { handleRequest, createIdempotencyStore } from './handler.js';
+import { createRateLimiter, createReferenceMinter } from './intake.js';
 
 const cfg = assertUsable(loadConfig());
 const jwks = createJwks({ jwksUri: cfg.jwksUri });
 const idempotency = createIdempotencyStore();
+
+// Anonymous intake (TARGET_ARCHITECTURE.md §3.6). Both are in-memory and therefore
+// per-instance: behind more than one replica the rate limit is N times more permissive
+// than it reads, and two instances can mint the same reference. Back them with a shared
+// store, or a front-door rate limit and the registry's own numbering, before scaling out.
+const rateLimiter = createRateLimiter();
+const minter = createReferenceMinter({ prefix: cfg.intakeRefPrefix });
 
 // Structured single-line JSON so any log pipeline can ingest it. §2.7 — the identity
 // recorded here is always the token-derived one.
@@ -50,7 +58,7 @@ const server = http.createServer(async (req, res) => {
   }
   const out = await handleRequest(
     { method: req.method, path: new URL(req.url, 'http://x').pathname, headers: req.headers, body },
-    { config: cfg, jwks, idempotency, audit }
+    { config: cfg, jwks, idempotency, audit, rateLimiter, minter }
   );
   res.writeHead(out.status, out.headers);
   res.end(JSON.stringify(out.body));
