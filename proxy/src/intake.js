@@ -1,6 +1,7 @@
 import { PUBLIC_DOCUMENT_KINDS } from '../../config/correspondence-categories.config.js';
 import { normaliseFilename } from '../../config/filename-policy.config.js';
 import { VerificationError } from './verification.js';
+import { createMemoryReferenceStore, SEQUENCE_WIDTH } from './reference-store.js';
 
 // Anonymous correspondence intake — TARGET_ARCHITECTURE.md §3.5, §3.6.
 //
@@ -112,19 +113,30 @@ export function sourceKey(req, { trustForwardedFor = false } = {}) {
 }
 
 /* ── reference minting ─────────────────────────────────────────────────────────
-   NITDA-<year>-<sequence>. The sequence is monotonic within a process; a real
-   deployment must back it with a durable counter or the registry's own numbering,
-   or two instances will mint the same reference. Stated rather than hidden — this
-   is the one part of intake that cannot stay in memory. */
-export function createReferenceMinter({ prefix = 'NITDA', seed = 1, clock = () => new Date() } = {}) {
-  let seq = seed;
+   NITDA-<year>-<sequence>.
+
+   This used to keep the counter in a module variable seeded at 1, with a comment saying a
+   real deployment must back it with a durable counter. Nothing enforced that, so two
+   processes both minted NITDA-YYYY-000001 — two citizens with a receipt for one reference,
+   and the register holding it twice.
+
+   The sequence now comes from a STORE. The default is still in-memory, because the test
+   suite and the dev host need it, but it reports `durable: false` so a deployment that
+   requires durability can refuse to serve instead of finding out later. See
+   reference-store.js for why that store must be a Durable Object and not KV. */
+export function createReferenceMinter({
+  prefix = 'NITDA', seed = 1, clock = () => new Date(), store,
+} = {}) {
+  const backing = store || createMemoryReferenceStore({ seed });
   return {
-    mint() {
+    durable: backing.durable === true,
+    kind: backing.kind,
+    async mint() {
       const year = clock().getUTCFullYear();
-      const n = String(seq++).padStart(6, '0');
+      const n = String(await backing.next(year)).padStart(SEQUENCE_WIDTH, '0');
       return `${prefix}-${year}-${n}`;
     },
-    peek: () => seq,
+    peek: () => (backing.peek ? backing.peek(clock().getUTCFullYear()) : null),
   };
 }
 
@@ -509,7 +521,7 @@ export async function handleIntake(req, deps) {
     }
     // A case reference, not a registry reference — deliberately a different prefix so the
     // two can never be mistaken for one another in a log or by a person.
-    const caseRef = `CASE-${minter.mint().split('-').slice(1).join('-')}`;
+    const caseRef = `CASE-${(await minter.mint()).split('-').slice(1).join('-')}`;
     const at = now().toISOString();
     audit({ event: 'intake:support-accepted', correlationId, source: key, caseRef, at });
 
@@ -560,7 +572,7 @@ export async function handleIntake(req, deps) {
     }
   }
 
-  const referenceId = minter.mint();
+  const referenceId = await minter.mint();
   const receivedAt = now().toISOString();
 
   /* One upload ticket per attachment (step 4). Each is a short-lived, single-use grant to

@@ -19,13 +19,39 @@ compatibility_date = "2026-01-01"
 enabled = true
 
 # ─────────────────────────────────────────────────────────────────────────────────────────
-# DURABLE STATE — REQUIRED BEFORE PRODUCTION TRAFFIC
+# THE REGISTRY SEQUENCE — REQUIRED BEFORE ANY PILOT WITH REAL CORRESPONDENCE
 #
-# Five stores are in isolate memory: the rate limiter, the reference minter, the idempotency
-# cache, the upload-ticket burn-list and the verification challenge/proof store.
+# Not optional and not a "harden later" item. Without this binding the reference counter
+# lives in isolate memory and restarts at 1 on every cold start, so two citizens receive a
+# receipt for NITDA-YYYY-000001 and the register holds that reference twice.
 #
-# For the first three that is a degradation — limits are per-isolate and so more permissive
-# than they read, and the minter can issue a duplicate reference across isolates.
+# A Durable Object, NOT KV: a sequence needs an ATOMIC read-modify-write. KV is eventually
+# consistent with no atomic increment, so two isolates can both read N and both write N+1 —
+# the same collision, just rarer and therefore harder to notice.
+#
+# Enable with:
+#   wrangler deploy            (the migration below creates the class on first deploy)
+#   wrangler secret put ...    (see the secret list at the bottom)
+# Then set DGO_REQUIRE_DURABLE_REFERENCES = "true" in [vars] so the Worker refuses to serve
+# if the binding is ever removed.
+
+[[durable_objects.bindings]]
+name = "DGO_REFERENCE_DO"
+class_name = "ReferenceCounter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ReferenceCounter"]
+
+# ─────────────────────────────────────────────────────────────────────────────────────────
+# OTHER DURABLE STATE — REQUIRED BEFORE PRODUCTION TRAFFIC
+#
+# The reference minter is handled above. Four stores remain in isolate memory: the rate
+# limiter, the idempotency cache, the upload-ticket burn-list and the verification
+# challenge/proof store.
+#
+# For the first two that is a degradation — limits are per-isolate and so more permissive
+# than they read.
 #
 # For the last two it is a CORRECTNESS failure, because they are single-use guarantees:
 # a ticket burned in one isolate can be redeemed again in another, and a verification proof
@@ -56,6 +82,10 @@ DGO_TRUST_FORWARDED_FOR = "false"
 # the Worker refuses to serve if this is true without it, rather than taking the public
 # channel offline by demanding a code it cannot send.
 DGO_REQUIRE_VERIFICATION = "false"
+# Set to "true" once DGO_REFERENCE_DO is bound. The Worker then refuses to serve rather than
+# issue a reference it cannot promise is unique — the register being wrong is worse than the
+# channel being down.
+DGO_REQUIRE_DURABLE_REFERENCES = "false"
 
 # ─────────────────────────────────────────────────────────────────────────────────────────
 # SECRETS — set with `wrangler secret put <NAME>`, never written here

@@ -352,7 +352,7 @@ export async function handleScanIntake(req, deps) {
   // The reference is minted HERE, not accepted from the client. modules/correspondence.js
   // mints `NITDA-${Date.now().toString().slice(-6)}` in the browser, which collides under
   // concurrency and is chosen by the caller. A registry reference must be neither.
-  const referenceId = h('x-dgo-reference').trim().toUpperCase() || (minter ? minter.mint() : '');
+  const referenceId = h('x-dgo-reference').trim().toUpperCase() || (minter ? await minter.mint() : '');
   if (!referenceId) {
     return json(503, { ok: false, error: 'reference_minter_unavailable', correlationId });
   }

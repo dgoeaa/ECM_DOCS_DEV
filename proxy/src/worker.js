@@ -40,6 +40,11 @@ import { handleRequest, createIdempotencyStore } from './handler.js';
 import { createRateLimiter, createReferenceMinter, STATUS_LIMITS } from './intake.js';
 import { createUploadBroker } from './upload.js';
 import { createVerificationService } from './verification.js';
+import { createDurableReferenceStore, ReferenceCounter } from './reference-store.js';
+
+/* Re-exported so wrangler can bind the class. The Worker's own module must export it —
+   naming it in wrangler.toml is not enough. */
+export { ReferenceCounter };
 
 const MAX_JSON_BYTES = 8 * 1024 * 1024;
 const MAX_UPLOAD_BYTES = 32 * 1024 * 1024;
@@ -74,6 +79,32 @@ function context(env) {
   const broker = cfg.uploadSecret ? createUploadBroker({ secret: cfg.uploadSecret }) : null;
   if (!broker) audit({ event: 'proxy:upload-disabled', reason: 'DGO_UPLOAD_SECRET not set' });
 
+  /* ── the registry sequence ────────────────────────────────────────────────────────
+     An in-memory counter mints NITDA-YYYY-000001 on every cold start, so two citizens end
+     up holding a receipt for one reference and the register holds it twice. That is the
+     register being wrong, not a rough edge, so it is the one thing here that fails CLOSED:
+     with DGO_REQUIRE_DURABLE_REFERENCES=true and no Durable Object bound, the Worker
+     refuses to serve rather than issuing references it cannot promise are unique. */
+  const referenceStore = env.DGO_REFERENCE_DO
+    ? createDurableReferenceStore(env.DGO_REFERENCE_DO)
+    : null;
+  const requireDurable = String(env.DGO_REQUIRE_DURABLE_REFERENCES ?? '').toLowerCase() === 'true';
+  if (requireDurable && !referenceStore) {
+    throw new Error(
+      'DGO_REQUIRE_DURABLE_REFERENCES=true but no DGO_REFERENCE_DO binding is present. '
+      + 'Refusing to serve: an in-memory sequence restarts at 1 on every cold start and '
+      + 'would issue a reference the register already holds.');
+  }
+  if (!referenceStore) {
+    audit({
+      event: 'proxy:reference-sequence-not-durable',
+      severity: 'high',
+      note: 'The registry sequence is in isolate memory and restarts at 1 on every cold '
+          + 'start. Two submissions CAN receive the same reference. Bind DGO_REFERENCE_DO '
+          + 'before any pilot that handles real correspondence.',
+    });
+  }
+
   /* Single-use state is isolate-scoped unless a durable binding is present. Announced once
      per isolate so the posture appears in the logs of every deployment rather than only in
      a document nobody reads at 2am. */
@@ -97,7 +128,7 @@ function context(env) {
     statusRateLimiter: createRateLimiter({
       windowMs: STATUS_LIMITS.windowMs, perWindow: STATUS_LIMITS.perWindow,
     }),
-    minter: createReferenceMinter({ prefix: cfg.intakeRefPrefix }),
+    minter: createReferenceMinter({ prefix: cfg.intakeRefPrefix, store: referenceStore || undefined }),
   };
   return CTX;
 }
@@ -156,6 +187,9 @@ export default {
         idempotencyEntries: ctx.idempotency.size(),
         // Reported, not assumed. A deployment must be able to see which guarantee it has.
         singleUseScope: ctx.durable ? 'durable' : 'isolate',
+        // The one that decides whether the register can be trusted.
+        referenceSequence: ctx.minter.kind,
+        referenceSequenceDurable: ctx.minter.durable,
       });
     }
 
