@@ -24,6 +24,17 @@ A signed Power Automate trigger URL is a bearer credential: possession is author
 Deleting the file that contains one does not revoke it and neither does rewriting history.
 **Only regenerating the trigger URL in Power Automate revokes it.**
 
+### 25 workflows, 31 signatures
+
+`tests/check-secrets.mjs` reports 31 distinct signatures in the archive; this inventory
+reports 25 workflows. Both are right, and the difference is the point: **six workflows carry
+two signatures each.** That is a trigger that was regenerated at some stage, with the
+superseded signature still published alongside its replacement.
+
+It matters for step 2 below. Regenerating a trigger once and moving on leaves those six
+flows reachable through the other signature. Confirm per flow that no other signature
+remains valid, not merely that you regenerated it.
+
 ## The inventory
 
 Workflow IDs are identifiers, not secrets — they are what an administrator searches on in the

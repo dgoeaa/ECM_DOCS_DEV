@@ -29,9 +29,16 @@ const ROOT = resolve(new URL('..', import.meta.url).pathname);
 /* Anchored on the workflow path so a bare `sig=` in prose or a truncated illustration in a
    document does not register as a credential. `docs/forensic/.../00-provenance.md` quotes a
    10-character fragment of a token to show the shape of the problem; that is documentation,
-   not exposure, and this pattern correctly ignores it. */
+   not exposure, and this pattern correctly ignores it.
+
+   The scheme and host are OPTIONAL. Captured flow run records store the trigger as a
+   relative `X-Original-URL` header — `/workflows/<id>/triggers/manual/paths/invoke?…&sig=…`
+   — with the host in a separate field. A scheme-anchored pattern misses those entirely.
+   It happens not to change the count today (every relative occurrence names a workflow the
+   absolute ones already cover) but a detector that only sees one of two shapes in which the
+   credential is actually written down is one shape away from reporting a clean tree. */
 export const SIGNED_URL =
-  /https?:\/\/[^"'\s<>\\)]*?\/workflows\/([a-f0-9]{32})\/[^"'\s<>\\)]*?[?&]sig=([A-Za-z0-9_%-]{20,})/g;
+  /(?:https?:\/\/[^"'\s<>\\)]*?)?\/workflows\/([a-f0-9]{32})\/triggers\/[^"'\s<>\\)]*?[?&]sig=([A-Za-z0-9_%-]{20,})/g;
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'test-results', 'playwright-report', 'dist']);
 
