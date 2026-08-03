@@ -23,6 +23,7 @@
 import { verifyToken, identityFrom, TokenError } from './jwt.js';
 import { roleFromClaims, authorize, stripAssertedIdentity, AuthzError } from './authorize.js';
 import { handleIntake } from './intake.js';
+import { handleUpload } from './upload.js';
 
 /** In-memory idempotency store. Swap for Redis or a table in a multi-instance deployment. */
 export function createIdempotencyStore({ ttlMs = 300_000, max = 10_000 } = {}) {
@@ -55,6 +56,14 @@ const json = (status, body, headers = {}) => ({ status, headers: { 'Content-Type
 export async function handleRequest(req, deps) {
   const { config, jwks, idempotency, audit = () => {}, fetchImpl = fetch } = deps;
   const correlationId = req.headers?.['x-correlation-id'] || cryptoRandom();
+
+  // Upload redemption is a PUT carrying raw bytes, so it is matched before the POST-only
+  // gate below. It is still inside the /intake/ namespace and still unauthenticated —
+  // the ticket IS the authorization, and it grants exactly one file of one submission.
+  const seg = String(req.path || '').split('/').filter(Boolean);
+  if (req.method === 'PUT' && seg[0] === 'intake' && seg[1] === 'upload') {
+    return handleUpload(req, { ...deps, correlationId });
+  }
 
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
 

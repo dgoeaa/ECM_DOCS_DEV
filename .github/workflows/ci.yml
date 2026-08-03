@@ -58,6 +58,11 @@ jobs:
       - name: Check anonymous intake
         run: node proxy/test/intake.test.mjs
 
+      # Upload brokering: ticket forgery, replay, expiry and byte verification. These are
+      # the properties that keep a write grant from becoming a general one.
+      - name: Check upload brokering
+        run: node proxy/test/upload.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest

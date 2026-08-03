@@ -45,6 +45,10 @@ export function loadConfig(source = process.env) {
   // would make it reachable from the authorization matrix.
   const intakeEndpoint = get('DGO_ENDPOINT_INTAKE_SUBMISSION');
   if (intakeEndpoint) endpoints.INTAKE_SUBMISSION = intakeEndpoint;
+  // Where relayed attachment bytes are stored — the SharePoint document library, or a
+  // broker in front of it. Reached with the proxy's credential, never the browser's.
+  const uploadEndpoint = get('DGO_ENDPOINT_INTAKE_UPLOAD');
+  if (uploadEndpoint) endpoints.INTAKE_UPLOAD = uploadEndpoint;
 
   return {
     tenantId,
@@ -61,6 +65,10 @@ export function loadConfig(source = process.env) {
     // intake rate limit entirely.
     trustForwardedFor: String(get('DGO_TRUST_FORWARDED_FOR') || '') === 'true',
     intakeRefPrefix: get('DGO_INTAKE_REF_PREFIX') || 'NITDA',
+    // Signs upload tickets. An unsigned ticket is a forgeable grant to write into the
+    // document library, so there is no default and no fallback: absent means uploads are
+    // unavailable, not that uploads are unsigned.
+    uploadSecret: get('DGO_UPLOAD_SECRET') || '',
     endpoints,
     missing,
     configuredEndpoints: Object.keys(endpoints),

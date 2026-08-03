@@ -40,10 +40,12 @@ Browser ──Bearer──▶ Proxy ──▶ validate sig/iss/aud/exp
 | `src/authorize.js` | Role mapping, per-action authorization, identity stripping (§2.3–2.5) |
 | `src/handler.js` | Request pipeline, idempotency, audit, forwarding (§2.6, §2.7) |
 | `src/intake.js` | **Anonymous** correspondence intake: validation, rate limiting, reference minting |
+| `src/upload.js` | Upload brokering: signed single-use tickets, byte verification, relay to SharePoint |
 | `src/config.js` | Environment loading and start-up validation |
 | `src/server.js` | `node:http` host |
 | `test/proxy.test.mjs` | 66 assertions including the attack cases |
 | `test/intake.test.mjs` | 36 assertions on the one unauthenticated route |
+| `test/upload.test.mjs` | 25 assertions on ticket forgery, replay, expiry and byte verification |
 
 ## Configuration
 
@@ -64,6 +66,8 @@ Everything sensitive comes from the environment. Nothing is committed.
 | `DGO_ENDPOINT_INTAKE_SUBMISSION` | | Downstream for anonymous intake. Absent ⇒ a reference is still minted and `delivered:false` is returned |
 | `DGO_TRUST_FORWARDED_FOR` | | `true` only when genuinely behind a trusted front door — see below |
 | `DGO_INTAKE_REF_PREFIX` | | Default `NITDA` |
+| `DGO_UPLOAD_SECRET` | for uploads | ≥32 chars, signs upload tickets. **Absent ⇒ uploads are disabled, never unsigned** |
+| `DGO_ENDPOINT_INTAKE_UPLOAD` | | Document library destination for relayed attachment bytes |
 
 Contract keys are the 19 in `config/endpoints.config.js`. `GET /healthz` reports which are configured and which are still missing.
 
@@ -88,7 +92,32 @@ Because it is unauthenticated it is deliberately narrow:
 It returns **202 Accepted**, not 200: the registry has accepted the submission and issued a
 reference, but classification and routing have not happened yet.
 
-### Two things that must change before scaling out
+## Upload brokering
+
+`PUT /intake/upload` accepts one attachment. The ticket travels in an `X-Upload-Ticket`
+header — not the path, so it never lands in an access log or a `Referer` — and the body is
+the raw file.
+
+A ticket is an HMAC-signed, short-lived, **single-use** grant to upload **one named file of
+one submission**. It carries its own expiry and is burned on redemption, so observing a
+ticket does not let anyone replace a document that has already been accepted.
+
+**Bytes are verified, not trusted.** The size and `sha256` declared at intake are checked
+against what actually arrives; a mismatch is refused rather than reconciled by guessing.
+
+**A deliberate departure from `TARGET_ARCHITECTURE.md` §3.3.** That section says the client
+uploads *directly* to SharePoint using a URL the proxy hands it. On implementation that is
+the wrong call: a Graph upload-session URL is a bearer credential, and handing one to a
+browser reintroduces the very class of problem this proxy exists to retire. Uploads are
+**relayed** through the proxy instead. Correspondence attachments are single-digit
+megabytes, so the bandwidth cost is trivial, and relaying is what makes the digest check
+possible at all.
+
+`DGO_UPLOAD_SECRET` has **no default and no fallback**. Without it the broker is not
+constructed, no tickets are issued, and `PUT /intake/upload` answers `503`. Starting with
+unsigned tickets would be worse than starting without uploads.
+
+### Three things that must change before scaling out
 
 Both are in-memory and therefore **per instance**:
 
@@ -96,6 +125,8 @@ Both are in-memory and therefore **per instance**:
    shared store or a front-door WAF rule.
 2. **The reference minter.** Two instances will mint the same reference. Back it with a
    durable counter or the registry's own numbering.
+3. **The consumed-ticket set.** Single-use is enforced per instance, so behind N replicas a
+   ticket could be redeemed up to N times. Move it to the same shared store as the others.
 
 `DGO_TRUST_FORWARDED_FOR` defaults to **false** deliberately. Trusting `X-Forwarded-For`
 unconditionally lets any caller spoof a source address and defeat the rate limit entirely;

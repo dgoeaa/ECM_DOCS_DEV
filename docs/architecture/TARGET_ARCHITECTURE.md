@@ -189,7 +189,7 @@ Each step is independently deployable and leaves the platform working.
 | ~~**1**~~ | ~~Fix silent document loss~~ — **DONE**: every file dispatched, oversize queued and surfaced | **F-028** | — | — |
 | ~~**2**~~ | ~~Replace the service catalogue~~ — **DONE**: `PF.CORRESPONDENCE_TYPES` maps 8 public types onto registry categories; per-service SLAs replaced by a 3-day acknowledgement target | §2.1 | — | — |
 | ~~**3**~~ | ~~Build `/intake/*`~~ — **DONE**: `proxy/src/intake.js`, create-only, 5/min per address, server-minted references, 36 assertions | — | — | — |
-| **4** | Add upload brokering; move file bytes to SharePoint | F-028 fully | ~3 days | step 3 |
+| ~~**4**~~ | ~~Upload brokering~~ — **DONE**: signed single-use tickets, byte verification, relayed through the proxy. Departs from §3.3 deliberately — see `proxy/README.md` | F-028 fully | — | — |
 | **5** | Point the portal at the proxy; delete `PF.ENDPOINTS` | **F-013**, **F-001** (portal) | ~2 days | steps 3–4 |
 | **6** | Portal reads status back; retire `admin.html` and `PF.STAFF` | **D-C2**, F-010 | ~3 days | step 5 |
 | **7** | Registry scan-intake workspace in the root platform | Channel C | ~1 week | step 4 |

@@ -191,7 +191,7 @@ export function validateSubmission(body, { categories = INTAKE_CATEGORIES, limit
  */
 export async function handleIntake(req, deps) {
   const {
-    config = {}, rateLimiter, minter, audit = () => {}, fetchImpl = fetch,
+    config = {}, rateLimiter, minter, broker, audit = () => {}, fetchImpl = fetch,
     correlationId = '', now = () => new Date(),
   } = deps;
 
@@ -226,6 +226,17 @@ export async function handleIntake(req, deps) {
   const referenceId = minter.mint();
   const receivedAt = now().toISOString();
 
+  /* One upload ticket per attachment (step 4). Each is a short-lived, single-use grant to
+     upload ONE named file of THIS submission — not a credential for anything else. Without
+     a broker configured the array is empty, which is the honest answer: the portal then
+     keeps its existing dispatch path rather than being told uploads are available. */
+  const uploads = broker
+    ? record.attachments.map((a, i) => {
+        const t = broker.issue({ referenceId, index: i, name: a.name, size: a.size, sha256: a.sha256 });
+        return { name: a.name, size: a.size, ticket: t.ticket, expiresAt: t.expiresAt, uploadPath: '/intake/upload' };
+      })
+    : [];
+
   // The audit line records what arrived and from where. The submitter's email is part of
   // the correspondence record itself, so it is not extra exposure to log the reference
   // against it — but the description and attachment names are not logged.
@@ -239,7 +250,7 @@ export async function handleIntake(req, deps) {
     audit({ event: 'intake:endpoint-not-configured', correlationId, referenceId, at: receivedAt });
     return { status: 202, headers: { 'Content-Type': 'application/json', 'X-Correlation-Id': correlationId },
              body: { ok: true, referenceId, receivedAt, delivered: false,
-                     reason: 'endpoint_not_configured', uploads: [], correlationId } };
+                     reason: 'endpoint_not_configured', uploads, correlationId } };
   }
 
   let delivered = false, upstreamStatus = 0;
@@ -266,10 +277,9 @@ export async function handleIntake(req, deps) {
       referenceId,
       receivedAt,
       delivered,
-      // Upload brokering is step 4. Until it exists this is empty and the portal keeps
-      // dispatching attachments on its existing path — an empty array is the honest
-      // answer, not an omission.
-      uploads: [],
+      // One ticket per attachment. Redeem each at PUT /intake/upload with the ticket in
+      // an X-Upload-Ticket header and the raw file as the body.
+      uploads,
       correlationId,
     },
   };

@@ -14,7 +14,7 @@
     "setup": "node scripts/setup-local.mjs",
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "start:proxy": "node proxy/src/server.js",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:smoke",
     "test:auth": "node tests/auth-posture.test.mjs",
     "test:encoding": "node tests/output-encoding.test.mjs",
     "test:governance": "node tests/governance.test.mjs",
@@ -22,6 +22,7 @@
     "test:imports": "node tests/check-imports.mjs",
     "test:links": "node scripts/check-links.mjs",
     "test:intake": "node proxy/test/intake.test.mjs",
+    "test:upload": "node proxy/test/upload.test.mjs",
     "test:proxy": "node proxy/test/proxy.test.mjs",
     "test:secrets": "node tests/check-secrets.mjs",
     "test:smoke": "playwright test"
