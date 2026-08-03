@@ -39,4 +39,8 @@ export function Pagination({page=1,total=1,attr='data-page'}={}){ const p=Math.m
 export function Skeleton({lines=3}={}){ return `<div class="dgo-skeleton-set" aria-hidden="true">${Array.from({length:lines}).map((_,i)=>`<div class="dgo-skeleton" style="width:${i%3===0?'96':i%3===1?'78':'88'}%;height:${i===0?'22':'16'}px;margin:8px 0"></div>`).join('')}</div>`; }
 export function Alert({title='', body='', tone='info'}={}){ return `<section class="dgo-alert dgo-alert--${esc(tone)}" role="status"><strong>${esc(title)}</strong>${body?`<p>${esc(body)}</p>`:''}</section>`; }
 export function ConfirmDialog({title='', body='', confirmText='Confirm', cancelText='Cancel'}={}){ return Dialog({title, body, actions:`${Button({label:cancelText,variant:'secondary',attrs:{'data-dialog-cancel':true}})}${Button({label:confirmText,variant:'primary',attrs:{'data-dialog-confirm':true}})}`}); }
-export function EmailPreviewFrame({html='', title='Email preview'}={}){ return `<iframe class="dgo-email-preview email-frame-preview" title="${esc(title)}" srcdoc="${esc(html)}"></iframe>`; }
+/* srcdoc content is always live HTML: esc() protects the attribute boundary, but the parser
+   decodes the entities and the iframe then parses the result as a document. sandbox="" is
+   therefore the only control that stops scripts running, and it must not be omitted — the
+   sibling frames in modules/correspondence-email.js already use it. */
+export function EmailPreviewFrame({html='', title='Email preview'}={}){ return `<iframe class="dgo-email-preview email-frame-preview" sandbox="" title="${esc(title)}" srcdoc="${esc(html)}"></iframe>`; }

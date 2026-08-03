@@ -8,9 +8,17 @@ export const CONFIG = {
   ENV: "PROD", // DEV | PROD
   DEBUG_MODE: true,
 
-  // Primary backend endpoint. If empty, SPA will fall back to DEMO mode.
-  // NOTE: Use a secure gateway/managed API; do not expose long-lived flow signatures in client code in production.
-  API_URL: _override.API_URL || "https://exec-hub-proxy.kanihamza.workers.dev",
+  // Primary backend endpoint. If empty, the SPA falls back to DEMO mode.
+  //
+  // This MUST default to empty. It previously defaulted to a personal Cloudflare Workers
+  // subdomain, so any deployment without config.local.js — which is git-ignored, and so
+  // absent on every fresh clone — sent correspondence payloads to a third-party origin
+  // under an individual's account while ENV read "PROD". Falling back to DEMO mode is the
+  // safe failure: it is visible, local, and sends nothing anywhere.
+  //
+  // Supply the real gateway at deploy time via window.DGO_CONFIG.API_URL. Prefer the
+  // authenticating proxy (AuthConfig.proxyBaseUrl) over a signed flow URL.
+  API_URL: _override.API_URL || "",
 
   // Logical actions expected by backend (Power Automate / API gateway). Keep stable for workflow integrations.
   ACTIONS: {

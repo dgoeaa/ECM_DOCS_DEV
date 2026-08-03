@@ -1,9 +1,19 @@
 /* NITDA Intelligent Portal — offline shell.
    Cache-first for the application shell, network-first for navigations so a
    redeployed build is picked up on the next online visit. */
-const CACHE = 'nitda-portal-v2';
+/* Bump CACHE on every release, and ALWAYS when the workflow endpoints are rotated.
+   Asset requests below are cache-first, so a stale entry survives a redeploy: rotating a
+   signature without bumping this constant leaves returning visitors pinned to an endpoint
+   that no longer exists. */
+const CACHE = 'nitda-portal-v3';
+
+/* js/data.js is deliberately NOT precached — it carries the workflow endpoints, and
+   precaching wrote them durably into Cache Storage where they outlived the tab.
+   admin.html is deliberately NOT precached either: it is the staff console, robots.txt
+   excludes it, and there is no reason to make it available offline. Both are still fetched
+   normally on demand; they are simply not persisted by the install step. */
 const SHELL = [
-  './', './index.html', './submit.html', './track.html', './support.html', './admin.html', './404.html',
+  './', './index.html', './submit.html', './track.html', './support.html', './404.html',
   './portal.css', './favicon.svg', './manifest.webmanifest',
   './ds/ds.css', './ds/colors_and_type.css',
   './ds/tokens/tokens.primitive.css', './ds/tokens/tokens.semantic.css',
@@ -14,7 +24,7 @@ const SHELL = [
   './ds/styles/components.css', './ds/styles/components/command-palette.css',
   './ds/fonts/CascadiaMono-Regular.woff2',
   './ds/logo/nitda-symbol.png', './ds/logo/nitda-lockup.png', './ds/logo/nitda-lockup-white.png',
-  './js/icons.js', './js/data.js', './js/core.js', './js/home.js',
+  './js/icons.js', './js/core.js', './js/home.js',
   './js/submit.js', './js/track.js', './js/support.js', './js/admin-panels.js', './js/admin.js'
 ];
 

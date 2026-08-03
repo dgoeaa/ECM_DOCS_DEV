@@ -35,22 +35,67 @@ const trackedFiles = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, maxBuf
   .split('\0')
   .filter(Boolean);
 
+const ALL = /sig=[A-Za-z0-9_-]{20,}/g;
+
+/**
+ * Signatures inside a zip archive.
+ *
+ * The NUL-byte skip below is correct for images and fonts, but an archive is not opaque —
+ * it is text in a container. Skipping it meant ECM_DOCS_DEV.zip was never scanned by
+ * anything, and it holds 31 distinct signatures across 18 of its 837 members. Nine of those
+ * appear in no commit and no tracked text file, so no audit could have found them.
+ *
+ * Requires `unzip` on PATH. If it is absent the archive is reported as UNSCANNABLE rather
+ * than silently passing — a control that cannot run must say so, not return green.
+ */
+function signaturesInArchive(abs) {
+  let listing;
+  try {
+    listing = execFileSync('unzip', ['-Z1', abs], { maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString('utf8').split('\n').filter(Boolean);
+  } catch {
+    return { unscannable: true, found: [] };
+  }
+  const found = [];
+  for (const member of listing) {
+    if (member.endsWith('/')) continue;
+    if (/\.(png|jpe?g|gif|ico|svg|woff2?|ttf|eot|pdf|docx|xlsx|pptx|zip)$/i.test(member)) continue;
+    try {
+      const raw = execFileSync('unzip', ['-p', abs, member], { maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] });
+      if (raw.includes(0)) continue;
+      found.push(...(raw.toString('utf8').match(ALL) || []));
+    } catch { /* unreadable member — skip, the listing above is the record */ }
+  }
+  return { unscannable: false, found };
+}
+
 const affected = [];
+const unscannable = [];
 const globalDistinct = new Set(); // deduplicated across files — the figure that matters for rotation
 for (const file of trackedFiles) {
   const abs = path.join(ROOT, file);
   let buf;
   try {
     const st = fs.statSync(abs);
-    if (!st.isFile() || st.size > 64 * 1024 * 1024) continue;
+    if (!st.isFile() || st.size > 512 * 1024 * 1024) continue;
     buf = fs.readFileSync(abs);
   } catch {
     continue;
   }
-  if (buf.includes(0)) continue; // binary
+
+  if (/\.zip$/i.test(file)) {
+    const { unscannable: bad, found } = signaturesInArchive(abs);
+    if (bad) { unscannable.push(file); continue; }
+    if (!found.length) continue;
+    found.forEach(v => globalDistinct.add(v));
+    affected.push({ file, distinct: new Set(found).size, archive: true });
+    continue;
+  }
+
+  if (buf.includes(0)) continue; // binary and not an archive
   const text = buf.toString('utf8');
   if (!SIG.test(text)) continue;
-  const found = text.match(/sig=[A-Za-z0-9_-]{20,}/g) || [];
+  const found = text.match(ALL) || [];
   found.forEach(v => globalDistinct.add(v));
   affected.push({ file, distinct: new Set(found).size });
 }
@@ -90,6 +135,13 @@ if (affected.length && !added.length && !cleared.length) {
   for (const a of affected) console.log(`   ${a.file}  (${a.distinct} distinct)`);
 }
 
-if (!affected.length && !cleared.length) console.log('✅ No SAS signatures in tracked files.');
+if (unscannable.length) {
+  console.error('\n❌ Archive(s) could not be scanned — `unzip` is not available:\n');
+  for (const f of unscannable) console.error(`   ${f}`);
+  console.error('\nA control that cannot run must not report green. Install unzip, or remove');
+  console.error('the archive from the tree.\n');
+}
 
-process.exit(added.length || cleared.length ? 1 : 0);
+if (!affected.length && !cleared.length && !unscannable.length) console.log('✅ No SAS signatures in tracked files.');
+
+process.exit(added.length || cleared.length || unscannable.length ? 1 : 0);

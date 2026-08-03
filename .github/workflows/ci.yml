@@ -37,6 +37,11 @@ jobs:
       - name: Check output encoding
         run: node tests/output-encoding.test.mjs
 
+      # Hardening regressions: backend defaults, iframe sandboxing, service-worker
+      # precache and remote-script pinning. Negative controls -- reverting a fix fails.
+      - name: Check hardening
+        run: node tests/hardening.test.mjs
+
       # Asserts the auth layer is inert (development unchanged) AND that the enforced
       # posture blocks anonymous requests and ignores local role tampering.
       - name: Check authentication postures
