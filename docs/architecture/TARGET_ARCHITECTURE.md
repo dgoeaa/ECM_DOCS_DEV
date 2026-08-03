@@ -60,6 +60,11 @@ An externally submitted document today cannot be assigned, tracked, acknowledged
 
 ---
 
+> **Component and relationship diagrams:** `components.html` — zones and the credential boundary,
+> layer dependencies measured from the real import graph, workspace relationships across all 29 routes,
+> and the correspondence lifecycle across all four channels. Derived by `scripts/architecture-data.mjs`
+> and asserted by `tests/architecture.test.mjs`, so the sheets fail the build rather than drift.
+
 ## 3. Target architecture
 
 ### 3.1 Zones and trust

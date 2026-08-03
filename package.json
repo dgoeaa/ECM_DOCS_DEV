@@ -13,7 +13,7 @@
     "setup": "node scripts/setup-local.mjs",
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "start:proxy": "node proxy/src/server.js",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:register && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:status && npm run test:scan && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:register && npm run test:architecture && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:status && npm run test:scan && npm run test:smoke",
     "test:auth": "node tests/auth-posture.test.mjs",
     "test:encoding": "node tests/output-encoding.test.mjs",
     "test:governance": "node tests/governance.test.mjs",
@@ -29,7 +29,9 @@
     "test:scan": "node proxy/test/scan.test.mjs",
     "test:references": "node tests/reference-minter.test.mjs",
     "test:categories": "node tests/categories.test.mjs",
-    "test:register": "node tests/executive-register.test.mjs"
+    "test:register": "node tests/executive-register.test.mjs",
+    "architecture": "node scripts/architecture-data.mjs --write",
+    "test:architecture": "node tests/architecture.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

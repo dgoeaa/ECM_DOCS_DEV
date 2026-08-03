@@ -1,0 +1,375 @@
+{
+  "generatedFrom": "scripts/architecture-data.mjs",
+  "routes": {
+    "total": 29,
+    "visible": 9,
+    "hidden": 20
+  },
+  "routeList": [
+    "acknowledgment",
+    "activities",
+    "approvals",
+    "archive",
+    "assistant",
+    "briefs",
+    "bulk-assignment",
+    "comments",
+    "correspondence",
+    "correspondence-email",
+    "diagnostics",
+    "dispatch",
+    "ecm-erp-charter",
+    "executive",
+    "fasttrack",
+    "home",
+    "lookup",
+    "meetings",
+    "operator-hud",
+    "orchestrator",
+    "projects",
+    "registry",
+    "reports",
+    "response-tracking",
+    "scan-intake",
+    "settings",
+    "single-assignment",
+    "statistics",
+    "user-admin"
+  ],
+  "visibleWorkspaces": [
+    {
+      "route": "home",
+      "label": "Command Center",
+      "group": "START HERE",
+      "handoffs": [
+        "correspondence",
+        "single-assignment",
+        "orchestrator",
+        "approvals",
+        "dispatch",
+        "response-tracking"
+      ]
+    },
+    {
+      "route": "ecm-erp-charter",
+      "label": "ERP–ECM Charter",
+      "group": "START HERE",
+      "handoffs": [
+        "correspondence",
+        "orchestrator",
+        "approvals",
+        "dispatch",
+        "reports"
+      ]
+    },
+    {
+      "route": "correspondence",
+      "label": "Intake & Assignment",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "registry",
+        "bulk-assignment"
+      ]
+    },
+    {
+      "route": "orchestrator",
+      "label": "My Work / Departmental Work",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "acknowledgment",
+        "comments"
+      ]
+    },
+    {
+      "route": "response-tracking",
+      "label": "Tracking & Monitoring",
+      "group": "CONTROL",
+      "handoffs": [
+        "reports",
+        "statistics"
+      ]
+    },
+    {
+      "route": "approvals",
+      "label": "Review & Approval",
+      "group": "CONTROL",
+      "handoffs": [
+        "executive",
+        "dispatch"
+      ]
+    },
+    {
+      "route": "dispatch",
+      "label": "Dispatch & Archive",
+      "group": "CLOSURE",
+      "handoffs": [
+        "archive",
+        "lookup"
+      ]
+    },
+    {
+      "route": "settings",
+      "label": "Administration",
+      "group": "SYSTEM",
+      "handoffs": [
+        "diagnostics",
+        "user-admin",
+        "operator-hud"
+      ]
+    },
+    {
+      "route": "correspondence-email",
+      "label": "Correspondence Email Desk",
+      "group": "CLOSURE",
+      "handoffs": [
+        "dispatch",
+        "archive"
+      ]
+    }
+  ],
+  "hiddenRoutes": {
+    "activities": "Command Center / Intake",
+    "registry": "Intake",
+    "briefs": "Review & Approval",
+    "meetings": "Review & Approval",
+    "projects": "Tracking & Monitoring",
+    "scan-intake": "Intake & Assignment",
+    "single-assignment": "Intake & Assignment",
+    "bulk-assignment": "Intake & Assignment",
+    "lookup": "Tracking / Dispatch & Archive / command search",
+    "acknowledgment": "My Work",
+    "comments": "My Work",
+    "fasttrack": "Command Center / Tracking",
+    "executive": "Review & Approval",
+    "archive": "Dispatch & Archive",
+    "reports": "Tracking",
+    "statistics": "Tracking",
+    "assistant": "Command Center",
+    "operator-hud": "Administration",
+    "diagnostics": "Administration",
+    "user-admin": "Administration"
+  },
+  "state": {
+    "collections": 22,
+    "list": [
+      "activities",
+      "approvals",
+      "audit",
+      "briefs",
+      "categories",
+      "comments",
+      "correspondence",
+      "correspondenceEmails",
+      "departments",
+      "dispatches",
+      "emails",
+      "escalations",
+      "fileMovements",
+      "meetings",
+      "notifications",
+      "operations",
+      "pending",
+      "projects",
+      "registryFiles",
+      "registryMinutes",
+      "tracking",
+      "users"
+    ]
+  },
+  "endpoints": {
+    "keys": 19
+  },
+  "roles": [
+    "systemAdmin",
+    "userAdmin",
+    "executive",
+    "director",
+    "operator",
+    "viewer"
+  ],
+  "roleRouteAccess": {
+    "systemAdmin": [
+      "*"
+    ],
+    "userAdmin": [
+      "home",
+      "settings",
+      "user-admin",
+      "diagnostics",
+      "operator-hud"
+    ],
+    "executive": [
+      "home",
+      "executive",
+      "response-tracking",
+      "approvals",
+      "briefs",
+      "meetings",
+      "projects",
+      "reports",
+      "statistics",
+      "lookup",
+      "assistant",
+      "archive"
+    ],
+    "director": [
+      "home",
+      "activities",
+      "correspondence",
+      "response-tracking",
+      "orchestrator",
+      "approvals",
+      "dispatch",
+      "scan-intake",
+      "briefs",
+      "meetings",
+      "projects",
+      "reports",
+      "statistics",
+      "lookup",
+      "assistant"
+    ],
+    "operator": [
+      "home",
+      "activities",
+      "correspondence",
+      "response-tracking",
+      "orchestrator",
+      "single-assignment",
+      "bulk-assignment",
+      "scan-intake",
+      "registry",
+      "comments",
+      "dispatch",
+      "correspondence-email",
+      "meetings",
+      "projects",
+      "lookup",
+      "assistant"
+    ],
+    "viewer": [
+      "home",
+      "response-tracking",
+      "reports",
+      "statistics",
+      "lookup"
+    ]
+  },
+  "layers": {
+    "files": {
+      "config": 32,
+      "core": 60,
+      "shared": 8,
+      "modules": 29
+    },
+    "edges": {
+      "core->config": 38,
+      "shared->core": 13,
+      "shared->config": 8,
+      "modules->core": 235,
+      "modules->config": 27,
+      "modules->shared": 1
+    },
+    "dynamicEdges": {
+      "core->modules": 29,
+      "core->shared": 3,
+      "modules->core": 1
+    },
+    "acyclic": true,
+    "compositionRoot": {
+      "file": "core/boot.js",
+      "dynamicModuleImports": 29
+    },
+    "acyclicIncludingDynamic": false
+  },
+  "zones": [
+    {
+      "id": "public",
+      "label": "Public",
+      "auth": "None — anonymous submission is the point",
+      "components": [
+        {
+          "name": "document-portal/",
+          "detail": "39 files · 5 pages · service worker",
+          "note": "Holds no credential"
+        }
+      ]
+    },
+    {
+      "id": "enforcement",
+      "label": "Enforcement",
+      "auth": "Validates every request; the only path onward",
+      "components": [
+        {
+          "name": "proxy/",
+          "detail": "7 modules · 19 contract keys",
+          "note": "The only component holding a credential"
+        }
+      ]
+    },
+    {
+      "id": "internal",
+      "label": "Internal",
+      "auth": "Entra ID, mandatory (provisioned, inert until step 8)",
+      "components": [
+        {
+          "name": "root platform",
+          "detail": "29 routes · 29 modules · 60 core",
+          "note": "The single system of record, since D6(b)"
+        }
+      ]
+    },
+    {
+      "id": "record",
+      "label": "Systems of record",
+      "auth": "Enforcement zone only — private endpoint / IP-restricted",
+      "components": [
+        {
+          "name": "SharePoint",
+          "detail": "Lists + document library",
+          "note": "Holds the bytes"
+        },
+        {
+          "name": "Power Automate",
+          "detail": "25 workflows (dev/pilot, to be decommissioned)",
+          "note": "F-001 · cutover scope"
+        }
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "id": "A",
+      "label": "Document portal",
+      "origin": "External submitter",
+      "channel": "Portal",
+      "route": "proxy /intake/submission",
+      "status": "step 5"
+    },
+    {
+      "id": "B",
+      "label": "Email",
+      "origin": "Mailbox",
+      "channel": "Email",
+      "route": "FETCH_ALL → correspondence-email",
+      "status": "implemented"
+    },
+    {
+      "id": "C",
+      "label": "Scan / physical",
+      "origin": "Registry counter",
+      "channel": "Registry",
+      "route": "proxy /documents/scan",
+      "status": "step 7"
+    },
+    {
+      "id": "D",
+      "label": "Internal origination",
+      "origin": "NITDA staff",
+      "channel": "Document",
+      "route": "modules/correspondence.js",
+      "status": "implemented"
+    }
+  ],
+  "moduleBoundaries": 29
+}

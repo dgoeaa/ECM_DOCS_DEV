@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DGO — Component &amp; Relationship Architecture</title>
+<style>
+  :root{
+    --ink:#0d1b2a; --ink-2:#3d5068; --ink-3:#6b7f99; --line:#d5dde8;
+    --paper:#f6f8fb; --card:#ffffff;
+    --public:#0e7490; --enforce:#b45309; --internal:#05583b; --record:#5b21b6;
+    --accent:#17b255; --danger:#c8102e; --grid:#e8edf4;
+    --shadow:0 1px 2px rgba(13,27,42,.06), 0 8px 24px rgba(13,27,42,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#e8eef6; --ink-2:#a9bcd2; --ink-3:#7c91a9; --line:#2b3a4d;
+      --paper:#0b1220; --card:#121c2b;
+      --public:#22d3ee; --enforce:#fbbf24; --internal:#34d399; --record:#c4b5fd;
+      --grid:#1b2635;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#e8eef6; --ink-2:#a9bcd2; --ink-3:#7c91a9; --line:#2b3a4d;
+    --paper:#0b1220; --card:#121c2b;
+    --public:#22d3ee; --enforce:#fbbf24; --internal:#34d399; --record:#c4b5fd;
+    --grid:#1b2635;
+  }
+  :root[data-theme="light"]{
+    --ink:#0d1b2a; --ink-2:#3d5068; --ink-3:#6b7f99; --line:#d5dde8;
+    --paper:#f6f8fb; --card:#ffffff;
+    --public:#0e7490; --enforce:#b45309; --internal:#05583b; --record:#5b21b6;
+    --grid:#e8edf4;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:40px 20px 96px}
+
+  header.mast{border-bottom:2px solid var(--ink); padding-bottom:22px; margin-bottom:14px}
+  .eyebrow{
+    font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3);
+  }
+  h1{font-size:clamp(26px,4.2vw,40px); line-height:1.1; letter-spacing:-.02em; margin:12px 0 10px; font-weight:800}
+  .lede{color:var(--ink-2); max-width:74ch; margin:0}
+  .stamp{
+    margin-top:18px; display:flex; flex-wrap:wrap; gap:8px;
+    font:500 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .stamp span{border:1px solid var(--line); border-radius:999px; padding:7px 12px; color:var(--ink-2); background:var(--card)}
+
+  nav.toc{
+    display:flex; flex-wrap:wrap; gap:8px; margin:26px 0 8px; padding:0; list-style:none;
+  }
+  nav.toc a{
+    display:inline-block; text-decoration:none; color:var(--ink-2); background:var(--card);
+    border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600;
+  }
+  nav.toc a:hover{border-color:var(--ink-3); color:var(--ink)}
+
+  .sheet{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:24px; margin:26px 0; box-shadow:var(--shadow);
+  }
+  .sh-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:6px}
+  .sh-no{
+    font:700 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink-3);
+    border:1px solid var(--line); border-radius:6px; padding:6px 9px;
+  }
+  .sheet h2{font-size:21px; letter-spacing:-.01em; margin:0; font-weight:750}
+  .sheet .note{color:var(--ink-2); margin:10px 0 18px; max-width:78ch}
+  .canvas{width:100%; overflow-x:auto}
+  .canvas svg{display:block; width:100%; height:auto; min-width:720px}
+
+  .key{
+    display:flex; flex-wrap:wrap; gap:10px 20px; margin-top:16px; padding-top:14px;
+    border-top:1px dashed var(--line); font-size:12.5px; color:var(--ink-2);
+  }
+  .key i{display:inline-block; width:13px; height:13px; border-radius:3px; margin-right:7px; vertical-align:-2px}
+
+  table{border-collapse:collapse; width:100%; font-size:13.5px; margin-top:8px}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font:600 11px/1.4 ui-monospace,Menlo,monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+  td code{font:12.5px/1.5 ui-monospace,Menlo,monospace; color:var(--ink)}
+  .scroll{overflow-x:auto}
+
+  footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink-3); font-size:13px}
+
+  /* SVG type scale — one place, so every sheet reads consistently. */
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif}
+  .t-zone{font:700 13px/1 ui-monospace,Menlo,monospace; letter-spacing:.1em; text-transform:uppercase}
+  .t-node{font-weight:700; font-size:14px}
+  .t-sub{font-size:11.5px}
+  .t-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11.5px}
+  .t-edge{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10.5px; font-weight:600}
+  .t-cap{font-size:12px; font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">NITDA · DGO Digital Operations</div>
+  <h1>Component &amp; Relationship Architecture</h1>
+  <p class="lede">
+    What exists, in which trust zone, how the layers depend on one another, how the workspaces hand
+    work to one another, and how a document travels from any of four channels into one record.
+    Every count and every edge on these sheets is derived from the code by
+    <code>scripts/architecture-data.mjs</code> and checked by <code>tests/architecture.test.mjs</code> —
+    so a diagram that drifts from the source fails the build rather than misleading the reader.
+  </p>
+  <div class="stamp">
+    <span>29 routes</span><span>9 visible workspaces</span><span>20 technical routes</span>
+    <span>22 state collections</span><span>19 contract keys</span><span>4 zones</span>
+    <span>static layers: acyclic</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#s1">1 · Zones &amp; trust</a>
+  <a href="#s2">2 · Layer dependencies</a>
+  <a href="#s3">3 · Workspace relationships</a>
+  <a href="#s4">4 · Correspondence lifecycle</a>
+  <a href="#s5">5 · Component inventory</a>
+</nav>
+
+<!-- ══════════════════════════════════════════════ SHEET 1 ══ -->
+<section class="sheet" id="s1">
+  <div class="sh-head"><span class="sh-no">SHEET 1</span><h2>Zones and the one rule that makes this an architecture</h2></div>
+  <p class="note">
+    Four trust zones. The rule they exist to express: <strong>no client, internal or external, holds a
+    credential for a system of record.</strong> The proxy is the only component that does — which is why
+    the credential boundary is drawn as a wall rather than a line, and why it sits between the enforcement
+    zone and everything to its left.
+  </p>
+  <div class="canvas">
+  <svg viewBox="0 0 1120 470" role="img" aria-label="Four trust zones with their components and the credential boundary">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+      </marker>
+      <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="var(--danger)" stroke-width="2.5" opacity=".28"/>
+      </pattern>
+    </defs>
+
+    <!-- zone bands -->
+    <g>
+      <rect x="16" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--public)" stroke-width="1.6" opacity=".55"/>
+      <rect x="16" y="60" width="236" height="30" rx="12" fill="var(--public)" opacity=".10"/>
+      <text x="32" y="80" class="t-zone" fill="var(--public)">Public</text>
+
+      <rect x="300" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--enforce)" stroke-width="2.2"/>
+      <rect x="300" y="60" width="236" height="30" rx="12" fill="var(--enforce)" opacity=".14"/>
+      <text x="316" y="80" class="t-zone" fill="var(--enforce)">Enforcement</text>
+
+      <rect x="584" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--internal)" stroke-width="1.6" opacity=".55"/>
+      <rect x="584" y="60" width="236" height="30" rx="12" fill="var(--internal)" opacity=".10"/>
+      <text x="600" y="80" class="t-zone" fill="var(--internal)">Internal</text>
+
+      <rect x="868" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--record)" stroke-width="1.6" opacity=".55"/>
+      <rect x="868" y="60" width="236" height="30" rx="12" fill="var(--record)" opacity=".10"/>
+      <text x="884" y="80" class="t-zone" fill="var(--record)">Systems of record</text>
+    </g>
+
+    <!-- components -->
+    <g>
+      <rect x="36" y="112" width="196" height="86" rx="9" fill="var(--paper)" stroke="var(--public)" stroke-width="1.4"/>
+      <text x="52" y="138" class="t-node" fill="var(--ink)">document-portal/</text>
+      <text x="52" y="158" class="t-sub" fill="var(--ink-2)">5 pages · service worker</text>
+      <text x="52" y="176" class="t-sub" fill="var(--ink-2)">submit · track · support</text>
+      <text x="52" y="192" class="t-mono" fill="var(--accent)">holds no credential</text>
+
+      <rect x="36" y="216" width="196" height="56" rx="9" fill="var(--paper)" stroke="var(--public)" stroke-width="1.4" stroke-dasharray="4 4"/>
+      <text x="52" y="240" class="t-node" fill="var(--ink-2)">Anonymous submitter</text>
+      <text x="52" y="258" class="t-sub" fill="var(--ink-3)">no account, by design</text>
+
+      <rect x="320" y="112" width="196" height="176" rx="9" fill="var(--paper)" stroke="var(--enforce)" stroke-width="1.6"/>
+      <text x="336" y="138" class="t-node" fill="var(--ink)">proxy/</text>
+      <text x="336" y="158" class="t-sub" fill="var(--ink-2)">token · role · idempotency</text>
+      <text x="336" y="180" class="t-mono" fill="var(--ink-2)">/intake/submission</text>
+      <text x="336" y="197" class="t-mono" fill="var(--ink-2)">/intake/upload</text>
+      <text x="336" y="214" class="t-mono" fill="var(--ink-2)">/intake/status</text>
+      <text x="336" y="231" class="t-mono" fill="var(--ink-2)">/intake/support</text>
+      <text x="336" y="248" class="t-mono" fill="var(--ink-2)">/documents/scan</text>
+      <text x="336" y="272" class="t-mono" fill="var(--enforce)">19 contract keys</text>
+
+      <rect x="604" y="112" width="196" height="176" rx="9" fill="var(--paper)" stroke="var(--internal)" stroke-width="1.4"/>
+      <text x="620" y="138" class="t-node" fill="var(--ink)">root platform</text>
+      <text x="620" y="158" class="t-sub" fill="var(--ink-2)">29 routes · 29 modules</text>
+      <text x="620" y="176" class="t-sub" fill="var(--ink-2)">22 state collections</text>
+      <text x="620" y="200" class="t-mono" fill="var(--ink-2)">config · core · shared</text>
+      <text x="620" y="217" class="t-mono" fill="var(--ink-2)">modules</text>
+      <text x="620" y="248" class="t-mono" fill="var(--accent)">single system of record</text>
+      <text x="620" y="266" class="t-sub" fill="var(--ink-3)">D6(b) — one internal app</text>
+
+      <rect x="888" y="112" width="196" height="80" rx="9" fill="var(--paper)" stroke="var(--record)" stroke-width="1.4"/>
+      <text x="904" y="138" class="t-node" fill="var(--ink)">SharePoint</text>
+      <text x="904" y="158" class="t-sub" fill="var(--ink-2)">lists + document library</text>
+      <text x="904" y="178" class="t-mono" fill="var(--ink-2)">holds the bytes</text>
+
+      <rect x="888" y="208" width="196" height="80" rx="9" fill="var(--paper)" stroke="var(--record)" stroke-width="1.4"/>
+      <text x="904" y="234" class="t-node" fill="var(--ink)">Power Automate</text>
+      <text x="904" y="254" class="t-sub" fill="var(--ink-2)">25 dev/pilot workflows</text>
+      <text x="904" y="274" class="t-mono" fill="var(--danger)">F-001 · cutover scope</text>
+    </g>
+
+    <!-- credential boundary -->
+    <g>
+      <rect x="266" y="60" width="18" height="330" fill="url(#hatch)"/>
+      <line x1="275" y1="60" x2="275" y2="390" stroke="var(--danger)" stroke-width="2"/>
+      <text x="275" y="412" text-anchor="middle" class="t-cap" fill="var(--danger)">credential boundary</text>
+      <text x="275" y="430" text-anchor="middle" class="t-sub" fill="var(--ink-3)">nothing left of this line</text>
+      <text x="275" y="445" text-anchor="middle" class="t-sub" fill="var(--ink-3)">holds a system credential</text>
+    </g>
+
+    <!-- flows -->
+    <g stroke="var(--ink-3)" stroke-width="1.6" fill="none" marker-end="url(#ar)">
+      <path d="M232 155 L316 155"/>
+      <path d="M516 175 L600 175"/>
+      <path d="M800 160 L884 152"/>
+      <path d="M516 240 L884 240" stroke-dasharray="6 4"/>
+    </g>
+    <text x="274" y="146" text-anchor="middle" class="t-edge" fill="var(--ink-3)">anonymous</text>
+    <text x="558" y="166" text-anchor="middle" class="t-edge" fill="var(--ink-3)">bearer token</text>
+    <text x="700" y="230" class="t-edge" fill="var(--ink-3)">proxy egress only — credential held server-side</text>
+  </svg>
+  </div>
+  <div class="key">
+    <span><i style="background:var(--public)"></i>Public — no authentication</span>
+    <span><i style="background:var(--enforce)"></i>Enforcement — validates everything</span>
+    <span><i style="background:var(--internal)"></i>Internal — Entra ID (provisioned, inert until step 8)</span>
+    <span><i style="background:var(--record)"></i>Systems of record — reachable only from enforcement</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SHEET 2 ══ -->
+<section class="sheet" id="s2">
+  <div class="sh-head"><span class="sh-no">SHEET 2</span><h2>Layer dependencies — measured, not asserted</h2></div>
+  <p class="note">
+    Edge labels are actual counts of cross-layer <code>import</code> specifiers — <em>static, bare and
+    dynamic</em> — resolved to paths and bucketed by top directory. The <strong>static</strong> graph is
+    acyclic: no layer statically imports from one above it, which is what lets a layer be built, tested
+    and deleted independently.
+    <br><br>
+    There is exactly one upward reference and it is drawn rather than hidden: <code>core/boot.js</code>
+    <em>dynamically</em> imports all 29 modules to register them with the router. That is a composition
+    root, the standard place for the dependency rule to invert, and it is the reason this sheet
+    distinguishes the two kinds of edge instead of claiming a clean hierarchy.
+    <br><br>
+    An earlier version of the generator matched only <code>from '…'</code> and so reported a tidier graph
+    than the code actually has — it missed bare and dynamic imports entirely. The counts below are the
+    corrected ones.
+  </p>
+  <div class="canvas">
+  <svg viewBox="0 0 1120 430" role="img" aria-label="Four code layers and the number of imports between them">
+    <defs>
+      <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--internal)"/>
+      </marker>
+    </defs>
+
+    <g>
+      <rect x="300" y="36" width="520" height="70" rx="10" fill="var(--internal)" opacity=".10"/>
+      <rect x="300" y="36" width="520" height="70" rx="10" fill="none" stroke="var(--internal)" stroke-width="1.6"/>
+      <text x="326" y="66" class="t-node" fill="var(--ink)">modules/ — workspaces</text>
+      <text x="326" y="88" class="t-sub" fill="var(--ink-2)">29 files · one per route · render + bind, no domain rules</text>
+      <text x="794" y="76" text-anchor="end" class="t-mono" fill="var(--internal)">top</text>
+    </g>
+
+    <g>
+      <rect x="300" y="146" width="520" height="70" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="326" y="176" class="t-node" fill="var(--ink)">shared/ — shell &amp; components</text>
+      <text x="326" y="198" class="t-sub" fill="var(--ink-2)">8 files · the app shell, relationship runtime, components</text>
+    </g>
+
+    <g>
+      <rect x="300" y="256" width="520" height="70" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="326" y="286" class="t-node" fill="var(--ink)">core/ — domain &amp; services</text>
+      <text x="326" y="308" class="t-sub" fill="var(--ink-2)">60 files · state, auth, router, governance, domain logic</text>
+    </g>
+
+    <g>
+      <rect x="300" y="366" width="520" height="52" rx="10" fill="var(--record)" opacity=".10"/>
+      <rect x="300" y="366" width="520" height="52" rx="10" fill="none" stroke="var(--record)" stroke-width="1.6"/>
+      <text x="326" y="390" class="t-node" fill="var(--ink)">config/ — declarations only</text>
+      <text x="326" y="409" class="t-sub" fill="var(--ink-2)">32 files · imports nothing across layers — the base</text>
+      <text x="794" y="396" text-anchor="end" class="t-mono" fill="var(--record)">base</text>
+    </g>
+
+    <!-- downward edges -->
+    <g stroke="var(--internal)" stroke-width="2" fill="none" marker-end="url(#ar2)">
+      <path d="M420 106 L420 146"/>
+      <path d="M560 106 L560 256" stroke-dasharray="0"/>
+      <path d="M700 106 L700 366"/>
+      <path d="M470 216 L470 256"/>
+      <path d="M620 216 L620 366"/>
+      <path d="M520 326 L520 366"/>
+    </g>
+
+    <g class="t-edge" fill="var(--ink-2)">
+      <text x="428" y="132">1</text>
+      <text x="568" y="200">235</text>
+      <text x="708" y="250">27</text>
+      <text x="478" y="242">13</text>
+      <text x="628" y="300">8</text>
+      <text x="528" y="352">38</text>
+    </g>
+
+    <!-- the one upward edge: the composition root -->
+    <g>
+      <path d="M860 300 C920 300 920 90 830 76" stroke="var(--enforce)" stroke-width="2"
+            fill="none" stroke-dasharray="7 5" marker-end="url(#ar2)" opacity=".9"/>
+      <rect x="836" y="176" width="238" height="66" rx="8" fill="var(--enforce)" opacity=".10"/>
+      <rect x="836" y="176" width="238" height="66" rx="8" fill="none" stroke="var(--enforce)" stroke-width="1.4"/>
+      <text x="852" y="198" class="t-cap" fill="var(--enforce)">Composition root</text>
+      <text x="852" y="216" class="t-mono" fill="var(--ink-2)">core/boot.js → 29 modules</text>
+      <text x="852" y="233" class="t-sub" fill="var(--ink-3)">dynamic import, by design</text>
+    </g>
+
+    <g>
+      <text x="60" y="66" class="t-cap" fill="var(--ink-2)">Static dependencies</text>
+      <text x="60" y="86" class="t-sub" fill="var(--ink-3)">point strictly downward,</text>
+      <text x="60" y="112" class="t-sub" fill="var(--ink-3)">so the static graph is</text>
+      <text x="60" y="128" class="t-sub" fill="var(--ink-3)">acyclic. One dynamic</text>
+      <text x="60" y="144" class="t-sub" fill="var(--ink-3)">edge points up (right).</text>
+      <text x="60" y="184" class="t-cap" fill="var(--ink-2)">Why it matters</text>
+      <text x="60" y="204" class="t-sub" fill="var(--ink-3)">A module can be deleted</text>
+      <text x="60" y="220" class="t-sub" fill="var(--ink-3)">without touching core.</text>
+      <text x="60" y="236" class="t-sub" fill="var(--ink-3)">Core can be tested with</text>
+      <text x="60" y="252" class="t-sub" fill="var(--ink-3)">no browser at all — which</text>
+      <text x="60" y="268" class="t-sub" fill="var(--ink-3)">is how the domain suites</text>
+      <text x="60" y="284" class="t-sub" fill="var(--ink-3)">run under plain node.</text>
+      <text x="60" y="326" class="t-cap" fill="var(--ink-2)">Numbers are edges,</text>
+      <text x="60" y="346" class="t-sub" fill="var(--ink-3)">not files: 224 means the</text>
+      <text x="60" y="362" class="t-sub" fill="var(--ink-3)">29 modules reference core</text>
+      <text x="60" y="378" class="t-sub" fill="var(--ink-3)">235 times between them.</text>
+    </g>
+  </svg>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SHEET 3 ══ -->
+<section class="sheet" id="s3">
+  <div class="sh-head"><span class="sh-no">SHEET 3</span><h2>Workspace relationships — 9 destinations, 20 technical routes</h2></div>
+  <p class="note">
+    Nine workspaces are primary navigation. The other twenty routes are real and routable but are reached
+    <em>through</em> a workspace rather than from the sidebar — a deliberate choice recorded in
+    <code>workflow-clarity.config.js</code>, so the navigation shows nine places to go rather than
+    twenty-nine. Solid arrows are declared handoffs: the journeys the platform expects.
+  </p>
+  <div class="canvas">
+  <svg viewBox="0 0 1120 720" role="img" aria-label="Nine visible workspaces, their handoffs, and the technical routes grouped beneath them">
+    <defs>
+      <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+
+    <!-- group rails -->
+    <g class="t-zone" fill="var(--ink-3)">
+      <text x="20" y="76">Start</text>
+      <text x="20" y="240">Operations</text>
+      <text x="20" y="404">Control</text>
+      <text x="20" y="568">Closure</text>
+      <text x="20" y="676">System</text>
+    </g>
+    <g stroke="var(--grid)" stroke-width="1">
+      <line x1="120" y1="120" x2="1100" y2="120"/>
+      <line x1="120" y1="284" x2="1100" y2="284"/>
+      <line x1="120" y1="448" x2="1100" y2="448"/>
+      <line x1="120" y1="612" x2="1100" y2="612"/>
+    </g>
+
+    <!-- ── START -->
+    <g>
+      <rect x="130" y="40" width="230" height="62" rx="9" fill="var(--internal)" opacity=".12"/>
+      <rect x="130" y="40" width="230" height="62" rx="9" fill="none" stroke="var(--internal)" stroke-width="1.8"/>
+      <text x="148" y="66" class="t-node" fill="var(--ink)">Command Center</text>
+      <text x="148" y="86" class="t-mono" fill="var(--ink-2)">home</text>
+      <rect x="382" y="40" width="230" height="62" rx="9" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="400" y="66" class="t-node" fill="var(--ink)">ERP–ECM Charter</text>
+      <text x="400" y="86" class="t-mono" fill="var(--ink-2)">ecm-erp-charter</text>
+      <text x="640" y="60" class="t-sub" fill="var(--ink-3)">under Command Center:</text>
+      <rect x="640" y="70" width="88" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="85" class="t-mono" fill="var(--ink-2)">activities</text>
+      <rect x="736" y="70" width="84" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="748" y="85" class="t-mono" fill="var(--ink-2)">assistant</text>
+      <rect x="828" y="70" width="82" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="840" y="85" class="t-mono" fill="var(--ink-2)">fasttrack</text>
+    </g>
+
+    <!-- ── OPERATIONS -->
+    <g>
+      <rect x="130" y="200" width="230" height="62" rx="9" fill="var(--internal)" opacity=".12"/>
+      <rect x="130" y="200" width="230" height="62" rx="9" fill="none" stroke="var(--internal)" stroke-width="1.8"/>
+      <text x="148" y="226" class="t-node" fill="var(--ink)">Intake &amp; Assignment</text>
+      <text x="148" y="246" class="t-mono" fill="var(--ink-2)">correspondence</text>
+      <rect x="382" y="200" width="230" height="62" rx="9" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="400" y="226" class="t-node" fill="var(--ink)">My Work</text>
+      <text x="400" y="246" class="t-mono" fill="var(--ink-2)">orchestrator</text>
+      <text x="640" y="196" class="t-sub" fill="var(--ink-3)">under Intake:</text>
+      <rect x="640" y="206" width="90" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="221" class="t-mono" fill="var(--ink-2)">registry</text>
+      <rect x="738" y="206" width="106" height="22" rx="11" fill="var(--accent)" opacity=".18"/><rect x="738" y="206" width="106" height="22" rx="11" fill="none" stroke="var(--accent)"/><text x="750" y="221" class="t-mono" fill="var(--ink)">scan-intake</text>
+      <rect x="852" y="206" width="132" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="864" y="221" class="t-mono" fill="var(--ink-2)">single-assignment</text>
+      <rect x="640" y="234" width="124" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="249" class="t-mono" fill="var(--ink-2)">bulk-assignment</text>
+      <text x="790" y="249" class="t-sub" fill="var(--ink-3)">under My Work:</text>
+      <rect x="640" y="262" width="124" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="277" class="t-mono" fill="var(--ink-2)">acknowledgment</text>
+      <rect x="772" y="262" width="88" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="784" y="277" class="t-mono" fill="var(--ink-2)">comments</text>
+    </g>
+
+    <!-- ── CONTROL -->
+    <g>
+      <rect x="130" y="364" width="230" height="62" rx="9" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="148" y="390" class="t-node" fill="var(--ink)">Tracking &amp; Monitoring</text>
+      <text x="148" y="410" class="t-mono" fill="var(--ink-2)">response-tracking</text>
+      <rect x="382" y="364" width="230" height="62" rx="9" fill="var(--internal)" opacity=".12"/>
+      <rect x="382" y="364" width="230" height="62" rx="9" fill="none" stroke="var(--internal)" stroke-width="1.8"/>
+      <text x="400" y="390" class="t-node" fill="var(--ink)">Review &amp; Approval</text>
+      <text x="400" y="410" class="t-mono" fill="var(--ink-2)">approvals</text>
+      <text x="640" y="360" class="t-sub" fill="var(--ink-3)">under Tracking:</text>
+      <rect x="640" y="370" width="78" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="385" class="t-mono" fill="var(--ink-2)">reports</text>
+      <rect x="726" y="370" width="86" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="738" y="385" class="t-mono" fill="var(--ink-2)">statistics</text>
+      <rect x="820" y="370" width="80" height="22" rx="11" fill="var(--accent)" opacity=".18"/><rect x="820" y="370" width="80" height="22" rx="11" fill="none" stroke="var(--accent)"/><text x="832" y="385" class="t-mono" fill="var(--ink)">projects</text>
+      <rect x="908" y="370" width="74" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="920" y="385" class="t-mono" fill="var(--ink-2)">lookup</text>
+      <text x="640" y="415" class="t-sub" fill="var(--ink-3)">under Review &amp; Approval:</text>
+      <rect x="640" y="424" width="68" height="22" rx="11" fill="var(--accent)" opacity=".18"/><rect x="640" y="424" width="68" height="22" rx="11" fill="none" stroke="var(--accent)"/><text x="652" y="439" class="t-mono" fill="var(--ink)">briefs</text>
+      <rect x="716" y="424" width="84" height="22" rx="11" fill="var(--accent)" opacity=".18"/><rect x="716" y="424" width="84" height="22" rx="11" fill="none" stroke="var(--accent)"/><text x="728" y="439" class="t-mono" fill="var(--ink)">meetings</text>
+      <rect x="808" y="424" width="82" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="820" y="439" class="t-mono" fill="var(--ink-2)">executive</text>
+    </g>
+
+    <!-- ── CLOSURE -->
+    <g>
+      <rect x="130" y="528" width="230" height="62" rx="9" fill="var(--internal)" opacity=".12"/>
+      <rect x="130" y="528" width="230" height="62" rx="9" fill="none" stroke="var(--internal)" stroke-width="1.8"/>
+      <text x="148" y="554" class="t-node" fill="var(--ink)">Dispatch &amp; Archive</text>
+      <text x="148" y="574" class="t-mono" fill="var(--ink-2)">dispatch</text>
+      <rect x="382" y="528" width="230" height="62" rx="9" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="400" y="554" class="t-node" fill="var(--ink)">Email Desk</text>
+      <text x="400" y="574" class="t-mono" fill="var(--ink-2)">correspondence-email</text>
+      <rect x="640" y="548" width="76" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="652" y="563" class="t-mono" fill="var(--ink-2)">archive</text>
+      <text x="726" y="563" class="t-sub" fill="var(--ink-3)">reached from Dispatch</text>
+    </g>
+
+    <!-- ── SYSTEM -->
+    <g>
+      <rect x="130" y="640" width="230" height="56" rx="9" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="148" y="664" class="t-node" fill="var(--ink)">Administration</text>
+      <text x="148" y="683" class="t-mono" fill="var(--ink-2)">settings</text>
+      <rect x="382" y="656" width="90" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="394" y="671" class="t-mono" fill="var(--ink-2)">user-admin</text>
+      <rect x="480" y="656" width="92" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="492" y="671" class="t-mono" fill="var(--ink-2)">diagnostics</text>
+      <rect x="580" y="656" width="102" height="22" rx="11" fill="var(--card)" stroke="var(--line)"/><text x="592" y="671" class="t-mono" fill="var(--ink-2)">operator-hud</text>
+    </g>
+
+    <!-- handoffs -->
+    <g stroke="var(--accent)" stroke-width="1.7" fill="none" marker-end="url(#ar3)" opacity=".85">
+      <path d="M245 102 L245 200"/>
+      <path d="M360 71 C500 71 470 160 470 200"/>
+      <path d="M360 88 C560 100 497 330 497 364"/>
+      <path d="M245 262 C245 300 200 320 200 364" stroke-dasharray="5 4"/>
+      <path d="M497 262 C497 300 460 330 460 364" stroke-dasharray="5 4"/>
+      <path d="M497 426 L245 528"/>
+      <path d="M245 426 C130 470 118 500 130 545" stroke-dasharray="5 4"/>
+      <path d="M497 590 C400 610 300 600 260 590"/>
+    </g>
+    <g class="t-edge" fill="var(--accent)">
+      <text x="254" y="156">triage</text>
+      <text x="420" y="150">assign</text>
+      <text x="540" y="330">monitor</text>
+      <text x="356" y="470">decide → dispatch</text>
+      <text x="300" y="614">draft → dispatch</text>
+    </g>
+  </svg>
+  </div>
+  <div class="key">
+    <span><i style="background:var(--internal);opacity:.6"></i>Visible workspace — primary navigation (9)</span>
+    <span><i style="background:var(--card);border:1px solid var(--line)"></i>Technical route — reached through a workspace (20)</span>
+    <span><i style="background:var(--accent);opacity:.5"></i>Added since the forensic audit (scan-intake, briefs, meetings, projects)</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SHEET 4 ══ -->
+<section class="sheet" id="s4">
+  <div class="sh-head"><span class="sh-no">SHEET 4</span><h2>Correspondence lifecycle — four channels, one record</h2></div>
+  <p class="note">
+    The test of whether the correspondence model was right: four channels of arrival, and the model gains
+    exactly one field value to distinguish them — <code>channel</code>. Nothing else changes. Lanes are
+    who acts; the gateway is the one genuine decision point; everything right of the merge is common.
+  </p>
+  <div class="canvas">
+  <svg viewBox="0 0 1120 560" role="img" aria-label="Four intake channels converging on one correspondence record and its lifecycle">
+    <defs>
+      <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
+      </marker>
+    </defs>
+
+    <!-- lane frame -->
+    <g>
+      <rect x="16" y="30" width="1088" height="132" rx="8" fill="var(--public)" opacity=".05"/>
+      <rect x="16" y="30" width="1088" height="132" rx="8" fill="none" stroke="var(--line)"/>
+      <text x="30" y="52" class="t-zone" fill="var(--public)">External</text>
+
+      <rect x="16" y="170" width="1088" height="196" rx="8" fill="var(--internal)" opacity=".05"/>
+      <rect x="16" y="170" width="1088" height="196" rx="8" fill="none" stroke="var(--line)"/>
+      <text x="30" y="192" class="t-zone" fill="var(--internal)">Registry &amp; directorates</text>
+
+      <rect x="16" y="374" width="1088" height="120" rx="8" fill="var(--record)" opacity=".05"/>
+      <rect x="16" y="374" width="1088" height="120" rx="8" fill="none" stroke="var(--line)"/>
+      <text x="30" y="396" class="t-zone" fill="var(--record)">Systems of record</text>
+    </g>
+
+    <!-- channels -->
+    <g>
+      <circle cx="128" cy="88" r="17" fill="none" stroke="var(--public)" stroke-width="2.4"/>
+      <text x="128" y="93" text-anchor="middle" class="t-mono" fill="var(--public)">A</text>
+      <text x="128" y="124" text-anchor="middle" class="t-sub" fill="var(--ink-2)">Portal</text>
+      <text x="128" y="140" text-anchor="middle" class="t-mono" fill="var(--ink-3)">channel: Portal</text>
+
+      <circle cx="128" cy="228" r="17" fill="none" stroke="var(--internal)" stroke-width="2.4"/>
+      <text x="128" y="233" text-anchor="middle" class="t-mono" fill="var(--internal)">B</text>
+      <text x="128" y="264" text-anchor="middle" class="t-sub" fill="var(--ink-2)">Email</text>
+      <text x="128" y="280" text-anchor="middle" class="t-mono" fill="var(--ink-3)">channel: Email</text>
+
+      <circle cx="128" cy="312" r="17" fill="none" stroke="var(--accent)" stroke-width="2.4"/>
+      <text x="128" y="317" text-anchor="middle" class="t-mono" fill="var(--accent)">C</text>
+      <text x="128" y="344" text-anchor="middle" class="t-sub" fill="var(--ink-2)">Counter scan</text>
+      <text x="128" y="360" text-anchor="middle" class="t-mono" fill="var(--ink-3)">channel: Registry</text>
+
+      <circle cx="238" cy="228" r="17" fill="none" stroke="var(--internal)" stroke-width="2.4"/>
+      <text x="238" y="233" text-anchor="middle" class="t-mono" fill="var(--internal)">D</text>
+      <text x="238" y="264" text-anchor="middle" class="t-sub" fill="var(--ink-2)">Internal</text>
+      <text x="238" y="280" text-anchor="middle" class="t-mono" fill="var(--ink-3)">channel: Document</text>
+    </g>
+
+    <!-- merge -->
+    <g>
+      <rect x="318" y="196" width="150" height="72" rx="9" fill="var(--card)" stroke="var(--internal)" stroke-width="2"/>
+      <text x="393" y="222" text-anchor="middle" class="t-node" fill="var(--ink)">One record</text>
+      <text x="393" y="241" text-anchor="middle" class="t-sub" fill="var(--ink-2)">correspondence</text>
+      <text x="393" y="258" text-anchor="middle" class="t-mono" fill="var(--accent)">server-minted ref</text>
+    </g>
+
+    <!-- gateway -->
+    <g>
+      <path d="M556 232 L596 200 L636 232 L596 264 Z" fill="var(--card)" stroke="var(--enforce)" stroke-width="2"/>
+      <text x="596" y="237" text-anchor="middle" class="t-mono" fill="var(--enforce)">×</text>
+      <text x="596" y="182" text-anchor="middle" class="t-cap" fill="var(--ink-2)">category → directorate</text>
+      <text x="596" y="286" text-anchor="middle" class="t-sub" fill="var(--ink-3)">unmatched → Registry</text>
+      <text x="596" y="301" text-anchor="middle" class="t-sub" fill="var(--ink-3)">(named default, F-032)</text>
+    </g>
+
+    <!-- lifecycle -->
+    <g>
+      <rect x="686" y="196" width="118" height="56" rx="8" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="745" y="220" text-anchor="middle" class="t-node" fill="var(--ink)">Assign</text>
+      <text x="745" y="238" text-anchor="middle" class="t-mono" fill="var(--ink-2)">operations</text>
+
+      <rect x="824" y="196" width="118" height="56" rx="8" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="883" y="220" text-anchor="middle" class="t-node" fill="var(--ink)">Treat</text>
+      <text x="883" y="238" text-anchor="middle" class="t-mono" fill="var(--ink-2)">approvals</text>
+
+      <rect x="962" y="196" width="118" height="56" rx="8" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
+      <text x="1021" y="220" text-anchor="middle" class="t-node" fill="var(--ink)">Dispatch</text>
+      <text x="1021" y="238" text-anchor="middle" class="t-mono" fill="var(--ink-2)">dispatch</text>
+
+      <rect x="962" y="300" width="118" height="50" rx="8" fill="var(--card)" stroke="var(--internal)" stroke-width="1.8"/>
+      <text x="1021" y="322" text-anchor="middle" class="t-node" fill="var(--ink)">Archive</text>
+      <text x="1021" y="339" text-anchor="middle" class="t-mono" fill="var(--ink-2)">closure</text>
+    </g>
+
+    <!-- record stores -->
+    <g>
+      <rect x="318" y="410" width="180" height="56" rx="8" fill="var(--card)" stroke="var(--record)" stroke-width="1.4"/>
+      <text x="408" y="434" text-anchor="middle" class="t-node" fill="var(--ink)">SharePoint library</text>
+      <text x="408" y="452" text-anchor="middle" class="t-sub" fill="var(--ink-2)">the bytes + attachmentLink</text>
+
+      <rect x="686" y="410" width="394" height="56" rx="8" fill="var(--card)" stroke="var(--record)" stroke-width="1.4"/>
+      <text x="883" y="434" text-anchor="middle" class="t-node" fill="var(--ink)">Registry file · custody chain · minutes · audit</text>
+      <text x="883" y="452" text-anchor="middle" class="t-sub" fill="var(--ink-2)">registryFiles · fileMovements · registryMinutes · audit</text>
+    </g>
+
+    <!-- flow -->
+    <g stroke="var(--ink-3)" stroke-width="1.6" fill="none" marker-end="url(#ar4)">
+      <path d="M145 92 C240 96 250 180 318 210"/>
+      <path d="M145 228 L318 228"/>
+      <path d="M145 316 C240 312 250 270 318 252"/>
+      <path d="M255 228 L318 228"/>
+      <path d="M468 232 L556 232"/>
+      <path d="M636 232 L686 224"/>
+      <path d="M804 224 L824 224"/>
+      <path d="M942 224 L962 224"/>
+      <path d="M1021 252 L1021 300"/>
+      <path d="M393 268 L393 410" stroke-dasharray="5 4"/>
+      <path d="M883 350 C883 380 883 390 883 410" stroke-dasharray="5 4"/>
+    </g>
+    <text x="230" y="150" class="t-edge" fill="var(--ink-3)">proxy /intake</text>
+    <text x="228" y="336" class="t-edge" fill="var(--ink-3)">proxy /documents/scan</text>
+    <text x="404" y="350" class="t-edge" fill="var(--ink-3)">bytes</text>
+    <text x="892" y="386" class="t-edge" fill="var(--ink-3)">metadata + link</text>
+
+    <!-- end event -->
+    <circle cx="1021" cy="518" r="15" fill="none" stroke="var(--internal)" stroke-width="3.5"/>
+    <path d="M1021 350 L1021 503" stroke="var(--ink-3)" stroke-width="1.6" fill="none" marker-end="url(#ar4)"/>
+    <text x="1021" y="546" text-anchor="middle" class="t-sub" fill="var(--ink-3)">closed</text>
+  </svg>
+  </div>
+  <div class="key">
+    <span><i style="border:2px solid var(--public);background:transparent;border-radius:50%"></i>Start event — channel of arrival</span>
+    <span><i style="background:var(--enforce);transform:rotate(45deg)"></i>Exclusive gateway — the one real decision</span>
+    <span><i style="background:var(--card);border:1px solid var(--line)"></i>Activity</span>
+    <span><i style="border:3px solid var(--internal);background:transparent;border-radius:50%"></i>End event</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SHEET 5 ══ -->
+<section class="sheet" id="s5">
+  <div class="sh-head"><span class="sh-no">SHEET 5</span><h2>Component inventory</h2></div>
+  <p class="note">
+    Every deployable component, what it holds, and what it must never hold. The last column is the one
+    worth reading twice — most of this architecture is a statement about where credentials are not.
+  </p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Zone</th><th>Component</th><th>Contents</th><th>Holds a credential?</th></tr></thead>
+    <tbody>
+      <tr><td>Public</td><td><code>document-portal/</code></td><td>5 pages, service worker, offline outbox, design system</td><td><strong>No</strong> — step 5 removed all three signed URLs</td></tr>
+      <tr><td>Enforcement</td><td><code>proxy/src/</code></td><td>handler, jwt, authorize, intake, upload, config, server</td><td><strong>Yes — the only one.</strong> 19 contract keys, server-side environment</td></tr>
+      <tr><td>Internal</td><td><code>config/</code></td><td>32 declaration files — routes, RBAC, boundaries, categories, endpoints</td><td>No</td></tr>
+      <tr><td>Internal</td><td><code>core/</code></td><td>60 files — state, auth, router, governance, domain services</td><td>No</td></tr>
+      <tr><td>Internal</td><td><code>shared/</code></td><td>8 files — app shell, relationship runtime, components</td><td>No</td></tr>
+      <tr><td>Internal</td><td><code>modules/</code></td><td>29 workspaces, one per route</td><td>No</td></tr>
+      <tr><td>Record</td><td>SharePoint</td><td>Lists + document library — the bytes</td><td>Reachable from the proxy only</td></tr>
+      <tr><td>Record</td><td>Power Automate</td><td>25 dev/pilot workflows, to be decommissioned at cutover</td><td>Reachable from the proxy only</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="note" style="margin-top:22px">
+    <strong>Retired, and why it is on this sheet:</strong> an inventory that lists only what exists cannot
+    tell you what was considered and rejected. Three trees were removed —
+    <code>newack/</code> (orphaned, held a credential),
+    <code>document-portal_Central_NITDA_/</code> (a byte-identical copy, 41/41 blob hashes),
+    and <code>ECM_ActivityHub_Portal/</code> (a second internal application; 15 of its 19 pages duplicated
+    root routes, and its three unique capabilities are now <code>briefs</code>, <code>meetings</code> and
+    <code>projects</code>).
+  </p>
+</section>
+
+<footer>
+  Generated against the code by <code>scripts/architecture-data.mjs</code>; every count here is asserted
+  by <code>tests/architecture.test.mjs</code>. Companion documents:
+  <code>TARGET_ARCHITECTURE.md</code> (design intent and open decisions),
+  <code>CONSOLIDATION_ANALYSIS.md</code> (why there is one internal application),
+  <code>ROTATION_REGISTER.md</code> (cutover decommission checklist).
+</footer>
+
+</div>
+</body>
+</html>
