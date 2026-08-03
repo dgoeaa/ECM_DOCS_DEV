@@ -65,7 +65,7 @@
         "lines": "4"
       }
     ],
-    "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement.",
+    "impact": "Unlike F-012 this is not a configuration state: activating authentication cannot route these two trees through the proxy because no code path exists, leaving the two trees that hold live credentials permanently outside enforcement. newack has since been retired, leaving document-portal as the sole tree with no proxy path.",
     "remediation": "Add proxy-aware endpoint resolution to both trees, or retire them."
   },
   {
@@ -153,7 +153,8 @@
       }
     ],
     "impact": "The upload UI accepts 5 files at 10 MB each and 50 MB total, but dispatchToWorkflow sends only files[0] and substitutes an empty FileContentBase64 when that file exceeds 4 MB, so a submitter is told their documents were received when 4 of 5 were discarded or all content was dropped.",
-    "remediation": "Send every attachment via brokered SharePoint uploads rather than base64 inside a JSON workflow payload."
+    "remediation": "Send every attachment via brokered SharePoint uploads rather than base64 inside a JSON workflow payload.",
+    "outcome": "fixed"
   },
   {
     "id": "F-002",
@@ -220,8 +221,9 @@
         "lines": "2"
       }
     ],
-    "impact": "791 lines across three HTML pages holding a live-shaped credential, with no owner, no tests and no consumer.",
-    "remediation": "Retire the tree, or give it an owner, tests and a proxy-aware endpoint path."
+    "impact": "791 lines across three HTML pages holding a live-shaped credential, with no owner, no tests and no consumer. RETIRED at 9deda9e+: the tree is deleted; its workflow GUID 02a3a70f is row 24 of ROTATION_REGISTER.md and still requires rotation.",
+    "remediation": "Retire the tree, or give it an owner, tests and a proxy-aware endpoint path.",
+    "outcome": "fixed"
   },
   {
     "id": "F-010",

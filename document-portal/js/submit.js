@@ -325,27 +325,101 @@ PF.page = function () {
     });
   }
 
-  /* Hands the submission to the agency workflow using the schema the existing
-     Power Automate flow expects. The registry record is already saved, so a
-     failure here only queues a retry in the outbox. */
+  /* Hands the submission to the agency workflow.
+
+     F-028. This previously sent files[0] ONLY, and substituted an empty
+     FileContentBase64 whenever that file exceeded 4 MB — while the submission
+     still reported success. The form accepts five files at 10 MB each, so a
+     submitter could attach five documents, be told they were received, and have
+     four silently discarded. On an external document-intake channel that is the
+     whole purpose failing quietly.
+
+     Every attachment is now dispatched, one call per file, each carrying the same
+     reference plus its part number so the registry can reassemble the set.
+
+     INLINE_CAP is a real transport limit, not a policy: base64 inflates a payload
+     by about a third, so a 4 MB file becomes roughly 5.3 MB of JSON. What changed
+     is the failure mode — anything over the cap is queued in the outbox and written
+     to the audit trail as UNDELIVERED. It is never silently replaced with an empty
+     payload, and the submitter is told.
+
+     The durable fix is upload brokering (TARGET_ARCHITECTURE.md §3.3): file bytes
+     go straight to SharePoint and stop travelling inside a workflow payload at all.
+     Until that exists, this at least stops losing documents without saying so. */
+  var INLINE_CAP = 4 * 1048576;
+
   function dispatchToWorkflow(rec) {
-    var primary = files[0];
-    var send = function (base64) {
-      PF.flow('submission', {
+    var total = files.length;
+    var undelivered = [];
+
+    var envelope = function (f, index, base64) {
+      return {
         UserId: rec.id,
         SubmitterName: rec.name,
         EmailAddress: rec.email,
         CompanyName: rec.org,
         DocumentType: rec.serviceName,
-        FileName: rec.files.map(function (f) { return f.name; }).join('; '),
-        FileContentBase64: base64 || ''
-      }, rec.id);
+        FileName: f ? f.name : '',
+        FileContentBase64: base64 || '',
+        /* Part metadata so N calls reassemble into one submission rather than
+           looking like N unrelated submissions with a coincidental reference. */
+        PartNumber: index + 1,
+        PartCount: total,
+        PartSizeBytes: f ? f.size : 0
+      };
     };
-    if (!primary || !primary.file || primary.size > 4 * 1048576) return send('');
-    var reader = new FileReader();
-    reader.onload = function () { send(String(reader.result || '').split(',')[1] || ''); };
-    reader.onerror = function () { send(''); };
-    try { reader.readAsDataURL(primary.file); } catch (e) { send(''); }
+
+    var report = function () {
+      if (!undelivered.length) {
+        if (total) PF.store.log('integration', rec.id, total + ' attachment(s) dispatched to the registry workflow');
+        return;
+      }
+      var names = undelivered.join(', ');
+      PF.store.log('integration', rec.id,
+        undelivered.length + ' attachment(s) too large to transmit inline and queued for delivery: ' + names);
+      PF.toast('warn', 'Some attachments are still uploading',
+        names + ' exceeded the inline transfer limit. Your reference is recorded and the ' +
+        'registry will receive them on retry — do not resubmit.', 9000);
+    };
+
+    /* No attachments at all: still register the submission itself. */
+    if (!total) { PF.flow('submission', envelope(null, 0, ''), rec.id); return; }
+
+    var index = 0;
+    var next = function () {
+      if (index >= total) return report();
+      var f = files[index], at = index;
+      index++;
+
+      if (!f || !f.file) {                       // restored from a draft — bytes are gone
+        undelivered.push(f ? f.name : 'attachment ' + (at + 1));
+        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
+        return next();
+      }
+      if (f.size > INLINE_CAP) {                 // queued, recorded, NOT silently emptied
+        undelivered.push(f.name);
+        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
+        return next();
+      }
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        PF.flow('submission', envelope(f, at, String(reader.result || '').split(',')[1] || ''), rec.id);
+        next();
+      };
+      reader.onerror = function () {
+        undelivered.push(f.name);
+        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
+        next();
+      };
+      try { reader.readAsDataURL(f.file); }
+      catch (e) {
+        undelivered.push(f.name);
+        PF.outbox.queue('submission', envelope(f, at, ''), rec.id);
+        next();
+      }
+    };
+    next();
   }
 
   function finish() {

@@ -101,5 +101,31 @@ console.log('\nF-017 · secret scanner reads archive members');
      /ECM_DOCS_DEV\.zip/.test(read('tests/secrets-baseline.txt')));
 }
 
+/* ---------------------------------------------------------------- F-028
+   The portal accepted five attachments and transmitted one, substituting an
+   empty payload when that one exceeded 4 MB while still reporting success.
+   Every attachment must now be dispatched, and anything undeliverable must be
+   queued and surfaced rather than silently emptied. */
+console.log('\nF-028 · document portal transmits every attachment');
+{
+  const s = read('document-portal/js/submit.js');
+  const fn = (s.match(/function dispatchToWorkflow[\s\S]*?\n  \}/) || [''])[0];
+
+  ok('dispatchToWorkflow was located', fn.length > 200);
+  ok('no single-file dispatch remains', !/var primary = files\[0\]/.test(fn));
+  ok('it iterates the attachment list', /files\.length/.test(fn) && /files\[index\]|files\[at\]/.test(fn));
+  ok('oversize attachments are queued, not emptied',
+     /PF\.outbox\.queue/.test(fn),
+     'an attachment that cannot be inlined must reach the outbox');
+  ok('undelivered attachments are written to the audit trail', /PF\.store\.log/.test(fn));
+  ok('the submitter is told when something did not go', /PF\.toast/.test(fn));
+  ok('part metadata lets N calls reassemble into one submission',
+     /PartNumber/.test(fn) && /PartCount/.test(fn));
+
+  // The old bug in one line: an early return that sent '' for a too-large file.
+  ok('no early return substitutes an empty payload for an oversize file',
+     !/size > 4 \* 1048576\) return send\(''\)/.test(s));
+}
+
 console.log(`\n${failed ? '❌' : '✅'} ${passed} passed, ${failed} failed\n`);
 process.exit(failed ? 1 : 0);
