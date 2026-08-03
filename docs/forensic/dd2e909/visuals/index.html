@@ -1,0 +1,569 @@
+<title>DGO Forensic Audit — Schematic Set</title>
+<style>
+  :root{
+    --ground:#F1F4F2; --sheet:#FFFFFF; --ink:#111C17; --ink-2:#4C5D55; --ink-3:#7C8D85;
+    --rule:#D3DCD7; --rule-2:#E6EBE8;
+    --brand:#05583B; --accent:#17B255; --crit:#C8102E; --warn:#9A6A08; --cool:#3E6B86;
+    --crit-wash:#FBEAED; --warn-wash:#FBF3E2; --ok-wash:#E9F6EE; --cool-wash:#EAF1F5;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+    --sans:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif;
+    --sheet-shadow:0 1px 2px rgba(17,28,23,.06),0 12px 32px -18px rgba(17,28,23,.28);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0C1114; --sheet:#141C20; --ink:#E6EEEA; --ink-2:#9FB2AA; --ink-3:#6E827A;
+      --rule:#26333A; --rule-2:#1D272C;
+      --brand:#17B255; --accent:#3BD97A; --crit:#FF6076; --warn:#D9A63C; --cool:#7FB3D0;
+      --crit-wash:#2C1218; --warn-wash:#2A2210; --ok-wash:#0F2A1C; --cool-wash:#12222B;
+      --sheet-shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -20px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0C1114; --sheet:#141C20; --ink:#E6EEEA; --ink-2:#9FB2AA; --ink-3:#6E827A;
+    --rule:#26333A; --rule-2:#1D272C;
+    --brand:#17B255; --accent:#3BD97A; --crit:#FF6076; --warn:#D9A63C; --cool:#7FB3D0;
+    --crit-wash:#2C1218; --warn-wash:#2A2210; --ok-wash:#0F2A1C; --cool-wash:#12222B;
+    --sheet-shadow:0 1px 2px rgba(0,0,0,.5),0 14px 36px -20px rgba(0,0,0,.8);
+  }
+  :root[data-theme="light"]{
+    --ground:#F1F4F2; --sheet:#FFFFFF; --ink:#111C17; --ink-2:#4C5D55; --ink-3:#7C8D85;
+    --rule:#D3DCD7; --rule-2:#E6EBE8;
+    --brand:#05583B; --accent:#17B255; --crit:#C8102E; --warn:#9A6A08; --cool:#3E6B86;
+    --crit-wash:#FBEAED; --warn-wash:#FBF3E2; --ok-wash:#E9F6EE; --cool-wash:#EAF1F5;
+    --sheet-shadow:0 1px 2px rgba(17,28,23,.06),0 12px 32px -18px rgba(17,28,23,.28);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+       line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:44px 22px 90px;display:flex;flex-direction:column;gap:34px}
+
+  header.masthead{border-bottom:2px solid var(--ink);padding-bottom:18px;
+       display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+  h1{margin:6px 0 0;font-size:clamp(23px,3.4vw,34px);line-height:1.12;letter-spacing:-.02em;text-wrap:balance;font-weight:650}
+  .stamp{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);text-align:right;line-height:1.7}
+  .stamp b{color:var(--ink);font-weight:600}
+
+  figure.sheet{margin:0;background:var(--sheet);border:1px solid var(--rule);border-radius:3px;
+       box-shadow:var(--sheet-shadow);overflow:hidden}
+  .sheet-head{padding:16px 20px 14px;border-bottom:1px solid var(--rule);
+       display:flex;flex-wrap:wrap;gap:10px 20px;align-items:baseline;justify-content:space-between}
+  .sheet-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+  .sheet-head h2{margin:3px 0 0;font-size:18px;letter-spacing:-.012em;font-weight:620;text-wrap:balance}
+  .thesis{margin:7px 0 0;font-size:13.6px;color:var(--ink-2);max-width:66ch}
+  .thesis b{color:var(--ink);font-weight:600}
+  .canvas{padding:16px 14px;overflow-x:auto}
+  .canvas svg{display:block;width:100%;min-width:760px;height:auto}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px 22px;padding:12px 20px 16px;border-top:1px solid var(--rule-2);
+       font-family:var(--mono);font-size:11px;color:var(--ink-2)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .key{width:22px;height:0;border-top-width:2.5px;border-top-style:solid;flex:none}
+  .swatch{width:11px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(128,128,128,.35)}
+
+  .notes{display:grid;gap:9px;padding:0 20px 18px}
+  .note{display:grid;grid-template-columns:4px auto 1fr;gap:0 12px;align-items:start;
+        background:var(--rule-2);border-radius:3px;overflow:hidden}
+  .note>i{background:var(--ink-3)}
+  .note.c>i{background:var(--crit)} .note.w>i{background:var(--warn)} .note.o>i{background:var(--accent)}
+  .note code.id{font-family:var(--mono);font-size:11px;font-weight:700;padding:9px 0 9px 0;color:var(--ink);white-space:nowrap}
+  .note p{margin:0;padding:9px 14px 9px 0;font-size:12.9px;color:var(--ink-2)}
+  .note p b{color:var(--ink);font-weight:600}
+  .note p code{font-family:var(--mono);font-size:11.6px;color:var(--ink);
+        background:var(--sheet);padding:1px 4px;border-radius:2px;border:1px solid var(--rule)}
+
+  /* SVG typography */
+  .t-lane{font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:700}
+  .t-node{font-family:var(--sans);font-size:12.5px;font-weight:600}
+  .t-sub{font-family:var(--mono);font-size:10.5px}
+  .t-flow{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.05em}
+  .t-note{font-family:var(--sans);font-size:11.5px;font-style:italic}
+  .t-big{font-family:var(--sans);font-size:20px;font-weight:700}
+  .t-num{font-family:var(--mono);font-size:15px;font-weight:700}
+  .fill-ink{fill:var(--ink)} .fill-2{fill:var(--ink-2)} .fill-3{fill:var(--ink-3)}
+  .fill-crit{fill:var(--crit)} .fill-warn{fill:var(--warn)} .fill-acc{fill:var(--accent)}
+  .fill-sheet{fill:var(--sheet)} .fill-inv{fill:var(--ground)}
+  .lane{fill:none;stroke:var(--rule);stroke-width:1}
+  .laneband{fill:var(--rule-2)}
+  .node{fill:var(--sheet);stroke:var(--ink-2);stroke-width:1.4;rx:4}
+  .node-crit{fill:var(--crit-wash);stroke:var(--crit);stroke-width:1.8}
+  .node-ok{fill:var(--ok-wash);stroke:var(--accent);stroke-width:1.6}
+  .node-dim{fill:none;stroke:var(--ink-3);stroke-width:1.2;stroke-dasharray:5 4}
+  .flow{fill:none;stroke:var(--ink-2);stroke-width:1.6;marker-end:url(#ar)}
+  .flow-dim{fill:none;stroke:var(--ink-3);stroke-width:1.4;stroke-dasharray:6 5;marker-end:url(#ar-dim)}
+  .flow-crit{fill:none;stroke:var(--crit);stroke-width:3.2;marker-end:url(#ar-crit)}
+  .flow-msg{fill:none;stroke:var(--cool);stroke-width:1.5;stroke-dasharray:7 4;marker-end:url(#ar-cool)}
+  footer{font-family:var(--mono);font-size:11px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:16px}
+  footer a{color:var(--ink-2)}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div>
+    <div class="eyebrow">Forensic current-state audit · schematic set</div>
+    <h1>DGO Digital Operations — how the platform actually behaves</h1>
+  </div>
+  <div class="stamp">
+    REPO &nbsp;<b>dgoeaa/ECM_DOCS_DEV</b><br>
+    BRANCH <b>claude/quirky-babbage-1nomt5</b><br>
+    SHA &nbsp;&nbsp;<b>dd2e909</b> · tree clean<br>
+    SHEETS <b>4</b> · FINDINGS <b>28</b>
+  </div>
+</header>
+
+<!-- ══════════════════════ SHEET 01 — BPMN ══════════════════════ -->
+<figure class="sheet">
+  <div class="sheet-head">
+    <div>
+      <div class="sheet-no">Sheet 01 · BPMN 2.0 collaboration diagram</div>
+      <h2>Governed write request — designed path against actual path</h2>
+      <p class="thesis">The authenticating proxy is correctly built and <b>never entered</b>. One gateway decides,
+        and it is <b>false by default</b>, so every governed write leaves the browser straight for Power Automate.</p>
+    </div>
+  </div>
+
+  <div class="canvas">
+  <svg viewBox="0 0 1320 664" role="img" aria-label="BPMN swimlane diagram of a governed write request">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-2)"/></marker>
+      <marker id="ar-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/></marker>
+      <marker id="ar-crit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--crit)"/></marker>
+      <marker id="ar-cool" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--cool)"/></marker>
+    </defs>
+
+    <!-- pools / lanes -->
+    <g>
+      <rect class="lane" x="10" y="34"  width="1300" height="118"/>
+      <rect class="laneband" x="10.5" y="34.5" width="132" height="117"/>
+      <text class="t-lane fill-ink" transform="translate(38,93) rotate(-90)" text-anchor="middle">Operator</text>
+      <text class="t-sub fill-3" transform="translate(56,93) rotate(-90)" text-anchor="middle">browser · human</text>
+
+      <rect class="lane" x="10" y="152" width="1300" height="176"/>
+      <rect class="laneband" x="10.5" y="152.5" width="132" height="175"/>
+      <text class="t-lane fill-ink" transform="translate(38,240) rotate(-90)" text-anchor="middle">DGO R11.6 runtime</text>
+      <text class="t-sub fill-3" transform="translate(56,240) rotate(-90)" text-anchor="middle">core/ · modules/</text>
+
+      <rect class="lane" x="10" y="328" width="1300" height="164"/>
+      <rect class="laneband" x="10.5" y="328.5" width="132" height="163"/>
+      <text class="t-lane fill-ink" transform="translate(38,410) rotate(-90)" text-anchor="middle">Auth proxy</text>
+      <text class="t-sub fill-3" transform="translate(56,410) rotate(-90)" text-anchor="middle">proxy/src · server</text>
+
+      <rect class="lane" x="10" y="492" width="1300" height="120"/>
+      <rect class="laneband" x="10.5" y="492.5" width="132" height="119"/>
+      <text class="t-lane fill-ink" transform="translate(38,552) rotate(-90)" text-anchor="middle">Power Automate</text>
+      <text class="t-sub fill-3" transform="translate(56,552) rotate(-90)" text-anchor="middle">HTTP trigger</text>
+    </g>
+
+    <!-- lane 3 "not entered" wash -->
+    <rect x="143" y="328.5" width="1166" height="163" fill="var(--ink-3)" opacity=".07"/>
+    <text class="t-flow fill-3" x="1288" y="350" text-anchor="end">LANE NEVER ENTERED AS CONFIGURED</text>
+
+    <!-- L1 -->
+    <circle cx="196" cy="93" r="17" fill="var(--sheet)" stroke="var(--ink-2)" stroke-width="1.8"/>
+    <text class="t-sub fill-2" x="196" y="132" text-anchor="middle">start</text>
+    <rect class="node" x="252" y="65" width="172" height="56"/>
+    <text class="t-node fill-ink" x="338" y="88" text-anchor="middle">Submit assignment</text>
+    <text class="t-sub fill-2" x="338" y="105" text-anchor="middle">modules/single-assignment</text>
+
+    <!-- L2 -->
+    <rect class="node" x="252" y="212" width="176" height="58"/>
+    <text class="t-node fill-ink" x="340" y="235" text-anchor="middle">confirmAction()</text>
+    <text class="t-sub fill-warn" x="340" y="252" text-anchor="middle">visual only · not a control</text>
+
+    <rect class="node node-ok" x="476" y="212" width="196" height="58"/>
+    <text class="t-node fill-ink" x="574" y="235" text-anchor="middle">executeOwnedAction()</text>
+    <text class="t-sub fill-2" x="574" y="252" text-anchor="middle">throws · client-side check</text>
+
+    <!-- gateway -->
+    <g>
+      <path d="M796,204 L850,241 L796,278 L742,241 Z" fill="var(--warn-wash)" stroke="var(--warn)" stroke-width="1.8"/>
+      <path d="M782,227 L810,255 M810,227 L782,255" stroke="var(--warn)" stroke-width="2.1" fill="none"/>
+    </g>
+    <text class="t-sub fill-ink" x="796" y="177" text-anchor="middle">isAuthEnforced() &amp;&amp; proxyBaseUrl ?</text>
+    <text class="t-sub fill-crit" x="796" y="192" text-anchor="middle">config/auth.config.js:28 → default FALSE</text>
+
+    <!-- L3 (dimmed, designed path) -->
+    <rect class="node node-dim" x="700" y="382" width="196" height="58"/>
+    <text class="t-node fill-3" x="798" y="405" text-anchor="middle">verifyToken()</text>
+    <text class="t-sub fill-3" x="798" y="422" text-anchor="middle">sig · iss · aud · exp · nbf</text>
+
+    <rect class="node node-dim" x="944" y="382" width="186" height="58"/>
+    <text class="t-node fill-3" x="1037" y="405" text-anchor="middle">authorize(role, key)</text>
+    <text class="t-sub fill-3" x="1037" y="422" text-anchor="middle">fails closed · 403</text>
+
+    <!-- L4 -->
+    <rect class="node node-crit" x="1010" y="524" width="200" height="58"/>
+    <text class="t-node fill-ink" x="1110" y="547" text-anchor="middle">Flow executes</text>
+    <text class="t-sub fill-crit" x="1110" y="564" text-anchor="middle">SAS URL = bearer credential</text>
+    <circle cx="1268" cy="553" r="19" fill="var(--sheet)" stroke="var(--crit)" stroke-width="3.4"/>
+
+    <!-- flows -->
+    <path class="flow" d="M213,93 L246,93"/>
+    <path class="flow" d="M424,93 L452,93 L452,241 L246,241"/>
+    <path class="flow" d="M428,241 L470,241"/>
+    <path class="flow" d="M672,241 L736,241"/>
+
+    <!-- designed (true) branch -->
+    <path class="flow-dim" d="M796,278 L796,376"/>
+    <text class="t-flow fill-3" x="808" y="316">true — never taken</text>
+    <path class="flow-dim" d="M896,411 L938,411"/>
+    <path class="flow-dim" d="M1130,411 L1160,411 L1160,470 L1110,470 L1110,518"/>
+
+    <!-- ACTUAL bypass branch -->
+    <path class="flow-crit" d="M850,241 L900,241 L900,148 L1252,148 L1252,300 L1060,300 L1060,518"/>
+    <text class="t-flow fill-crit" x="1244" y="139" text-anchor="end">FALSE — DEFAULT · ACTUAL PATH · F-012</text>
+    <text class="t-sub fill-crit" x="1070" y="330">signed URL direct · no token · no proxy</text>
+    <path class="flow" d="M1210,553 L1247,553"/>
+
+    <!-- direct-writing satellites -->
+    <rect class="node node-crit" x="176" y="524" width="192" height="58"/>
+    <text class="t-node fill-ink" x="272" y="547" text-anchor="middle">document-portal · newack</text>
+    <text class="t-sub fill-crit" x="272" y="564" text-anchor="middle">4 signed URLs · no proxy code path</text>
+    <path class="flow-crit" d="M368,553 L1004,553"/>
+    <text class="t-flow fill-crit" x="686" y="543" text-anchor="middle">F-013 — CANNOT ROUTE THROUGH THE PROXY EVEN IF ENABLED</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="key" style="border-color:var(--ink-2)"></i>sequence flow</span>
+    <span><i class="key" style="border-color:var(--ink-3);border-top-style:dashed"></i>designed, never executed</span>
+    <span><i class="key" style="border-color:var(--crit);border-top-width:3.5px"></i>actual path (default config)</span>
+    <span><i class="swatch" style="background:var(--ok-wash);border-color:var(--accent)"></i>control that runs</span>
+    <span><i class="swatch" style="background:var(--warn-wash);border-color:var(--warn)"></i>exclusive gateway</span>
+    <span><i class="swatch" style="background:var(--crit-wash);border-color:var(--crit)"></i>unprotected</span>
+  </div>
+
+  <div class="notes">
+    <div class="note c"><i></i><code class="id">F-012</code>
+      <p><b>The proxy is not in the request path.</b> <code>core/data-client.js:21-27</code> routes through it only when
+        <code>isAuthEnforced() &amp;&amp; proxyBaseUrl</code>. <code>config/auth.config.js:28</code> defaults
+        <code>enabled</code> to <code>false</code>, so <b>0 of 4 client trees traverse it</b> as shipped.</p></div>
+    <div class="note c"><i></i><code class="id">F-013</code>
+      <p><b>Two trees cannot ever traverse it.</b> <code>grep -rn "proxy" document-portal/js newack</code> returns
+        nothing — activating authentication cannot route them, because no code path exists.</p></div>
+    <div class="note o"><i></i><code class="id">verified</code>
+      <p>The proxy itself is <b>correct</b>: no <code>HS*</code> or <code>none</code> in its algorithm allow-list,
+        key-type agreement enforced, 401 before 403 before forwarding, 66 assertions passing.</p></div>
+  </div>
+</figure>
+
+<!-- ══════════════════════ SHEET 02 — RELATIONSHIPS ══════════════════════ -->
+<figure class="sheet">
+  <div class="sheet-head">
+    <div>
+      <div class="sheet-no">Sheet 02 · component relationship map</div>
+      <h2>Five application trees — what actually references what</h2>
+      <p class="thesis">The root runtime references <b>none</b> of the three satellites. What keeps them in the
+        repository is the test harness — and for one tree, a single line in a credential suppression list.</p>
+    </div>
+  </div>
+
+  <div class="canvas">
+  <svg viewBox="0 0 1220 560" role="img" aria-label="Relationship map of the five application trees">
+    <rect x="14" y="30" width="384" height="286" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.4"/>
+    <text class="t-lane fill-acc" x="30" y="52">Root platform · in the module graph</text>
+
+    <rect class="node node-ok" x="42" y="70" width="150" height="62"/>
+    <text class="t-node fill-ink" x="117" y="94" text-anchor="middle">index.html</text>
+    <text class="t-sub fill-2" x="117" y="111" text-anchor="middle">61 lines · 4 loads</text>
+
+    <rect class="node node-ok" x="228" y="70" width="150" height="62"/>
+    <text class="t-node fill-ink" x="303" y="94" text-anchor="middle">core/ · 57</text>
+    <text class="t-sub fill-2" x="303" y="111" text-anchor="middle">boot · router · auth</text>
+
+    <rect class="node node-ok" x="42" y="160" width="150" height="62"/>
+    <text class="t-node fill-ink" x="117" y="184" text-anchor="middle">config/ · 31</text>
+    <text class="t-sub fill-2" x="117" y="201" text-anchor="middle">0 orphans</text>
+
+    <rect class="node node-ok" x="228" y="160" width="150" height="62"/>
+    <text class="t-node fill-ink" x="303" y="184" text-anchor="middle">modules/ · 25</text>
+    <text class="t-sub fill-2" x="303" y="201" text-anchor="middle">25 lazy routes</text>
+
+    <rect class="node node-ok" x="135" y="248" width="150" height="52"/>
+    <text class="t-node fill-ink" x="210" y="269" text-anchor="middle">styles/ · shared/</text>
+    <text class="t-sub fill-2" x="210" y="286" text-anchor="middle">168 modules · 0 broken</text>
+
+    <path class="flow" d="M192,101 L222,101"/>
+    <path class="flow" d="M117,132 L117,154"/>
+    <path class="flow" d="M303,132 L303,154"/>
+    <path class="flow" d="M192,191 L222,191"/>
+    <path class="flow" d="M210,222 L210,242"/>
+
+    <!-- satellites -->
+    <text class="t-lane fill-3" x="452" y="52">Satellite trees · zero references from root runtime</text>
+    <rect class="node" x="452" y="70" width="200" height="70"/>
+    <text class="t-node fill-ink" x="552" y="95" text-anchor="middle">ECM_ActivityHub_Portal</text>
+    <text class="t-sub fill-2" x="552" y="112" text-anchor="middle">53 files · own entry</text>
+    <text class="t-sub fill-crit" x="552" y="128" text-anchor="middle">HIGH · F-023 · F-024</text>
+
+    <rect class="node" x="452" y="164" width="200" height="70"/>
+    <text class="t-node fill-ink" x="552" y="189" text-anchor="middle">document-portal</text>
+    <text class="t-sub fill-2" x="552" y="206" text-anchor="middle">41 files · 5 pages · sw.js</text>
+    <text class="t-sub fill-crit" x="552" y="222" text-anchor="middle">HIGH · 3 signed URLs</text>
+
+    <rect class="node node-crit" x="452" y="258" width="200" height="70"/>
+    <text class="t-node fill-ink" x="552" y="283" text-anchor="middle">newack</text>
+    <text class="t-sub fill-2" x="552" y="300" text-anchor="middle">5 files · ORPHANED</text>
+    <text class="t-sub fill-crit" x="552" y="316" text-anchor="middle">HIGH · 1 signed URL</text>
+
+    <rect class="node node-ok" x="452" y="352" width="200" height="70"/>
+    <text class="t-node fill-ink" x="552" y="377" text-anchor="middle">proxy/</text>
+    <text class="t-sub fill-2" x="552" y="394" text-anchor="middle">7 files · server-side</text>
+    <text class="t-sub fill-acc" x="552" y="410" text-anchor="middle">LOW · 66 assertions pass</text>
+
+    <!-- the crossed non-edge -->
+    <path d="M398,180 L446,180" stroke="var(--ink-3)" stroke-width="1.4" stroke-dasharray="5 4" fill="none"/>
+    <g stroke="var(--crit)" stroke-width="2.6">
+      <path d="M414,170 L430,190"/><path d="M430,170 L414,190"/>
+    </g>
+    <text class="t-sub fill-crit" x="422" y="208" text-anchor="middle">no import</text>
+
+    <!-- harness -->
+    <text class="t-lane fill-3" x="712" y="52">Test / build harness</text>
+    <rect class="node" x="712" y="70" width="188" height="52"/>
+    <text class="t-node fill-ink" x="806" y="91" text-anchor="middle">check-imports.mjs</text>
+    <text class="t-sub fill-2" x="806" y="108" text-anchor="middle">2 HTML entry points</text>
+
+    <rect class="node" x="712" y="140" width="188" height="52"/>
+    <text class="t-node fill-ink" x="806" y="161" text-anchor="middle">smoke.spec.js</text>
+    <text class="t-sub fill-2" x="806" y="178" text-anchor="middle">7 tests · 7 navigations</text>
+
+    <rect class="node" x="712" y="210" width="188" height="52"/>
+    <text class="t-node fill-ink" x="806" y="231" text-anchor="middle">output-encoding</text>
+    <text class="t-sub fill-2" x="806" y="248" text-anchor="middle">reads source as text</text>
+
+    <rect class="node node-crit" x="712" y="280" width="188" height="52"/>
+    <text class="t-node fill-ink" x="806" y="301" text-anchor="middle">secrets-baseline.txt</text>
+    <text class="t-sub fill-crit" x="806" y="318" text-anchor="middle">suppression list</text>
+
+    <rect class="node" x="712" y="352" width="188" height="52"/>
+    <text class="t-node fill-ink" x="806" y="373" text-anchor="middle">setup-local.mjs</text>
+    <text class="t-sub fill-2" x="806" y="390" text-anchor="middle">writes config.local.js</text>
+
+    <path class="flow-msg" d="M900,96 L960,96 L960,105 L658,105"/>
+    <path class="flow-msg" d="M900,166 L946,166 L946,120 L658,120"/>
+    <path class="flow-msg" d="M900,166 L946,166 L946,190 L658,190"/>
+    <path class="flow-msg" d="M900,236 L932,236 L932,206 L658,206"/>
+    <path class="flow-crit" d="M900,306 L940,306 L940,292 L658,292"/>
+    <path class="flow-msg" d="M900,378 L930,378 L930,386 L658,386"/>
+
+    <text class="t-note fill-crit" x="960" y="450">newack’s only reference in the entire repository</text>
+    <text class="t-note fill-crit" x="960" y="468">is the line that tells the scanner to ignore it.</text>
+    <path class="flow-crit" d="M1046,436 L980,330"/>
+
+    <rect x="14" y="440" width="640" height="98" rx="4" fill="var(--rule-2)"/>
+    <text class="t-node fill-ink" x="34" y="468">Negative search — the evidence for every missing edge above</text>
+    <text class="t-sub fill-2" x="34" y="492">$ grep -rn "document-portal\ECM_ActivityHub_Portal\newack" \</text>
+    <text class="t-sub fill-2" x="34" y="510">&#160;&#160;&#160;&#160;index.html core modules shared config styles</text>
+    <text class="t-sub fill-crit" x="34" y="528">→ no output.  CONFIRMED-ABSENT.</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="key" style="border-color:var(--ink-2)"></i>module import</span>
+    <span><i class="key" style="border-color:var(--cool);border-top-style:dashed"></i>test / script reference only</span>
+    <span><i class="key" style="border-color:var(--crit);border-top-width:3.5px"></i>suppression entry</span>
+    <span><i class="swatch" style="background:var(--ok-wash);border-color:var(--accent)"></i>covered by the module graph</span>
+    <span><i class="swatch" style="background:var(--crit-wash);border-color:var(--crit)"></i>orphaned / unprotected</span>
+  </div>
+
+  <div class="notes">
+    <div class="note c"><i></i><code class="id">F-009</code>
+      <p><b><code>newack/</code> is orphaned.</b> 791 lines and three HTML pages whose sole repository reference is
+        <code>tests/secrets-baseline.txt:2</code>. Delete that line and nothing points at it.</p></div>
+    <div class="note w"><i></i><code class="id">F-010</code>
+      <p><code>document-portal/</code> ships a service worker, manifest, <code>robots.txt</code> and sitemap — the
+        artefacts of something meant to be hosted — with <b>no behavioural test at all</b>.</p></div>
+  </div>
+</figure>
+
+<!-- ══════════════════════ SHEET 03 — CREDENTIALS ══════════════════════ -->
+<figure class="sheet">
+  <div class="sheet-head">
+    <div>
+      <div class="sheet-no">Sheet 03 · credential exposure map</div>
+      <h2>31 signatures, and what each control can actually see</h2>
+      <p class="thesis">Rotation scope is <b>31</b>, not the 22 previously reported. The scanner skips binary files,
+        so the 16.4 MB archive it has never opened holds <b>nine signatures found nowhere else</b>.</p>
+    </div>
+  </div>
+
+  <div class="canvas">
+  <svg viewBox="0 0 1220 470" role="img" aria-label="Nested sets showing credential exposure and scanner blind spot">
+    <!-- nested sets -->
+    <rect x="40" y="46" width="470" height="330" rx="6" fill="var(--crit-wash)" stroke="var(--crit)" stroke-width="2"/>
+    <text class="t-lane fill-crit" x="60" y="74">ECM_DOCS_DEV.zip · 837 members</text>
+    <text class="t-num fill-crit" x="60" y="100">31 distinct signatures · 18 files</text>
+    <text class="t-sub fill-2" x="60" y="119">read at setup by scripts/setup-local.mjs:52</text>
+
+    <rect x="72" y="140" width="406" height="204" rx="5" fill="var(--warn-wash)" stroke="var(--warn)" stroke-width="1.8"/>
+    <text class="t-lane fill-warn" x="92" y="166">Git history · all refs · 44 commits</text>
+    <text class="t-num fill-warn" x="92" y="190">22 distinct — a strict subset</text>
+    <text class="t-sub fill-2" x="92" y="208">all reachable from origin/main</text>
+
+    <rect x="104" y="226" width="342" height="98" rx="4" fill="var(--sheet)" stroke="var(--ink-2)" stroke-width="1.6"/>
+    <text class="t-lane fill-ink" x="124" y="252">Working tree at HEAD</text>
+    <text class="t-num fill-ink" x="124" y="276">4 distinct · 2 files</text>
+    <text class="t-sub fill-2" x="124" y="296">document-portal/js/data.js:25-27</text>
+    <text class="t-sub fill-2" x="124" y="312">newack/config.js:4</text>
+
+    <!-- the 9 -->
+    <path class="flow-crit" d="M560,120 L520,120"/>
+    <text class="t-big fill-crit" x="572" y="112">9 signatures</text>
+    <text class="t-node fill-ink" x="572" y="136">exist only inside the archive</text>
+    <text class="t-sub fill-2" x="572" y="156">absent from every commit · invisible to every tool</text>
+
+    <!-- visibility bars -->
+    <text class="t-lane fill-ink" x="572" y="204">What each control can see</text>
+
+    <g>
+      <rect x="572" y="220" width="580" height="30" rx="3" fill="var(--rule-2)"/>
+      <rect x="572" y="220" width="75" height="30" rx="3" fill="var(--accent)"/>
+      <text class="t-sub fill-ink" x="584" y="240">check-secrets.mjs</text>
+      <text class="t-sub fill-2" x="1140" y="240" text-anchor="end">4 of 31 — skips binaries (line 50)</text>
+    </g>
+    <g>
+      <rect x="572" y="258" width="580" height="30" rx="3" fill="var(--rule-2)"/>
+      <rect x="572" y="258" width="412" height="30" rx="3" fill="var(--warn)"/>
+      <text class="t-sub fill-inv" x="584" y="278">git history search</text>
+      <text class="t-sub fill-2" x="1140" y="278" text-anchor="end">22 of 31 — text blobs only</text>
+    </g>
+    <g>
+      <rect x="572" y="296" width="580" height="30" rx="3" fill="var(--rule-2)"/>
+      <rect x="572" y="296" width="580" height="30" rx="3" fill="var(--crit)"/>
+      <text class="t-sub fill-inv" x="584" y="316">anyone running npm start</text>
+      <text class="t-sub fill-inv" x="1140" y="316" text-anchor="end">31 of 31 — /ECM_DOCS_DEV.zip is served</text>
+    </g>
+
+    <rect x="572" y="348" width="580" height="76" rx="4" fill="var(--crit-wash)" stroke="var(--crit)" stroke-width="1.4"/>
+    <text class="t-node fill-crit" x="592" y="374">Deleting a file revokes nothing.</text>
+    <text class="t-sub fill-2" x="592" y="394">18 signatures were removed from the tree and remain retrievable</text>
+    <text class="t-sub fill-2" x="592" y="411">from origin/main history. All 31 require rotation in Power Automate.</text>
+
+    <text class="t-note fill-2" x="40" y="404">Correction: Phase 0 of this audit reported 22. That figure inherited the scanner’s own blind spot.</text>
+    <text class="t-note fill-2" x="40" y="424">The archive was opened in Phase 3 under the brief’s escalation clause, and the true scope is 31.</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--crit);border:none"></i>reachable by anyone serving the repo</span>
+    <span><i class="swatch" style="background:var(--warn);border:none"></i>reachable from git history</span>
+    <span><i class="swatch" style="background:var(--accent);border:none"></i>seen by the secret scanner</span>
+  </div>
+
+  <div class="notes">
+    <div class="note c"><i></i><code class="id">F-001</code>
+      <p><b>31 signatures require rotation.</b> Rotate in Power Automate <b>before</b> deleting any file —
+        deletion revokes nothing.</p></div>
+    <div class="note c"><i></i><code class="id">F-017</code>
+      <p><code>tests/check-secrets.mjs:50</code> — <code>if (buf.includes(0)) continue;</code> skips binaries, an
+        unstated blind spot covering <b>87% of repository bytes</b>. A signature added inside the archive passes CI silently.</p></div>
+    <div class="note w"><i></i><code class="id">F-002</code>
+      <p>CI is <b>green</b> while four live-shaped credentials sit in tracked files. The baseline is documented and
+        defensible, but it leaves <b>no forcing function</b> on rotation.</p></div>
+  </div>
+</figure>
+
+<!-- ══════════════════════ SHEET 04 — DEPLOY ══════════════════════ -->
+<figure class="sheet">
+  <div class="sheet-head">
+    <div>
+      <div class="sheet-no">Sheet 04 · build and exposure process map</div>
+      <h2>There is no build step, so everything ships</h2>
+      <p class="thesis">No bundler, no exclusion list, no deploy job. <code>npm start</code> is
+        <code>http-server .</code> on the repository root — and the devcontainer runs it for you, then opens a browser.</p>
+    </div>
+  </div>
+
+  <div class="canvas">
+  <svg viewBox="0 0 1220 430" role="img" aria-label="Process map from source to served surface">
+    <text class="t-lane fill-3" x="30" y="40">Source</text>
+    <rect class="node" x="30" y="54" width="180" height="46"/><text class="t-node fill-ink" x="120" y="82" text-anchor="middle">282 tracked files</text>
+    <rect class="node node-crit" x="30" y="112" width="180" height="46"/><text class="t-node fill-ink" x="120" y="140" text-anchor="middle">ECM_DOCS_DEV.zip</text>
+    <rect class="node node-crit" x="30" y="170" width="180" height="46"/><text class="t-node fill-ink" x="120" y="198" text-anchor="middle">4 signed URLs</text>
+    <rect class="node" x="30" y="228" width="180" height="46"/><text class="t-node fill-ink" x="120" y="256" text-anchor="middle">11 audit documents</text>
+
+    <text class="t-lane fill-3" x="300" y="40">Build</text>
+    <rect x="300" y="54" width="200" height="220" rx="4" fill="none" stroke="var(--ink-3)" stroke-width="1.4" stroke-dasharray="6 5"/>
+    <text class="t-big fill-3" x="400" y="150" text-anchor="middle">none</text>
+    <text class="t-sub fill-3" x="400" y="174" text-anchor="middle">no bundler · no tsconfig</text>
+    <text class="t-sub fill-3" x="400" y="191" text-anchor="middle">no Dockerfile · 0 runtime deps</text>
+    <text class="t-sub fill-crit" x="400" y="215" text-anchor="middle">no .npmignore · no web.config</text>
+    <text class="t-sub fill-crit" x="400" y="232" text-anchor="middle">no artefact allow-list</text>
+
+    <path class="flow" d="M210,77 L294,77"/><path class="flow-crit" d="M210,135 L294,135"/>
+    <path class="flow-crit" d="M210,193 L294,193"/><path class="flow" d="M210,251 L294,251"/>
+
+    <text class="t-lane fill-3" x="590" y="40">Serve</text>
+    <rect class="node node-crit" x="590" y="112" width="230" height="70"/>
+    <text class="t-node fill-ink" x="705" y="140" text-anchor="middle">http-server .</text>
+    <text class="t-sub fill-crit" x="705" y="159" text-anchor="middle">repository root · verbatim</text>
+    <text class="t-sub fill-2" x="705" y="174" text-anchor="middle">package.json → "start"</text>
+    <path class="flow-crit" d="M500,147 L584,147"/>
+
+    <rect class="node" x="590" y="212" width="230" height="76"/>
+    <text class="t-node fill-ink" x="705" y="238" text-anchor="middle">.devcontainer</text>
+    <text class="t-sub fill-2" x="705" y="256" text-anchor="middle">postCreate → npm run setup</text>
+    <text class="t-sub fill-2" x="705" y="271" text-anchor="middle">postAttach → npm start</text>
+    <path class="flow-crit" d="M705,206 L705,188"/>
+    <text class="t-sub fill-crit" x="716" y="202">auto</text>
+
+    <text class="t-lane fill-3" x="900" y="40">Reachable over HTTP</text>
+    <g>
+      <rect class="node node-crit" x="900" y="54" width="290" height="40"/>
+      <text class="t-sub fill-ink" x="916" y="79">/ECM_DOCS_DEV.zip — 31 signatures</text>
+      <rect class="node node-crit" x="900" y="102" width="290" height="40"/>
+      <text class="t-sub fill-ink" x="916" y="127">/document-portal/js/data.js — 3 + passwords</text>
+      <rect class="node node-crit" x="900" y="150" width="290" height="40"/>
+      <text class="t-sub fill-ink" x="916" y="175">/newack/config.js — 1 signature</text>
+      <rect class="node" x="900" y="198" width="290" height="40"/>
+      <text class="t-sub fill-ink" x="916" y="223">/config/ /core/ /modules/ — all source</text>
+      <rect class="node" x="900" y="246" width="290" height="40"/>
+      <text class="t-sub fill-ink" x="916" y="271">/.github/ /.gitignore — CI config</text>
+    </g>
+    <path class="flow-crit" d="M820,147 L864,147 L864,74 L894,74"/>
+    <path class="flow-crit" d="M820,147 L864,147 L864,122 L894,122"/>
+    <path class="flow-crit" d="M864,147 L894,170"/>
+    <path class="flow" d="M864,147 L864,218 L894,218"/>
+    <path class="flow" d="M864,218 L864,266 L894,266"/>
+
+    <rect x="30" y="318" width="1160" height="86" rx="4" fill="var(--rule-2)"/>
+    <text class="t-node fill-ink" x="52" y="346">CI runs four jobs and deploys nothing.</text>
+    <text class="t-sub fill-2" x="52" y="368">.github/workflows/ci.yml — imports · smoke · links (continue-on-error) · secrets. permissions: contents: read.</text>
+    <text class="t-sub fill-2" x="52" y="388">No deploy job, no artefact, no environment. Nothing ships by automation, and artefact selection has never been made.</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="key" style="border-color:var(--crit);border-top-width:3.5px"></i>carries a credential</span>
+    <span><i class="key" style="border-color:var(--ink-2)"></i>ordinary content</span>
+    <span><i class="swatch" style="background:var(--crit-wash);border-color:var(--crit)"></i>exposed surface</span>
+    <span><i class="swatch" style="background:transparent;border:1px dashed var(--ink-3)"></i>absent stage</span>
+  </div>
+
+  <div class="notes">
+    <div class="note c"><i></i><code class="id">F-018</code>
+      <p><b>No build step and no exclusion list.</b> Any host running the project's own start command serves the
+        archive, both credential files and every audit document.</p></div>
+    <div class="note w"><i></i><code class="id">F-019</code>
+      <p>The devcontainer makes it one click: <code>postCreate</code> extracts live endpoints from the archive,
+        <code>postAttach</code> serves the repository, port 8080 auto-forwards with <code>openBrowser</code>.</p></div>
+    <div class="note w"><i></i><code class="id">F-022</code>
+      <p>Because nothing deploys by automation, <b>which trees are actually hosted is indeterminate</b> —
+        it is the single question that most changes these ratings.</p></div>
+  </div>
+</figure>
+
+<footer>
+  Drawn from the audit at <b>dd2e909</b> · every figure traces to a cited file and line in
+  <b>docs/forensic/dd2e909/</b> · 28 findings — 7 high, 11 medium, 10 low · no critical, because public
+  reachability remains indeterminate.
+</footer>
+
+</div>
