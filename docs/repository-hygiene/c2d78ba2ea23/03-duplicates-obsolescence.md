@@ -104,9 +104,10 @@ $ python3 Phase 2 duplicate/obsolescence analyzer over docs/repository-hygiene/c
 
 19 pairs score between 0.60 and 0.75. All but one are
 `ECM_ActivityHub_Portal/js/views/pages/*.js` list-page views that share a common render
-skeleton, plus `document-portal/submit.html` against `document-portal/track.html`. This
-band is reported as a template pattern, **not** as duplication to remove; a shared page
-skeleton across sibling views is a normal outcome of a single UI convention.
+skeleton; the remaining pair is `document-portal/submit.html` against
+`document-portal/track.html`. This band is reported as a template pattern, **not** as
+duplication to remove — a shared page skeleton across sibling views is a normal outcome
+of a single UI convention.
 Full pair list: `docs/repository-hygiene/c2d78ba2ea23/03-near-duplicates.tsv`.
 
 ## 3. Tracked archive redundancy
