@@ -26,7 +26,8 @@
       "rotate-then-remove-carrier": 2,
       "rotate-then-decide-jointly": 3,
       "owner-decision-required": 9,
-      "reconcile-two-way-drift": 18,
+      "reconcile-two-way-drift": 14,
+      "merge-superset-direction": 4,
       "consolidate-into-single-source": 4
     },
     "secret_carriers": 4,
@@ -37,7 +38,7 @@
     "archive_bytes": 16783981,
     "archive_hard_blockers": 2,
     "archive_documentation_mentions": 18,
-    "archive_mentions_in_out_of_scope_hygiene_artifacts": 397,
+    "archive_mentions_in_out_of_scope_hygiene_artifacts": 523,
     "design_system_pairs": 11,
     "design_system_pairs_both_diverged": 7,
     "design_system_census_relations": 18,
@@ -1051,7 +1052,7 @@
     },
     {
       "finding_id": "H-07",
-      "title": "A second forensic evidence directory and one portal README have no incoming tracked reference and no signal that resolves whether they are current",
+      "title": "10 files \u2014 9 of the 10 in a second forensic evidence directory, plus one portal README \u2014 have no incoming tracked reference and no signal that resolves whether they are current",
       "category": "unclear-ownership",
       "severity": "low",
       "confidence": "low",
@@ -1068,7 +1069,7 @@
         "docs/forensic/18e9f4d/findings.json",
         "document-portal/README.md"
       ],
-      "basis": "10 file(s) totalling 118,110 bytes are unreachable from every Phase 1 root and carry no duplicate or supersession signal in Phase 2.",
+      "basis": "10 file(s) totalling 118,110 bytes are unreachable from every Phase 1 root and carry no duplicate or supersession signal in Phase 2. The finding is scoped to those files, not to the directory: docs/forensic/18e9f4d/02-security.md is documentation-referenced and is deliberately excluded.",
       "evidence": [
         [
           "docs/repository-hygiene/c2d78ba2ea23/02-reference-graph.md",
@@ -1173,7 +1174,7 @@
         "styles/dgo-design-system/tokens/tokens.theme-hc.css",
         "styles/dgo-design-system/tokens/tokens.theme-light.css"
       ],
-      "prerequisite": "A per-counterpart diff review, because outside the identical pairs no copy is a superset.",
+      "prerequisite": "A per-counterpart diff review. Only the 2 identical pairs and the 2 clean-superset pairs have an unambiguous resolution; the rest hold unique content on both sides.",
       "risk_if_done": "Visual regression across both portals; the two barrels load different files in different orders, so a naive merge changes the cascade.",
       "risk_if_deferred": "Every fix must be applied twice, and a fix applied once silently makes the portals disagree.",
       "blast_radius": "18 counterpart relation(s) across two runtime surfaces (styles/index.css and document-portal/ds/ds.css).",
@@ -1247,7 +1248,7 @@
       "recommendation_id": "R-07",
       "finding_id": "H-07",
       "priority": "P4",
-      "action": "Ask the owner whether the second forensic directory and document-portal/README.md are still wanted; record the answer either way",
+      "action": "Ask the owner whether the 10 unreferenced files listed here are still wanted; record the answer either way. Scope the question to these files, not to the directory \u2014 docs/forensic/18e9f4d/02-security.md is referenced and must not be swept in",
       "target_paths": [
         "docs/forensic/18e9f4d/00-provenance.md",
         "docs/forensic/18e9f4d/01-architecture.md",
@@ -1261,7 +1262,7 @@
         "document-portal/README.md"
       ],
       "prerequisite": "An owner decision. Phase 2 explicitly declined to convert unreferenced into unnecessary.",
-      "risk_if_done": "Deleting a current-but-unlinked audit record would destroy evidence.",
+      "risk_if_done": "Deleting a current-but-unlinked audit record would destroy evidence. Answering at directory granularity would also remove 02-security.md, which is referenced.",
       "risk_if_deferred": "118,110 bytes stay in an unresolved state and will be re-surfaced by every future audit at the same cost.",
       "blast_radius": "10 file(s), no incoming tracked references.",
       "verification": "node tests/check-imports.mjs",
@@ -3759,7 +3760,7 @@
       "size_bytes": 1152,
       "reachability": "asset-referenced",
       "phase2_verdict": "duplicate-divergent",
-      "phase3_disposition": "reconcile-two-way-drift",
+      "phase3_disposition": "merge-superset-direction",
       "recommendation_ids": [
         "R-03"
       ],
@@ -3873,7 +3874,7 @@
       "size_bytes": 753,
       "reachability": "asset-referenced",
       "phase2_verdict": "duplicate-divergent",
-      "phase3_disposition": "reconcile-two-way-drift",
+      "phase3_disposition": "merge-superset-direction",
       "recommendation_ids": [
         "R-03"
       ],
@@ -4900,7 +4901,7 @@
       "size_bytes": 1129,
       "reachability": "asset-referenced",
       "phase2_verdict": "duplicate-divergent",
-      "phase3_disposition": "reconcile-two-way-drift",
+      "phase3_disposition": "merge-superset-direction",
       "recommendation_ids": [
         "R-03"
       ],
@@ -5044,7 +5045,7 @@
       "size_bytes": 729,
       "reachability": "asset-referenced",
       "phase2_verdict": "duplicate-divergent",
-      "phase3_disposition": "reconcile-two-way-drift",
+      "phase3_disposition": "merge-superset-direction",
       "recommendation_ids": [
         "R-03"
       ],

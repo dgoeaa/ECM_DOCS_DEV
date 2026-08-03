@@ -2,10 +2,10 @@ $ python3 Phase 3 findings/recommendation analyzer over docs/repository-hygiene/
 > scope_commit=c2d78ba2ea23 tracked_files=294 scope_integrity_mismatches=0 missing=0
 > findings=8 critical=1 high=2 low=3 medium=2
 > recommendations=8 P1=1 P2=3 P3=2 P4=2
-> dispositions consolidate-into-single-source=4 correct-stale-claim=9 keep-as-is=248 owner-decision-required=9 reconcile-two-way-drift=18 rotate-decouple-then-untrack=1 rotate-then-decide-jointly=3 rotate-then-remove-carrier=2
+> dispositions consolidate-into-single-source=4 correct-stale-claim=9 keep-as-is=248 merge-superset-direction=4 owner-decision-required=9 reconcile-two-way-drift=14 rotate-decouple-then-untrack=1 rotate-then-decide-jointly=3 rotate-then-remove-carrier=2
 > secret_carriers=4 baselined=2 unbaselined=2 stale_baseline_rows=0 globally_distinct_signatures=31 gate=FAILING carriers_inside_phase0_scope=4
 > $ node tests/check-secrets.mjs exited 1
-> archive=ECM_DOCS_DEV.zip bytes=16783981 share_of_tracked_bytes=0.8797 hard_blockers=2 documentation_mentions=18 mentions_in_out_of_scope_hygiene_artifacts=397 (excluded)
+> archive=ECM_DOCS_DEV.zip bytes=16783981 share_of_tracked_bytes=0.8797 hard_blockers=2 documentation_mentions=18 mentions_in_out_of_scope_hygiene_artifacts=523 (excluded)
 > design_system_pairs=11 both_diverged=7 identical=2 superset_resolvable=2
 > design_system_census=18 below_threshold_counterparts=1 unpaired=6 resolvable_by_deleting_one_side=2
 > superseded_dir=docs/forensic/177d992 files=4 bytes=40279 incoming_references=2 of_which_inside_unresolved_set=2

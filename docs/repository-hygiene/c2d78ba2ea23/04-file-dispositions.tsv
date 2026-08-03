@@ -184,14 +184,14 @@ document-portal/ds/styles/base.css	document-portal	4566	asset-referenced	duplica
 document-portal/ds/styles/components.css	document-portal	39333	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 document-portal/ds/styles/components/command-palette.css	document-portal	11685	asset-referenced	no-duplicate-or-obsolescence-signal	keep-as-is	R-03	high	byte-identical-copy-inside-tracked-archive
 document-portal/ds/styles/layout.css	document-portal	3252	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
-document-portal/ds/styles/reset.css	document-portal	1152	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/styles/reset.css	document-portal	1152	asset-referenced	duplicate-divergent	merge-superset-direction	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.component.css	document-portal	5786	asset-referenced	duplicate-exact	consolidate-into-single-source	R-03 | R-08	high	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.density.css	document-portal	1285	asset-referenced	duplicate-exact	consolidate-into-single-source	R-03 | R-08	high	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.primitive.css	document-portal	8731	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.semantic.css	document-portal	7088	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.theme-dark.css	document-portal	3096	asset-referenced	partial-fork-review	reconcile-two-way-drift	R-03	low	partial-fork | byte-identical-copy-inside-tracked-archive
 document-portal/ds/tokens/tokens.theme-hc.css	document-portal	2575	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
-document-portal/ds/tokens/tokens.theme-light.css	document-portal	753	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
+document-portal/ds/tokens/tokens.theme-light.css	document-portal	753	asset-referenced	duplicate-divergent	merge-superset-direction	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 document-portal/favicon.svg	document-portal	262	asset-referenced	no-duplicate-or-obsolescence-signal	keep-as-is	(none)	high	byte-identical-copy-inside-tracked-archive
 document-portal/index.html	document-portal	14922	standalone-entrypoint	no-duplicate-or-obsolescence-signal	keep-as-is	(none)	high	stale-copy-at-same-path-inside-tracked-archive
 document-portal/js/admin-panels.js	document-portal	18043	runtime-reachable	no-duplicate-or-obsolescence-signal	keep-as-is	(none)	high	byte-identical-copy-inside-tracked-archive
@@ -269,7 +269,7 @@ styles/dgo-design-system/colors_and_type.css	styles	8817	asset-referenced	stale-
 styles/dgo-design-system/components.css	styles	47239	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | stale-copy-at-same-path-inside-tracked-archive
 styles/dgo-design-system/layout.css	styles	3263	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/platform-authority.css	styles	10288	asset-referenced	no-duplicate-or-obsolescence-signal	keep-as-is	R-03	high	byte-identical-copy-inside-tracked-archive
-styles/dgo-design-system/reset.css	styles	1129	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/reset.css	styles	1129	asset-referenced	duplicate-divergent	merge-superset-direction	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/tokens/tokens.component.css	styles	5786	asset-referenced	duplicate-exact	consolidate-into-single-source	R-03 | R-08	high	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/tokens/tokens.density.css	styles	1285	asset-referenced	duplicate-exact	consolidate-into-single-source	R-03 | R-08	high	exact-duplicate-of-tracked-file | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/tokens/tokens.enhanced.css	styles	1094	asset-referenced	no-duplicate-or-obsolescence-signal	keep-as-is	R-03	high	byte-identical-copy-inside-tracked-archive
@@ -278,7 +278,7 @@ styles/dgo-design-system/tokens/tokens.primitive.css	styles	8820	asset-reference
 styles/dgo-design-system/tokens/tokens.semantic.css	styles	7077	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/tokens/tokens.theme-dark.css	styles	4237	asset-referenced	partial-fork-review	reconcile-two-way-drift	R-03	low	partial-fork | byte-identical-copy-inside-tracked-archive
 styles/dgo-design-system/tokens/tokens.theme-hc.css	styles	3159	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
-styles/dgo-design-system/tokens/tokens.theme-light.css	styles	729	asset-referenced	duplicate-divergent	reconcile-two-way-drift	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
+styles/dgo-design-system/tokens/tokens.theme-light.css	styles	729	asset-referenced	duplicate-divergent	merge-superset-direction	R-03	medium	divergent-copy | byte-identical-copy-inside-tracked-archive
 styles/index.css	styles	3012	asset-referenced	stale-content-review	correct-stale-claim	R-04	low	byte-identical-copy-inside-tracked-archive | carries-stale-outbound-references
 tests/README.md	tests	3924	script-reachable	no-duplicate-or-obsolescence-signal	keep-as-is	(none)	high	(none)
 tests/auth-posture.test.mjs	tests	9719	standalone-entrypoint	no-duplicate-or-obsolescence-signal	keep-as-is	(none)	high	(none)

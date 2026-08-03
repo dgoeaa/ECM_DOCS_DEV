@@ -22,7 +22,7 @@ docs/repository-hygiene/c2d78ba2ea23/04-recommendation-analysis.log:1-15
 > > recommendations=8 P1=1 P2=3 P3=2 P4=2
 > > secret_carriers=4 baselined=2 unbaselined=2 stale_baseline_rows=0 globally_distinct_signatures=31 gate=FAILING carriers_inside_phase0_scope=4
 > > $ node tests/check-secrets.mjs exited 1
-> > archive=ECM_DOCS_DEV.zip bytes=16783981 share_of_tracked_bytes=0.8797 hard_blockers=2 documentation_mentions=18 mentions_in_out_of_scope_hygiene_artifacts=397 (excluded)
+> > archive=ECM_DOCS_DEV.zip bytes=16783981 share_of_tracked_bytes=0.8797 hard_blockers=2 documentation_mentions=18 mentions_in_out_of_scope_hygiene_artifacts=523 (excluded)
 > > design_system_census=18 below_threshold_counterparts=1 unpaired=6 resolvable_by_deleting_one_side=2
 > > superseded_dir=docs/forensic/177d992 files=4 bytes=40279 incoming_references=2 of_which_inside_unresolved_set=2
 > > stale_references=39 in_code=7 in_documentation=32
@@ -38,10 +38,11 @@ Phases 0, 1, 2 and 3 describe the same bytes.
 ### Two scope rules worth stating
 
 The blocker and mention counts below are computed **over the Phase 0 scope only**. The
-hygiene artifacts committed on top of the scope commit mention `ECM_DOCS_DEV.zip` 397 more
+hygiene artifacts committed on top of the scope commit mention `ECM_DOCS_DEV.zip` 523 more
 times; counting the audit's own prose as evidence about the repository would be circular,
-so those are excluded. With that exclusion the figures reconcile exactly with Phase 2:
-52 literal mentions across 18 files.
+so those are excluded. That exclusion count is self-referential and grows as this audit adds
+artifacts — including this phase's own — which is precisely why it is not evidence. With the
+exclusion the figures reconcile exactly with Phase 2: 52 literal mentions across 18 files.
 
 The signature scan is the opposite: it runs over **every** currently tracked file, because
 that is what `tests/check-secrets.mjs` does and the finding is a claim about that gate. All
@@ -277,9 +278,22 @@ correction and does not recommend deletion.
 
 ### H-07 — unreferenced is not unnecessary
 
-10 files have no incoming tracked reference and no duplicate or supersession signal:
-the nine files of `docs/forensic/18e9f4d/` and `document-portal/README.md`, totalling
-118,110 bytes.
+10 files have no incoming tracked reference and no duplicate or supersession signal,
+totalling 118,110 bytes: `document-portal/README.md`, and 9 of the 10 files in
+`docs/forensic/18e9f4d/`.
+
+**The finding is scoped to those 9 files, not to the directory.** The tenth,
+`docs/forensic/18e9f4d/02-security.md`, is `documentation-referenced` and is deliberately
+excluded:
+
+docs/forensic/18e9f4d/04-report.md:431-431
+$ sed -n '431p' docs/forensic/18e9f4d/04-report.md
+>                   02-security.md §2.8 rather than silently corrected.
+
+Its only two citations come from `04-report.md`, which is itself in the unreferenced set —
+so it is held in place solely by a sibling whose own future is undecided. Answering R-07 at
+directory granularity would therefore delete a file this report's own data marks as
+referenced, which is exactly the overreach this finding exists to prevent.
 
 Phase 2 declined to convert *unreferenced* into *unnecessary*, and Phase 3 does not overturn
 that. Nothing in the evidence distinguishes "a current audit record that simply is not
@@ -307,11 +321,11 @@ Priority is assigned on a fixed rule, not on judgement:
 |---|---|---|---|---|---|
 | R-01 | P1 | H-01 | Rotate every signature reachable from the tree, then reconcile `tests/secrets-baseline.txt` | Rotation in Power Automate | `node tests/check-secrets.mjs` |
 | R-02 | P2 | H-02 | Decouple tooling from `ECM_DOCS_DEV.zip`, then untrack it and publish out-of-band | R-01, plus 2 blockers | `node tests/check-secrets.mjs && node scripts/setup-local.mjs --force` |
-| R-03 | P2 | H-03 | Pick one design-system tree as source of truth; reconcile two-way drift first | Per-counterpart diff review | `npm run test:smoke` |
+| R-03 | P2 | H-03 | Pick one design-system tree as source of truth; reconcile two-way drift first | Diff review of the 7 two-way pairs (4 pairs resolve mechanically) | `npm run test:smoke` |
 | R-04 | P2 | H-04 | Add the cited tooling, or delete the claim | none | `node tests/check-imports.mjs && node tests/governance.test.mjs` |
 | R-05 | P3 | H-05 | Rotate the carrier inside `docs/forensic/177d992/`, then settle the directory jointly with R-07 | R-01, coupled to R-07 | `node tests/check-secrets.mjs && npm run test:links` |
 | R-06 | P3 | H-06 | Correct the documented layout, or date the documents as historical | none | `npm run test:links` |
-| R-07 | P4 | H-07 | Ask the owner whether the unreferenced set is still wanted; record the answer | owner decision | `node tests/check-imports.mjs` |
+| R-07 | P4 | H-07 | Ask the owner whether the 10 unreferenced files are still wanted; scope the question to those files, not the directory | owner decision | `node tests/check-imports.mjs` |
 | R-08 | P4 | H-08 | Fold the two identical token sheets into the tree chosen in R-03 | R-03 | `npm run test:smoke` |
 
 Full fields — risk if done, risk if deferred, blast radius, reversibility and per-item notes
@@ -356,11 +370,12 @@ Every one of the 294 scoped files carries exactly one disposition.
 
 | Phase 3 disposition | Files | Meaning |
 |---|---:|---|
-| keep-as-is | 248 | No finding attaches to this file |
-| reconcile-two-way-drift | 18 | A counterpart exists and both sides hold unique content |
+| keep-as-is | 248 | Phase 2 recorded no duplicate or obsolescence signal |
+| reconcile-two-way-drift | 14 | A counterpart exists and both sides hold unique content |
 | correct-stale-claim | 9 | Carries an outbound reference that resolves nowhere |
 | owner-decision-required | 9 | Unreferenced with no signal resolving currency |
 | consolidate-into-single-source | 4 | Byte-identical to a counterpart |
+| merge-superset-direction | 4 | A counterpart exists and one side is a clean superset |
 | rotate-then-decide-jointly | 3 | Inside the self-declared superseded directory |
 | rotate-then-remove-carrier | 2 | Unbaselined signature carrier failing the gate |
 | rotate-decouple-then-untrack | 1 | The tracked archive |
@@ -368,6 +383,20 @@ Every one of the 294 scoped files carries exactly one disposition.
 Total: 294. Per-file rows with reachability, Phase 2 verdict, disposition, the
 recommendation IDs that touch the file and the signals behind it are in
 `docs/repository-hygiene/c2d78ba2ea23/04-file-dispositions.tsv`.
+
+**`keep-as-is` is a Phase 2 verdict, not a Phase 3 all-clear.** 10 of those 248 files are
+still recommendation targets, because a file can be free of duplicate and obsolescence
+signals and still be named by a finding. Read the `recommendation_ids` column, not the
+disposition, to decide whether a file needs work:
+
+| File | Recommendation | Why it is not `keep-as-is` in practice |
+|---|---|---|
+| newack/config.js | R-01 | Baselined signature carrier; rotation still applies |
+| scripts/setup-local.mjs | R-02 | One of the two hard blockers on untracking the archive |
+| tests/secrets-baseline.txt | R-02 | The other hard blocker |
+| 7 design-system files | R-03 | Counterparts inside the fork, including `document-portal/ds/colors_and_type.css` |
+
+So the number of files with nothing attached is **238**, not 248.
 
 Dispositions are assigned by first-match rule, strongest first, so a file that is both a
 signature carrier and inside the superseded directory
@@ -388,10 +417,11 @@ Effectively all recoverable weight is one file. The other seven recommendations 
 doing for correctness, not for size, and the report would say the same thing if they saved
 nothing at all.
 
-Only **one** of the eight recommendations proposes removing anything, and it is conditional
-on two prerequisites. That is the honest shape of this repository's hygiene problem: it is
-not carrying much dead weight, it is carrying unrotated credentials, a forked design system
-and a set of claims it cannot substantiate.
+Two of the eight recommendations remove files: R-02, conditional on two prerequisites, and
+R-08, which deletes one copy of each byte-identical pair once R-03 has chosen the surviving
+tree. The other six change no file count. That is the honest shape of this repository's
+hygiene problem: it is not carrying much dead weight, it is carrying unrotated credentials,
+a forked design system and a set of claims it cannot substantiate.
 
 ## Notes and limits
 
@@ -407,7 +437,7 @@ and a set of claims it cannot substantiate.
 - `sig=` values are redacted in every generated artifact; only counts are published. Phase 3
   introduced no new signature-bearing file, and `node tests/check-secrets.mjs` fails on
   exactly the two pre-existing files named in H-01, as it did before Phase 3.
-- Blocker and mention counts are computed over the Phase 0 scope; the 397 additional
+- Blocker and mention counts are computed over the Phase 0 scope; the 523 additional
   mentions inside the hygiene artifacts themselves are excluded and reported separately.
 - Phase 3 closes the analysis. Executing any recommendation is a separate change, gated on
   acceptance of this report and — for R-01, R-02, R-05 and R-07 — on decisions that only the
