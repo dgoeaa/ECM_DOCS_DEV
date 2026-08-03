@@ -172,6 +172,26 @@ group('End to end — handleRequest');
   const post = (path, token, body = {}, d = deps()) =>
     handleRequest({ method: 'POST', path, headers: { authorization: token ? `Bearer ${token}` : '' }, body }, d);
 
+  /* ── Cloudflare Access ──────────────────────────────────────────────────────
+     Access authenticates at the edge and injects Cf-Access-Jwt-Assertion; the browser
+     never holds a readable token, so no Authorization header arrives. Before the proxy
+     accepted this header every request under Access failed with missing_bearer. */
+  const viaAccess = (path, token, body = {}, d = deps()) =>
+    handleRequest({ method: 'POST', path, headers: { 'cf-access-jwt-assertion': token }, body }, d);
+
+  const accessOk = await viaAccess('/dgo/SINGLE_ASSIGNMENT', sign({}), { payload: { ref: 'A1' }, idempotencyKey: 'idem-access-1' });
+  check('a Cloudflare Access assertion authenticates the request', accessOk.status === 200, JSON.stringify(accessOk.body));
+
+  const accessForged = await viaAccess('/dgo/SINGLE_ASSIGNMENT', sign({}, { key: otherPriv }), { payload: { ref: 'A2' } });
+  check('an Access assertion signed with the WRONG key is REJECTED — the header is not trusted on presence',
+    accessForged.status === 401, JSON.stringify(accessForged.body));
+
+  const accessGarbage = await viaAccess('/dgo/SINGLE_ASSIGNMENT', 'not-a-jwt', { payload: { ref: 'A3' } });
+  check('a garbage Access assertion is REJECTED', accessGarbage.status === 401);
+
+  const noToken = await handleRequest({ method: 'POST', path: '/dgo/SINGLE_ASSIGNMENT', headers: {}, body: {} }, deps());
+  check('neither header present is still unauthorized', noToken.status === 401);
+
   const ok = await post('/dgo/SINGLE_ASSIGNMENT', sign({}), { payload: { ref: 'R1' }, idempotencyKey: 'idem-1' });
   check('an authorized request is forwarded', ok.status === 200, JSON.stringify(ok.body));
   check('the signed URL is used server-side', lastUpstream.url.includes('SERVERSIDEONLY'));

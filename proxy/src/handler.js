@@ -65,10 +65,23 @@ export async function handleRequest(req, deps) {
   const authenticate = async (contractKey) => {
     let claims, identity;
     try {
+      /* Two ways a token arrives, because two front doors put it in different places.
+         · Authorization: Bearer <jwt>   — a client that holds a token and attaches it.
+         · Cf-Access-Jwt-Assertion       — Cloudflare Access authenticates at the edge and
+           injects the assertion. The browser never holds a readable token at all, so there
+           is no Authorization header to find.
+
+         Accepting the Access header is NOT a weaker check. The token is verified exactly as
+         rigorously either way — signature against the configured JWKS, issuer, audience,
+         expiry. A caller who reaches the Worker directly and forges the header supplies a
+         JWT they cannot sign, and it fails at the signature. What must not happen is
+         trusting the header's PRESENCE; nothing here does. */
       const authz = req.headers?.authorization || req.headers?.Authorization || '';
-      const m = /^Bearer\s+(.+)$/i.exec(authz);
-      if (!m) throw new TokenError('missing_bearer');
-      claims = await verifyToken(m[1], {
+      const bearer = /^Bearer\s+(.+)$/i.exec(authz)?.[1];
+      const accessAssertion = req.headers?.['cf-access-jwt-assertion'] || '';
+      const token = bearer || accessAssertion;
+      if (!token) throw new TokenError('missing_bearer');
+      claims = await verifyToken(token, {
         jwks, issuer: config.issuer, audience: config.audience, clockSkewSec: config.clockSkewSec,
       });
       identity = identityFrom(claims);
