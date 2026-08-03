@@ -17,7 +17,7 @@ PF.page = function () {
         mine.slice(0, 4).map(function (m) { return chip(m.id, m.id, m.email); }).join('') + '</div></div>';
     }
     html += '<div class="dgo-stack dgo-stack--2" style="margin-top:' + (mine.length ? '14px' : '0') + '"><span class="dgo-field__label">Or open a sample record</span><div class="dgo-cluster dgo-cluster--2">' +
-      demos.map(function (r) { return chip(PF.status(r.status).label + ' · ' + r.serviceCode, r.id, r.email, true); }).join('') + '</div>' +
+      demos.map(function (r) { return chip(PF.status(r.status).label + ' · ' + r.category, r.id, r.email, true); }).join('') + '</div>' +
       '<p class="pf-note">Sample records ship with the portal so the tracking experience can be reviewed end to end.</p></div>';
     PF.$('#quickPicks').innerHTML = html;
   }
@@ -120,7 +120,7 @@ PF.page = function () {
   function stageOf(rec) { return PF.status(rec.status).stage; }
 
   function slaBlock(rec) {
-    var total = PF.service(rec.service).sla;
+    var total = PF.ACK_TARGET_DAYS;
     var used = 0, d = new Date(rec.submittedAt), end = PF.isOpen(rec) ? new Date() : new Date(rec.updatedAt);
     while (d < end) { d.setDate(d.getDate() + 1); var w = d.getDay(); if (w !== 0 && w !== 6) used++; }
     var pct = Math.min(100, Math.round((used / total) * 100));
@@ -133,7 +133,7 @@ PF.page = function () {
       '<div class="dgo-row dgo-row--between" style="font-size:12.5px"><span style="color:var(--dgo-color-fg-muted)">Service-level target</span>' +
       '<span style="font-weight:600;color:' + (over && PF.isOpen(rec) ? 'var(--dgo-color-danger-subtle-fg)' : 'var(--dgo-color-fg-strong)') + '">' + label + '</span></div>' +
       '<div class="pf-meter" data-over="' + (over && PF.isOpen(rec)) + '"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="dgo-row dgo-row--between" style="font-size:11.5px;color:var(--dgo-color-fg-subtle)"><span>Received ' + PF.date(rec.submittedAt) + '</span><span>Due ' + PF.date(rec.dueAt) + '</span></div>' +
+      '<div class="dgo-row dgo-row--between" style="font-size:11.5px;color:var(--dgo-color-fg-subtle)"><span>Received ' + PF.date(rec.submittedAt) + '</span><span>Acknowledgement by ' + PF.date(rec.ackDueAt) + '</span></div>' +
       '</div>';
   }
 
@@ -149,7 +149,7 @@ PF.page = function () {
   }
 
   function render(rec) {
-    var s = PF.service(rec.service), st = PF.status(rec.status);
+    var s = PF.correspondenceType(rec.type), st = PF.status(rec.status);
     var events = rec.events.slice().reverse();
     out.innerHTML =
       '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Request record ' + rec.id + ' · printed ' + PF.dateTime(new Date().toISOString()) + '</p></div>' +

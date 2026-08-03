@@ -328,8 +328,9 @@
         "lines": "28"
       }
     ],
-    "impact": "The two highest-risk trees are the two least verified; no test loads any of their eight HTML pages.",
-    "remediation": "Add page-load and output-encoding tests for both trees."
+    "impact": "The two highest-risk trees are the two least verified; no test loads any of their eight HTML pages. PARTIALLY CLOSED: tests/portal.spec.js now covers all six document-portal pages plus the correspondence model; newack was retired.",
+    "remediation": "Add page-load and output-encoding tests for both trees.",
+    "outcome": "fixed"
   },
   {
     "id": "F-005",

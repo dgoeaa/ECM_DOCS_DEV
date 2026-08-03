@@ -186,15 +186,15 @@ Each step is independently deployable and leaves the platform working.
 
 | # | Step | Closes | Effort | Depends on |
 |---|---|---|---|---|
-| **1** | Fix silent document loss — send every file, remove the 4 MB drop | **F-028** | ~half day | nothing |
-| **2** | Replace the service catalogue with the correspondence model; align the submission form to root's fields | §2.1 | ~2 days | decision on category vocabulary |
+| ~~**1**~~ | ~~Fix silent document loss~~ — **DONE**: every file dispatched, oversize queued and surfaced | **F-028** | — | — |
+| ~~**2**~~ | ~~Replace the service catalogue~~ — **DONE**: `PF.CORRESPONDENCE_TYPES` maps 8 public types onto registry categories; per-service SLAs replaced by a 3-day acknowledgement target | §2.1 | — | — |
 | **3** | Build `/intake/*` in the proxy: anonymous, rate-limited, create-only, reference minting | — | ~3 days | step 2's contract |
 | **4** | Add upload brokering; move file bytes to SharePoint | F-028 fully | ~3 days | step 3 |
 | **5** | Point the portal at the proxy; delete `PF.ENDPOINTS` | **F-013**, **F-001** (portal) | ~2 days | steps 3–4 |
 | **6** | Portal reads status back; retire `admin.html` and `PF.STAFF` | **D-C2**, F-010 | ~3 days | step 5 |
 | **7** | Registry scan-intake workspace in the root platform | Channel C | ~1 week | step 4 |
 | **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
-| **9** | Retire or adopt `newack/` | **F-009** | ~1 hour to delete | your decision |
+| ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
 
 **Steps 1 and 2 are worth doing regardless of everything else** — step 1 stops losing citizens' documents today, and step 2 is the model correction you asked for. Neither depends on any infrastructure decision.
 

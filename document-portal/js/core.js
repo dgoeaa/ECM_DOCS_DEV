@@ -70,9 +70,14 @@
     return d.toISOString();
   };
 
-  PF.service = function (key) {
-    for (var i = 0; i < PF.SERVICES.length; i++) if (PF.SERVICES[i].key === key) return PF.SERVICES[i];
-    return PF.SERVICES[PF.SERVICES.length - 1];
+  /* Correspondence type lookup. Replaced PF.service(): the portal classifies
+     incoming correspondence, it does not sell services. Unknown keys fall back to
+     the catch-all type rather than to whatever happens to be last in the list. */
+  PF.correspondenceType = function (key) {
+    var list = PF.CORRESPONDENCE_TYPES;
+    for (var i = 0; i < list.length; i++) if (list[i].key === key) return list[i];
+    for (var j = 0; j < list.length; j++) if (list[j].key === 'other') return list[j];
+    return list[list.length - 1];
   };
   PF.status = function (key) { return PF.STATUS[key] || PF.STATUS.received; };
   PF.pill = function (key) {
@@ -80,7 +85,9 @@
     return '<span class="dgo-pill dgo-pill--' + s.pill + '"><span class="dgo-pill__dot"></span>' + s.label + '</span>';
   };
   PF.isOpen = function (rec) { return ['approved', 'declined', 'withdrawn'].indexOf(rec.status) === -1; };
-  PF.isOverdue = function (rec) { return PF.isOpen(rec) && new Date(rec.dueAt) < new Date(); };
+  /* 'Overdue' now means the acknowledgement window has lapsed, not that a decision is
+     late — the registry commits to acknowledging receipt, not to a decision date. */
+  PF.isOverdue = function (rec) { return PF.isOpen(rec) && new Date(rec.ackDueAt) < new Date(); };
 
   /* ============================================================
      2 · Persistent store
@@ -114,19 +121,19 @@
 
   function install() {
     var out = PF.SEEDS.map(function (s, i) {
-      var svc = PF.service(s.service);
+      var ct = PF.correspondenceType(s.type);
       var submitted = agoISO(s.days, i + 3);
       var events = s.events.map(function (e, j) {
         return { at: agoISO(e.d, i + j + 4), status: e.s, label: e.a, note: e.n || '', actor: j === 0 ? 'Portal' : 'Registry' };
       });
       return {
-        id: s.id, service: s.service, serviceName: svc.name, serviceCode: svc.code, unit: svc.unit,
+        id: s.id, type: s.type, typeLabel: ct.label, category: ct.category, correspondenceType: 'Incoming', unit: s.unit || 'Registry & Correspondence',
         title: s.title, description: s.title + ' submitted through the NITDA Intelligent Portal.',
         name: s.name, email: s.email, phone: '', org: s.org, orgType: s.orgType, state: s.state,
         priority: s.priority, status: s.status, officer: s.officer, channel: 'Portal',
         files: s.files.map(function (f) { return { name: f.name, size: f.size }; }),
         submittedAt: submitted, updatedAt: events[events.length - 1].at,
-        dueAt: PF.addWorkingDays(submitted, svc.sla), events: events, seeded: true
+        ackDueAt: PF.addWorkingDays(submitted, PF.ACK_TARGET_DAYS), events: events, seeded: true
       };
     });
     write(K.recs, out);
@@ -312,7 +319,7 @@
       if (r.priority === 'expedited') m.expedited++;
       if (PF.isOverdue(r)) m.overdue++;
       if ((now - new Date(r.submittedAt)) / 86400000 <= 7) m.week++;
-      if (!PF.isOpen(r)) { m.closed++; if (new Date(r.updatedAt) <= new Date(r.dueAt)) m.onTime++; }
+      if (!PF.isOpen(r)) { m.closed++; if (new Date(r.updatedAt) <= new Date(r.ackDueAt)) m.onTime++; }
     });
     m.onTimeRate = m.closed ? Math.round((m.onTime / m.closed) * 100) : 100;
     m.clearanceRate = (m.approved + m.declined) ? Math.round((m.approved / (m.approved + m.declined)) * 100) : 0;
@@ -453,10 +460,10 @@
       { g: 'Navigate', label: 'Support and helpdesk', meta: 'Help', icon: 'help', run: function () { location.href = 'support.html'; } },
       { g: 'Navigate', label: 'Operations console', meta: 'Staff', icon: 'chart', run: function () { location.href = 'admin.html'; } }
     ];
-    PF.SERVICES.forEach(function (s) {
+    PF.CORRESPONDENCE_TYPES.forEach(function (s) {
       list.push({
-        g: 'Start a service', label: s.name, meta: s.code + ' · ' + s.sla + ' days', icon: 'file',
-        run: function () { location.href = 'submit.html?service=' + s.key; }
+        g: 'Submit correspondence', label: s.label, meta: s.category, icon: 'file',
+        run: function () { location.href = 'submit.html?type=' + s.key; }
       });
     });
     PF.store.mine().slice(0, 6).forEach(function (m) {

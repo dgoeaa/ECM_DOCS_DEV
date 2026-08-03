@@ -1,4 +1,7 @@
-/* Submission wizard — service → requester → document → review → receipt. */
+/* Submission wizard — correspondence type -> submitter -> document -> review -> receipt.
+   This is an intake channel for documents and correspondence addressed to NITDA,
+   not a service-request desk: the registry classifies and routes what arrives, and
+   the only commitment made up front is acknowledgement of receipt. */
 PF.page = function () {
   var DRAFT_NOTE = 'Attachments are never stored in the draft — re-attach them before you submit.';
   var MAXF = 5, MAXSIZE = 10 * 1024 * 1024, CAP = 50 * 1024 * 1024;
@@ -7,28 +10,28 @@ PF.page = function () {
   var step = 1, files = [], submitting = false, booted = false;
   var form = PF.$('#wizard');
 
-  /* ---------- populate selects and the service list ---------- */
+  /* ---------- populate selects and the correspondence-type list ---------- */
   PF.$('#orgType').innerHTML = '<option value="">Select…</option>' + PF.ORG_TYPES.map(function (o) { return '<option>' + PF.esc(o) + '</option>'; }).join('');
   PF.$('#state').innerHTML = '<option value="">Select…</option>' + PF.STATES.map(function (o) { return '<option>' + PF.esc(o) + '</option>'; }).join('');
 
-  PF.$('#serviceList').innerHTML = PF.SERVICES.map(function (s) {
+  PF.$('#serviceList').innerHTML = PF.CORRESPONDENCE_TYPES.map(function (s) {
     return '<label class="pf-choice"><input type="radio" name="service" value="' + s.key + '">' +
-      '<span style="flex:1"><span class="pf-choice__t">' + PF.esc(s.name) + '</span>' +
+      '<span style="flex:1"><span class="pf-choice__t">' + PF.esc(s.label) + '</span>' +
       '<span class="pf-choice__b">' + PF.esc(s.blurb) + '</span></span>' +
-      '<span class="pf-mono" style="font-size:11px;color:var(--dgo-color-fg-subtle);white-space:nowrap">' + s.code + ' · ' + s.sla + 'd</span></label>';
+      '<span class="pf-mono" style="font-size:11px;color:var(--dgo-color-fg-subtle);white-space:nowrap">' + PF.esc(s.category) + '</span></label>';
   }).join('');
 
   function renderRequirements() {
     var key = val('service');
     var box = PF.$('#serviceReq');
     if (!key) { box.innerHTML = ''; return; }
-    var s = PF.service(key);
-    var due = PF.addWorkingDays(new Date().toISOString(), s.sla);
+    var s = PF.correspondenceType(key);
+    var due = PF.addWorkingDays(new Date().toISOString(), PF.ACK_TARGET_DAYS);
     box.innerHTML = '<div class="dgo-alert dgo-alert--success" style="align-items:flex-start">' +
       '<span class="dgo-alert__icon"><svg class="icon-sm" aria-hidden="true"><use href="#i-check-circle"></use></svg></span>' +
       '<div class="dgo-alert__body" style="flex:1">' +
-      '<div class="dgo-alert__title">' + PF.esc(s.name) + ' · ' + PF.esc(s.unit) + '</div>' +
-      '<p style="margin:0 0 8px;font-size:13.5px">Submitted today, a decision is due by <b>' + PF.date(due) + '</b> (' + s.sla + ' working days).</p>' +
+      '<div class="dgo-alert__title">' + PF.esc(s.label) + ' · ' + PF.esc(s.category) + '</div>' +
+      '<p style="margin:0 0 8px;font-size:13.5px">Submitted today, the registry acknowledges receipt by <b>' + PF.date(due) + '</b> (' + PF.ACK_TARGET_DAYS + ' working days). The outcome follows the registry workflow and is reported through tracking.</p>' +
       '<p style="margin:0 0 4px;font-size:12.5px;font-weight:600">Have these ready</p>' +
       '<ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.7">' + s.needs.map(function (n) { return '<li>' + PF.esc(n) + '</li>'; }).join('') + '</ul>' +
       '</div></div>';
@@ -65,11 +68,11 @@ PF.page = function () {
     clearErrors();
     var bad = [];
     if (n === 1) {
-      if (!val('service')) { err('service', 'Choose the service this document belongs to.'); bad.push('serviceList'); }
+      if (!val('service')) { err('service', 'Choose the kind of correspondence you are submitting.'); bad.push('serviceList'); }
     }
     if (n === 2) {
       if (val('name').length < 2) { err('name', 'Enter the full name of the person submitting.'); bad.push('name'); }
-      if (!EMAIL.test(val('email'))) { err('email', 'Enter a valid email address — this is where the decision goes.'); bad.push('email'); }
+      if (!EMAIL.test(val('email'))) { err('email', 'Enter a valid email address — this is where your acknowledgement goes.'); bad.push('email'); }
       var ph = val('phone');
       if (ph && ph.replace(/[^0-9]/g, '').length < 7) { err('phone', 'That telephone number looks too short.'); bad.push('phone'); }
       if (val('org').length < 2) { err('org', 'Enter the organisation this submission is for.'); bad.push('org'); }
@@ -92,7 +95,7 @@ PF.page = function () {
   }
 
   /* ---------- step machine ---------- */
-  var TITLES = { 1: 'Choose the service', 2: 'Who is submitting', 3: 'The document', 4: 'Review and submit' };
+  var TITLES = { 1: 'Kind of correspondence', 2: 'Who is submitting', 3: 'The document', 4: 'Review and submit' };
   function show(n) {
     step = n;
     PF.$$('[data-step]', form).forEach(function (fs) { fs.hidden = (+fs.getAttribute('data-step') !== n); });
@@ -129,11 +132,11 @@ PF.page = function () {
 
   /* ---------- review ---------- */
   function renderReview() {
-    var s = PF.service(val('service'));
+    var s = PF.correspondenceType(val('service'));
     var rows = [
-      ['Service', s.name + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + s.code + ')</span>'],
-      ['Handling unit', s.unit],
-      ['Target', s.sla + ' working days · decision due ' + PF.date(PF.addWorkingDays(new Date().toISOString(), s.sla))],
+      ['Correspondence type', PF.esc(s.label) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + PF.esc(s.category) + ')</span>'],
+      ['Registry unit', 'Registry &amp; Correspondence'],
+      ['Acknowledgement', PF.ACK_TARGET_DAYS + ' working days · by ' + PF.date(PF.addWorkingDays(new Date().toISOString(), PF.ACK_TARGET_DAYS))],
       ['Priority', val('priority') === 'expedited' ? 'Expedited' : 'Standard'],
       ['Submitted by', PF.esc(val('name')) + '<br><span style="color:var(--dgo-color-fg-muted)">' + PF.esc(val('email')) + (val('phone') ? ' · ' + PF.esc(val('phone')) : '') + '</span>'],
       ['Organisation', PF.esc(val('org')) + '<br><span style="color:var(--dgo-color-fg-muted)">' + PF.esc(val('orgType')) + ' · ' + PF.esc(val('state')) + '</span>'],
@@ -273,7 +276,7 @@ PF.page = function () {
 
   /* ---------- submit ---------- */
   function confirmSubmit() {
-    var s = PF.service(val('service'));
+    var s = PF.correspondenceType(val('service'));
     if (files.some(function (f) { return f.restored; })) {
       err('files', 'Re-attach the files from your restored draft before submitting.');
       show(3);
@@ -282,7 +285,7 @@ PF.page = function () {
     }
     PF.dialog({
       title: 'Submit to the registry?',
-      sub: s.name + ' · ' + files.length + (files.length === 1 ? ' attachment' : ' attachments'),
+      sub: s.label + ' · ' + files.length + (files.length === 1 ? ' attachment' : ' attachments'),
       okLabel: 'Confirm and submit',
       body: '<dl class="pf-kv">' +
         '<dt>Subject</dt><dd>' + PF.esc(val('title')) + '</dd>' +
@@ -358,7 +361,8 @@ PF.page = function () {
         SubmitterName: rec.name,
         EmailAddress: rec.email,
         CompanyName: rec.org,
-        DocumentType: rec.serviceName,
+        DocumentType: rec.typeLabel,
+        Category: rec.category,
         FileName: f ? f.name : '',
         FileContentBase64: base64 || '',
         /* Part metadata so N calls reassemble into one submission rather than
@@ -423,17 +427,18 @@ PF.page = function () {
   }
 
   function finish() {
-    var s = PF.service(val('service'));
+    var s = PF.correspondenceType(val('service'));
     var now = new Date().toISOString();
     var rec = {
-      id: PF.uid(), service: s.key, serviceName: s.name, serviceCode: s.code, unit: s.unit,
+      id: PF.uid(), type: s.key, typeLabel: s.label, category: s.category,
+      correspondenceType: 'Incoming', unit: 'Registry & Correspondence',
       title: val('title'), description: val('description'),
       name: val('name'), email: val('email'), phone: val('phone'),
       org: val('org'), orgType: val('orgType'), state: val('state'),
       priority: val('priority'), status: 'received',
       officer: PF.OFFICERS[Math.floor(Math.random() * PF.OFFICERS.length)], channel: 'Portal',
       files: files.map(function (f) { return { name: f.name, size: f.size }; }),
-      submittedAt: now, updatedAt: now, dueAt: PF.addWorkingDays(now, s.sla),
+      submittedAt: now, updatedAt: now, ackDueAt: PF.addWorkingDays(now, PF.ACK_TARGET_DAYS),
       events: [{ at: now, status: 'received', label: 'Submission received and tracking ID issued.', note: '', actor: 'Portal' }]
     };
     PF.store.add(rec);
@@ -446,24 +451,24 @@ PF.page = function () {
     PF.$$('.dgo-crumbs, .pf-steps, #draftBar').forEach(function (n) { n.classList.add('pf-no-print'); });
     PF.$('#main').querySelector('.dgo-stack--3').classList.add('pf-no-print');
 
-    var due = PF.date(rec.dueAt);
+    var due = PF.date(rec.ackDueAt);
     PF.$('#result').hidden = false;
     PF.$('#result').innerHTML =
       '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Submission receipt · generated ' + PF.dateTime(rec.submittedAt) + '</p></div>' +
       '<div class="pf-result">' +
         '<div class="pf-result__head"><span class="pf-result__ic"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></span>' +
         '<div><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:24px;line-height:1.15">Submission received</h2>' +
-        '<p style="margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.78);max-width:52ch">' + PF.esc(rec.serviceName) + ' has been logged with ' + PF.esc(rec.unit) + '. A confirmation is on its way to ' + PF.esc(rec.email) + '.</p></div></div>' +
+        '<p style="margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.78);max-width:52ch">' + PF.esc(rec.typeLabel) + ' has been logged with the ' + PF.esc(rec.unit) + ' unit. A confirmation is on its way to ' + PF.esc(rec.email) + '.</p></div></div>' +
         '<div style="padding:22px;display:grid;gap:20px;background:var(--dgo-color-surface-raised)">' +
           '<div class="pf-idplate"><div style="flex:1"><div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dgo-color-fg-muted);margin-bottom:6px">Your tracking ID</div><code>' + rec.id + '</code></div>' +
           '<button class="dgo-btn dgo-btn--secondary dgo-btn--sm pf-no-print" id="copyId"><svg class="icon-sm" aria-hidden="true"><use href="#i-id"></use></svg>Copy</button></div>' +
           '<dl class="pf-kv">' +
-            '<dt>Service</dt><dd>' + PF.esc(rec.serviceName) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + rec.serviceCode + ')</span></dd>' +
+            '<dt>Type</dt><dd>' + PF.esc(rec.typeLabel) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + PF.esc(rec.category) + ')</span></dd>' +
             '<dt>Subject</dt><dd>' + PF.esc(rec.title) + '</dd>' +
             '<dt>Submitted by</dt><dd>' + PF.esc(rec.name) + ' · ' + PF.esc(rec.org) + '</dd>' +
             '<dt>Notifications</dt><dd>' + PF.esc(rec.email) + '</dd>' +
             '<dt>Received</dt><dd>' + PF.dateTime(rec.submittedAt) + '</dd>' +
-            '<dt>Decision due</dt><dd><b>' + due + '</b> · ' + PF.service(rec.service).sla + ' working days</dd>' +
+            '<dt>Acknowledgement by</dt><dd><b>' + due + '</b> · ' + PF.ACK_TARGET_DAYS + ' working days</dd>' +
             '<dt>Handling</dt><dd>' + (rec.priority === 'expedited' ? 'Expedited' : 'Standard') + ' · ' + PF.esc(rec.officer) + '</dd>' +
             '<dt>Attachments</dt><dd>' + rec.files.map(function (f) { return PF.esc(f.name) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">' + PF.bytes(f.size) + '</span>'; }).join('<br>') + '</dd>' +
           '</dl>' +
@@ -482,8 +487,9 @@ PF.page = function () {
   }
 
   /* ---------- boot ---------- */
-  var pre = new URLSearchParams(location.search).get('service');
-  if (pre && PF.SERVICES.some(function (s) { return s.key === pre; })) {
+  var q0 = new URLSearchParams(location.search);
+  var pre = q0.get('type') || q0.get('service');
+  if (pre && PF.CORRESPONDENCE_TYPES.some(function (s) { return s.key === pre; })) {
     setVal('service', pre);
     renderRequirements();
   }

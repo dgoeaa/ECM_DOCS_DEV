@@ -27,7 +27,7 @@ PF.page = function () {
     var last = r.events[r.events.length - 1];
     return '<li><a class="pf-rec" href="track.html?id=' + encodeURIComponent(r.id) + '" style="text-decoration:none">' +
       '<span class="pf-rec__top"><span class="pf-rec__id">' + PF.esc(r.id) + '</span>' + PF.pill(r.status) + '</span>' +
-      '<span class="pf-rec__meta"><span>' + PF.esc(r.serviceCode) + '</span><span>·</span><span>' + PF.esc(last.label) + '</span><span>·</span><span>' + PF.rel(r.updatedAt) + '</span></span>' +
+      '<span class="pf-rec__meta"><span>' + PF.esc(r.category) + '</span><span>·</span><span>' + PF.esc(last.label) + '</span><span>·</span><span>' + PF.rel(r.updatedAt) + '</span></span>' +
       '</a></li>';
   }).join('');
 
@@ -50,7 +50,7 @@ PF.page = function () {
   var stats = [
     { v: m.total, l: 'Requests in the registry' },
     { v: m.onTimeRate, l: 'Closed within target', suffix: '%' },
-    { v: PF.SERVICES.length, l: 'Services online' },
+    { v: PF.CORRESPONDENCE_TYPES.length, l: 'Correspondence types' },
     { v: m.week, l: 'Received in the last 7 days' }
   ];
   PF.$('#heroStats').innerHTML = stats.map(function (s, i) {
@@ -77,10 +77,10 @@ PF.page = function () {
   } else PF.$$('[data-count]').forEach(countUp);
 
   /* ---- service catalogue ---- */
-  PF.$('#catalogue').innerHTML = PF.SERVICES.map(function (s) {
+  PF.$('#catalogue').innerHTML = PF.CORRESPONDENCE_TYPES.map(function (s) {
     var count = m.byService[s.key] || 0;
     return '<a class="pf-cat__i" href="submit.html?service=' + s.key + '" style="text-decoration:none;color:inherit">' +
-      '<span class="pf-cat__sla">' + PF.esc(s.code) + ' · ' + s.sla + ' working days</span>' +
+      '<span class="pf-cat__sla">' + PF.esc(s.category) + ' · acknowledged in ' + PF.ACK_TARGET_DAYS + ' working days</span>' +
       '<span class="pf-cat__t">' + PF.esc(s.name) + '</span>' +
       '<p class="pf-cat__b">' + PF.esc(s.blurb) + '</p>' +
       '<span class="dgo-row" style="gap:8px;font-size:12px;color:var(--dgo-color-fg-subtle)"><svg class="icon-sm" aria-hidden="true"><use href="#i-building"></use></svg>' + PF.esc(s.unit) + '</span>' +

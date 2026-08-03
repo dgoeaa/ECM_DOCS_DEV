@@ -156,10 +156,10 @@ PF.panels = {};
     var oldest = ages.length ? ages[ages.length - 1] : 0;
 
     /* service load */
-    var svc = PF.SERVICES.map(function (s) {
+    var svc = PF.CORRESPONDENCE_TYPES.map(function (s) {
       var rows = all.filter(function (r) { return r.service === s.key; });
       var openN = rows.filter(PF.isOpen).length;
-      return { name: s.name, code: s.code, total: rows.length, open: openN, sla: s.sla };
+      return { name: s.label, code: s.category, total: rows.length, open: openN, sla: PF.ACK_TARGET_DAYS };
     }).filter(function (s) { return s.total; }).sort(function (a, b) { return b.total - a.total; });
     var svcMax = Math.max.apply(null, svc.map(function (s) { return s.total; }).concat([1]));
 
@@ -276,9 +276,9 @@ PF.panels = {};
     var lines = [head.map(cell).join(',')];
     rows.forEach(function (r) {
       lines.push([
-        r.id, r.serviceName, r.serviceCode, r.unit, r.title, r.name, r.org, r.email,
+        r.id, r.typeLabel, r.category, r.unit, r.title, r.name, r.org, r.email,
         r.priority, PF.status(r.status).label, r.officer,
-        r.submittedAt.slice(0, 10), r.dueAt.slice(0, 10), r.updatedAt.slice(0, 10),
+        r.submittedAt.slice(0, 10), r.ackDueAt.slice(0, 10), r.updatedAt.slice(0, 10),
         PF.isOverdue(r) ? 'yes' : 'no',
         r.files.map(function (f) { return f.name; }).join(' | ')
       ].map(cell).join(','));

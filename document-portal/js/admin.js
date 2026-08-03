@@ -172,7 +172,7 @@ PF.page = function () {
       if (S.priority !== 'all' && r.priority !== S.priority) return false;
       if (S.overdue && !PF.isOverdue(r)) return false;
       if (S.q) {
-        var hay = (r.id + ' ' + r.title + ' ' + r.name + ' ' + r.org + ' ' + r.email + ' ' + r.serviceName + ' ' + r.officer).toLowerCase();
+        var hay = (r.id + ' ' + r.title + ' ' + r.name + ' ' + r.org + ' ' + r.email + ' ' + r.typeLabel + ' ' + r.officer).toLowerCase();
         if (hay.indexOf(S.q.toLowerCase()) === -1) return false;
       }
       return true;
@@ -180,8 +180,8 @@ PF.page = function () {
     var by = {
       updated: function (a, b) { return new Date(b.updatedAt) - new Date(a.updatedAt); },
       received: function (a, b) { return new Date(b.submittedAt) - new Date(a.submittedAt); },
-      due: function (a, b) { return new Date(a.dueAt) - new Date(b.dueAt); },
-      priority: function (a, b) { return (b.priority === 'expedited') - (a.priority === 'expedited') || new Date(a.dueAt) - new Date(b.dueAt); },
+      due: function (a, b) { return new Date(a.ackDueAt) - new Date(b.ackDueAt); },
+      priority: function (a, b) { return (b.priority === 'expedited') - (a.priority === 'expedited') || new Date(a.ackDueAt) - new Date(b.ackDueAt); },
       org: function (a, b) { return a.org.localeCompare(b.org); }
     };
     return rows.sort(by[S.sort] || by.updated);
@@ -209,7 +209,7 @@ PF.page = function () {
           '</select></div>' +
           '<div class="dgo-select"><select class="dgo-select__field" id="fService" aria-label="Service">' +
             opt('all', 'All services', S.service) +
-            PF.SERVICES.map(function (s) { return opt(s.key, s.code + ' — ' + s.name, S.service); }).join('') +
+            PF.CORRESPONDENCE_TYPES.map(function (s) { return opt(s.key, s.label, S.service); }).join('') +
           '</select></div>' +
           '<div class="dgo-select"><select class="dgo-select__field" id="fUnit" aria-label="Unit">' +
             opt('all', 'All units', S.unit) +
@@ -244,12 +244,12 @@ PF.page = function () {
               '<td><input type="checkbox" data-sel="' + PF.esc(r.id) + '"' + (S.sel[r.id] ? ' checked' : '') + ' aria-label="Select ' + PF.esc(r.id) + '"></td>' +
               '<td><span class="pf-rec__id">' + PF.esc(r.id) + '</span>' +
                 '<div class="pf-note" style="max-width:32ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + PF.esc(r.title) + '</div></td>' +
-              '<td><span class="pf-mono" style="font-size:11.5px;color:var(--dgo-color-fg-muted)">' + PF.esc(r.serviceCode) + '</span>' +
+              '<td><span class="pf-mono" style="font-size:11.5px;color:var(--dgo-color-fg-muted)">' + PF.esc(r.category) + '</span>' +
                 '<div style="font-size:12.5px">' + PF.esc(r.unit) + '</div></td>' +
               '<td>' + PF.esc(r.name) + '<div class="pf-note" style="max-width:26ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + PF.esc(r.org) + '</div></td>' +
               '<td>' + PF.esc(r.officer) + '</td>' +
               '<td>' + PF.pill(r.status) + (r.priority === 'expedited' ? ' <span class="dgo-pill dgo-pill--escalated"><span class="dgo-pill__dot"></span>Exp</span>' : '') + '</td>' +
-              '<td class="pf-mono" style="font-size:12px' + (over ? ';color:var(--dgo-color-danger-subtle-fg);font-weight:600' : '') + '">' + PF.date(r.dueAt) + (over ? '<div style="font-size:11px">overdue</div>' : '') + '</td>' +
+              '<td class="pf-mono" style="font-size:12px' + (over ? ';color:var(--dgo-color-danger-subtle-fg);font-weight:600' : '') + '">' + PF.date(r.ackDueAt) + (over ? '<div style="font-size:11px">ack overdue</div>' : '') + '</td>' +
               '<td class="pf-mono" style="font-size:12px">' + PF.rel(r.updatedAt) + '</td>' +
             '</tr>';
           }).join('') + '</tbody></table></div>' +
@@ -402,7 +402,7 @@ PF.page = function () {
   var drawer = PF.$('#drawer');
 
   function slaLine(rec) {
-    var total = PF.service(rec.service).sla, used = 0;
+    var total = PF.ACK_TARGET_DAYS, used = 0;
     var d = new Date(rec.submittedAt), end = PF.isOpen(rec) ? new Date() : new Date(rec.updatedAt);
     while (d < end) { d.setDate(d.getDate() + 1); var w = d.getDay(); if (w !== 0 && w !== 6) used++; }
     var pct = Math.min(100, Math.round((used / total) * 100)), over = used > total && PF.isOpen(rec);
@@ -431,14 +431,14 @@ PF.page = function () {
         '<div class="pf-drawer__bdy dgo-stack dgo-stack--5">' +
           slaLine(rec) +
           '<dl class="pf-kv">' +
-            '<dt>Service</dt><dd>' + PF.esc(rec.serviceName) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + rec.serviceCode + ')</span></dd>' +
+            '<dt>Type</dt><dd>' + PF.esc(rec.typeLabel) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">(' + PF.esc(rec.category) + ')</span></dd>' +
             '<dt>Unit</dt><dd>' + PF.esc(rec.unit) + '</dd>' +
             '<dt>Officer</dt><dd>' + PF.esc(rec.officer) + '</dd>' +
             '<dt>Requester</dt><dd>' + PF.esc(rec.name) + '<br><span class="pf-note">' + PF.esc(rec.org) + ' · ' + PF.esc(rec.orgType) + '</span></dd>' +
             '<dt>Contact</dt><dd><a class="pf-inline-link" href="mailto:' + PF.esc(rec.email) + '">' + PF.esc(rec.email) + '</a>' + (rec.phone ? '<br><span class="pf-note">' + PF.esc(rec.phone) + '</span>' : '') + '</dd>' +
             '<dt>State</dt><dd>' + PF.esc(rec.state || '—') + '</dd>' +
             '<dt>Received</dt><dd>' + PF.dateTime(rec.submittedAt) + '</dd>' +
-            '<dt>Due</dt><dd>' + PF.date(rec.dueAt) + '</dd>' +
+            '<dt>Acknowledgement due</dt><dd>' + PF.date(rec.ackDueAt) + '</dd>' +
             '<dt>Attachments</dt><dd>' + (rec.files.length ? rec.files.map(function (f) {
               return '<span class="dgo-row" style="gap:8px">' + PF.icon('file', 'icon-sm') + PF.esc(f.name) + ' <span class="pf-mono" style="color:var(--dgo-color-fg-muted)">' + PF.bytes(f.size) + '</span></span>';
             }).join('') : '—') + '</dd>' +

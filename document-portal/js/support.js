@@ -193,7 +193,7 @@ PF.page = function () {
         '<dt>Topic</dt><dd>' + PF.esc(t.label) + '</dd>' +
         '<dt>Name</dt><dd>' + PF.esc(data.name) + '</dd>' +
         '<dt>Email</dt><dd>' + PF.esc(data.email) + '</dd>' +
-        (data.requestId ? '<dt>Tracking ID</dt><dd class="pf-mono">' + PF.esc(data.requestId) + (known ? ' · ' + PF.esc(known.serviceCode) + ' · ' + PF.esc(PF.status(known.status).label) : ' · not on this device') + '</dd>' : '') +
+        (data.requestId ? '<dt>Tracking ID</dt><dd class="pf-mono">' + PF.esc(data.requestId) + (known ? ' · ' + PF.esc(known.category) + ' · ' + PF.esc(PF.status(known.status).label) : ' · not on this device') + '</dd>' : '') +
         '<dt>Message</dt><dd style="white-space:pre-line">' + PF.esc(data.message) + '</dd>' +
         '</dl>' +
         '<p class="pf-note">A reference is issued immediately and the case is queued for the helpdesk. Attachments cannot be added here — email them to portal@nitda.gov.ng quoting the reference.</p>'

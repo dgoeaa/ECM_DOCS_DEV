@@ -44,34 +44,52 @@ PF.STAGES = ['Received', 'Validated', 'Under review', 'Decision'];
 /* ---------------------------------------------------------------
    Service catalogue
    --------------------------------------------------------------- */
-PF.SERVICES = [
-  { key: 'it-clearance', code: 'IT-CLR', name: 'IT Project Clearance', unit: 'Standards, Guidelines & Regulation', sla: 14,
-    blurb: 'Mandatory clearance for information-technology projects procured by MDAs before contract award.',
-    needs: ['Project proposal or BOQ', 'Approved budget line', 'Technical specification'] },
-  { key: 'ndpa-compliance', code: 'DPA-CMP', name: 'Data Protection Compliance Filing', unit: 'Digital Economy & Compliance', sla: 10,
-    blurb: 'Annual NDPA/NDPR audit filing for data controllers and processors of major importance.',
-    needs: ['Audit report from a licensed DPCO', 'Evidence of filing fee', 'Data-processing inventory'] },
-  { key: 'strategy', code: 'DES-SUB', name: 'Digital Economy Strategy Submission', unit: 'Policy & Strategy', sla: 21,
-    blurb: 'Submission of sector or state digital-economy strategies for alignment review.',
-    needs: ['Strategy document', 'Implementation roadmap', 'Endorsement letter'] },
-  { key: 'policy-review', code: 'POL-REV', name: 'Policy Document Review', unit: 'Policy & Strategy', sla: 15,
-    blurb: 'Request a formal review of a draft policy, standard or regulatory instrument.',
-    needs: ['Draft policy document', 'Stakeholder consultation summary'] },
-  { key: 'proposal', code: 'PROP-EOI', name: 'Proposal / Expression of Interest', unit: 'Corporate Planning & Partnerships', sla: 10,
-    blurb: 'Unsolicited proposals, partnership concepts and expressions of interest.',
-    needs: ['Concept note or proposal', 'Company profile', 'CAC registration certificate'] },
-  { key: 'report', code: 'RPT-SUB', name: 'Technical Report Submission', unit: 'Registry & Correspondence', sla: 7,
-    blurb: 'Periodic, project or compliance reports required under an existing engagement.',
-    needs: ['Report document', 'Reference number of the engagement'] },
-  { key: 'startup-label', code: 'SUA-LBL', name: 'Startup Act Labelling Support', unit: 'Digital Economy & Compliance', sla: 20,
-    blurb: 'Support requests relating to Nigeria Startup Act labelling and verification.',
-    needs: ['Certificate of incorporation', 'Founder identification', 'Product description'] },
-  { key: 'accreditation', code: 'ACC-LIC', name: 'Accreditation & Licensing', unit: 'Standards, Guidelines & Regulation', sla: 30,
-    blurb: 'Accreditation of IT service providers, training institutions and consultants.',
-    needs: ['Application form', 'Evidence of technical capacity', 'Tax clearance certificate'] },
-  { key: 'general', code: 'GEN-COR', name: 'General Correspondence', unit: 'Registry & Correspondence', sla: 5,
-    blurb: 'Letters, enquiries and any submission that does not fit another category.',
-    needs: ['Covering letter or enquiry'] }
+/* ---------------------------------------------------------------
+   Correspondence taxonomy.
+
+   This replaced PF.SERVICES, which modelled the portal as a service desk:
+   a submitter picked "IT Project Clearance", a 14-working-day decision SLA
+   started, and an officer approved or declined it. That is not what this
+   portal is. It is an external intake channel for documents and
+   correspondence addressed to NITDA.
+
+   Each entry is a PUBLIC-FACING type that maps onto the internal registry
+   category the operations platform already uses, so a submitter never has to
+   read an internal taxonomy but every submission lands on a known category.
+   `category` is the mapping; confirm the exact strings against the registry
+   reference data before go-live.
+   --------------------------------------------------------------- */
+
+/* Acknowledgement of receipt — NOT a decision deadline. The registry
+   acknowledges within this window; the outcome follows its own workflow and
+   is reported through tracking, not promised up front. */
+PF.ACK_TARGET_DAYS = 3;
+
+PF.CORRESPONDENCE_TYPES = [
+  { key: 'letter', label: 'Official letter', category: 'General Correspondence',
+    blurb: 'A formal letter addressed to the Director-General or to a directorate.',
+    needs: ['The signed letter, as a PDF or scan'] },
+  { key: 'application', label: 'Application or formal request', category: 'Application',
+    blurb: 'A request for clearance, accreditation, licensing, labelling or approval.',
+    needs: ['Covering letter stating what is requested', 'Supporting documents named in the letter'] },
+  { key: 'proposal', label: 'Proposal or expression of interest', category: 'Proposal',
+    blurb: 'An unsolicited proposal, partnership concept or expression of interest.',
+    needs: ['Concept note or proposal', 'Organisation profile'] },
+  { key: 'report', label: 'Report or periodic return', category: 'Report',
+    blurb: 'A report or return required under an existing engagement or obligation.',
+    needs: ['The report document', 'Reference of the engagement it relates to'] },
+  { key: 'compliance', label: 'Regulatory or compliance filing', category: 'Compliance Filing',
+    blurb: 'A filing made under a regulation, standard or statutory instrument.',
+    needs: ['The filing itself', 'Evidence of any fee paid'] },
+  { key: 'policy', label: 'Policy or strategy document', category: 'Policy Submission',
+    blurb: 'A draft policy, standard, strategy or regulatory instrument submitted for review.',
+    needs: ['The document', 'Any consultation or endorsement evidence'] },
+  { key: 'invitation', label: 'Invitation or event notice', category: 'Invitation',
+    blurb: 'An invitation to an event, or a request for representation or an observer.',
+    needs: ['Invitation letter', 'Programme or agenda, if available'] },
+  { key: 'other', label: 'Other correspondence', category: 'General Correspondence',
+    blurb: 'Anything that does not fit the types above. The registry will classify it.',
+    needs: ['Whatever document you are submitting'] }
 ];
 
 PF.ORG_TYPES = ['Ministry, Department or Agency', 'State Government', 'Private company', 'Non-governmental organisation', 'Academic institution', 'Individual / Sole proprietor', 'International organisation'];
@@ -131,55 +149,55 @@ PF.SUPPORT_SEEDS = [
    Seed records — installed once per browser, then live in the store.
    --------------------------------------------------------------- */
 PF.SEEDS = [
-  { id: 'NITDA-A1B2C3D4E', service: 'it-clearance', status: 'approved', priority: 'standard', days: 21, org: 'Federal Ministry of Health', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Joseph Danladi', email: 'j.danladi@health.gov.ng',
+  { id: 'NITDA-A1B2C3D4E', type: 'application', status: 'approved', priority: 'standard', days: 21, org: 'Federal Ministry of Health', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Joseph Danladi', email: 'j.danladi@health.gov.ng',
     title: 'Clearance for national health records platform', officer: 'M. Adeyemi',
     files: [{ name: 'NHR-Platform-Proposal.pdf', size: 2411520 }, { name: 'Approved-Budget-Line.pdf', size: 318000 }],
     events: [ { d: 21, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 20, s: 'validation', a: 'Documents validated by the registry.' }, { d: 17, s: 'review', a: 'Assigned to Standards, Guidelines & Regulation.' }, { d: 8, s: 'review', a: 'Compliance audit completed successfully.', n: 'Architecture meets the NGN Cloud First policy.' }, { d: 3, s: 'approved', a: 'Clearance certificate issued and sent to the requester.', n: 'Certificate reference ITC/2025/0418.' } ] },
-  { id: 'NITDA-F6G7H8I9J', service: 'ndpa-compliance', status: 'action-required', priority: 'standard', days: 9, org: 'Sterling Data Systems Ltd', orgType: 'Private company', state: 'Lagos', name: 'Amaka Smith', email: 'a.smith@sterlingdata.ng',
+  { id: 'NITDA-F6G7H8I9J', type: 'compliance', status: 'action-required', priority: 'standard', days: 9, org: 'Sterling Data Systems Ltd', orgType: 'Private company', state: 'Lagos', name: 'Amaka Smith', email: 'a.smith@sterlingdata.ng',
     title: 'Annual data protection audit filing 2025', officer: 'C. Okonkwo',
     files: [{ name: 'DPCO-Audit-Report-2025.pdf', size: 5240000 }],
     events: [ { d: 9, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 8, s: 'validation', a: 'Documents validated by the registry.' }, { d: 5, s: 'review', a: 'Initial assessment by Digital Economy & Compliance.' }, { d: 2, s: 'action-required', a: 'Additional documentation requested.', n: 'Please provide evidence of the data-hosting location and the sub-processor register.' } ] },
-  { id: 'NITDA-K0L1M2N3O', service: 'strategy', status: 'review', priority: 'expedited', days: 5, org: 'Kaduna State Government', orgType: 'State Government', state: 'Kaduna', name: 'Bilkisu Mark', email: 'b.mark@kdsg.gov.ng',
+  { id: 'NITDA-K0L1M2N3O', type: 'policy', status: 'review', priority: 'expedited', days: 5, org: 'Kaduna State Government', orgType: 'State Government', state: 'Kaduna', name: 'Bilkisu Mark', email: 'b.mark@kdsg.gov.ng',
     title: 'Kaduna State digital economy strategy 2026–2030', officer: 'F. Danjuma',
     files: [{ name: 'KDSG-Digital-Strategy.pdf', size: 8120000 }, { name: 'Implementation-Roadmap.xlsx', size: 442000 }],
     events: [ { d: 5, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 4, s: 'validation', a: 'Documents validated by the registry.' }, { d: 2, s: 'review', a: 'Technical compatibility assessment initiated.' } ] },
-  { id: 'NITDA-P4Q5R6S7T', service: 'accreditation', status: 'review', priority: 'standard', days: 12, org: 'Cedarwood Institute of Technology', orgType: 'Academic institution', state: 'Enugu', name: 'Ngozi Obi', email: 'registrar@cedarwood.edu.ng', title: 'Accreditation of IT training programme', officer: 'A. Bello',
+  { id: 'NITDA-P4Q5R6S7T', type: 'application', status: 'review', priority: 'standard', days: 12, org: 'Cedarwood Institute of Technology', orgType: 'Academic institution', state: 'Enugu', name: 'Ngozi Obi', email: 'registrar@cedarwood.edu.ng', title: 'Accreditation of IT training programme', officer: 'A. Bello',
     files: [{ name: 'Accreditation-Application.pdf', size: 1240000 }],
     events: [ { d: 12, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 11, s: 'validation', a: 'Documents validated by the registry.' }, { d: 6, s: 'review', a: 'Facility capacity review scheduled.' } ] },
-  { id: 'NITDA-U8V9W0X1Y', service: 'startup-label', status: 'approved', priority: 'expedited', days: 16, org: 'Paylink Africa', orgType: 'Private company', state: 'Lagos', name: 'Tunde Bakare', email: 'tunde@paylink.africa', title: 'Startup Act labelling verification', officer: 'T. Eze',
+  { id: 'NITDA-U8V9W0X1Y', type: 'application', status: 'approved', priority: 'expedited', days: 16, org: 'Paylink Africa', orgType: 'Private company', state: 'Lagos', name: 'Tunde Bakare', email: 'tunde@paylink.africa', title: 'Startup Act labelling verification', officer: 'T. Eze',
     files: [{ name: 'CAC-Certificate.pdf', size: 640000 }, { name: 'Product-Overview.pdf', size: 1810000 }],
     events: [ { d: 16, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 15, s: 'validation', a: 'Documents validated by the registry.' }, { d: 12, s: 'review', a: 'Eligibility assessed against the Startup Act.' }, { d: 4, s: 'approved', a: 'Startup label confirmed.', n: 'Label reference SUA/LB/2025/1187.' } ] },
-  { id: 'NITDA-Z2A3B4C5D', service: 'proposal', status: 'declined', priority: 'standard', days: 27, org: 'Novatek Consulting', orgType: 'Private company', state: 'Rivers', name: 'Ibim Wokoma', email: 'i.wokoma@novatek.ng', title: 'Unsolicited proposal — rural connectivity pilot', officer: 'H. Yusuf',
+  { id: 'NITDA-Z2A3B4C5D', type: 'proposal', status: 'declined', priority: 'standard', days: 27, org: 'Novatek Consulting', orgType: 'Private company', state: 'Rivers', name: 'Ibim Wokoma', email: 'i.wokoma@novatek.ng', title: 'Unsolicited proposal — rural connectivity pilot', officer: 'H. Yusuf',
     files: [{ name: 'Rural-Connectivity-Concept.pdf', size: 2960000 }],
     events: [ { d: 27, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 26, s: 'validation', a: 'Documents validated by the registry.' }, { d: 20, s: 'review', a: 'Reviewed by Corporate Planning & Partnerships.' }, { d: 11, s: 'declined', a: 'Proposal not accepted.', n: 'Scope overlaps an existing intervention under the National Broadband Plan. Resubmission is welcome in the next cycle.' } ] },
-  { id: 'NITDA-E6F7G8H9I', service: 'report', status: 'validation', priority: 'standard', days: 2, org: 'Galaxy Backbone Ltd', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Sadiq Aliyu', email: 's.aliyu@galaxybackbone.com.ng', title: 'Q3 infrastructure utilisation report', officer: 'A. Bello',
+  { id: 'NITDA-E6F7G8H9I', type: 'report', status: 'validation', priority: 'standard', days: 2, org: 'Galaxy Backbone Ltd', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Sadiq Aliyu', email: 's.aliyu@galaxybackbone.com.ng', title: 'Q3 infrastructure utilisation report', officer: 'A. Bello',
     files: [{ name: 'Q3-Utilisation-Report.pdf', size: 1120000 }],
     events: [ { d: 2, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 1, s: 'validation', a: 'Registry check in progress.' } ] },
-  { id: 'NITDA-J0K1L2M3N', service: 'policy-review', status: 'review', priority: 'standard', days: 8, org: 'Ogun State Ministry of Science & Technology', orgType: 'State Government', state: 'Ogun', name: 'Folasade Adeniyi', email: 'f.adeniyi@ogunstate.gov.ng', title: 'Draft state cloud adoption policy', officer: 'F. Danjuma',
+  { id: 'NITDA-J0K1L2M3N', type: 'policy', status: 'review', priority: 'standard', days: 8, org: 'Ogun State Ministry of Science & Technology', orgType: 'State Government', state: 'Ogun', name: 'Folasade Adeniyi', email: 'f.adeniyi@ogunstate.gov.ng', title: 'Draft state cloud adoption policy', officer: 'F. Danjuma',
     files: [{ name: 'Draft-Cloud-Policy-v3.docx', size: 384000 }],
     events: [ { d: 8, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 7, s: 'validation', a: 'Documents validated by the registry.' }, { d: 5, s: 'review', a: 'Under review by Policy & Strategy.' } ] },
-  { id: 'NITDA-O4P5Q6R7S', service: 'it-clearance', status: 'action-required', priority: 'standard', days: 14, org: 'Federal Inland Revenue Service', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Emeka Nwosu', email: 'e.nwosu@firs.gov.ng', title: 'Clearance for tax administration upgrade', officer: 'M. Adeyemi',
+  { id: 'NITDA-O4P5Q6R7S', type: 'application', status: 'action-required', priority: 'standard', days: 14, org: 'Federal Inland Revenue Service', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Emeka Nwosu', email: 'e.nwosu@firs.gov.ng', title: 'Clearance for tax administration upgrade', officer: 'M. Adeyemi',
     files: [{ name: 'TAS-Upgrade-BOQ.xlsx', size: 214000 }],
     events: [ { d: 14, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 13, s: 'validation', a: 'Documents validated by the registry.' }, { d: 9, s: 'review', a: 'Technical specification under assessment.' }, { d: 4, s: 'action-required', a: 'Clarification requested.', n: 'Provide the signed technical specification and the approved budget line reference.' } ] },
-  { id: 'NITDA-T8U9V0W1X', service: 'general', status: 'approved', priority: 'standard', days: 6, org: 'Bright Minds Foundation', orgType: 'Non-governmental organisation', state: 'Kano', name: 'Halima Sani', email: 'h.sani@brightminds.org', title: 'Request for digital literacy partnership briefing', officer: 'T. Eze',
+  { id: 'NITDA-T8U9V0W1X', type: 'letter', status: 'approved', priority: 'standard', days: 6, org: 'Bright Minds Foundation', orgType: 'Non-governmental organisation', state: 'Kano', name: 'Halima Sani', email: 'h.sani@brightminds.org', title: 'Request for digital literacy partnership briefing', officer: 'T. Eze',
     files: [{ name: 'Partnership-Request.pdf', size: 168000 }],
     events: [ { d: 6, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 5, s: 'validation', a: 'Documents validated by the registry.' }, { d: 3, s: 'review', a: 'Routed to Corporate Planning & Partnerships.' }, { d: 1, s: 'approved', a: 'Briefing scheduled and confirmation sent.' } ] },
-  { id: 'NITDA-Y2Z3A4B5C', service: 'ndpa-compliance', status: 'received', priority: 'standard', days: 1, org: 'Meridian Health HMO', orgType: 'Private company', state: 'Oyo', name: 'Kunle Ojo', email: 'compliance@meridianhmo.ng', title: 'Data protection audit filing 2025', officer: 'C. Okonkwo',
+  { id: 'NITDA-Y2Z3A4B5C', type: 'compliance', status: 'received', priority: 'standard', days: 1, org: 'Meridian Health HMO', orgType: 'Private company', state: 'Oyo', name: 'Kunle Ojo', email: 'compliance@meridianhmo.ng', title: 'Data protection audit filing 2025', officer: 'C. Okonkwo',
     files: [{ name: 'Audit-Summary.pdf', size: 903000 }],
     events: [ { d: 1, s: 'received', a: 'Submission received and tracking ID issued.' } ] },
-  { id: 'NITDA-D6E7F8G9H', service: 'accreditation', status: 'withdrawn', priority: 'standard', days: 34, org: 'Skylark ICT Services', orgType: 'Private company', state: 'Delta', name: 'Peter Onoja', email: 'p.onoja@skylarkict.ng', title: 'Consultant accreditation application', officer: 'A. Bello',
+  { id: 'NITDA-D6E7F8G9H', type: 'application', status: 'withdrawn', priority: 'standard', days: 34, org: 'Skylark ICT Services', orgType: 'Private company', state: 'Delta', name: 'Peter Onoja', email: 'p.onoja@skylarkict.ng', title: 'Consultant accreditation application', officer: 'A. Bello',
     files: [{ name: 'Consultant-Application.pdf', size: 512000 }],
     events: [ { d: 34, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 33, s: 'validation', a: 'Documents validated by the registry.' }, { d: 26, s: 'withdrawn', a: 'Withdrawn at the request of the applicant.' } ] },
-  { id: 'NITDA-I0J1K2L3M', service: 'strategy', status: 'approved', priority: 'standard', days: 41, org: 'Federal Ministry of Education', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Grace Umeh', email: 'g.umeh@education.gov.ng', title: 'EdTech strategy alignment review', officer: 'F. Danjuma',
+  { id: 'NITDA-I0J1K2L3M', type: 'policy', status: 'approved', priority: 'standard', days: 41, org: 'Federal Ministry of Education', orgType: 'Ministry, Department or Agency', state: 'FCT — Abuja', name: 'Grace Umeh', email: 'g.umeh@education.gov.ng', title: 'EdTech strategy alignment review', officer: 'F. Danjuma',
     files: [{ name: 'EdTech-Strategy.pdf', size: 4300000 }],
     events: [ { d: 41, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 40, s: 'validation', a: 'Documents validated by the registry.' }, { d: 34, s: 'review', a: 'Alignment review with the National Digital Economy Policy.' }, { d: 24, s: 'approved', a: 'Alignment confirmed and communicated.' } ] },
-  { id: 'NITDA-N4O5P6Q7R', service: 'proposal', status: 'review', priority: 'standard', days: 4, org: 'Zenith Cloud Nigeria', orgType: 'Private company', state: 'Lagos', name: 'Chidi Anyanwu', email: 'c.anyanwu@zenithcloud.ng', title: 'Expression of interest — data centre colocation', officer: 'H. Yusuf',
+  { id: 'NITDA-N4O5P6Q7R', type: 'proposal', status: 'review', priority: 'standard', days: 4, org: 'Zenith Cloud Nigeria', orgType: 'Private company', state: 'Lagos', name: 'Chidi Anyanwu', email: 'c.anyanwu@zenithcloud.ng', title: 'Expression of interest — data centre colocation', officer: 'H. Yusuf',
     files: [{ name: 'EOI-Colocation.pdf', size: 730000 }, { name: 'Company-Profile.pdf', size: 1600000 }],
     events: [ { d: 4, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 3, s: 'validation', a: 'Documents validated by the registry.' }, { d: 1, s: 'review', a: 'Under commercial and technical review.' } ] },
-  { id: 'NITDA-S8T9U0V1W', service: 'report', status: 'approved', priority: 'expedited', days: 11, org: 'Nasarawa State ICT Bureau', orgType: 'State Government', state: 'Nasarawa', name: 'Yakubu Musa', email: 'y.musa@nasarawaict.gov.ng', title: 'Digital skills programme completion report', officer: 'T. Eze',
+  { id: 'NITDA-S8T9U0V1W', type: 'report', status: 'approved', priority: 'expedited', days: 11, org: 'Nasarawa State ICT Bureau', orgType: 'State Government', state: 'Nasarawa', name: 'Yakubu Musa', email: 'y.musa@nasarawaict.gov.ng', title: 'Digital skills programme completion report', officer: 'T. Eze',
     files: [{ name: 'Programme-Report.docx', size: 296000 }],
     events: [ { d: 11, s: 'received', a: 'Submission received and tracking ID issued.' }, { d: 10, s: 'validation', a: 'Documents validated by the registry.' }, { d: 8, s: 'review', a: 'Outcomes verified against the programme plan.' }, { d: 5, s: 'approved', a: 'Report accepted and filed.' } ] },
-  { id: 'NITDA-X2Y3Z4A5B', service: 'general', status: 'received', priority: 'standard', days: 0, org: 'University of Ibadan', orgType: 'Academic institution', state: 'Oyo', name: 'Adaobi Eze', email: 'a.eze@ui.edu.ng', title: 'Request for research data-sharing guidance', officer: 'A. Bello',
+  { id: 'NITDA-X2Y3Z4A5B', type: 'letter', status: 'received', priority: 'standard', days: 0, org: 'University of Ibadan', orgType: 'Academic institution', state: 'Oyo', name: 'Adaobi Eze', email: 'a.eze@ui.edu.ng', title: 'Request for research data-sharing guidance', officer: 'A. Bello',
     files: [{ name: 'Research-Data-Enquiry.pdf', size: 121000 }],
     events: [ { d: 0, s: 'received', a: 'Submission received and tracking ID issued.' } ] }
 ];

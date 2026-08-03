@@ -56,7 +56,7 @@
 <div id="draftBar"></div>
 
 <div class="pf-steps"><ol class="dgo-stepper" id="stepper">
-<li class="dgo-stepper__step" data-state="current" data-step="1"><span class="dgo-stepper__bullet">1</span><span>Service</span></li>
+<li class="dgo-stepper__step" data-state="current" data-step="1"><span class="dgo-stepper__bullet">1</span><span>Type</span></li>
 <li class="dgo-stepper__line"></li>
 <li class="dgo-stepper__step" data-step="2"><span class="dgo-stepper__bullet">2</span><span>Requester</span></li>
 <li class="dgo-stepper__line"></li>
@@ -66,14 +66,14 @@
 </ol></div>
 
 <form class="pf-panel" id="wizard" novalidate autocomplete="on">
-<div class="pf-panel__head"><h2 class="pf-panel__title" id="stepTitle">Choose the service</h2><span class="pf-mono" id="stepCount" style="margin-left:auto;font-size:11px;color:var(--dgo-color-fg-subtle)">STEP 1 OF 4</span></div>
+<div class="pf-panel__head"><h2 class="pf-panel__title" id="stepTitle">Kind of correspondence</h2><span class="pf-mono" id="stepCount" style="margin-left:auto;font-size:11px;color:var(--dgo-color-fg-subtle)">STEP 1 OF 4</span></div>
 <div class="pf-panel__body dgo-stack dgo-stack--6">
 
 <fieldset class="pf-fieldset dgo-stack dgo-stack--5" data-step="1">
-<legend class="dgo-visually-hidden">Service and priority</legend>
+<legend class="dgo-visually-hidden">Correspondence type and priority</legend>
 <div class="dgo-stack dgo-stack--3">
-<p class="pf-note">Every service routes to a different unit and carries its own working-day target. Pick the closest match — the registry will re-route if needed.</p>
-<div class="dgo-stack dgo-stack--2" id="serviceList" role="radiogroup" aria-label="Service"></div>
+<p class="pf-note">Tell us what kind of correspondence this is. The registry classifies and routes it — pick the closest match and it will be re-classified if needed.</p>
+<div class="dgo-stack dgo-stack--2" id="serviceList" role="radiogroup" aria-label="Kind of correspondence"></div>
 <p class="dgo-field__error" id="service-err" hidden></p>
 </div>
 <div id="serviceReq"></div>
@@ -144,7 +144,7 @@
 <div class="pf-panel" id="helpPanel">
 <div class="pf-panel__head"><svg class="icon-sm" aria-hidden="true" style="color:var(--dgo-color-action-primary)"><use href="#i-help"></use></svg><h2 class="pf-panel__title">Stuck on something?</h2></div>
 <div class="pf-panel__body dgo-stack dgo-stack--3">
-<p class="pf-note">Attachment rejected, service unclear, or submitting for another organisation? The helpdesk answers within one working day.</p>
+<p class="pf-note">Attachment rejected, unsure which type applies, or submitting on behalf of another organisation? The helpdesk answers within one working day.</p>
 <div class="dgo-cluster dgo-cluster--2"><a class="dgo-btn dgo-btn--secondary dgo-btn--sm" href="support.html">Open the helpdesk</a><a class="dgo-btn dgo-btn--ghost dgo-btn--sm" href="track.html">Track an existing request</a></div>
 </div>
 </div>
@@ -158,10 +158,10 @@
 <p>The Intelligent Portal is the single front door for document submission, status tracking and support across the agency.</p>
 <p style="margin-top:12px">No. 28 Port Harcourt Crescent, Off Gimbiya Street, Area 11, Garki, Abuja.</p>
 </div>
-<div><h3>Services</h3><ul>
-<li><a href="submit.html?service=it-clearance">IT project clearance</a></li>
-<li><a href="submit.html?service=ndpa-compliance">Data protection filing</a></li>
-<li><a href="submit.html?service=accreditation">Accreditation</a></li>
+<div><h3>Submit</h3><ul>
+<li><a href="submit.html?type=letter">Official letter</a></li>
+<li><a href="submit.html?type=application">Application or request</a></li>
+<li><a href="submit.html?type=proposal">Proposal or EOI</a></li>
 <li><a href="submit.html?service=general">General correspondence</a></li>
 </ul></div>
 <div><h3>Portal</h3><ul>
