@@ -212,14 +212,14 @@ await t('a missing body is refused', async () => {
   assert.equal(out.body.error, 'missing_body');
 });
 
-await t('verifyBytes is one implementation, shared with the anonymous path', () => {
+await t('verifyBytes is one implementation, shared with the anonymous path', async () => {
   // If these diverge, the two channels give different guarantees about the same library.
-  assert.equal(verifyBytes(FILE, { declaredSha256: DIGEST, declaredSize: FILE.length }), DIGEST);
-  assert.throws(() => verifyBytes(FILE, { declaredSha256: 'c'.repeat(64) }),
+  assert.equal(await verifyBytes(FILE, { declaredSha256: DIGEST, declaredSize: FILE.length }), DIGEST);
+  await assert.rejects(async () => verifyBytes(FILE, { declaredSha256: 'c'.repeat(64) }),
     e => e instanceof UploadError && e.reason === 'digest_mismatch');
-  assert.throws(() => verifyBytes(FILE, { declaredSize: 1 }),
+  await assert.rejects(async () => verifyBytes(FILE, { declaredSize: 1 }),
     e => e.reason === 'size_mismatch');
-  assert.throws(() => verifyBytes('not a buffer'), e => e.reason === 'missing_body');
+  await assert.rejects(async () => verifyBytes('not a buffer'), e => e.reason === 'missing_body');
 });
 
 /* ── filename and reference ────────────────────────────────────────────────── */

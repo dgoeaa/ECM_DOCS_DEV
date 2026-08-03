@@ -20,9 +20,10 @@
 
 import { EndpointKeys } from '../../config/endpoints.config.js';
 
-const env = (k, d) => (process.env[k] ?? d);
-
-export function loadConfig(source = process.env) {
+/* `globalThis.process?.env` rather than `process.env`: a Cloudflare Worker has no `process`,
+   and this module must be importable there. The Worker host passes its `env` binding
+   explicitly, so the default is only ever used by the Node host. */
+export function loadConfig(source = globalThis.process?.env ?? {}) {
   const get = k => source[k];
   const tenantId = get('DGO_TENANT_ID') || '';
   const missing = [];

@@ -52,11 +52,11 @@ console.log('\nUpload brokering');
 /* ── the broker refuses to exist insecurely ─────────────────────────────── */
 section('Broker construction');
 
-await t('a broker cannot be built without a secret', () => {
+await t('a broker cannot be built without a secret', async () => {
   assert.throws(() => createUploadBroker({}), /secret/);
 });
 
-await t('a short secret is refused', () => {
+await t('a short secret is refused', async () => {
   assert.throws(() => createUploadBroker({ secret: 'short' }), /at least 32/);
 });
 
@@ -103,19 +103,19 @@ await t('a forged ticket is refused', async () => {
 
 await t('a ticket signed with a different secret is refused', async () => {
   const other = createUploadBroker({ secret: 'b'.repeat(48) });
-  const { ticket } = other.issue({ referenceId: 'R', index: 0, name: 'x.pdf', size: FILE.length });
+  const { ticket } = await other.issue({ referenceId: 'R', index: 0, name: 'x.pdf', size: FILE.length });
   const res = await handleRequest(put(ticket, FILE), deps());
   assert.equal(res.status, 403);
 });
 
 await t('a tampered payload invalidates the signature', async () => {
   const b = createUploadBroker({ secret: SECRET });
-  const { ticket } = b.issue({ referenceId: 'R', index: 0, name: 'small.pdf', size: 10 });
+  const { ticket } = await b.issue({ referenceId: 'R', index: 0, name: 'small.pdf', size: 10 });
   const [body, mac] = ticket.split('.');
   const p = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
   p.size = 999999;                                   // widen the grant
   const tampered = `${Buffer.from(JSON.stringify(p)).toString('base64url')}.${mac}`;
-  assert.throws(() => b.redeem(tampered), e => e.reason === 'bad_ticket_signature');
+  await assert.rejects(async () => await b.redeem(tampered), e => e.reason === 'bad_ticket_signature');
 });
 
 await t('a ticket cannot be replayed', async () => {
@@ -129,18 +129,18 @@ await t('a ticket cannot be replayed', async () => {
   assert.equal(second.body.reason, 'ticket_already_used');
 });
 
-await t('an expired ticket is refused', () => {
+await t('an expired ticket is refused', async () => {
   let clock = 1_000_000;
   const b = createUploadBroker({ secret: SECRET, ttlMs: 1000, now: () => clock });
-  const { ticket } = b.issue({ referenceId: 'R', index: 0, name: 'x.pdf', size: 1 });
+  const { ticket } = await b.issue({ referenceId: 'R', index: 0, name: 'x.pdf', size: 1 });
   clock += 5000;
-  assert.throws(() => b.redeem(ticket), e => e.reason === 'ticket_expired');
+  await assert.rejects(async () => await b.redeem(ticket), e => e.reason === 'ticket_expired');
 });
 
-await t('a malformed ticket is refused before any field is read', () => {
+await t('a malformed ticket is refused before any field is read', async () => {
   const b = createUploadBroker({ secret: SECRET });
   for (const bad of ['', 'no-dot', 'a.b.c.d', '.', 'x.']) {
-    assert.throws(() => b.redeem(bad), e => e instanceof UploadError, `"${bad}" must be refused`);
+    await assert.rejects(async () => await b.redeem(bad), e => e instanceof UploadError, `"${bad}" must be refused`);
   }
 });
 

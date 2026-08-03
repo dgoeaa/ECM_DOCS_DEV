@@ -27,7 +27,10 @@
 // It is not a credential for anything else: it names its file, carries its own expiry, and
 // is burned on redemption.
 
-import crypto from 'node:crypto';
+import {
+  hmacKey, hmacSha256, timingSafeEqual, randomUUID, sha256Hex, b64uEncode, b64uDecode,
+  fromUtf8, utf8,
+} from './crypto.js';
 import { normaliseFilename, FILENAME_LIMITS } from '../../config/filename-policy.config.js';
 
 export const UPLOAD_LIMITS = Object.freeze({
@@ -45,8 +48,8 @@ export class UploadError extends Error {
   }
 }
 
-const b64u = buf => Buffer.from(buf).toString('base64url');
-const fromB64u = s => Buffer.from(String(s), 'base64url');
+const b64u = b64uEncode;
+const fromB64u = b64uDecode;
 
 /**
  * Ticket broker.
@@ -63,7 +66,8 @@ export function createUploadBroker({
   if (!secret || String(secret).length < 32) {
     throw new Error('createUploadBroker: a secret of at least 32 characters is required');
   }
-  const key = Buffer.from(String(secret), 'utf8');
+  // Held as a promise, not awaited: this factory is synchronous and every consumer is async.
+  const keyPromise = hmacKey(String(secret));
 
   // Redeemed ticket ids. A ticket is single-use: replaying one must not overwrite a file
   // that has already been accepted, or an attacker who observes a ticket could replace a
@@ -75,19 +79,19 @@ export function createUploadBroker({
     for (const [id, exp] of consumed) if (t > exp) consumed.delete(id);
   };
 
-  const sign = payload => {
-    const body = b64u(JSON.stringify(payload));
-    const mac = b64u(crypto.createHmac('sha256', key).update(body).digest());
+  const sign = async payload => {
+    const body = b64u(utf8(JSON.stringify(payload)));
+    const mac = b64u(await hmacSha256(await keyPromise, body));
     return `${body}.${mac}`;
   };
 
   return {
     /** One ticket per attachment of one submission. */
-    issue({ referenceId, index, name, size, sha256 }) {
-      const id = crypto.randomUUID();
+    async issue({ referenceId, index, name, size, sha256 }) {
+      const id = randomUUID();
       const exp = now() + ttlMs;
       return {
-        ticket: sign({ id, referenceId, index, name, size, sha256: sha256 || '', exp }),
+        ticket: await sign({ id, referenceId, index, name, size, sha256: sha256 || '', exp }),
         expiresAt: new Date(exp).toISOString(),
       };
     },
@@ -97,22 +101,21 @@ export function createUploadBroker({
      * Order matters: signature before payload, so a malformed forgery is rejected before
      * any of its fields are read.
      */
-    redeem(ticket) {
+    async redeem(ticket) {
       if (typeof ticket !== 'string' || !ticket.includes('.')) throw new UploadError('malformed_ticket');
       const [body, mac] = ticket.split('.');
       if (!body || !mac) throw new UploadError('malformed_ticket');
 
-      const expected = crypto.createHmac('sha256', key).update(body).digest();
+      const expected = await hmacSha256(await keyPromise, body);
       let given;
       try { given = fromB64u(mac); } catch { throw new UploadError('malformed_ticket'); }
-      // Constant-time compare, and length-checked first because timingSafeEqual throws on
-      // a length mismatch rather than returning false.
-      if (given.length !== expected.length || !crypto.timingSafeEqual(given, expected)) {
+      // Constant-time compare. Unequal lengths return false rather than throwing.
+      if (!timingSafeEqual(given, expected)) {
         throw new UploadError('bad_ticket_signature', '', 403);
       }
 
       let payload;
-      try { payload = JSON.parse(fromB64u(body).toString('utf8')); }
+      try { payload = JSON.parse(fromUtf8(fromB64u(body))); }
       catch { throw new UploadError('malformed_ticket'); }
 
       if (now() > payload.exp) throw new UploadError('ticket_expired', '', 410);
@@ -141,15 +144,21 @@ export function createUploadBroker({
  * Check the bytes against what was declared. Returns the computed digest.
  * Throws UploadError; never guesses which of two disagreeing values is right.
  */
-export function verifyBytes(body, { declaredSize, declaredSha256, limits = UPLOAD_LIMITS } = {}) {
-  if (!Buffer.isBuffer(body)) throw new UploadError('missing_body');
-  if (body.length > limits.maxFileBytes) {
-    throw new UploadError('file_too_large', `${body.length} bytes`, 413);
+export async function verifyBytes(body, { declaredSize, declaredSha256, limits = UPLOAD_LIMITS } = {}) {
+  /* A Worker delivers the body as an ArrayBuffer/Uint8Array, a node:http host as a Buffer —
+     which is itself a Uint8Array. Testing the shape rather than the class accepts both
+     without the proxy needing to know which host it is running under. */
+  if (!ArrayBuffer.isView(body) && !(body instanceof ArrayBuffer)) {
+    throw new UploadError('missing_body');
   }
-  if (Number.isFinite(declaredSize) && declaredSize > 0 && body.length !== declaredSize) {
-    throw new UploadError('size_mismatch', `declared ${declaredSize}, got ${body.length}`, 409);
+  const bytes = body instanceof ArrayBuffer ? new Uint8Array(body) : body;
+  if (bytes.byteLength > limits.maxFileBytes) {
+    throw new UploadError('file_too_large', `${bytes.byteLength} bytes`, 413);
   }
-  const digest = crypto.createHash('sha256').update(body).digest('hex');
+  if (Number.isFinite(declaredSize) && declaredSize > 0 && bytes.byteLength !== declaredSize) {
+    throw new UploadError('size_mismatch', `declared ${declaredSize}, got ${bytes.byteLength}`, 409);
+  }
+  const digest = await sha256Hex(bytes);
   if (declaredSha256 && digest !== declaredSha256) throw new UploadError('digest_mismatch', '', 409);
   return digest;
 }
@@ -228,7 +237,7 @@ export async function handleUpload(req, deps) {
   const ticket = req.headers?.['x-upload-ticket'] || req.headers?.['X-Upload-Ticket'] || '';
   let grant;
   try {
-    grant = broker.redeem(ticket);
+    grant = await broker.redeem(ticket);
   } catch (e) {
     audit({ event: 'upload:rejected', correlationId, reason: e.reason || 'error', at: now().toISOString() });
     return json(e.status || 400, { ok: false, error: 'invalid_ticket', reason: e.reason || 'error', correlationId });
@@ -237,7 +246,7 @@ export async function handleUpload(req, deps) {
   const body = req.body;
   let digest;
   try {
-    digest = verifyBytes(body, {
+    digest = await verifyBytes(body, {
       declaredSize: grant.size, declaredSha256: grant.sha256,
       limits: config.uploadLimits || UPLOAD_LIMITS,
     });
@@ -350,7 +359,7 @@ export async function handleScanIntake(req, deps) {
 
   let digest;
   try {
-    digest = verifyBytes(req.body, {
+    digest = await verifyBytes(req.body, {
       declaredSize, declaredSha256, limits: config.uploadLimits || UPLOAD_LIMITS,
     });
   } catch (e) {

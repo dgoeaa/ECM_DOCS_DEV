@@ -380,7 +380,7 @@ export async function handleIntake(req, deps) {
 
     if (action === 'verify') {
       let challenge;
-      try { challenge = verifier.issue(email); }
+      try { challenge = await verifier.issue(email); }
       catch (e) {
         audit({ event: 'intake:verify-throttled', correlationId, source: key, at: now().toISOString() });
         return { status: e.status || 400, headers: { 'Content-Type': 'application/json' },
@@ -410,7 +410,7 @@ export async function handleIntake(req, deps) {
 
     // verify-confirm
     let proof;
-    try { proof = verifier.redeem(email, req.body?.code); }
+    try { proof = await verifier.redeem(email, req.body?.code); }
     catch (e) {
       audit({ event: 'intake:verify-failed', correlationId, source: key,
               reason: e.reason, at: now().toISOString() });
@@ -551,7 +551,7 @@ export async function handleIntake(req, deps) {
                body: { ok: false, error: 'verification_not_available', correlationId } };
     }
     try {
-      verifier.consume(req.body?.verification, record.senderEmail);
+      await verifier.consume(req.body?.verification, record.senderEmail);
     } catch (e) {
       audit({ event: 'intake:unverified-rejected', correlationId, source: key,
               reason: e.reason, at: now().toISOString() });
@@ -568,10 +568,10 @@ export async function handleIntake(req, deps) {
      a broker configured the array is empty, which is the honest answer: the portal then
      keeps its existing dispatch path rather than being told uploads are available. */
   const uploads = broker
-    ? record.attachments.map((a, i) => {
-        const t = broker.issue({ referenceId, index: i, name: a.name, size: a.size, sha256: a.sha256 });
+    ? await Promise.all(record.attachments.map(async (a, i) => {
+        const t = await broker.issue({ referenceId, index: i, name: a.name, size: a.size, sha256: a.sha256 });
         return { name: a.name, size: a.size, ticket: t.ticket, expiresAt: t.expiresAt, uploadPath: '/intake/upload' };
-      })
+      }))
     : [];
 
   // The audit line records what arrived and from where. The submitter's email is part of

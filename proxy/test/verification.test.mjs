@@ -27,7 +27,9 @@ const t = async (label, fn) => {
   catch (e) { failed++; console.log(`  ❌ ${label}\n       ${e.message}`); }
 };
 const section = s => console.log(`\n${s}`);
-const throws = (fn, reason) => assert.throws(fn,
+/* The verification service became async when the proxy moved off node:crypto for Cloudflare
+   Workers — WebCrypto has no synchronous digest. Same failures, same reasons, awaited. */
+const throws = (fn, reason) => assert.rejects(async () => fn(),
   e => e instanceof VerificationError && e.reason === reason,
   `expected VerificationError(${reason})`);
 
@@ -59,131 +61,131 @@ console.log('\nIntake email verification (D4)');
 /* ── the service ───────────────────────────────────────────────────────────── */
 section('Issuing and redeeming');
 
-await t('a secret is required, and a short one is refused', () => {
+await t('a secret is required, and a short one is refused', async () => {
   assert.throws(() => createVerificationService({}), /secret of at least 32/);
   assert.throws(() => createVerificationService({ secret: 'tooshort' }), /secret of at least 32/);
 });
 
-await t('a challenge issues a code of the declared length', () => {
+await t('a challenge issues a code of the declared length', async () => {
   const s = svc();
-  const { code, expiresAt } = s.issue(EMAIL);
+  const { code, expiresAt } = await s.issue(EMAIL);
   assert.equal(code.length, VERIFY_LIMITS.codeLength);
   assert.match(code, /^\d+$/);
   assert.ok(Date.parse(expiresAt) > Date.now());
 });
 
-await t('the right code yields a proof', () => {
+await t('the right code yields a proof', async () => {
   const s = svc();
-  const { code } = s.issue(EMAIL);
-  const { token } = s.redeem(EMAIL, code);
+  const { code } = await s.issue(EMAIL);
+  const { token } = await s.redeem(EMAIL, code);
   assert.ok(token && token.includes('.'));
 });
 
-await t('the address is normalised, so case and spacing do not matter', () => {
+await t('the address is normalised, so case and spacing do not matter', async () => {
   const s = svc();
-  const { code } = s.issue('  Submitter@Example.ORG ');
-  assert.doesNotThrow(() => s.redeem(EMAIL, code));
+  const { code } = await s.issue('  Submitter@Example.ORG ');
+  await s.redeem(EMAIL, code);
 });
 
-await t('the code is never stored in clear', () => {
+await t('the code is never stored in clear', async () => {
   // A dump of this structure must not hand anyone a working code.
   const s = svc();
-  const { code } = s.issue(EMAIL);
+  const { code } = await s.issue(EMAIL);
   assert.ok(!JSON.stringify([...Object.values(s)]).includes(code));
 });
 
-await t('a wrong code is refused', () => {
+await t('a wrong code is refused', async () => {
   const s = svc();
-  s.issue(EMAIL);
-  throws(() => s.redeem(EMAIL, '000000'), 'mismatch');
+  await s.issue(EMAIL);
+  await throws(() => s.redeem(EMAIL, '000000'), 'mismatch');
 });
 
-await t('a code for one address does not work for another', () => {
+await t('a code for one address does not work for another', async () => {
   const s = svc();
-  const { code } = s.issue(EMAIL);
-  throws(() => s.redeem('someone.else@example.org', code), 'no_challenge');
+  const { code } = await s.issue(EMAIL);
+  await throws(() => s.redeem('someone.else@example.org', code), 'no_challenge');
 });
 
-await t('an expired challenge is refused', () => {
+await t('an expired challenge is refused', async () => {
   let t0 = 1_000_000;
   const s = createVerificationService({ secret: SECRET, now: () => t0 });
-  const { code } = s.issue(EMAIL);
+  const { code } = await s.issue(EMAIL);
   t0 += VERIFY_LIMITS.ttlMs + 1;
-  throws(() => s.redeem(EMAIL, code), 'expired');
+  await throws(() => s.redeem(EMAIL, code), 'expired');
 });
 
-await t('a re-issued challenge replaces the first', () => {
+await t('a re-issued challenge replaces the first', async () => {
   // Two live codes for one address doubles the guessing surface for no benefit.
   const s = svc();
-  const first = s.issue(EMAIL).code;
-  const second = s.issue(EMAIL).code;
-  if (first !== second) throws(() => s.redeem(EMAIL, first), 'mismatch');
-  assert.doesNotThrow(() => s.redeem(EMAIL, second));
+  const first = (await s.issue(EMAIL)).code;
+  const second = (await s.issue(EMAIL)).code;
+  if (first !== second) await throws(() => s.redeem(EMAIL, first), 'mismatch');
+  await s.redeem(EMAIL, second);
 });
 
-await t('attempts are capped and the challenge is burned, not merely slowed', () => {
+await t('attempts are capped and the challenge is burned, not merely slowed', async () => {
   const s = svc();
-  s.issue(EMAIL);
+  await s.issue(EMAIL);
   for (let i = 0; i < VERIFY_LIMITS.maxAttempts; i++) {
-    try { s.redeem(EMAIL, '111111'); } catch { /* expected */ }
+    try { await s.redeem(EMAIL, '111111'); } catch { /* expected */ }
   }
-  throws(() => s.redeem(EMAIL, '111111'), 'too_many_attempts');
+  await throws(() => s.redeem(EMAIL, '111111'), 'too_many_attempts');
   assert.equal(s.outstanding(), 0, 'the challenge must be gone, not just rate-limited');
 });
 
-await t('issuance is throttled per address', () => {
+await t('issuance is throttled per address', async () => {
   const s = svc();
-  for (let i = 0; i < VERIFY_LIMITS.perWindow; i++) s.issue(EMAIL);
-  throws(() => s.issue(EMAIL), 'too_many_requests');
+  for (let i = 0; i < VERIFY_LIMITS.perWindow; i++) await s.issue(EMAIL);
+  await throws(() => s.issue(EMAIL), 'too_many_requests');
 });
 
 /* ── the bypasses ──────────────────────────────────────────────────────────── */
 section('The proof cannot be reused, retargeted or forged');
 
-await t('a proof is single-use', () => {
+await t('a proof is single-use', async () => {
   const s = svc();
-  const { code } = s.issue(EMAIL);
-  const { token } = s.redeem(EMAIL, code);
-  assert.doesNotThrow(() => s.consume(token, EMAIL));
-  throws(() => s.consume(token, EMAIL), 'verification_already_used');
+  const { code } = await s.issue(EMAIL);
+  const { token } = await s.redeem(EMAIL, code);
+  await s.consume(token, EMAIL);
+  await throws(() => s.consume(token, EMAIL), 'verification_already_used');
 });
 
-await t('a proof is bound to the address it was earned for', () => {
+await t('a proof is bound to the address it was earned for', async () => {
   const s = svc();
-  const { code } = s.issue(EMAIL);
-  const { token } = s.redeem(EMAIL, code);
-  throws(() => s.consume(token, 'victim@example.org'), 'verification_email_mismatch');
+  const { code } = await s.issue(EMAIL);
+  const { token } = await s.redeem(EMAIL, code);
+  await throws(() => s.consume(token, 'victim@example.org'), 'verification_email_mismatch');
 });
 
-await t('a tampered payload is refused', () => {
+await t('a tampered payload is refused', async () => {
   const s = svc();
-  const { code } = s.issue(EMAIL);
-  const { token } = s.redeem(EMAIL, code);
+  const { code } = await s.issue(EMAIL);
+  const { token } = await s.redeem(EMAIL, code);
   const [body, mac] = token.split('.');
   const forged = Buffer.from(JSON.stringify({
     ...JSON.parse(Buffer.from(body, 'base64url').toString('utf8')),
     email: 'victim@example.org',
   })).toString('base64url');
-  throws(() => s.consume(`${forged}.${mac}`, 'victim@example.org'), 'bad_verification_signature');
+  await throws(() => s.consume(`${forged}.${mac}`, 'victim@example.org'), 'bad_verification_signature');
 });
 
-await t('a proof signed with another secret is refused', () => {
+await t('a proof signed with another secret is refused', async () => {
   const a = svc(), b = createVerificationService({ secret: 'y'.repeat(48) });
-  const { code } = b.issue(EMAIL);
-  const { token } = b.redeem(EMAIL, code);
-  throws(() => a.consume(token, EMAIL), 'bad_verification_signature');
+  const { code } = await b.issue(EMAIL);
+  const { token } = await b.redeem(EMAIL, code);
+  await throws(() => a.consume(token, EMAIL), 'bad_verification_signature');
 });
 
-await t('a missing or malformed proof is refused', () => {
+await t('a missing or malformed proof is refused', async () => {
   const s = svc();
-  throws(() => s.consume('', EMAIL), 'missing_verification');
-  throws(() => s.consume('not-a-token', EMAIL), 'malformed_verification');
+  await throws(() => s.consume('', EMAIL), 'missing_verification');
+  await throws(() => s.consume('not-a-token', EMAIL), 'malformed_verification');
 });
 
-await t('a proof whose challenge was never redeemed does not exist', () => {
+await t('a proof whose challenge was never redeemed does not exist', async () => {
   const s = svc();
-  s.issue(EMAIL);
-  throws(() => s.consume('abc.def', EMAIL), 'bad_verification_signature');
+  await s.issue(EMAIL);
+  await throws(() => s.consume('abc.def', EMAIL), 'bad_verification_signature');
 });
 
 /* ── the routes ────────────────────────────────────────────────────────────── */
@@ -247,8 +249,8 @@ await t('an unverified submission is refused when verification is required', asy
 
 await t('a verified submission is accepted and says so', async () => {
   const v = svc();
-  const { code } = v.issue(EMAIL);
-  const { token } = v.redeem(EMAIL, code);
+  const { code } = await v.issue(EMAIL);
+  const { token } = await v.redeem(EMAIL, code);
   const out = await post('/intake/submission', { ...VALID_SUBMISSION, verification: token }, deps({ verifier: v }));
   assert.equal(out.status, 202);
   assert.ok(out.body.referenceId);
@@ -267,8 +269,8 @@ await t('a rejected submission does not burn a reference', async () => {
 
 await t('a proof cannot be replayed for a second submission', async () => {
   const v = svc();
-  const { code } = v.issue(EMAIL);
-  const { token } = v.redeem(EMAIL, code);
+  const { code } = await v.issue(EMAIL);
+  const { token } = await v.redeem(EMAIL, code);
   const d = deps({ verifier: v });
   const first = await post('/intake/submission', { ...VALID_SUBMISSION, verification: token }, d);
   const second = await post('/intake/submission', { ...VALID_SUBMISSION, verification: token }, d);
@@ -278,8 +280,8 @@ await t('a proof cannot be replayed for a second submission', async () => {
 
 await t('a proof for one address cannot submit under another', async () => {
   const v = svc();
-  const { code } = v.issue(EMAIL);
-  const { token } = v.redeem(EMAIL, code);
+  const { code } = await v.issue(EMAIL);
+  const { token } = await v.redeem(EMAIL, code);
   const out = await post('/intake/submission',
     { ...VALID_SUBMISSION, senderEmail: 'victim@example.org', verification: token },
     deps({ verifier: v }));
@@ -317,8 +319,8 @@ await t('a failed confirm is audited with its real reason, though the caller is 
 await t('no audit line carries a code or a proof token', async () => {
   const events = [];
   const v = svc();
-  const { code } = v.issue(EMAIL);
-  const { token } = v.redeem(EMAIL, code);
+  const { code } = await v.issue(EMAIL);
+  const { token } = await v.redeem(EMAIL, code);
   const d = deps({ verifier: v, audit: e => events.push(JSON.stringify(e)) });
   await post('/intake/submission', { ...VALID_SUBMISSION, verification: token }, d);
   const all = events.join(' ');

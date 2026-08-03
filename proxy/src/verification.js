@@ -27,7 +27,10 @@
 // therefore defaults to FALSE and must be turned on deliberately. The posture is reported in
 // every response so a deployment cannot be wrong about which mode it is in.
 
-import crypto from 'node:crypto';
+import {
+  hmacKey, hmacSha256, timingSafeEqual, randomInt, randomUUID, b64uEncode, b64uDecode,
+  fromUtf8, utf8,
+} from './crypto.js';
 
 export const VERIFY_LIMITS = Object.freeze({
   codeLength: 6,
@@ -60,13 +63,15 @@ export function createVerificationService({
   secret,
   limits = VERIFY_LIMITS,
   now = () => Date.now(),
-  randomCode = () => String(crypto.randomInt(0, 10 ** VERIFY_LIMITS.codeLength))
+  randomCode = () => String(randomInt(10 ** VERIFY_LIMITS.codeLength))
     .padStart(VERIFY_LIMITS.codeLength, '0'),
 } = {}) {
   if (!secret || String(secret).length < 32) {
     throw new Error('createVerificationService: a secret of at least 32 characters is required');
   }
-  const key = Buffer.from(String(secret), 'utf8');
+  /* Imported once, lazily. WebCrypto key import is async and this factory is not, so the
+     promise is held rather than awaited — every consumer is already async. */
+  const keyPromise = hmacKey(String(secret));
 
   // email -> { hash, expiresAt, attempts, issuedAt }
   const challenges = new Map();
@@ -84,12 +89,11 @@ export function createVerificationService({
 
   /* The code is stored as an HMAC, never in clear. A memory dump or a log of this structure
      should not hand anyone a working code for an address they do not control. */
-  const hashOf = (email, code) =>
-    crypto.createHmac('sha256', key).update(`${email}:${code}`).digest();
+  const hashOf = async (email, code) => hmacSha256(await keyPromise, `${email}:${code}`);
 
-  const sign = payload => {
-    const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
-    const mac = crypto.createHmac('sha256', key).update(body).digest('base64url');
+  const sign = async payload => {
+    const body = b64uEncode(utf8(JSON.stringify(payload)));
+    const mac = b64uEncode(await hmacSha256(await keyPromise, body));
     return `${body}.${mac}`;
   };
 
@@ -98,7 +102,7 @@ export function createVerificationService({
      * Issue a challenge for an address. Returns `{ code, expiresAt }` — the CALLER sends the
      * code by mail; this module never has a mail transport of its own, so it cannot leak one.
      */
-    issue(rawEmail) {
+    async issue(rawEmail) {
       const email = normalise(rawEmail);
       if (!email) throw new VerificationError('missing_email');
 
@@ -120,7 +124,7 @@ export function createVerificationService({
       const expiresAt = t + limits.ttlMs;
       // A second request replaces the first: two live codes for one address doubles the
       // guessing surface for no benefit.
-      challenges.set(email, { hash: hashOf(email, code), expiresAt, attempts: 0, issuedAt: t });
+      challenges.set(email, { hash: await hashOf(email, code), expiresAt, attempts: 0, issuedAt: t });
       return { code, expiresAt: new Date(expiresAt).toISOString() };
     },
 
@@ -130,7 +134,7 @@ export function createVerificationService({
      * Every failure returns the same reason to the caller — see handleVerify in intake.js.
      * The distinctions kept here are for the audit log, not for the submitter.
      */
-    redeem(rawEmail, rawCode) {
+    async redeem(rawEmail, rawCode) {
       const email = normalise(rawEmail);
       const code = String(rawCode || '').trim();
       if (!email || !code) throw new VerificationError('missing_field');
@@ -150,16 +154,14 @@ export function createVerificationService({
         throw new VerificationError('too_many_attempts', '', 429);
       }
 
-      const given = hashOf(email, code);
-      // Both are HMAC digests, so they are the same length by construction; the check is
-      // kept anyway because timingSafeEqual throws on a mismatch rather than returning false.
-      if (given.length !== ch.hash.length || !crypto.timingSafeEqual(given, ch.hash)) {
-        throw new VerificationError('mismatch');
-      }
+      const given = await hashOf(email, code);
+      // Both are HMAC digests and therefore the same length by construction. timingSafeEqual
+      // checks anyway and returns false rather than throwing on a length mismatch.
+      if (!timingSafeEqual(given, ch.hash)) throw new VerificationError('mismatch');
 
       challenges.delete(email);
       const expiresAt = now() + limits.ttlMs;
-      const token = sign({ email, exp: expiresAt, jti: crypto.randomUUID() });
+      const token = await sign({ email, exp: expiresAt, jti: randomUUID() });
       proofs.set(token, expiresAt);
       return { token, expiresAt: new Date(expiresAt).toISOString() };
     },
@@ -170,20 +172,19 @@ export function createVerificationService({
      * Single use: consumed on success, so one verification buys one submission. Without that
      * a verified address becomes a reusable bypass of the whole control.
      */
-    consume(token, rawEmail) {
+    async consume(token, rawEmail) {
       const email = normalise(rawEmail);
       if (!token) throw new VerificationError('missing_verification', '', 403);
 
       const [body, mac] = String(token).split('.');
       if (!body || !mac) throw new VerificationError('malformed_verification', '', 403);
-      const expected = crypto.createHmac('sha256', key).update(body).digest('base64url');
-      const a = Buffer.from(mac), b = Buffer.from(expected);
-      if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+      const expected = b64uEncode(await hmacSha256(await keyPromise, body));
+      if (!timingSafeEqual(utf8(mac), utf8(expected))) {
         throw new VerificationError('bad_verification_signature', '', 403);
       }
 
       let payload;
-      try { payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); }
+      try { payload = JSON.parse(fromUtf8(b64uDecode(body))); }
       catch { throw new VerificationError('malformed_verification', '', 403); }
 
       if (now() > payload.exp) { proofs.delete(token); throw new VerificationError('verification_expired', '', 403); }

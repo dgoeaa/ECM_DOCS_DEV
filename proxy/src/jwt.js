@@ -4,7 +4,7 @@
 // provider's JWKS, plus iss, aud, exp and nbf. Reject anything that fails and never fall
 // back to request-body content.
 //
-// Dependency-free by design. node:crypto imports a JWK directly and verifies RS256/RS384/
+// Dependency-free by design. WebCrypto imports a JWK directly and verifies RS256/RS384/
 // RS512 and PS*, so the platform's "no runtime dependencies" commitment holds on the
 // server side too — and there is no third-party JWT library in the trust path.
 //
@@ -16,19 +16,12 @@
 //     refresh (rate-limited), then fails. It does not fall back to "try every key".
 //   · Every claim check is explicit. Absent is not the same as valid.
 
-import crypto from 'node:crypto';
-
-/** alg → node verification parameters. Anything absent from this map is refused. */
-const ALGS = Object.freeze({
-  RS256: { hash: 'sha256', kty: 'RSA' },
-  RS384: { hash: 'sha384', kty: 'RSA' },
-  RS512: { hash: 'sha512', kty: 'RSA' },
-  PS256: { hash: 'sha256', kty: 'RSA', pss: true },
-  PS384: { hash: 'sha384', kty: 'RSA', pss: true },
-  PS512: { hash: 'sha512', kty: 'RSA', pss: true },
-  ES256: { hash: 'sha256', kty: 'EC' },
-  ES384: { hash: 'sha384', kty: 'EC' },
-});
+/* The algorithm allow-list moved to crypto.js when the proxy was ported off node:crypto for
+   Cloudflare Workers. It is the same list with the same refusals; only the parameter names
+   changed, from node's to WebCrypto's. */
+import {
+  JWT_ALGS as ALGS, importJwkForVerify, verifyJwtSignature, b64uDecode, fromUtf8, utf8,
+} from './crypto.js';
 
 export class TokenError extends Error {
   constructor(reason, detail = '') {
@@ -38,8 +31,8 @@ export class TokenError extends Error {
   }
 }
 
-const b64urlToBuf = s => Buffer.from(String(s).replace(/-/g, '+').replace(/_/g, '/'), 'base64');
-const decodeJson = s => JSON.parse(b64urlToBuf(s).toString('utf8'));
+const b64urlToBuf = b64uDecode;
+const decodeJson = s => JSON.parse(fromUtf8(b64uDecode(s)));
 
 /**
  * JWKS cache. Keys are refreshed on an unknown kid, but no more often than
@@ -111,17 +104,16 @@ export async function verifyToken(token, { jwks, issuer, audience, clockSkewSec 
   if (jwk.kty !== spec.kty) throw new TokenError('alg_key_mismatch', `${header.alg} vs ${jwk.kty}`);
   if (jwk.alg && jwk.alg !== header.alg) throw new TokenError('alg_key_mismatch', jwk.alg);
 
+  /* Imported for ONE algorithm. Beyond the explicit checks above, this means the runtime
+     itself will refuse to verify with a key of the wrong type — key-confusion is now a
+     platform guarantee rather than only our own. Both are kept: ours names the fault. */
   let key;
-  try { key = crypto.createPublicKey({ key: jwk, format: 'jwk' }); }
+  try { key = await importJwkForVerify(jwk, spec); }
   catch (e) { throw new TokenError('bad_key', e.message); }
 
-  const signed = Buffer.from(`${parts[0]}.${parts[1]}`, 'utf8');
+  const signed = utf8(`${parts[0]}.${parts[1]}`);
   const sig = b64urlToBuf(parts[2]);
-  const verifyOpts = { key, ...(spec.pss ? { padding: crypto.constants.RSA_PKCS1_PSS_PADDING, saltLength: crypto.constants.RSA_PSS_SALTLEN_DIGEST } : {}) };
-  const ok = spec.kty === 'EC'
-    ? crypto.verify(spec.hash, signed, { key, dsaEncoding: 'ieee-p1363' }, sig)
-    : crypto.verify(spec.hash, signed, verifyOpts, sig);
-  if (!ok) throw new TokenError('bad_signature');
+  if (!await verifyJwtSignature(key, spec, signed, sig)) throw new TokenError('bad_signature');
 
   // §2.1 — every temporal and identity claim is checked explicitly.
   const now = Math.floor(Date.now() / 1000);

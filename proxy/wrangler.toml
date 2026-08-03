@@ -1,0 +1,81 @@
+# Cloudflare Worker — the authenticating proxy in front of the Power Automate flows.
+#
+# Deploy:   npx wrangler deploy          (from proxy/)
+# Local:    npx wrangler dev
+#
+# NOTHING SECRET BELONGS IN THIS FILE. It is committed. Every value below is an identifier
+# or a limit. Secrets and flow URLs go in with `wrangler secret put`, listed at the bottom.
+
+name = "nitda-dgo-proxy"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+# No compatibility_flags. The proxy was deliberately ported off node:crypto and Buffer onto
+# WebCrypto and Uint8Array so it does NOT need `nodejs_compat` — see src/crypto.js for why:
+# the code that decides whether a token is genuine should not depend on how complete a
+# particular runtime's Node shim happens to be.
+
+[observability]
+enabled = true
+
+# ─────────────────────────────────────────────────────────────────────────────────────────
+# DURABLE STATE — REQUIRED BEFORE PRODUCTION TRAFFIC
+#
+# Five stores are in isolate memory: the rate limiter, the reference minter, the idempotency
+# cache, the upload-ticket burn-list and the verification challenge/proof store.
+#
+# For the first three that is a degradation — limits are per-isolate and so more permissive
+# than they read, and the minter can issue a duplicate reference across isolates.
+#
+# For the last two it is a CORRECTNESS failure, because they are single-use guarantees:
+# a ticket burned in one isolate can be redeemed again in another, and a verification proof
+# consumed in one can be replayed in another. Single use that holds most of the time is not
+# single use.
+#
+# Uncomment ONE of the following and implement the store before this carries real traffic.
+# Until then /healthz reports `singleUseScope: "isolate"` and the Worker logs the posture on
+# every cold start, so a deployment cannot be wrong about which guarantee it has.
+#
+# [[kv_namespaces]]
+# binding = "DGO_STATE"
+# id = "<created with: wrangler kv namespace create DGO_STATE>"
+#
+# [[durable_objects.bindings]]
+# name = "DGO_STATE_DO"
+# class_name = "ProxyState"
+
+# ─────────────────────────────────────────────────────────────────────────────────────────
+# NON-SECRET CONFIGURATION
+[vars]
+DGO_INTAKE_REF_PREFIX = "NITDA"
+DGO_UPSTREAM_TIMEOUT_MS = "20000"
+# The edge sets cf-connecting-ip and the Worker uses it directly, so X-Forwarded-For — which
+# a caller CAN spoof — is not trusted. A rate limiter keyed on a spoofable value is not one.
+DGO_TRUST_FORWARDED_FOR = "false"
+# Email verification before a reference is minted (decision D4). Requires DGO_VERIFY_SECRET;
+# the Worker refuses to serve if this is true without it, rather than taking the public
+# channel offline by demanding a code it cannot send.
+DGO_REQUIRE_VERIFICATION = "false"
+
+# ─────────────────────────────────────────────────────────────────────────────────────────
+# SECRETS — set with `wrangler secret put <NAME>`, never written here
+#
+#   DGO_TENANT_ID                  identity tenant
+#   DGO_AUDIENCE                   expected `aud` claim
+#   DGO_ISSUER                     expected `iss` claim
+#   DGO_JWKS_URI                   where signing keys are fetched from
+#   DGO_ROLE_MAP                   JSON: {"<idp group or role>":"<platform role>"}
+#   DGO_UPLOAD_SECRET              signs upload tickets (>= 32 chars). Absent = uploads 503
+#   DGO_VERIFY_SECRET              signs verification proofs (>= 32 chars). Absent = 503
+#
+#   DGO_ENDPOINT_<KEY>             one per flow, the signed trigger URL
+#
+# The DGO_ENDPOINT_* values are the flow credentials. They belong ONLY here, in Worker
+# secrets — that is the entire point of this tier. A browser gets a token and this Worker;
+# it never gets a flow URL.
+#
+# Before setting them, read docs/cutover/FLOW_DECOMMISSION_INVENTORY.md: 25 workflows have a
+# published signed URL, 17 of them referenced by nothing in the platform, and 6 carry TWO
+# signatures because a trigger was regenerated without the old one being revoked. Regenerate
+# every trigger before putting it in here, or you are moving a leaked credential rather than
+# replacing it.
