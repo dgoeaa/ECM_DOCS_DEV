@@ -301,43 +301,68 @@ declared in `config/module-boundaries.config.js`. A SPA's surface is read from w
 **binds** — `data-action` attributes, named handler functions, `onclick` targets — rather
 than from its prose, because a heading is a claim and a binding is a fact.
 
-## Read the gaps, not the percentage
+## What the automated pass measures, and what it does not
 
 The script reports 65 of 181 capability strings matched. **That number should not be
 quoted.** Function names in these SPAs are mostly internal wiring — `updateBreadcrumb`,
 `saveStateDebounced`, `attachEventListeners` — so the denominator measures the harvester's
-vocabulary, not the platform's completeness. 51 further strings were widget-level and
-excluded before matching; of the 116 unmatched, hand review found 88 to be helpers.
+vocabulary, not the platform's completeness.
 
-What survives review is nine capabilities the source SPAs bind and no module declares.
+There is a second and more serious limit. `module-boundaries.config.js` is a **declaration**
+of what each workspace may own. It is not an inventory of what is implemented. A capability
+that is fully built but not named in an `owns:` array is invisible to the reconciler and
+reads as a gap. The first draft of this section reported nine gaps on that basis. Checked
+against the source tree, **seven of the nine were already implemented**:
 
-| gap | bindings | SPAs | why it matters |
-|---|---|---|---|
-| Category cascade | 5 | 3 | Choosing a category populates sub-category and downstream defaults. It drives the same taxonomy the AI classifier writes into, so a divergence here desynchronises human and AI intake — directly load-bearing for D2. |
-| People picker (co-assignee / CC) | 7 | 3 | Type-ahead directory filtering with multi-select CC. The assignment modules declare assignment but not the recipient-selection surface that makes it usable; 66 documents in the live payload carry CC addresses. |
-| Report generation per list family | 3 | 2 | Separate builders bound to the operational families. `reports` owns `print` and declares no generation surface. |
-| Flow-graph authoring | 6 | 2 | The Orchestrator SPA edits the routing graph — nodes, edges, import, dispatch. `orchestrator` declares runtime verbs only. **Scope decision:** authoring in-platform, or left in Power Automate. |
-| Cross-navigation document → assignment | 3 | 3 | Jumping from a document or email into its assignment carrying context. A contract *between* modules — exactly what a per-module ownership list omits and users notice at once. |
-| Reassignment | 1 | 1 | Changing an existing assignment. Both assignment modules declare creation only. |
-| DG marking | 1 | 1 | `executive` declares approve/escalate/return/clarify, not marking. |
-| Meeting agenda construction | 1 | 1 | `meetings` declares request/decide, not agenda assembly. |
-| Client telemetry | 1 | 2 | The two largest SPAs instrument themselves. `diagnostics` covers service health, not client instrumentation. |
+| reported gap | actual status |
+|---|---|
+| Category cascade | **Implemented.** `config/assignment-cascade.config.js` + `core/assignment-cascade.js`, consumed by `single-assignment`, `bulk-assignment` and `lookup`. Carries category → subcategory → codes → primary/support DSU → assignee → priority → ack/due SLA → instruction. |
+| People picker (co-assignee / CC) | **Implemented.** `<datalist id="user-emails">` type-ahead on both `assignedTo` and `supportingAssignee`, plus a Copy-to/CC field. *Narrower than source:* CC is a free-text `email1; email2` string, where the SPAs had a filtered multi-select. A refinement, not a gap. |
+| Report generation per list family | **Implemented, and wider than source.** `modules/reports.js` carries DGO and GTQ date ranges, a DGO/GTQ/Combined source selector, template chips, print, HTML download, and three email routes. |
+| Cross-navigation document → assignment | **Implemented.** `config/navigation-relationships.config.js` declares `registry.exitTo = [single-assignment, archive]` and the entry/exit graph; `shared/relationship-runtime.js` installs the interceptors and `core/boot.js` calls it. |
+| Reassignment | **Implemented.** `single-assignment` offers an Assignment-type selector with a Reassignment option; `core/lifecycle.js` carries the `reassign_requested` state. |
+| Meeting agenda construction | **Implemented.** `modules/meetings.js` has an agenda field, renders it, and searches across it. |
+| Client telemetry | **Implemented.** `modules/operator-hud.js` is a live telemetry surface — sync state, contract version, collection inventory, pending-write queue, receipt health, deep-link inspector. |
 
-The classification lives in `GAPS` in `parity.py`, and the script asserts every string in it
-is still unmatched — so if a module later declares one, the run fails loudly rather than
-leaving a stale gap in this table.
+The lesson is worth keeping: **a boundaries file is a permission list, not a manifest.**
+Any future parity claim has to be checked against the tree before it is believed, including
+one produced by this script.
+
+## The two that survived checking
+
+### 1. Document flagging is a dead end — a promise with no implementation
+
+This is the substantive finding, and it is worse than a missing feature.
+
+`module-boundaries.config.js` declares that `activities` owns `flag-document`.
+`modules/lookup.js` renders four flag controls on every document — **DG Attention**,
+Follow-Up, INT, UNC — the direct descendants of the source SPA's `markDG` ("DG Watchlist",
+posted to `SUBSIDIARY_ACTIONS`). Its detail view even renders `r.flags` as chips, so the
+read path and the data shape both exist.
+
+But `flagActivity()` writes nothing. It raises a dialog reading *"Complete this in
+Activities"* and navigates to `#/activities` — and `modules/activities.js` contains no flag
+implementation at all. The string `flags` appears in exactly one module in the whole
+platform, `lookup.js`, and only to render chips that nothing ever creates.
+
+So an officer who marks a document for DG attention is shown a confirmation, sent to another
+workspace, and left there with no control to finish the act. A missing button is a gap; a
+button that promises, redirects, and abandons is a defect — the officer believes the
+document is flagged.
+
+### 2. Flow-graph authoring — a genuine scope decision
+
+The Orchestrator SPA edits the routing graph itself: `openEdgeEditor`, `addOrUpdateEdge`,
+`importEdges`, `importWorkspace`, `saveFlow`, `sendFlow`. `modules/orchestrator.js` binds
+only runtime verbs (`data-mark-done`, `data-set-reminder`, `data-export`, comments), and
+`module-boundaries.config.js` declares block/resume/complete-action.
+
+This one is not a defect — it is undecided. **Does routing-graph authoring belong in the
+platform, or does it stay in Power Automate?** Nothing should be built until that is
+answered, because building it in the wrong place creates two authorities over one graph.
 
 ## The reverse direction is not evidence
 
 `parity.py` also lists module capabilities with no detected SPA binding. It is bounded, not
 answered: `archive hash` and `closure check` would never surface as a SPA function name
-however faithfully implemented. Absence there is weak evidence of new ground. Full data in
-`parity.json`.
-
-## Consequence for the approved decisions
-
-Two gaps sit on the critical path and are not cosmetic. **Category cascade** is shared
-ground between the human and AI spines — D2 puts them at par, which is only true if both
-write the same taxonomy the same way. **Cross-navigation** is a contract between modules
-rather than a capability inside one, so no amount of per-module completeness produces it;
-it has to be designed at the boundary. The other seven are additive and can be scheduled.
+however faithfully implemented. Full data in `parity.json`.

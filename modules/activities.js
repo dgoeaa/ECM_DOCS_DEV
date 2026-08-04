@@ -4,6 +4,8 @@ import { ActivityParity } from '../core/activity-parity.js';
 import { ActivityParityConfig } from '../config/activity-parity.config.js';
 import { WriteManager } from '../core/write-manager.js';
 import { actionPreview, fmtDateTime, emptyState } from '../core/ui.js';
+import { PendingQueue } from '../core/pending-queue.js';
+import { DocumentFlags, flagSpec, flagLabel, flagsOf, hasFlag, applyFlag, flagPayload } from '../core/document-flags.js';
 const memoOps=memoizeBySignature(rows=>rows.map(x=>enrichOperation(x)));
 export async function mount(el){hydrateGovernance();route(el)}
 // Two lenses share this workspace: the long-standing cross-domain work queue, and the Canvas
@@ -47,7 +49,47 @@ function recordCard(a){
 function recordDetail(a,u){
   const attachments=u.attachments&&String(u.attachmentsRef)===String(a.id)?u.attachments:ActivityParity.getAttachments(a);
   const preview=u.attachment?ActivityParity.getAttachmentPreviewModel(attachments.find(x=>x.id===u.attachment)):null;
-  return `${mdBack('Back to activity records')}<section class="panel"><div class="eyebrow panel-eyebrow">Activity Record</div><div class="status-strip">${badge(a.status||'Unknown')} ${badge(a.assignmentStatus||'Not Assigned')}</div><h2>${esc(a.title||'Untitled')}</h2><dl class="detail-grid"><dt>ID</dt><dd>${esc(a.id)}</dd><dt>Reference</dt><dd>${esc(a.referenceId||'—')}</dd><dt>Assigned to</dt><dd>${esc(a.assignedTo||'Unassigned')}</dd><dt>Category</dt><dd>${esc(a.category||'—')}</dd><dt>Created</dt><dd>${esc(fmtDateTime(a.created||''))}</dd></dl><p>${esc(a.description||'No instruction recorded.')}</p>${u.error?`<p class="meta" role="alert">${esc(u.error)}</p>`:''}<div class="form-row"><button type="button" class="btn" data-lifecycle="archive"${u.busy?' disabled':''}>Archive (UNC)</button><button type="button" class="btn ghost" data-lifecycle="siwes"${u.busy?' disabled':''}>Route to SIWES</button><button type="button" class="btn ghost" data-lifecycle="nysc"${u.busy?' disabled':''}>Route to NYSC</button><button type="button" class="btn ghost" data-load-attachments${u.busy?' disabled':''}>Refresh attachments</button></div></section>${attachmentsPanel(attachments)}${previewPanel(preview)}`;
+  return `${mdBack('Back to activity records')}<section class="panel"><div class="eyebrow panel-eyebrow">Activity Record</div><div class="status-strip">${badge(a.status||'Unknown')} ${badge(a.assignmentStatus||'Not Assigned')}</div><h2>${esc(a.title||'Untitled')}</h2><dl class="detail-grid"><dt>ID</dt><dd>${esc(a.id)}</dd><dt>Reference</dt><dd>${esc(a.referenceId||'—')}</dd><dt>Assigned to</dt><dd>${esc(a.assignedTo||'Unassigned')}</dd><dt>Category</dt><dd>${esc(a.category||'—')}</dd><dt>Created</dt><dd>${esc(fmtDateTime(a.created||''))}</dd></dl><p>${esc(a.description||'No instruction recorded.')}</p>${u.error?`<p class="meta" role="alert">${esc(u.error)}</p>`:''}<div class="form-row"><button type="button" class="btn" data-lifecycle="archive"${u.busy?' disabled':''}>Archive (UNC)</button><button type="button" class="btn ghost" data-lifecycle="siwes"${u.busy?' disabled':''}>Route to SIWES</button><button type="button" class="btn ghost" data-lifecycle="nysc"${u.busy?' disabled':''}>Route to NYSC</button><button type="button" class="btn ghost" data-load-attachments${u.busy?' disabled':''}>Refresh attachments</button></div></section>${flagPanel(a,u)}${attachmentsPanel(attachments)}${previewPanel(preview)}`;
+}
+
+/* `activities` is the declared OWNER of flag-document (config/module-boundaries.config.js),
+   yet the only flag controls in the platform lived in `lookup`, its allowed invoker — and
+   those wrote nothing. An owner that cannot perform its own owned action is the same
+   inconsistency in a milder form, so the controls belong here too. Both surfaces apply
+   identical rules because both go through core/document-flags.js. */
+function flagPanel(a,u){
+  const flags=flagsOf(a);
+  return `<section class="panel"><div class="eyebrow panel-eyebrow">Flags</div>
+    ${flags.length?`<div class="chips">${flags.map(f=>`<span class="chip">⚑ ${esc(flagLabel(f.flag))}${f.at?' · '+esc(fmtDate(f.at)):''}${f.by?' · '+esc(f.by):''}</span>`).join('')}</div>`
+                  :'<p class="meta">This record carries no flag.</p>'}
+    <div class="form-row">${DocumentFlags.map(f=>{const on=hasFlag(a,f.code);
+      return `<button type="button" class="btn ${on?(f.tone||''):'ghost'}" data-doc-flag="${esc(f.code)}" aria-pressed="${on}"${u.busy?' disabled':''} title="${esc(on?`Lift ${f.label}`:f.description)}">${on?'⚑ ':''}${esc(f.label)}</button>`;
+    }).join('')}</div></section>`;
+}
+
+async function runFlag(el,code,activity){
+  if(!activity||recordUi().busy) return;
+  const spec=flagSpec(code); if(!spec) return;
+  const s=State.get(), actor=s.profile?.email||'';
+  const remove=hasFlag(activity,spec.code);
+  const result=applyFlag(activity,spec.code,{actor,remove});
+  if(!result.changed) return toast(`Already marked ${spec.label}`,'success');
+  const payload=flagPayload(activity,spec.code,{actor,remove});
+  const ok=await confirmAction({title:remove?`Lift ${spec.label}`:`Mark ${spec.label}`,
+    body:`<p>${esc(activity.title||'Untitled')}</p><p>${esc(spec.description)}</p>${actionPreview(payload)}`,
+    confirmText:remove?'Lift flag':'Apply flag'});
+  if(!ok) return;
+  const ref=activity.referenceId||String(activity.id);
+  await executeOwnedAction('activities','flag-document',async()=>{
+    const cur=State.get();
+    State.patch({activities:(cur.activities||[]).map(x=>String(x.id)===String(activity.id)?{...x,flags:result.flags}:x)});
+    // The mark is the point; the flow call is declared optional in the ownership entry, so a
+    // brief outage queues rather than losing it.
+    try{ await WriteManager.backend({module:'activities',action:'flag-document',endpoint:'DYNAMIC_ACTIONS',payload,ref}); }
+    catch(e){ PendingQueue.enqueue({key:'DYNAMIC_ACTIONS',payload,ref,error:e.message,operation:'flag-document'}); toast('Flag recorded; synchronization queued','error'); }
+  },{ref});
+  toast(remove?`${spec.label} lifted`:`Marked ${spec.label}`,'success');
+  if(currentLens()==='records') renderRecords(el);
 }
 
 function attachmentsPanel(attachments){
@@ -76,6 +118,7 @@ function bindRecords(el,u,sel){
   el.querySelectorAll('[data-preview]').forEach(x=>x.onclick=()=>rerender({attachment:x.dataset.preview,mode:'attachment-preview'}));
   el.querySelector('[data-load-attachments]')?.addEventListener('click',()=>loadAttachments(el,sel));
   el.querySelectorAll('[data-lifecycle]').forEach(x=>x.onclick=()=>runLifecycle(el,x.dataset.lifecycle,sel));
+  el.querySelectorAll('[data-doc-flag]').forEach(x=>x.onclick=()=>runFlag(el,x.dataset.docFlag,sel));
 }
 
 // Attachments panel source of truth: the FETCH_EMAIL_ATTACHMENTS contract already registered

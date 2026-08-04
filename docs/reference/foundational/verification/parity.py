@@ -19,8 +19,12 @@ WHAT THIS SCRIPT WILL NOT TELL YOU
 The match percentage is meaningless and is deliberately not carried into the findings.
 Function names in these SPAs are dominated by internal wiring — `updateBreadcrumb`,
 `saveStateDebounced` — so the denominator measures the harvester's vocabulary rather than
-the platform's completeness. The output worth acting on is the GAPS list: nine capabilities
-the source SPAs bind and no module declares.
+the platform's completeness.
+
+More important: module-boundaries.config.js is a PERMISSION LIST, not a manifest. A
+capability that is built but not named in an `owns:` array reads here as missing. Seven of
+the first nine "gaps" this script produced turned out to be fully implemented. Every entry
+in GAPS therefore carries a verdict checked against the source tree, and only two are real.
 """
 import json, os, re, sys
 from collections import defaultdict
@@ -168,54 +172,73 @@ SYNONYM = {
 # with; the percentage does not appear in the findings because it measures the harvester's
 # vocabulary, not the platform's completeness.
 #
-# GAP  — a thing the office can do in a source SPA that no module declares.
-# Anything not listed is a helper: internal wiring with no capability meaning.
+# A DECLARATION IS NOT A MANIFEST — read this before believing any gap below.
+# module-boundaries.config.js says what each workspace MAY own. It does not say what is
+# built. A capability that is fully implemented but absent from an `owns:` array is
+# invisible to the reconciler and reads as a gap. The first pass of this harvest reported
+# nine gaps on exactly that basis; checked against the source tree, seven were already
+# implemented. Every entry below therefore carries a VERDICT recording what the tree
+# actually holds, and only the two marked GAP are real.
+VERIFIED = 'verified-implemented'   # present in the tree; the boundaries file just omits it
+GAP = 'gap'                         # checked against the tree and genuinely absent
+
 GAPS = {
-    'category cascade': (
+    'category cascade': (VERIFIED,
         ['apply etask category cascade', 'apply bulk category cascade',
          'apply category defaults', 'apply category defaults notified',
          'update sub category options'],
-        'Choosing a category auto-populates sub-category and downstream defaults. Present '
-        'in the two largest SPAs and in REGEN; no module declares it, and the taxonomy it '
-        'drives is the one the AI classifier writes into.'),
-    'people picker (co-assignee / cc)': (
+        'config/assignment-cascade.config.js + core/assignment-cascade.js, consumed by '
+        'single-assignment, bulk-assignment and lookup. Carries category -> subcategory -> '
+        'codes -> primary/support DSU -> assignee -> priority -> ack/due SLA -> instruction.'),
+    'people picker (co-assignee / cc)': (VERIFIED,
         ['filter co assignee list', 'filter email task cc', 'filter email task co assignee',
          'filter email task users', 'filter bulk users', 'add cc',
          'sync cc multi select from state'],
-        'Type-ahead directory filtering with multi-select CC and co-assignee. The '
-        'assignment modules declare assignment but not the recipient-selection surface '
-        'that makes it usable; 66 documents in the live payload carry cc addresses.'),
-    'report generation per list family': (
+        'datalist#user-emails type-ahead on assignedTo and supportingAssignee, plus a '
+        'Copy-to/CC field. Narrower than source: CC is free text, not a filtered '
+        'multi-select. A refinement, not a gap.'),
+    'report generation per list family': (VERIFIED,
         ['generate dgoreport', 'generate gtqreport', 'report tag'],
-        'Distinct report builders bound to the operational list families. `reports` owns '
-        '`print` but declares no generation surface.'),
-    'flow-graph authoring': (
+        'modules/reports.js carries DGO and GTQ date ranges, a DGO/GTQ/Combined selector, '
+        'template chips, print, HTML download and three email routes. Wider than source.'),
+    'cross-navigation document -> assignment': (VERIFIED,
+        ['open assignment from doc', 'open assign for email', 'open assign for single patched'],
+        'config/navigation-relationships.config.js declares the entry/exit graph '
+        '(registry.exitTo = [single-assignment, archive]); shared/relationship-runtime.js '
+        'installs the interceptors and core/boot.js calls it.'),
+    'reassignment': (VERIFIED,
+        ['reassign'],
+        'single-assignment offers an Assignment-type selector with a Reassignment option; '
+        'core/lifecycle.js carries the reassign_requested state.'),
+    'meeting agenda construction': (VERIFIED,
+        ['create agenda days'],
+        'modules/meetings.js has an agenda field, renders it and searches across it.'),
+    'client telemetry': (VERIFIED,
+        ['clear telemetry'],
+        'modules/operator-hud.js is a live telemetry surface — sync state, contract version, '
+        'collection inventory, pending-write queue, receipt health, deep-link inspector.'),
+
+    # Note the direction of this one. `flag-document` IS declared, so the reconciler counts
+    # it as carried across and cannot see the defect at all — the inverse of the seven
+    # above. A declaration matches whether or not anything implements it. That is the
+    # structural blind spot of this whole method, and it is why the tree, not this file,
+    # is the authority.
+    'document flagging': (GAP,
+        ['mark dg', 'submit flag action'],
+        'A PROMISE WITH NO IMPLEMENTATION. module-boundaries declares activities owns '
+        'flag-document. lookup.js renders four flag controls (DG Attention, Follow-Up, INT, '
+        'UNC) and renders r.flags as chips — but flagActivity() writes nothing: it raises '
+        '"Complete this in Activities" and navigates away, and modules/activities.js has no '
+        'flag implementation. The string `flags` appears in one module in the whole '
+        'platform. An officer marking a document for DG attention is confirmed, redirected, '
+        'and abandoned believing it was flagged.'),
+    'flow-graph authoring': (GAP,
         ['open edge editor', 'add or update edge', 'import edges', 'import workspace',
          'save flow', 'send flow'],
-        'The Orchestrator SPA edits the routing graph itself — nodes, edges, import and '
-        'dispatch. `orchestrator` declares runtime verbs (block, resume, complete action) '
-        'but no authoring surface. Decide whether authoring is in scope or stays in Power '
-        'Automate.'),
-    'cross-navigation document -> assignment': (
-        ['open assignment from doc', 'open assign for email', 'open assign for single patched'],
-        'Jumping from a document or an email straight into its assignment, carrying '
-        'context. A navigation contract between modules, which is exactly the kind of '
-        'thing module boundaries omit and users notice immediately.'),
-    'reassignment': (
-        ['reassign'],
-        'Changing an existing assignment, as opposed to creating one. `bulk-assignment` '
-        'and `assignments` both declare creation only.'),
-    'dg marking': (
-        ['mark dg'],
-        'The DG-marking step in the CEO/DG hub. `executive` declares approve/escalate/'
-        'return/clarify but not marking.'),
-    'meeting agenda construction': (
-        ['create agenda days'],
-        '`meetings` declares request/decide but not agenda assembly.'),
-    'client telemetry': (
-        ['clear telemetry'],
-        'The two largest SPAs instrument themselves and expose a reset. `diagnostics` '
-        'covers service health, not client-side instrumentation.'),
+        'UNDECIDED, NOT DEFECTIVE. The Orchestrator SPA edits the routing graph itself. '
+        'modules/orchestrator.js binds only runtime verbs. Does graph authoring belong in '
+        'the platform or stay in Power Automate? Building before that is answered creates '
+        'two authorities over one graph.'),
 }
 
 
@@ -307,23 +330,29 @@ def main():
     # Every string named in GAPS must still be unmatched. If a later synonym or module
     # declaration covers one, this assertion fails loudly rather than leaving a stale gap
     # in the findings — the classification is only worth trusting if it is checked.
-    stale = sorted(s for g in GAPS.values() for s in g[0] if s not in uncovered)
+    stale = sorted(s for g in GAPS.values() for s in g[1] if s not in uncovered)
     if stale:
         print(f'\n  !! GAPS entries now matched by a module (remove from GAPS): {stale}')
 
-    print('\n  CAPABILITY GAPS — in the source SPAs, declared by no module')
-    print('  (hand-classified; the remaining unmatched strings are internal helpers)\n')
-    for name, (strings, why) in GAPS.items():
-        spas = set()
-        for s in strings:
-            spas |= uncovered.get(s, set())
-        print(f'  · {name}   [{len(strings)} bindings across {len(spas)} SPA(s)]')
-        for line in re.findall(r'.{1,92}(?:\s|$)', why):
-            print(f'      {line.strip()}')
-        print()
+    print('\n  UNDECLARED IN module-boundaries.config.js — with a verdict from the tree')
+    print('  (the remaining unmatched strings are internal helpers)\n')
+    for verdict in (GAP, VERIFIED):
+        for name, (v, strings, why) in GAPS.items():
+            if v != verdict:
+                continue
+            spas = set()
+            for st in strings:
+                spas |= uncovered.get(st, set())
+            tag = 'GAP     ' if v == GAP else 'BUILT   '
+            print(f'  {tag} {name}   [{len(strings)} bindings across {len(spas)} SPA(s)]')
+            for line in re.findall(r'.{1,88}(?:\s|$)', why):
+                print(f'           {line.strip()}')
+            print()
 
-    helpers = len(uncovered) - sum(1 for g in GAPS.values() for s in g[0] if s in uncovered)
-    print(f'  {len(GAPS)} capability gaps; {helpers} remaining unmatched strings are helpers')
+    real = sum(1 for v, _s, _w in GAPS.values() if v == GAP)
+    helpers = len(uncovered) - sum(1 for g in GAPS.values() for s in g[1] if s in uncovered)
+    print(f'  {real} real gaps; {len(GAPS) - real} implemented but undeclared; '
+          f'{helpers} unmatched strings are helpers')
 
     # The reverse question, per capability rather than per module: what has the platform
     # declared that no SPA ever implemented? That is either genuinely new ground or an

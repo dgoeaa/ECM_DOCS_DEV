@@ -57,11 +57,22 @@ await t('it is the SAME shape the registry issues', () => {
   assert.equal(mintReference([], { now: at(2026) }).reference, 'NITDA-2026-1');
 
   const contract = read('document-portal/README.md');
-  const stated = (contract.match(/`(NITDA-YYYY-N+)`/) || [, ''])[1];
+  const stated = (contract.match(/`(NITDA-YYYY-(?:<sequence>|N+))`/) || [, ''])[1];
   assert.ok(stated, 'the intake contract must state the reference format the flow must mint');
-  const sample = stated.replace('YYYY', '2026').replace(/N+$/, '1');
+  const sample = stated.replace('YYYY', '2026').replace(/(?:<sequence>|N+)$/, '1');
   assert.match(sample, REFERENCE_PATTERN,
     `the documented format ${stated} does not match the one this module implements`);
+
+  /* D1: the register issues an UNPADDED sequence — the live SUBMISSION flow mints
+     `NITDA-2026-217`. The deployment guides used to instruct implementers to zero-pad to
+     six digits, which would have put a second key format back into the registry through
+     the front door. Pinning the guides here is what stops that instruction returning. */
+  assert.doesNotMatch(stated, /N{2,}/,
+    'the contract must not specify a fixed-width padded sequence; the register does not pad');
+  for (const guide of ['docs/deployment/CLOUDFLARE.md', 'docs/deployment/MINIMAL-PILOT.md']) {
+    assert.doesNotMatch(read(guide), /NITDA-YYYY-N{2,}/,
+      `${guide} still instructs implementers to mint a padded reference`);
+  }
 });
 
 await t('the retired shape is not produced', () => {
