@@ -11,7 +11,7 @@
   "scripts": {
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "start:proxy": "node proxy/src/server.js",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:register && npm run test:architecture && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:status && npm run test:scan && npm run test:verify && npm run test:worker && npm run test:refstore && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:register && npm run test:architecture && npm run test:visual && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:status && npm run test:scan && npm run test:verify && npm run test:worker && npm run test:refstore && npm run test:smoke",
     "test:auth": "node tests/auth-posture.test.mjs",
     "test:encoding": "node tests/output-encoding.test.mjs",
     "test:governance": "node tests/governance.test.mjs",
@@ -32,6 +32,8 @@
     "test:register": "node tests/executive-register.test.mjs",
     "architecture": "node scripts/architecture-data.mjs --write",
     "test:architecture": "node tests/architecture.test.mjs",
+    "visual": "node scripts/visual-docs-data.mjs --write",
+    "test:visual": "node tests/visual-docs.test.mjs",
     "test:refstore": "node proxy/test/reference-store.test.mjs",
     "test:worker": "node proxy/test/worker.test.mjs",
     "test:verify": "node proxy/test/verification.test.mjs"

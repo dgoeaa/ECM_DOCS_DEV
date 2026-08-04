@@ -629,7 +629,7 @@
     <tbody>
       <tr><td>Public</td><td><code>document-portal/</code></td><td>5 pages, service worker, offline outbox, design system</td><td><strong>No</strong> — step 5 removed all three signed URLs</td></tr>
       <tr><td>Enforcement</td><td><code>proxy/src/</code></td><td>handler, jwt, authorize, intake, upload, config, server</td><td><strong>Yes — the only one.</strong> 19 contract keys, server-side environment</td></tr>
-      <tr><td>Internal</td><td><code>config/</code></td><td>33 declaration files — routes, RBAC, boundaries, categories, endpoints, filename policy</td><td>No</td></tr>
+      <tr><td>Internal</td><td><code>config/</code></td><td>32 declaration files — routes, RBAC, boundaries, categories, endpoints, filename policy</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>core/</code></td><td>60 files — state, auth, router, governance, domain services</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>shared/</code></td><td>8 files — app shell, relationship runtime, components</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>modules/</code></td><td>29 workspaces, one per route</td><td>No</td></tr>
@@ -651,6 +651,10 @@
 </section>
 
 <footer>
+  <p style="margin:0 0 14px"><strong>Looking for the full picture?</strong> These sheets cover components and
+  relationships. <a href="../visual/index.html">The Platform Atlas</a> covers the whole platform —
+  front end and back end, the data model, security, the governed lifecycle, quality and deployment — with an
+  audience lens, search and a print layout. Same discipline: generated from the source, asserted by the build.</p>
   Generated against the code by <code>scripts/architecture-data.mjs</code>; every count here is asserted
   by <code>tests/architecture.test.mjs</code>. Companion documents:
   <code>TARGET_ARCHITECTURE.md</code> (design intent and open decisions),

@@ -40,6 +40,7 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 | Path | Contents |
 |---|---|
+| `docs/visual/` | **The Platform Atlas — start here.** Complete interactive visual documentation of the platform: architecture, trust zones, the document's journey, front-end layering, all 29 workspaces, the core service catalogue, the design system, the authenticating proxy, the public portal, the data model, security and RBAC, the governed lifecycle, quality and deployment. Every figure is derived from the source tree by `scripts/visual-docs-data.mjs` and asserted against the live configuration by `tests/visual-docs.test.mjs`, so it cannot quietly go stale. Has an audience lens (executive / architect / developer / operations), full-text search, and a print stylesheet that produces a real handout. See [`docs/visual/README.md`](docs/visual/README.md). |
 | `docs/reference/` | **Reference material of record.** The BRD/FRD hybrid, the platform architecture pack, the DGCEO data model, the SharePoint provisioning specification (10 lists, 97 fields), the flow trigger contracts, and the operations manifest with its signed URLs redacted. Extracted from `ECM_DOCS_DEV.zip`, which was removed from the tree — it carried signed Power Automate trigger URLs for 25 workflows and its irreplaceable content is now readable and diffable. The archive remains in git history. |
 
 ---
@@ -103,8 +104,16 @@ npm test              # import checker + secret ratchet + smoke suite
 npm run test:imports  # static ES-module graph check (no browser, ~1s)
 npm run test:secrets  # fails on a NEW SAS signature in a tracked file
 npm run test:auth     # asserts both authentication postures
+npm run test:visual   # asserts the Platform Atlas against the live configuration
 npm run test:smoke    # Playwright smoke suite
 npm run test:links    # linkinator crawl of both entry points
+```
+
+Documentation that is generated rather than written is regenerated with one command each:
+
+```bash
+npm run visual        # re-derive docs/visual/platform-data.js from the source tree
+npm run architecture  # re-derive docs/architecture/architecture-data.json
 ```
 
 `npm run test:imports` is the cheapest and the most load-bearing: it verifies every relative import resolves on disk. The runtime once shipped with 12 config modules that were imported but never committed, and because those are *static* imports the failure happened before `core/boot.js` could run its `try/catch` — nothing threw, nothing logged, and the app simply hung on its boot spinner. `index.html` now also carries a 15-second boot watchdog that surfaces the failing URLs instead of hanging.
@@ -151,29 +160,40 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 .
 ├── index.html                          Root runtime entry (+ boot watchdog)
 ├── assets/                             Shared SVG assets
-├── config/                             Platform configuration modules (31 files)
+├── config/                             Platform configuration modules (32 files)
 │   ├── auth.config.js                  Auth switch — inert until release
 │   ├── config.example.js               Documents the endpoint key structure
 │   ├── endpoints.config.js             Reads from window.DGO_CONFIG.endpoints
+│   ├── module-boundaries.config.js     What each workspace owns, views and must not own
 │   ├── rbac.config.js                  Roles, permissions, route access
-│   ├── routes.config.js                The 25 declared routes
+│   ├── routes.config.js                The 29 declared routes
 │   └── workflow-clarity.config.js      Visible workspaces vs guided internal routes
-├── core/                               Boot, router, state, services (57 files)
-│   └── auth.js                         Token acquisition, identity, request gating
-├── modules/                            Route modules, lazy-loaded (25 files)
-├── shared/                             Shell, components, design-system adapter
+├── core/                               Boot, router, state, services (60 files)
+│   ├── auth.js                         Token acquisition, identity, request gating
+│   └── lifecycle.js                     The governed state machine and its gates
+├── modules/                            Route modules, lazy-loaded (29 files)
+├── shared/                             Shell, components, design-system adapter (8 files)
 ├── styles/                             CSS @layer cascade
 │   └── dgo-design-system/              Self-hosted design tokens + fonts
 ├── document-portal/                    Public document portal (PWA)
-├── newack/                             Acknowledgement flow prototype
+├── proxy/                              The authenticating proxy — Worker and node:http hosts
+├── docs/
+│   ├── visual/                         The Platform Atlas — generated visual documentation
+│   ├── architecture/                   Drift-tested architecture sheets and the target design
+│   ├── deployment/                     Cloudflare walkthrough and the minimal pilot path
+│   └── reference/                      BRD/FRD, data model, provisioning spec, flow contracts
 ├── tests/
 │   ├── README.md                       Suite design and the secrets ratchet
 │   ├── auth-posture.test.mjs           Inert + enforced posture assertions
 │   ├── check-imports.mjs               Static module-graph check
 │   ├── check-secrets.mjs               SAS signature ratchet
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
+│   ├── visual-docs.test.mjs            Asserts the Platform Atlas against the live config
 │   └── smoke.spec.js                   Playwright smoke suite
-├── scripts/check-links.mjs             Link / asset checker
+├── scripts/
+│   ├── visual-docs-data.mjs            Derives the atlas dataset from the source tree
+│   ├── architecture-data.mjs           Derives the architecture dataset
+│   └── check-links.mjs                 Link / asset checker
 ├── .github/workflows/ci.yml            CI
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
 ├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations
