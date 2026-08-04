@@ -265,6 +265,55 @@ export function splitAddresses(value) {
     .filter(s => s.includes('@'));
 }
 
+/* ── 8 · the pre-pass every inbound row makes ──────────────────────────────────────────
+   This is the function core/data-loader.js calls, and it is deliberately ADDITIVE rather
+   than transformative.
+
+   core/domain.js already maps source rows into the platform's record shapes, and it reads
+   raw keys directly — `t._x0033_rdAssigned`, `a.CC_x0027_dTo`, `text(t.RefIDD)`. Replacing
+   keys here would break every one of those readers. Two things happen instead:
+
+     · SENTINEL KEYS ARE DROPPED. `text(t.RefIDD)` currently returns the literal
+       'No RefIDD' and writes it into the record as a reference. Removing the key lets the
+       existing fallback chain fall through to the next candidate, or to '' — which is what
+       every downstream reader already expects for absent data. This is the single change
+       that stops placeholders reaching the register.
+
+     · DECODED ALIASES ARE ADDED alongside the encoded keys, never instead of them. Old
+       readers keep working; new ones can use the display name.
+
+   Nothing is renamed, nothing is coerced, and no value is invented. */
+export function sanitizeSourceRecord(row) {
+  if (!row || typeof row !== 'object') return row;
+  const out = {};
+  for (const [key, value] of Object.entries(row)) {
+    if (isSentinel(value)) continue;          // absent, so absent — not a placeholder
+    out[key] = value;
+    const display = decodeFieldName(key);
+    if (display !== key && !(display in row)) out[display] = value;
+  }
+  return out;
+}
+
+/**
+ * The pre-pass for a task row: sanitised, plus the resolved document linkage attached
+ * under names the platform can read. Resolution runs on the ORIGINAL row so the carriers
+ * are read before sentinel keys are dropped.
+ */
+export function sanitizeTaskRecord(row) {
+  if (!row || typeof row !== 'object') return row;
+  const clean = sanitizeSourceRecord(row);
+  const link = resolveDocumentId(row);
+  if (link.documentId !== null) {
+    clean.documentId = link.documentId;
+    clean.documentIdSource = link.source;
+    if (link.conflict) clean.documentIdConflict = true;
+  }
+  const composite = parseCompositeReference(field(row, 'Reference_ID'));
+  if (composite) clean.referenceParts = composite;
+  return clean;
+}
+
 /** Join tasks to documents. Returns the joined pairs and the ones that did not resolve. */
 export function linkTasksToDocuments(tasks, documents) {
   const byId = new Map();

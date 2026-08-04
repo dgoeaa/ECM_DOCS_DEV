@@ -13,8 +13,9 @@ import {
   isSentinel, realValue, decodeFieldName, encodeFieldName, field, decodeRecord,
   canonicalId, sameId, parseCompositeReference, canonicalTerm, groupByTerm,
   documentIdFromTitle, resolveDocumentId, normalizeTask, normalizeDocument,
-  splitAddresses, linkTasksToDocuments,
+  splitAddresses, linkTasksToDocuments, sanitizeSourceRecord, sanitizeTaskRecord,
 } from '../core/source-normalizer.js';
+import { normalizeTask as domainTask, normalizeDocument as domainDoc } from '../core/domain.js';
 
 let passed = 0, failed = 0;
 const t = (label, fn) => {
@@ -235,6 +236,57 @@ t('the join works across the string/number type boundary', () => {
   assert.equal(linked[0].document.ID, 18106);
   assert.equal(unresolved.length, 1);
   assert.equal(unresolved[0].reason, 'not-in-set');
+});
+
+/* ── the pre-pass, as the data loader uses it ──────────────────────────────── */
+section('The pre-pass wired into core/data-loader.js');
+
+t('sentinel keys are dropped so existing fallback chains fall through', () => {
+  const clean = sanitizeSourceRecord({ RefIDD: 'No RefIDD', Title: 'Real title', Priority: '----' });
+  assert.ok(!('RefIDD' in clean), 'a placeholder key must not survive');
+  assert.ok(!('Priority' in clean));
+  assert.equal(clean.Title, 'Real title');
+});
+
+t('decoded aliases are ADDED, never substituted — old readers keep working', () => {
+  const clean = sanitizeSourceRecord({ CC_x0027_dTo: 'a@x.ng', _x0033_rdAssigned: 'b@x.ng' });
+  assert.equal(clean.CC_x0027_dTo, 'a@x.ng', 'the encoded key must remain for core/domain.js');
+  assert.equal(clean["CC'dTo"], 'a@x.ng', 'and the display name is available too');
+  assert.equal(clean['3rdAssigned'], 'b@x.ng');
+});
+
+t("core/domain.js no longer writes 'No RefIDD' into a record's referenceId", () => {
+  // The defect this wiring exists to close: text(t.RefIDD) returned the placeholder
+  // verbatim and it became the task's reference.
+  const raw = { ID: 1, Title: 'No Title', RefIDD: 'No RefIDD', Reference_ID: 'No Reference ID' };
+  assert.equal(domainTask(raw).referenceId, 'No RefIDD', 'unsanitised — the old behaviour');
+  assert.equal(domainTask(sanitizeTaskRecord(raw)).referenceId, '', 'sanitised — absent is absent');
+});
+
+t('a document no longer carries a placeholder assignee', () => {
+  const raw = { ID: 9, Title: 'T', AssignedTo: 'N/A', AssignmentStatus: 'Not Assigned' };
+  assert.equal(domainDoc(raw).assignedTo, 'N/A', 'unsanitised');
+  assert.equal(domainDoc(sanitizeSourceRecord(raw)).assignedTo, '', 'sanitised');
+});
+
+t('the task pre-pass attaches the resolved linkage without inventing it', () => {
+  const clean = sanitizeTaskRecord({ ID: 15127, Title: '19877 -2026-05-11 -ONSA (X).PDF',
+                                     RefIDD: 'No RefIDD', Reference_ID: 'No Reference ID' });
+  assert.equal(clean.documentId, '19877');
+  assert.equal(clean.documentIdSource, 'title');
+  assert.ok(!('referenceParts' in clean), 'no composite present, so none is reported');
+});
+
+t('the composite is attached in parsed form when it is present', () => {
+  const clean = sanitizeTaskRecord({ ID: 14143, Title: '18106 -x.PDF', RefIDD: '18106',
+                                     Reference_ID: '20260123-18106-GOV-REA-14143' });
+  assert.equal(clean.referenceParts.classCode, 'GOV-REA');
+  assert.equal(clean.documentId, '18106');
+});
+
+t('a row that is not an object passes through untouched', () => {
+  assert.equal(sanitizeSourceRecord(null), null);
+  assert.equal(sanitizeSourceRecord('x'), 'x');
 });
 
 console.log(`\n${failed ? '❌' : '✅'} ${passed} passed, ${failed} failed\n`);
