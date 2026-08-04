@@ -46,56 +46,71 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 ## Run it
 
-Needs Node 20 or newer. Nothing else — no account, no cloud tenant, no install step.
+Two ways, depending on whether you have your Power Automate endpoints to hand. Both need
+Node 20 or newer and nothing else.
+
+### A — against your own flows, no proxy
+
+The browser calls your signed Power Automate trigger URLs directly. No proxy, no
+Cloudflare Worker, no Entra tenant, no SharePoint provisioning.
+
+```bash
+cp scripts/endpoints.example.env ~/dgo-endpoints.env   # fill in your URLs
+node scripts/setup-endpoints.mjs --from ~/dgo-endpoints.env
+npm start                                              # http://localhost:8080/
+```
+
+It wires all 17 endpoints that take a URL, then verifies each one answers — **without
+invoking your write flows**, so the check never sends email or creates an assignment. It
+also catches the failure that otherwise costs an afternoon: the runtime replaces its user
+list from the flow response and then locks you out of every workspace if your profile's
+email is not in it.
+
+```bash
+node scripts/setup-endpoints.mjs     # paste URLs one at a time instead
+node scripts/check-endpoints.mjs     # re-check any time
+```
+
+**What it costs:** a signed flow URL is a bearer credential, and this path puts it in the
+browser, where anyone who can read a network request can take it and invoke that flow.
+Right for development and a machine you control; for real correspondence on a shared host,
+deploy the proxy instead. Full detail:
+**[`docs/deployment/DIRECT-ENDPOINTS.md`](docs/deployment/DIRECT-ENDPOINTS.md)**.
+
+### B — with no endpoints at all
+
+A local backend answers all 19 endpoint contracts from a seeded registry, so the platform
+runs end to end with nothing provisioned and nothing to sign up for. It writes nothing into
+your checkout — the runtime config is served from memory and the store lives outside the
+repository, so stopping it leaves the tree unchanged.
 
 ```bash
 npm run dev
 ```
 
-Then open <http://localhost:8080/>.
-
-Or with nothing installed at all: on GitHub, **Code → Codespaces → Create codespace**. It
-runs the same command on attach and forwards port 8080, so the platform opens by itself —
-no terminal, no Node, no local clone.
-
-That starts one zero-dependency Node process that serves both applications and answers
-every endpoint they call, from a seeded registry that persists to `.devdata/`. No Entra, no
-Power Automate, no SharePoint, no Cloudflare, and no signed URLs anywhere.
-
-| | |
-|---|---|
-| Operations platform | <http://localhost:8080/> |
-| Document portal | <http://localhost:8080/portal/> |
-| Health and endpoint status | <http://localhost:8080/healthz> |
-| What the platform "sent" | <http://localhost:8080/api/dev/outbox> |
-
-A letter submitted on the portal is minted a reference, lands in the registry, and shows up
-in Correspondence in the operations app — the two halves are wired to each other, not run as
+Then open <http://localhost:8080/>. The public portal is at
+<http://localhost:8080/portal/>, health at `/healthz`, and everything the platform "sent"
+at `/api/dev/outbox`. A letter submitted on the portal lands in the registry and shows up
+in Correspondence, so the two applications are wired to each other rather than run as
 separate demos.
 
-Useful while you are in there: the step-up OTP is `000000`, the portal's email verification
-code is `123456`, `?skipWelcome=1` skips the welcome splash, and `npm run dev:reset` puts
-the data back.
+The step-up OTP is `000000`, the portal email code is `123456`, `?skipWelcome=1` skips the
+welcome splash, and `npm run dev:reset` puts the data back.
 
-**The dev server is not the authenticating proxy and does not replace it.** It validates no
-token and authorizes no action, which is why it binds loopback only and refuses to start
-under `NODE_ENV=production`. Governance is enforced by [`proxy/`](proxy/README.md), in front
-of real flows. Full detail, including what it does and does not reproduce:
-**[`docs/deployment/LOCAL-DEV.md`](docs/deployment/LOCAL-DEV.md)**.
+The dev server is **not** the authenticating proxy: it validates no token and authorizes no
+action, which is why it binds loopback only and refuses to start under `NODE_ENV=production`.
+Detail: **[`docs/deployment/LOCAL-DEV.md`](docs/deployment/LOCAL-DEV.md)**.
 
-### Running against real endpoints instead
+On GitHub with nothing installed: **Code → Codespaces → Create codespace** runs option B on
+attach and forwards port 8080.
 
-Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints —
-or, once the proxy is deployed, set `auth.enabled: true` and `proxyBaseUrl` and leave
-`endpoints` empty, so the browser holds no credential at all. See
+### Going to production
+
+Neither of the above enforces anything. Governance becomes real when
+[`proxy/`](proxy/README.md) sits in front of the flows — about 90 minutes, see
 [`docs/deployment/MINIMAL-PILOT.md`](docs/deployment/MINIMAL-PILOT.md).
 
-`npm run setup:dev` never overwrites a config it did not generate; pass `--force` to
-replace one.
-
 ```bash
-npm run setup:dev             # write the local config only, don't start
-npm run setup:dev -- --force  # replace a config the script did not write
 npm start                     # static host only, no backend
 npm run start:proxy           # the real authenticating proxy (needs a tenant)
 ```
@@ -113,6 +128,7 @@ npm run test:secrets    # fails on a NEW SAS signature in a tracked file
 npm run test:auth       # asserts both authentication postures
 npm run test:proxy      # the authenticating proxy, against real RSA tokens
 npm run test:devserver  # the local dev backend answers in the real shapes
+npm run test:endpoints  # the endpoint wiring tools never invoke a write flow
 npm run test:smoke      # Playwright smoke suite
 npm run test:links      # linkinator crawl of both entry points
 ```
@@ -183,12 +199,16 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 │   ├── check-secrets.mjs               SAS signature ratchet
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
 │   ├── smoke.spec.js                   Playwright smoke suite
-│   └── dev-server.test.mjs             Dev-server contract shapes (33 assertions)
+│   ├── dev-server.test.mjs             Dev-server contract shapes (38 assertions)
+│   └── endpoint-tooling.test.mjs       Wiring tools never invoke a write flow
 ├── scripts/
 │   ├── check-links.mjs                 Link / asset checker
+│   ├── check-endpoints.mjs             Verifies your flows answer (never runs a write)
+│   ├── setup-endpoints.mjs             Wires the platform to your Power Automate URLs
+│   ├── endpoints.example.env           The 17 endpoints that take a URL
 │   ├── dev-server.mjs                  Local dev backend — both apps + every endpoint
-│   ├── dev-setup.mjs                   Writes the two git-ignored local configs
-│   └── dev/                            Seed dataset, store, endpoint and intake handlers
+│   ├── dev-setup.mjs                   Writes the local configs as real files (optional)
+│   └── dev/                            Seed data, store, endpoints, intake, runtime config
 ├── .github/workflows/ci.yml            CI
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
 ├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations

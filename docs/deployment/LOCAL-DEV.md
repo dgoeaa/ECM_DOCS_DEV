@@ -46,8 +46,8 @@ endpoint they call:
    /api/intake/*    │   anonymous intake, uploads, status  │
    /api/documents/  │   registry scan deposits             │
                     │                                      │
-                    │   .devdata/store.json ── seeded, and │
-                    │                          it persists │
+                    │   seeded store, kept OUTSIDE     │
+                    │   the repository, and it persists │
                     └──────────────────────────────────────┘
 ```
 
@@ -63,7 +63,7 @@ directorates, 10 users, plus comments, approvals and emails. Every module has so
 render, so the platform reads like a working system rather than an empty shell.
 
 **Writes that stick.** Assign a record, minute it, transition it, archive it — the change is
-written to `.devdata/store.json` and it is still there after a restart.
+written to the store and it is still there after a restart.
 
 **Both applications wired to each other.** A letter submitted on the public portal is minted
 a reference, lands in the registry, and appears in Correspondence in the operations app. The
@@ -141,31 +141,40 @@ Those need a tenant, and they are the proxy's job.
 
 ## Configuration
 
-`npm run dev` runs `scripts/dev-setup.mjs` first, which writes two git-ignored files:
+There is none to do, and nothing is written into your checkout.
 
-| File | Sets |
-|---|---|
-| `config/config.local.js` | the 19 endpoint URLs, and `auth.proxyBaseUrl` for the scan deposit path |
-| `document-portal/config.local.js` | `proxyBaseUrl` for intake, upload, support, status and verification |
+The two applications each load an optional, git-ignored config file — `config/config.local.js`
+and `document-portal/config.local.js`. The dev server **answers for those paths from memory**
+rather than creating them, so:
 
-Both are origin-relative (`/api/...`), so the apps work at whatever hostname you opened them
-with — `localhost` and `127.0.0.1` are different origins to a browser, and an absolute URL
-in these files turns that into a CORS failure for no reason.
+- nothing appears in `git status`, there is no cleanup, and no generated file can be committed
+- a real `config.local.js` holding rotated Power Automate URLs is never clobbered — the
+  server checks disk first and serves the file if it is there
+- the repository's own browser suite becomes deterministic. Several of its tests reach a
+  governed action, and `core/data-client.js` throws "Endpoint … is not configured" *before*
+  the flow-confirmation gate those tests wait for — so they used to pass only on a machine
+  where someone had run setup, and fail on a clean checkout
 
-Neither file holds a credential; the dev server has none to hold. Nothing else in the
-repository changes, which is the property worth keeping: **running against the dev server
-and running against Power Automate differ only by the contents of these two files.**
+The store lives outside the repository too, under your system temp directory.
 
-The setup script will not overwrite a config it did not generate, so a real
-`config.local.js` holding rotated endpoint URLs is left alone and reported. Pass `--force`
-to replace it.
+Both config paths are origin-relative (`/api/...`), so the apps work at whatever hostname
+you opened them with; `localhost` and `127.0.0.1` are different origins to a browser, and
+an absolute URL here turns that into a CORS failure for no reason.
+
+**The property worth keeping:** running against the dev server and running against Power
+Automate differ only by configuration. No code moves.
+
+If you want the config as a real file — to use with a plain static host, say — write it:
 
 ```bash
-npm run setup:dev             # write the configs, don't start
+npm run setup:dev             # write config.local.js for both apps
 npm run setup:dev -- --force  # replace a config the script did not write
-npm run dev:reset             # discard .devdata and reseed on next start
-npm run test:devserver        # 33 assertions on the contract shapes
+npm run dev:reset             # discard the store; it reseeds on next start
+npm run test:devserver        # 38 assertions on the contract shapes
 ```
+
+`setup:dev` will not overwrite a config it did not generate, so a real one is left alone
+and reported.
 
 Environment variables:
 
@@ -173,8 +182,7 @@ Environment variables:
 |---|---|
 | `PORT` | default `8080` |
 | `DGO_DEV_HOST` | default `localhost` |
-| `DGO_DEV_DATA` | default `.devdata/store.json` |
-| `DGO_DEV_BASE` | absolute API base, for serving the static files from somewhere else |
+| `DGO_DEV_DATA` | default: a per-checkout path under the system temp directory |
 | `DGO_DEV_ALLOW_EXPOSE` | required to bind anything but loopback |
 
 ---

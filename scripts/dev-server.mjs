@@ -23,12 +23,14 @@
 
 import http from 'node:http';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createStore } from './dev/store.mjs';
 import { handleContract, DEV_OTP } from './dev/endpoints.mjs';
 import { handleIntake, handleScan, DEV_VERIFY_CODE, LIMITS } from './dev/intake.mjs';
+import { VIRTUAL_CONFIGS, API_BASE } from './dev/runtime-config.mjs';
 import { EndpointKeys } from '../config/endpoints.config.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -39,7 +41,14 @@ const PORT = Number(process.env.PORT || 8080);
    literal binds IPv4 only, and on a host that resolves localhost to ::1 the page then
    fails to connect at the address the banner just printed. */
 const HOST = process.env.DGO_DEV_HOST || 'localhost';
-const DATA_FILE = process.env.DGO_DEV_DATA || path.join(ROOT, '.devdata', 'store.json');
+/* Outside the repository, deliberately. Writing it into the checkout means a gitignore
+   entry, a directory that shows up in `git status`, and eventually one that gets committed.
+   Keyed by the checkout's path so two clones do not share one registry. */
+const DATA_FILE = process.env.DGO_DEV_DATA || path.join(
+  os.tmpdir(),
+  `dgo-dev-store-${Buffer.from(ROOT).toString('base64url').slice(-16)}`,
+  'store.json',
+);
 
 /* A development server that answers every governed request without checking anything has
    no business running in production, and the failure mode if it did would be silent. */
@@ -53,6 +62,15 @@ if (HOST !== '127.0.0.1' && HOST !== 'localhost' && !process.env.DGO_DEV_ALLOW_E
                 'open write path to the registry on the network. Set DGO_DEV_ALLOW_EXPOSE=1 if you\n' +
                 'genuinely intend that on a trusted, isolated network.');
   process.exit(1);
+}
+
+/* `--reset` deletes the store and exits. It lives here so the store's location is computed
+   in exactly one place — an npm script that hardcoded a path would silently miss it the
+   moment the default moved, which is how you end up "resetting" data that never changes. */
+if (process.argv.includes('--reset')) {
+  fs.rmSync(path.dirname(DATA_FILE), { recursive: true, force: true });
+  console.log(`Dev store cleared: ${DATA_FILE}\nIt is reseeded on the next start.`);
+  process.exit(0);
 }
 
 const store = createStore({ file: DATA_FILE });
@@ -72,6 +90,19 @@ const MIME = {
 };
 
 function serveStatic(urlPath, res) {
+  // Runtime config, answered from memory. These paths deliberately do not exist on disk —
+  // see dev/runtime-config.mjs. Checked before the filesystem, but yielding to a real file
+  // if one is there, so a config holding rotated Power Automate URLs is never shadowed.
+  const generate = VIRTUAL_CONFIGS[urlPath];
+  if (generate && !fs.existsSync(path.join(ROOT, urlPath))) {
+    res.writeHead(200, {
+      'Content-Type': 'text/javascript; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'X-DGO-Dev-Server': 'generated',
+    });
+    return res.end(generate(API_BASE));
+  }
+
   // The portal is mounted at /portal/ so both apps share one origin. Same-origin means the
   // portal's fetches are not cross-origin requests, which removes CORS from the picture
   // entirely rather than configuring it.
@@ -252,11 +283,15 @@ server.listen(PORT, HOST, () => {
     Dev outbox            ${base}/api/dev/outbox
 
     Endpoints served      ${EndpointKeys.length} contract keys, plus /intake/* and /documents/scan
-    Store                 ${path.relative(ROOT, store.file)}  (${d.activities.length} records, ${d.tracking.length} tasks)
+    Store                 ${store.file}
+                          ${d.activities.length} records, ${d.tracking.length} tasks — outside the repository
     Step-up OTP           ${DEV_OTP}
     Portal email code     ${DEV_VERIFY_CODE}
 
     Reset the data        curl -X POST ${base}/api/dev/reset
+
+  Nothing is written into the working tree: the runtime config is generated in
+  memory and served, never saved. Stop this process and the checkout is unchanged.
 
   This server authenticates nobody and authorizes nothing. It is a development
   backend bound to ${HOST}. Production enforcement is proxy/ — see

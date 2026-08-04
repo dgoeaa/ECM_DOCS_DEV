@@ -10,8 +10,8 @@ document-portal/config.local.js
 # Ad-hoc runtime state exports
 *.state.json
 
-# Local development server store. Seeded data plus whatever you did to it —
-# regenerated on demand with `npm run dev:reset`, so it is never worth committing.
+# Local development server store, only if DGO_DEV_DATA points it back in here.
+# By default it lives outside the repository and this entry is unused.
 .devdata/
 
 # Test output

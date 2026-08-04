@@ -24,10 +24,12 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { createStore } from '../scripts/dev/store.mjs';
 import { handleContract, envelope, readRequest, resolveKey } from '../scripts/dev/endpoints.mjs';
 import { handleIntake, handleScan } from '../scripts/dev/intake.mjs';
+import { appConfigScript, portalConfigScript } from '../scripts/dev/runtime-config.mjs';
 import { assertEnvelope, collection } from '../core/contracts.js';
 import { EndpointContracts, EndpointKeys } from '../config/endpoints.config.js';
 
@@ -38,6 +40,7 @@ const t = async (label, fn) => {
 };
 const section = s => console.log(`\n${s}`);
 
+const REPO = fileURLToPath(new URL('..', import.meta.url));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'dgo-dev-'));
 const newStore = () => createStore({ file: path.join(tmp, `${crypto.randomUUID()}.json`) });
 
@@ -430,6 +433,45 @@ await t('no file under scripts/dev/ contains a signed URL or a hardcoded secret'
     const src = fs.readFileSync(new URL(`../scripts/dev/${f}`, import.meta.url), 'utf8');
     assert.ok(!suspicious.test(src), `${f} carries something credential-shaped`);
   }
+});
+
+// ---------------------------------------------------------------------------
+section('It does not touch the working tree');
+
+await t('the runtime config is generated, not written into the repository', () => {
+  // Writing these would mean a gitignore entry, `git status` noise, and eventually a
+  // generated file in a commit. They are served from memory instead.
+  for (const p of ['config/config.local.js', 'document-portal/config.local.js']) {
+    assert.ok(!fs.existsSync(path.join(REPO, p)),
+      `${p} exists on disk — something is writing config into the checkout`);
+  }
+  assert.match(appConfigScript(), /window\.DGO_CONFIG/);
+  assert.match(portalConfigScript(), /window\.PF_CONFIG/);
+});
+
+await t('the generated config defers to one already injected', () => {
+  // The repository's portal tests inject window.PF_CONFIG before page scripts run.
+  // Assigning unconditionally would silently replace it and break them.
+  assert.match(appConfigScript(), /window\.DGO_CONFIG = window\.DGO_CONFIG \|\|/);
+  assert.match(portalConfigScript(), /window\.PF_CONFIG = window\.PF_CONFIG \|\|/);
+});
+
+await t('every endpoint it hands the app is origin-relative', () => {
+  // An absolute loopback URL makes `localhost` and `127.0.0.1` different origins, and CORS
+  // then blocks every call for no reason but which spelling was typed.
+  const absolute = appConfigScript().match(/"https?:\/\/[^"]+"/g) || [];
+  assert.deepEqual(absolute, [], `absolute URLs in the generated config: ${absolute.join(', ')}`);
+});
+
+await t('all 19 contract keys are wired by the generated config', () => {
+  const script = appConfigScript();
+  const missing = EndpointKeys.filter(k => !script.includes(`"${k}"`));
+  assert.deepEqual(missing, [], `not wired: ${missing.join(', ')}`);
+});
+
+await t('the store defaults outside the repository', () => {
+  const src = fs.readFileSync(new URL('../scripts/dev-server.mjs', import.meta.url), 'utf8');
+  assert.match(src, /os\.tmpdir\(\)/, 'the default store path must sit outside the checkout');
 });
 
 fs.rmSync(tmp, { recursive: true, force: true });

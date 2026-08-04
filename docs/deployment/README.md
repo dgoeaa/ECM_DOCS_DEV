@@ -1,6 +1,12 @@
 # Deployment documentation
 
-**Just want to run it? [`LOCAL-DEV.md`](./LOCAL-DEV.md)** — one command, no accounts, no
+**Running it against your own flows, without the proxy?
+[`DIRECT-ENDPOINTS.md`](./DIRECT-ENDPOINTS.md)** — the browser calls your signed Power
+Automate URLs directly. Minutes rather than ninety, and the trade is stated there: the
+signatures reach the browser, so it suits development and a machine you control rather
+than real correspondence on a shared host.
+
+**No endpoints to hand? [`LOCAL-DEV.md`](./LOCAL-DEV.md)** — one command, no accounts, no
 cloud. A local server that answers every endpoint from a seeded registry, so the platform
 runs end to end with nothing provisioned. Not a deployment and not a substitute for the
 proxy; it is how you read the code, review a screen or reproduce a bug without spending
