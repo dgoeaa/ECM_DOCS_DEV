@@ -1,6 +1,6 @@
 # Test suite
 
-Three checks, ordered cheapest-first. `npm test` runs all of them.
+Ordered cheapest-first. `npm test` runs all of them.
 
 | Command | Runner | Needs a browser? | What it asserts |
 |---|---|---|---|
@@ -8,6 +8,29 @@ Three checks, ordered cheapest-first. `npm test` runs all of them.
 | `npm run test:secrets` | `tests/check-secrets.mjs` | No | No *new* Power Automate SAS signature has entered a tracked file |
 | `npm run test:smoke` | `tests/smoke.spec.js` (Playwright) | Yes | Each app boots, every route mounts, themes repaint, no same-origin 4xx/5xx |
 | `npm run test:links` | `scripts/check-links.mjs` | No | Same-origin links and assets on both entry pages resolve |
+| `npm run test:devserver` | `tests/dev-server.test.mjs` | No | The local dev backend answers in the shapes the real one does — see below |
+
+(`npm test` runs considerably more than the four above; the table lists the ones worth
+knowing by name. Read `package.json` for the full chain.)
+
+### Why the dev server has its own suite
+
+`scripts/dev-server.mjs` exists so the platform runs with nothing provisioned. Its whole
+value rests on answering in the **same shapes** the real backend does — every contract key,
+the envelope `core/contracts.js` accepts, and the collection aliases `core/data-loader.js`
+looks for. If it drifts, the platform passes against the stub and fails against Power
+Automate, and the failure surfaces at deployment rather than here. That is worse than having
+no stub at all, so the drift is what the suite tests.
+
+It also asserts the intake properties that are not cosmetic — a client-supplied reference
+never survives, a ticket cannot be replayed, declared bytes are verified, and the status
+denial is uniform — because a dev server laxer than the proxy teaches the wrong thing about
+how the portal behaves.
+
+The Playwright `webServer` is this dev server rather than a bare static host, so the browser
+suite runs against the same thing a developer runs. With no `config.local.js` present — a
+clean checkout, and CI — nothing is configured, no governed request is made, and it behaves
+exactly as the plain static host did.
 
 ## Why these three
 

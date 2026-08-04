@@ -63,6 +63,12 @@ jobs:
       - name: Check upload brokering
         run: node proxy/test/upload.test.mjs
 
+      # The local development backend. Asserts it answers in the same shapes the real one
+      # does — if it drifts, the platform passes locally and fails at deployment, which is
+      # worse than having no local backend at all.
+      - name: Check local dev server
+        run: node tests/dev-server.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest

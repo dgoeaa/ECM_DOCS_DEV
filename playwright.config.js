@@ -46,8 +46,17 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run start',
-    url: 'http://localhost:8080',
+    // The dev server rather than a bare static host, so the suite runs against the same
+    // thing a developer runs. It matters for a specific failure: once config.local.js
+    // points the app at /api, a static-only host answers 405 to every governed call and
+    // the boot assertion fails on requests the app was configured to make. With no
+    // config.local.js — a clean checkout, and CI — nothing is configured, no request is
+    // made, and this behaves exactly as `npm run start` did.
+    //
+    // Deliberately NOT `npm run dev`: that would regenerate config.local.js as a side
+    // effect, and a test run must not rewrite the developer's configuration.
+    command: 'node scripts/dev-server.mjs',
+    url: 'http://localhost:8080/healthz',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
     stdout: 'ignore',

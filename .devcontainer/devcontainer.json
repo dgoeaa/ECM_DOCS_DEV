@@ -2,12 +2,14 @@
   "name": "DGO Digital Operations",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
 
-  // Installs dependencies and wires the pilot endpoints automatically, so the
-  // codespace is ready to use the moment it finishes building. Nothing to configure.
-  "postCreateCommand": "npm install && npm run setup",
+  // Installs the test tooling. The dev server itself has no dependencies, so the
+  // codespace is usable even if this step is still running.
+  "postCreateCommand": "npm install",
 
-  // Starts the server automatically on every attach.
-  "postAttachCommand": "npm start",
+  // Starts the local development server on every attach: both applications and every
+  // endpoint they call, from a seeded registry. Nothing to provision and nothing to
+  // configure — see docs/deployment/LOCAL-DEV.md.
+  "postAttachCommand": "npm run dev",
 
   "forwardPorts": [8080, 8081],
   "portsAttributes": {

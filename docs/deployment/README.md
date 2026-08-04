@@ -1,6 +1,12 @@
 # Deployment documentation
 
-**Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — about 90 minutes, gets
+**Just want to run it? [`LOCAL-DEV.md`](./LOCAL-DEV.md)** — one command, no accounts, no
+cloud. A local server that answers every endpoint from a seeded registry, so the platform
+runs end to end with nothing provisioned. Not a deployment and not a substitute for the
+proxy; it is how you read the code, review a screen or reproduce a bug without spending
+ninety minutes first.
+
+**Deploying for real? Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — about 90 minutes, gets
 correspondence flowing end to end. Every governed write in the platform goes through one
 endpoint, so a pilot needs 6 flows rather than 23; the rest are features you add later, one
 command each, with no redeploy.

@@ -10,6 +10,10 @@ document-portal/config.local.js
 # Ad-hoc runtime state exports
 *.state.json
 
+# Local development server store. Seeded data plus whatever you did to it —
+# regenerated on demand with `npm run dev:reset`, so it is never worth committing.
+.devdata/
+
 # Test output
 test-results/
 playwright-report/

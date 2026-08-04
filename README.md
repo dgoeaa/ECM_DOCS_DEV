@@ -46,50 +46,58 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 ## Run it
 
-### Option A — in the browser, nothing installed (recommended)
-
-On GitHub: **Code → Codespaces → Create codespace on main**.
-
-It installs dependencies, wires the pilot endpoints and starts the server by itself.
-When port 8080 forwards, the platform opens. No terminal, no Node, no local clone —
-works from a tablet or phone.
-
-### Option B — on your own machine
-
-Needs Node 20 or newer.
-
-**One command:**
+Needs Node 20 or newer. Nothing else — no account, no cloud tenant, no install step.
 
 ```bash
-npm install && npm run go
+npm run dev
 ```
 
-`npm run go` wires the pilot endpoints and starts the server. Nothing else to configure.
+Then open <http://localhost:8080/>.
+
+Or with nothing installed at all: on GitHub, **Code → Codespaces → Create codespace**. It
+runs the same command on attach and forwards port 8080, so the platform opens by itself —
+no terminal, no Node, no local clone.
+
+That starts one zero-dependency Node process that serves both applications and answers
+every endpoint they call, from a seeded registry that persists to `.devdata/`. No Entra, no
+Power Automate, no SharePoint, no Cloudflare, and no signed URLs anywhere.
+
+| | |
+|---|---|
+| Operations platform | <http://localhost:8080/> |
+| Document portal | <http://localhost:8080/portal/> |
+| Health and endpoint status | <http://localhost:8080/healthz> |
+| What the platform "sent" | <http://localhost:8080/api/dev/outbox> |
+
+A letter submitted on the portal is minted a reference, lands in the registry, and shows up
+in Correspondence in the operations app — the two halves are wired to each other, not run as
+separate demos.
+
+Useful while you are in there: the step-up OTP is `000000`, the portal's email verification
+code is `123456`, `?skipWelcome=1` skips the welcome splash, and `npm run dev:reset` puts
+the data back.
+
+**The dev server is not the authenticating proxy and does not replace it.** It validates no
+token and authorizes no action, which is why it binds loopback only and refuses to start
+under `NODE_ENV=production`. Governance is enforced by [`proxy/`](proxy/README.md), in front
+of real flows. Full detail, including what it does and does not reproduce:
+**[`docs/deployment/LOCAL-DEV.md`](docs/deployment/LOCAL-DEV.md)**.
+
+### Running against real endpoints instead
 
 Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints —
 or, once the proxy is deployed, set `auth.enabled: true` and `proxyBaseUrl` and leave
 `endpoints` empty, so the browser holds no credential at all. See
-`docs/deployment/MINIMAL-PILOT.md`.
-It never overwrites an existing config unless you pass `--force`.
+[`docs/deployment/MINIMAL-PILOT.md`](docs/deployment/MINIMAL-PILOT.md).
 
-Authentication stays **inert** for local testing: no sign-in, no token, identity from the
-local profile. Exactly as the pilot has always behaved.
-
-```bash
-npm run setup            # wire config only
-npm run setup -- --force # rewrite after rotating signatures
-npm start                # serve
-```
-
-Then open:
-
-- Root runtime — <http://localhost:8080/>
-- Document portal — <http://localhost:8080/document-portal/>
-
-To serve only the ECM portal on port 8080:
+`npm run setup:dev` never overwrites a config it did not generate; pass `--force` to
+replace one.
 
 ```bash
-npm run serve:portal
+npm run setup:dev             # write the local config only, don't start
+npm run setup:dev -- --force  # replace a config the script did not write
+npm start                     # static host only, no backend
+npm run start:proxy           # the real authenticating proxy (needs a tenant)
 ```
 
 ---
@@ -99,12 +107,14 @@ npm run serve:portal
 Requires Node >= 20. See [`tests/README.md`](tests/README.md) for the design.
 
 ```bash
-npm test              # import checker + secret ratchet + smoke suite
-npm run test:imports  # static ES-module graph check (no browser, ~1s)
-npm run test:secrets  # fails on a NEW SAS signature in a tracked file
-npm run test:auth     # asserts both authentication postures
-npm run test:smoke    # Playwright smoke suite
-npm run test:links    # linkinator crawl of both entry points
+npm test                # everything, cheapest first
+npm run test:imports    # static ES-module graph check (no browser, ~1s)
+npm run test:secrets    # fails on a NEW SAS signature in a tracked file
+npm run test:auth       # asserts both authentication postures
+npm run test:proxy      # the authenticating proxy, against real RSA tokens
+npm run test:devserver  # the local dev backend answers in the real shapes
+npm run test:smoke      # Playwright smoke suite
+npm run test:links      # linkinator crawl of both entry points
 ```
 
 `npm run test:imports` is the cheapest and the most load-bearing: it verifies every relative import resolves on disk. The runtime once shipped with 12 config modules that were imported but never committed, and because those are *static* imports the failure happened before `core/boot.js` could run its `try/catch` — nothing threw, nothing logged, and the app simply hung on its boot spinner. `index.html` now also carries a 15-second boot watchdog that surfaces the failing URLs instead of hanging.
@@ -125,7 +135,7 @@ npm run test:smoke
 
 | Job | What it does |
 |---|---|
-| `imports` | `node tests/check-imports.mjs` — fails fast, gates the rest |
+| `imports` | `node tests/check-imports.mjs` — fails fast, gates the rest, then the no-browser suites: governance, encoding, hardening, auth postures, proxy, intake, uploads and the local dev server |
 | `smoke` | Playwright smoke suite, uploads the report on failure |
 | `links` | Link/asset crawl (`continue-on-error` — depends on external hosts) |
 | `secrets` | `node tests/check-secrets.mjs` — fails on a *new* SAS signature |
@@ -172,8 +182,13 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 │   ├── check-imports.mjs               Static module-graph check
 │   ├── check-secrets.mjs               SAS signature ratchet
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
-│   └── smoke.spec.js                   Playwright smoke suite
-├── scripts/check-links.mjs             Link / asset checker
+│   ├── smoke.spec.js                   Playwright smoke suite
+│   └── dev-server.test.mjs             Dev-server contract shapes (33 assertions)
+├── scripts/
+│   ├── check-links.mjs                 Link / asset checker
+│   ├── dev-server.mjs                  Local dev backend — both apps + every endpoint
+│   ├── dev-setup.mjs                   Writes the two git-ignored local configs
+│   └── dev/                            Seed dataset, store, endpoint and intake handlers
 ├── .github/workflows/ci.yml            CI
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
 ├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations
@@ -195,10 +210,16 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 ES modules are blocked by CORS on `file://` URLs. Serve over HTTP:
 
 ```bash
-npm start                  # http-server on port 8080
-# or
-python3 -m http.server 8080
+npm run dev                # both apps + every endpoint, on port 8080
+# or, static files only, no backend
+npm start
 ```
+
+### The platform loads but every list is empty
+
+Nothing is answering the endpoints. `npm run dev` wires and starts the local backend;
+check <http://localhost:8080/healthz> and confirm `config/config.local.js` exists. If you
+are pointing at real flows instead, Diagnostics lists which contract keys resolve.
 
 ### The app shows "DGO could not start" after 15 seconds
 
