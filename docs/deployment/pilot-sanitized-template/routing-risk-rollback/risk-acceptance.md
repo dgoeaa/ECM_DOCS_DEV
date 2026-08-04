@@ -8,7 +8,7 @@
 ## Risks to review
 
 1. Power Automate trigger inventory may drift if rebuilt flows are not re-registered.
-2. Secrets must remain in Cloudflare Worker secrets or an approved vault only.
+2. Signed flow trigger URLs are configured client-side and delivered to every visitor's browser, so they are public bearer credentials; keep them in an approved vault, rotate them on a schedule, and rely on the flow itself to authenticate, authorise and rate-limit each call.
 3. Access-group claim errors can silently downgrade users to `viewer`.
 4. Verification evidence may contain internal or personal data and must remain outside Git.
 

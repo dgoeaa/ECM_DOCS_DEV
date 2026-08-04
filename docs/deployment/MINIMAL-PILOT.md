@@ -1,24 +1,31 @@
 # Minimal pilot — the short path
 
-About 90 minutes, most of it waiting for deploys.
+About 75 minutes, most of it building flows.
 
 This gets correspondence flowing end to end: a citizen submits, the registry sees it, an
 officer triages, assigns, approves, dispatches and closes. Nothing else.
 
 Use [`CLOUDFLARE.md`](./CLOUDFLARE.md) instead if you want every feature at once. Come back to
-it later to add the ones you skip here — each is one command, no redeploy.
+it later to add the ones you skip here — each is one line in your config file and a redeploy of
+the static site.
 
 ## Why this is so much smaller
 
 Every governed write in the platform — register, triage, treat, approve, dispatch, close,
 archive — goes through **one** endpoint, `DYNAMIC_ACTIONS`. The platform needs six endpoints,
-not twenty-three. The other seventeen are AI analysis, one-time passcodes, the email desk,
-the help desk, scan intake and email verification. All can wait.
+not twenty-four. The other eighteen are AI analysis, one-time passcodes, the email desk,
+the help desk, scan intake and email verification (which is now two flows). All can wait.
 
 That also simplifies the security work. Rather than carefully regenerating twenty-odd
 triggers, you **delete everything you are not using** — 21 flows — and regenerate the three
 you are. Deleting is faster than regenerating and it is the stronger action: it invalidates
 every signature a flow has ever had, including the older ones that regeneration leaves live.
+
+**One thing you cannot skip, however small the pilot.** The browser now calls every flow
+directly — there is no proxy, Worker or broker in between. The flow trigger URLs are shipped
+to every visitor's browser, so they are public. That means each flow you keep is the only place
+its own validation, rate limiting, reference minting and upload verification can happen. A
+minimal pilot is still a public endpoint on the open internet; build the flows accordingly.
 
 ---
 
@@ -31,16 +38,19 @@ npm install
 npx wrangler login
 ```
 
-Confirm you are on the Cloudflare **Workers Paid** plan. Durable Objects are not on the free
-plan and the registry counter needs one. Dashboard → Compute (Workers) → Plans.
+The free Cloudflare plan is enough. There is no Worker and no Durable Object any more, so you
+do not need the Workers Paid plan; `wrangler` is used only to create and deploy the Pages
+site. Cloudflare Access, which you set up in step 4, is on the free Zero Trust tier.
 
-Create your values file, outside the repository:
+Create a plain values file by hand, outside the repository, to hold the flow URLs as you
+collect them:
 
 ```bash
-cp scripts/worker-secrets.example.env ~/dgo-secrets.env
+printf '# DGO pilot flow URLs — delete when deployed\n' > ~/dgo-values.txt
 ```
 
-Leave it open. You will fill it in as you go.
+Leave it open. You will fill it in as you go. Every URL in it is a bearer credential, which is
+why it lives outside the repository and is deleted at the end.
 
 ## 2 · SharePoint — 10 minutes
 
@@ -108,7 +118,7 @@ URL that works right now, and nothing in the platform calls it.
 For each: open it → **Edit** → click the **When an HTTP request is received** trigger →
 **···** inside the trigger → **Regenerate** → copy the new **HTTP POST URL** → **Save**.
 
-| Workflow ID | Paste the URL into `~/dgo-secrets.env` as |
+| Workflow ID | Paste the URL into `~/dgo-values.txt` as |
 |---|---|
 | `bc83d98acf474a088832d78f50085388` | `DGO_ENDPOINT_DYNAMIC_ACTIONS` |
 | `6b3bad3005b44bf6bced0f8074d3f2ed` | `DGO_ENDPOINT_SINGLE_ASSIGNMENT` |
@@ -133,25 +143,32 @@ field value and expression is given there, ready to copy.
 - **C7** builds `DGO Intake Submission` → paste its URL as `DGO_ENDPOINT_INTAKE_SUBMISSION`
 - **C9** builds `DGO Intake Upload` → paste its URL as `DGO_ENDPOINT_INTAKE_UPLOAD`
 
-Skip C8, C10 and C11 for now — those are tracking, verification and the help desk.
+With no proxy in front of them these two flows carry the whole security burden of the public
+channel. C7 must mint the `NITDA-YYYY-NNNNNN` reference itself (monotonic, never restarting
+within a year), rate-limit by source and issue one single-use upload ticket per attachment;
+C9 must redeem that ticket once and verify the received bytes against the declared size and
+SHA-256. The steps in C7.9a and C9 spell this out. Do not treat it as optional polish — it is
+the only thing standing between the register and an anonymous stranger with the URL.
 
-Also generate the upload signing secret and paste it as `DGO_UPLOAD_SECRET`:
-
-```bash
-openssl rand -base64 48
-```
+Skip C8, C10 and C11 for now — those are tracking, verification and the help desk. There is no
+signing secret to generate any more; the ticket is issued and redeemed inside the flows.
 
 ## 4 · Cloudflare Access — 20 minutes
 
-Dashboard → **Zero Trust**.
+Dashboard → **Zero Trust**. Access gates **who may load the internal page** — nothing more. It
+does not sit between the page and the flows, so in this pilot an officer's role is advisory
+(see step 7). Set it up anyway: it is what keeps the interface off the open internet, and it is
+what you will build real authorisation on later.
 
-**4a** **Settings → Custom Pages.** Copy your team domain (`something.cloudflareaccess.com`).
-Paste it into `~/dgo-secrets.env` as `DGO_TENANT_ID`, and as `DGO_ISSUER` with `https://` in
-front, and as `DGO_JWKS_URI` with `https://` in front and `/cdn-cgi/access/certs` on the end.
+**4a** **Settings → Custom Pages.** Copy your team domain (`something.cloudflareaccess.com`)
+and note it in `~/dgo-values.txt` for the record. Nothing consumes it in the pilot — there is
+no Worker verifying tokens — but you will need it if you later enforce authentication per
+`AUTHENTICATION_CONTRACT.md`.
 
 **4b** **Settings → Authentication → Login methods → Add new.** Add your organisation's
 provider. Then **Edit** it and turn on **Add groups to the JWT**. Click **Test** — the result
-must list your groups. If the list is empty, nobody will be able to approve anything.
+must list your groups. The platform does not read this claim while authentication is inert, but
+enabling it now means the groups are already present when you do enforce auth.
 
 **4c** **Access → Groups.** Create six groups with exactly these names, putting the right
 people in each:
@@ -167,70 +184,55 @@ Everyone must be in exactly one.
 Name `NITDA DGO Platform`, domain `nitda-dgo-platform.pages.dev`, session 8 hours.
 Policy name `DGO pilot access`, action **Allow**, include **Access groups** → all six.
 
-**4e** Open the application → **Overview** → copy the **Application Audience (AUD) Tag**.
-Paste it as `DGO_AUDIENCE`.
+**4e** Open the application → **Overview** → copy the **Application Audience (AUD) Tag** and
+note it in `~/dgo-values.txt`. As with the team domain, nothing verifies it in the pilot; keep
+it for when you enforce authentication.
 
-## 5 · Deploy the Worker — 10 minutes
+## 5 · Configure the endpoints — 5 minutes
 
-Turn on the flag that stops duplicate references. Edit `proxy/wrangler.toml`, in `[vars]`:
+There is no Worker to deploy and no secrets to set. The flow URLs you collected go into two
+git-ignored files that ship with the static site.
 
-```toml
-DGO_REQUIRE_DURABLE_REFERENCES = "true"
-```
-
-Deploy, set every secret from your file, deploy again:
-
-```bash
-cd proxy && npx wrangler deploy && cd ..
-./scripts/set-worker-secrets.sh ~/dgo-secrets.env
-cd proxy && npx wrangler deploy && cd ..
-```
-
-Note the Worker URL from the deploy output. Check it:
-
-```bash
-curl -s https://YOUR-WORKER-URL/healthz
-```
-
-**`"referenceSequenceDurable":true` must appear.** If it says `false`, stop — the register
-will hand two citizens the same reference. Re-check the flag above and redeploy.
-
-Then put the Worker behind Access: **Zero Trust → Access → Applications → Add an
-application → Self-hosted**, domain = your Worker hostname, same `DGO pilot access` policy.
-
-## 6 · Deploy the front end — 5 minutes
-
-Create `config/config.local.js`, replacing the URL with your Worker's:
+Create `config/config.local.js` with the four platform endpoints the minimal pilot uses,
+pasting each URL from `~/dgo-values.txt`:
 
 ```javascript
 window.DGO_CONFIG = {
-  endpoints: {},
-  auth: {
-    enabled: true,
-    provider: 'cloudflare-access',
-    roleSource: 'claims',
-    rolesClaim: 'groups',
-    allowClientAssertedIdentity: false,
-    proxyBaseUrl: 'https://YOUR-WORKER-URL',
-    roleClaimMap: {
-      'DGO-SystemAdmin': 'systemAdmin',
-      'DGO-UserAdmin': 'userAdmin',
-      'DGO-Executive': 'executive',
-      'DGO-Director': 'director',
-      'DGO-Operator': 'operator',
-      'DGO-Viewer': 'viewer',
-    },
+  endpoints: {
+    FETCH_ALL:         "DGO_ENDPOINT_FETCH_ALL",
+    DYNAMIC_ACTIONS:   "DGO_ENDPOINT_DYNAMIC_ACTIONS",
+    SINGLE_ASSIGNMENT: "DGO_ENDPOINT_SINGLE_ASSIGNMENT",
+    BULK_ASSIGNMENT:   "DGO_ENDPOINT_BULK_ASSIGNMENT",
   },
 };
 ```
 
-Create `document-portal/config.local.js` — beside `index.html`, not in `js/`:
+Create `document-portal/config.local.js` — beside `index.html`, not in `js/` — with the two
+intake endpoints:
 
 ```javascript
-window.PF_CONFIG = { proxyBaseUrl: 'https://YOUR-WORKER-URL' };
+window.PF_CONFIG = {
+  endpoints: {
+    SUBMISSION: "DGO_ENDPOINT_INTAKE_SUBMISSION",
+    UPLOAD:     "DGO_ENDPOINT_INTAKE_UPLOAD",
+  }
+};
 ```
 
-Both files are already git-ignored. Deploy:
+Both files are already git-ignored. Confirm nothing is staged before you deploy:
+
+```bash
+git status --short config/config.local.js document-portal/config.local.js
+```
+
+It must print nothing. A signed flow URL committed to Git is a leaked credential that outlives
+deleting the file. Every URL in these two files is delivered to every visitor's browser, so
+treat them as public and rotate them on a schedule.
+
+## 6 · Deploy the static site — 5 minutes
+
+Both config files must exist on disk first — `wrangler pages deploy .` uploads the working
+directory as-is, config files included.
 
 ```bash
 npx wrangler pages project create nitda-dgo-platform --production-branch main
@@ -238,44 +240,56 @@ npx wrangler pages deploy . --project-name nitda-dgo-platform
 ```
 
 If the hostname it prints differs from `nitda-dgo-platform.pages.dev`, go back to 4d and
-correct the application domain.
+correct the application domain, or the internal interface is reachable without a sign-in.
 
 ## 7 · Check it works — 10 minutes
 
-**Submit twice.** Replace the URL with your Worker's:
+**Submit twice.** Replace `SUBMISSION_URL` with the URL you recorded as
+`DGO_ENDPOINT_INTAKE_SUBMISSION`:
 
 ```bash
-curl -s -X POST https://YOUR-WORKER-URL/intake/submission \
+curl -s -X POST SUBMISSION_URL \
   -H 'Content-Type: application/json' \
   -d '{"subject":"Check one","category":"General Correspondence","senderEmail":"registry@nitda.gov.ng","sender":{"name":"Registry"},"description":"First check."}'
 ```
 
-Run it again with `Check two`. You need `"delivered":true` both times, and **two different
-reference numbers**. If a number repeats, the registry counter is not working — go back to
-step 5.
+Run it again with `Check two`. Each response must contain a `"referenceId":"NITDA-` value, and
+the two must be **different, consecutive numbers**. If a number repeats, your `SUBMISSION` flow
+is restarting the sequence — go back to C7.9a and fix the minting. (If you built the flow to
+require a verified email it answers `403 verification_required` instead; test through the
+portal with a verified address.)
 
 **Look in SharePoint.** The `Correspondence` list must hold both, with `Received` in Status.
 
-**Confirm the authenticated side is closed:**
+**Understand what the authenticated side does for a stranger.** Replace `FETCH_ALL_URL` with
+the URL you recorded as `DGO_ENDPOINT_FETCH_ALL`:
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' -X POST https://YOUR-WORKER-URL/FETCH_ALL \
+curl -s -o /dev/null -w '%{http_code}\n' -X POST FETCH_ALL_URL \
   -H 'Content-Type: application/json' -d '{}'
 ```
 
-`401` or `302`. If it says `200`, the Worker is not behind Access.
+There is no Worker to refuse this. If your `FETCH_ALL` flow does not verify a token — the
+inert pilot default — it will answer `200` and hand the register to an anonymous caller. That
+is a known limitation of the pilot posture, not a misconfiguration: the URL is only shielded by
+being unadvertised and by Access gating the interface, never the flow. If a `200` here is
+unacceptable for your data, build token verification into the flow before going live.
 
-**Have officers sign in.** One from each group opens the Pages URL, signs in, and adds
-`#/diagnostics` to the address bar. Each must see their own email and their real role. If
-someone shows `viewer` unexpectedly, go back to 4b — the groups claim is missing.
+**Have officers sign in.** One from each group opens the Pages URL, signs in through Access,
+and adds `#/diagnostics` to the address bar. Each sees their email and a role — but in the
+inert pilot that role is **advisory**, read from the profile the interface holds, not verified
+against the Access groups claim. Use it to confirm the interface renders per role, not as proof
+that privilege is enforced anywhere.
 
 **Confirm the register is shared.** One officer registers a correspondence; a second, on a
 different machine, finds it under `#/lookup`. If they cannot, `FETCH_ALL` is not reaching its
-flow.
+flow — check it is set in `config/config.local.js` and that the deployed site includes that
+file.
 
 ## 8 · Before real correspondence arrives
 
-Delete the test records from the `Correspondence` list, and delete `~/dgo-secrets.env`.
+Delete the test records from the `Correspondence` list, and delete `~/dgo-values.txt` — it
+holds the signed flow URLs, and each one is a bearer credential.
 
 Confirm the routing table in **Part H** of [`CLOUDFLARE.md`](./CLOUDFLARE.md). It decides which
 desk each kind of correspondence lands on, and nobody has approved it yet.
@@ -284,23 +298,30 @@ desk each kind of correspondence lands on, and nobody has approved it yet.
 
 ## What you skipped, and how to add it
 
-Each is one `wrangler secret put` and takes effect immediately. No redeploy.
+Each is one line added to your config file and a redeploy of the static site (step 6).
 
-| To add | Build the flow | Then set |
+| To add | Build the flow | Then set the key |
 |---|---|---|
-| Citizens tracking their submission | C8 in `CLOUDFLARE.md` | `DGO_ENDPOINT_INTAKE_STATUS` |
-| Outward correspondence email | new flow | `DGO_ENDPOINT_EMAIL` |
-| Email verification before a reference is issued | C10 | `DGO_ENDPOINT_INTAKE_VERIFY_EMAIL` and `DGO_VERIFY_SECRET`, then set `DGO_REQUIRE_VERIFICATION = "true"` |
-| The public help desk | C11 | `DGO_ENDPOINT_INTAKE_SUPPORT` |
-| Registry counter scan deposits | reuse the upload flow | `DGO_ENDPOINT_SCAN_UPLOAD` |
-| AI analysis and one-time passcodes | new flows | the matching `DGO_ENDPOINT_*` |
+| Citizens tracking their submission | C8 in `CLOUDFLARE.md` | `STATUS` in `PF_CONFIG` |
+| Outward correspondence email | new flow | `EMAIL` in `DGO_CONFIG` |
+| Email verification before a reference is issued | C10 — both the verify and confirm flows | `VERIFY` and `VERIFY_CONFIRM` in `PF_CONFIG`, then have the `SUBMISSION` flow require the proof |
+| The public help desk | C11 | `SUPPORT` in `PF_CONFIG` |
+| Registry counter scan deposits | reuse the upload flow | `SCAN_INTAKE` in `DGO_CONFIG` |
+| AI analysis and one-time passcodes | new flows | the matching key in `DGO_CONFIG` |
 
 Build these fresh rather than restoring the flows you deleted in 3a. Those all had published
-credentials, which is why they were deleted.
+credentials, which is why they were deleted. Whether verification is required is now a decision
+the `SUBMISSION` flow makes for itself — there is no server flag to flip.
 
-## Two limits while the pilot runs
+## The flow URLs are public — treat them so
 
-Upload tickets and rate limits are counted per server instance, and Cloudflare may run
-several. A ticket could in principle be reused, and the limit of 5 submissions per minute per
-address is looser in practice. Neither affects whether the register is correct. Fine for a
-supervised pilot; fix before opening to the general public.
+There is no per-instance ticket or rate-counter caveat any more, because there is no Worker.
+What replaces it matters more: every signed flow URL in your two config files is delivered to
+every visitor's browser and can be read straight out of the page. Assume a hostile caller has
+each one from the moment you deploy. Two consequences you cannot pilot your way around:
+
+- **Each flow must be safe when a stranger calls it** — it must validate its own input,
+  rate-limit its own callers, mint its own reference and verify its own uploads. Cloudflare
+  never sees a flow call, so it cannot help.
+- **Rotate the URLs on a schedule** — regenerate the SAS signature in Power Automate, paste the
+  new URL into the config file, and redeploy. That is the only way to revoke an exposed URL.

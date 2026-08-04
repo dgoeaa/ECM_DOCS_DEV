@@ -32,27 +32,24 @@ values:
     source: Power Automate HTTP trigger URLs
     stored_in_repository: false
     value: NEVER_STORE_HERE
+    note: >-
+      Configured client-side in config/config.local.js (DGO_CONFIG.endpoints) and
+      document-portal/config.local.js (PF_CONFIG.endpoints). Delivered to every
+      visitor's browser, so treat each as a public bearer credential and rotate on
+      a schedule. There is no Worker holding these any more.
   V6:
-    name: DGO_UPLOAD_SECRET
-    source: openssl rand -base64 48
+    name: SharePoint site URL
+    source: SharePoint site
     stored_in_repository: false
-    value: NEVER_STORE_HERE
+    value: <SHAREPOINT-SITE-URL>
   V7:
-    name: DGO_VERIFY_SECRET
-    source: openssl rand -base64 48
-    stored_in_repository: false
-    value: NEVER_STORE_HERE
-  V8:
-    name: SharePoint document library upload endpoint
-    source: Power Automate intake upload flow
-    stored_in_repository: false
-    value: NEVER_STORE_HERE
-  V9:
     name: Pages project hostname
     source: wrangler pages deploy
     stored_in_repository: false
     value: <PAGES-HOSTNAME>
-endpoint_secret_names:
+endpoint_url_names:
+  # Configured client-side as DGO_CONFIG.endpoints / PF_CONFIG.endpoints keys.
+  # Recorded here under the Part C label; no Worker secret exists for any of them.
   - DGO_ENDPOINT_BULK_ASSIGNMENT
   - DGO_ENDPOINT_SINGLE_ASSIGNMENT
   - DGO_ENDPOINT_BULK_ASSIGNMENT_DIRECT
@@ -75,9 +72,7 @@ endpoint_secret_names:
   - DGO_ENDPOINT_INTAKE_STATUS
   - DGO_ENDPOINT_INTAKE_SUPPORT
   - DGO_ENDPOINT_INTAKE_VERIFY_EMAIL
+  - DGO_ENDPOINT_INTAKE_VERIFY_CONFIRM
   - DGO_ENDPOINT_SCAN_UPLOAD
   - DGO_ENDPOINT_DISPATCH_OUTBOUND
   - DGO_ENDPOINT_ARCHIVE_REFERENCE
-worker_secret_names:
-  - DGO_UPLOAD_SECRET
-  - DGO_VERIFY_SECRET

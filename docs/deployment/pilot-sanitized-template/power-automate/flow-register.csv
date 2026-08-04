@@ -1,4 +1,4 @@
-workflow_id,endpoint_key,secret_name,action,phase,url_storage,status,notes
+workflow_id,endpoint_key,config_label,action,phase,url_storage,status,notes
 1154b50e1d17420dadb3b012e7e2a02c,BULK_ASSIGNMENT,DGO_ENDPOINT_BULK_ASSIGNMENT,regenerate,2.1,NEVER_STORE_HERE,pending,Store full URL only in approved vault
 6b3bad3005b44bf6bced0f8074d3f2ed,SINGLE_ASSIGNMENT,DGO_ENDPOINT_SINGLE_ASSIGNMENT,regenerate,2.1,NEVER_STORE_HERE,pending,
 7e71fffe770a45ccb93bf216bb53786e,BULK_ASSIGNMENT_DIRECT,DGO_ENDPOINT_BULK_ASSIGNMENT_DIRECT,regenerate,2.1,NEVER_STORE_HERE,pending,
@@ -24,10 +24,11 @@ ca0bafc172114e0bb4853c135246654c,,none,delete,2.3,NEVER_STORE_HERE,pending,Unuse
 3931e2ff995242b6b2c920c8b2209797,,none,delete,2.2,NEVER_STORE_HERE,pending,Unused trigger with multiple published signatures
 ff455c68e9ac493e858fb984bcfd01fb,,none,delete,2.2,NEVER_STORE_HERE,pending,Unused trigger with multiple published signatures
 INTAKE-SUBMISSION,INTAKE_SUBMISSION,DGO_ENDPOINT_INTAKE_SUBMISSION,build-if-missing,2.5,NEVER_STORE_HERE,pending,
-INTAKE-UPLOAD,INTAKE_UPLOAD,DGO_ENDPOINT_INTAKE_UPLOAD,build-if-missing,2.5,NEVER_STORE_HERE,pending,SharePoint upload endpoint V8
+INTAKE-UPLOAD,INTAKE_UPLOAD,DGO_ENDPOINT_INTAKE_UPLOAD,build-if-missing,2.5,NEVER_STORE_HERE,pending,SharePoint upload endpoint V6
 INTAKE-STATUS,INTAKE_STATUS,DGO_ENDPOINT_INTAKE_STATUS,build-if-missing,2.5,NEVER_STORE_HERE,pending,
 INTAKE-SUPPORT,INTAKE_SUPPORT,DGO_ENDPOINT_INTAKE_SUPPORT,build-if-missing,2.5,NEVER_STORE_HERE,pending,
-INTAKE-VERIFY-EMAIL,INTAKE_VERIFY_EMAIL,DGO_ENDPOINT_INTAKE_VERIFY_EMAIL,build-if-missing,2.5,NEVER_STORE_HERE,pending,
+INTAKE-VERIFY-EMAIL,INTAKE_VERIFY_EMAIL,DGO_ENDPOINT_INTAKE_VERIFY_EMAIL,build-if-missing,2.5,NEVER_STORE_HERE,pending,Requests the emailed code
+INTAKE-VERIFY-CONFIRM,INTAKE_VERIFY_CONFIRM,DGO_ENDPOINT_INTAKE_VERIFY_CONFIRM,build-if-missing,2.5,NEVER_STORE_HERE,pending,Confirms the emailed code
 SCAN-UPLOAD,SCAN_UPLOAD,DGO_ENDPOINT_SCAN_UPLOAD,build-if-missing,2.5,NEVER_STORE_HERE,pending,Falls back to DGO_ENDPOINT_INTAKE_UPLOAD when unset
 DISPATCH-OUTBOUND,DISPATCH_OUTBOUND,DGO_ENDPOINT_DISPATCH_OUTBOUND,leave-unset-for-pilot,2.4,NEVER_STORE_HERE,pending,Optional backend
 ARCHIVE-REFERENCE,ARCHIVE_REFERENCE,DGO_ENDPOINT_ARCHIVE_REFERENCE,leave-unset-for-pilot,2.4,NEVER_STORE_HERE,pending,Optional backend

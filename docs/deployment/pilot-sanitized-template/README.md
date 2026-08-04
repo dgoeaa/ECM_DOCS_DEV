@@ -22,11 +22,9 @@ Do **not** populate these templates in place under `docs/`. The repository copy 
 
 ## What must stay out of Git
 
-Store the following only in an approved secrets vault, in Cloudflare Worker secrets, or in Cloudflare / Power Automate consoles as required by the runbook:
+Store the following only in an approved secrets vault, or in the Cloudflare / Power Automate consoles as required by the runbook:
 
-- `DGO_UPLOAD_SECRET` → `NEVER_STORE_HERE`
-- `DGO_VERIFY_SECRET` → `NEVER_STORE_HERE`
-- Any complete Power Automate trigger URL
+- Any complete Power Automate trigger URL — including the ones configured client-side in `config/config.local.js` (`DGO_CONFIG.endpoints`) and `document-portal/config.local.js` (`PF_CONFIG.endpoints`), which are bearer credentials delivered to every visitor's browser
 - Any `sig=` value
 - OAuth tokens, JWTs, cookies, authorization headers, account exports, or vault exports
 - Real operator emails, phone numbers, usernames, or personal data
@@ -70,7 +68,7 @@ Sanitized editable Mermaid sources live in:
 - `../forensic/dd2e909/diagrams/07-auth-request-flow.mmd`
 - `../forensic/dd2e909/diagrams/08-evidence-storage-zones.mmd`
 
-Use placeholders such as `<TEAM-DOMAIN>`, `<AUD-TAG>`, `<WORKER-HOSTNAME>`, `<PAGES-HOSTNAME>`, and `<POWER-AUTOMATE-ENDPOINT>` until working outside Git.
+Use placeholders such as `<TEAM-DOMAIN>`, `<AUD-TAG>`, `<PAGES-HOSTNAME>`, `<SHAREPOINT-SITE-URL>`, and `<POWER-AUTOMATE-ENDPOINT>` until working outside Git.
 
 ## Authoritative sequence
 

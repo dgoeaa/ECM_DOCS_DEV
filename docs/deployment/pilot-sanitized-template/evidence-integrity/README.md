@@ -17,7 +17,7 @@ sha256sum path/to/evidence-file
 ## Safe handling rules
 
 - Never commit generated checksums for placeholder files from this repository template.
-- Never store raw Power Automate trigger URLs, `sig=` values, `DGO_UPLOAD_SECRET`, or `DGO_VERIFY_SECRET` in any template file.
+- Never store raw Power Automate trigger URLs or `sig=` values in any template file. The trigger URLs configured client-side in `config/config.local.js` and `document-portal/config.local.js` are bearer credentials and must be treated the same way.
 - Use vault references such as `vault://pilot/...` wherever a secret or live endpoint must be tracked.
 - Keep screenshots and exported logs in UTF-8-friendly filenames like `YYYY-MM-DDTHHMMSSZ-step-slug.png` and `YYYY-MM-DDTHHMMSSZ-step-slug.txt`.
 - Redact officer identities, submitter content, cookies, JWTs, and authorization headers before sharing any excerpt.

@@ -1,0 +1,7 @@
+config_object,config_key,status,vault_reference,shipped_in_config_local,evidence_ref,notes
+DGO_CONFIG,FETCH_ALL,NEVER_STORE_HERE,vault://pilot/endpoints/FETCH_ALL,null,null,Client-side URL; do not record URL in Git
+DGO_CONFIG,DYNAMIC_ACTIONS,NEVER_STORE_HERE,vault://pilot/endpoints/DYNAMIC_ACTIONS,null,null,Client-side URL; do not record URL in Git
+DGO_CONFIG,SINGLE_ASSIGNMENT,NEVER_STORE_HERE,vault://pilot/endpoints/SINGLE_ASSIGNMENT,null,null,Client-side URL; do not record URL in Git
+DGO_CONFIG,BULK_ASSIGNMENT,NEVER_STORE_HERE,vault://pilot/endpoints/BULK_ASSIGNMENT,null,null,Client-side URL; do not record URL in Git
+PF_CONFIG,SUBMISSION,NEVER_STORE_HERE,vault://pilot/endpoints/INTAKE_SUBMISSION,null,null,Public; mints reference and issues upload tickets
+PF_CONFIG,UPLOAD,NEVER_STORE_HERE,vault://pilot/endpoints/INTAKE_UPLOAD,null,null,Public; redeems ticket and verifies bytes

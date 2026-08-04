@@ -14,14 +14,13 @@ identifiers:
   cloudflare_account_id: null
   access_team_domain: <TEAM-DOMAIN>
   access_aud_tag: <AUD-TAG>
-  worker_hostname: <WORKER-HOSTNAME>
   pages_hostname: <PAGES-HOSTNAME>
-  sharepoint_upload_endpoint_reference: V8
+  sharepoint_site_reference: V6
   workflow_inventory_source: docs/cutover/FLOW_DECOMMISSION_INVENTORY.md
 controls:
-  power_automate_cutover_completed_before_cloudflare_secrets: null
+  power_automate_cutover_completed_before_endpoint_configuration: null
   config_local_files_git_ignored_documented: true
-  no_live_secrets_committed: true
+  no_live_trigger_urls_committed: true
   no_operational_values_committed: true
 notes:
   - Replace nulls only in the external private copy.

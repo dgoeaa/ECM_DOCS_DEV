@@ -1,0 +1,20 @@
+{
+  "sanitized": true,
+  "pagesHostname": "<PAGES-HOSTNAME>",
+  "accessGate": {
+    "teamDomain": "<TEAM-DOMAIN>",
+    "audTag": "<AUD-TAG>",
+    "gatesPageLoadOnly": true,
+    "configured": null
+  },
+  "endpointsConfigured": null,
+  "unconfiguredKeys": [
+    "REDACTED_OR_NULL"
+  ],
+  "notes": [
+    "There is no Worker and no /healthz endpoint. The browser calls each flow directly.",
+    "Access gates who may load the internal page; it does not sit between the page and the flows.",
+    "Replace with sanitized observations only outside the repository copy.",
+    "Do not include tokens, cookies, headers, emails, account identifiers, or signed URLs."
+  ]
+}
