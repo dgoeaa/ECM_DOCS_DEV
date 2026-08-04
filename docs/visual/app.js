@@ -24,9 +24,11 @@
   if (!P) {
     document.getElementById('doc').innerHTML =
       '<section class="sheet"><div class="body"><div class="callout crit"><div class="lbl">Dataset missing</div>' +
-      '<p><code>platform-data.js</code> did not load. Regenerate it with <code>npm run visual</code>, ' +
-      'and serve this directory over HTTP (<code>npm start</code>) rather than opening the file directly ' +
-      'if your browser blocks local scripts.</p></div></div></section>';
+      '<p><code>platform-data.js</code> did not load. It is generated, so the usual cause is that it ' +
+      'has never been built in this checkout: run <code>npm run visual</code>. If the file is present ' +
+      'and this message persists, the copy of this folder is incomplete — all four files ' +
+      '(<code>index.html</code>, <code>visual.css</code>, <code>app.js</code>, <code>platform-data.js</code>) ' +
+      'must sit in the same directory.</p></div></div></section>';
     return;
   }
 

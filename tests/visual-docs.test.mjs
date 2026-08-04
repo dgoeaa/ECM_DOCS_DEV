@@ -73,6 +73,34 @@ t('it loads nothing from the network', () => {
   }
 });
 
+t('it opens from a file path — no server, no build step', () => {
+  /* The atlas is meant to be copied to a memory stick and opened on a projector laptop.
+     Two properties make that work, and both are easy to break by accident:
+
+       1. CLASSIC SCRIPTS, NOT MODULES. A file:// page has an opaque origin and ES modules
+          are fetched with CORS semantics, so `type="module"` is blocked from disk in every
+          browser. That is exactly why the platform's own index.html needs `npm start`.
+       2. NOTHING OUTSIDE THIS DIRECTORY. Firefox refuses a file:// subresource above the
+          page's own folder, so a single `../` reference — the favicon was one — makes the
+          folder non-portable the moment somebody copies it on its own. */
+  const modules = html.match(/<script[^>]*type\s*=\s*["']module["'][^>]*>/gi) || [];
+  assert.deepEqual(modules, [], 'an ES module cannot load from a file:// page');
+
+  const refs = [...html.matchAll(/(?:src|href)\s*=\s*"([^"#][^"]*)"/g)].map(m => m[1])
+    .filter(u => !/^(data:|https?:|mailto:)/.test(u));
+  const escaping = refs.filter(u => u.startsWith('../') || u.startsWith('/'));
+  assert.deepEqual(escaping, [],
+    `these leave docs/visual/ and break the copied-folder case: ${escaping.join(', ')}`);
+
+  for (const u of refs) assert.ok(has(`${DIR}/${u}`), `${u} is referenced but not present`);
+
+  // Same rule for the stylesheet: url() must not climb out either.
+  const cssRefs = [...css.matchAll(/url\(\s*["']?([^"')]+)/g)].map(m => m[1])
+    .filter(u => !/^(data:|https?:)/.test(u));
+  assert.deepEqual(cssRefs.filter(u => u.startsWith('../') || u.startsWith('/')), [],
+    'visual.css reaches outside docs/visual/');
+});
+
 t('it renders in both themes, and the explicit toggle wins', () => {
   assert.match(css, /prefers-color-scheme:\s*dark/, 'no dark-scheme support');
   assert.match(css, /\[data-theme="dark"\]/, 'the explicit toggle must win too');

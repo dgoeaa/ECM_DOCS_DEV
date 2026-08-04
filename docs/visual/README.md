@@ -4,10 +4,18 @@ The complete visual documentation of the DGO Digital Operations platform: archit
 components, modules, features, data, security, lifecycle, quality and deployment — front
 end and back end — in one interactive, navigable page.
 
-**Open it:** `npm start`, then <http://localhost:8080/docs/visual/>
+**Open it:** double-click `docs/visual/index.html`. No server, no build step, no install.
 
-It also opens straight from disk (`docs/visual/index.html`) in most browsers. Firefox is
-strict about local scripts on `file://`; serve it over HTTP there.
+It needs no hosting because it deliberately uses **classic scripts**, not ES modules. A
+`file://` page has an opaque origin and modules are fetched with CORS semantics, so
+`<script type="module">` is blocked from disk in every browser — which is why the platform's
+own `index.html` does need `npm start`, and why this one does not. All four files sit in
+this one directory and nothing references anything outside it, including the favicon, so
+the folder can be copied to a memory stick, attached to an email or dropped on a share and
+it opens as-is.
+
+Serving it over HTTP works identically if you prefer: `npm start`, then
+<http://localhost:8080/docs/visual/>.
 
 ---
 
