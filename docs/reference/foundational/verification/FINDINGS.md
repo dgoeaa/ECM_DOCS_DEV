@@ -119,8 +119,41 @@ a distinct record type that no documentation in the corpus describes. By creatio
 2026-01 is 100% populated, **2026-05 is 0%**, 2026-06 recovers to 74% on `RefIDD` but only
 3% on `Reference_ID` — which never recovers.
 
-**This is the item to escalate.** It is invisible in the matrix precisely because sentinel
-contamination made every field look 100% present.
+### Precisely which 200 — and a fingerprint that identifies the writer
+
+Register: **`verification/shell-tasks.csv`** — 200 rows, checkable against the live list.
+
+| | |
+|---|---|
+| Task IDs | **15127 – 15326 — a contiguous, unbroken block** |
+| Created | 2026-05-11T15:33:26Z – 2026-06-03T13:25:52Z |
+| Appears in | one export only: the `…CU95` Fetch_All run record |
+| Interleaved with | the fully-populated cohort (IDs 13902–15426), so not a separate list |
+| Carry | valid `Title` with document ID, valid `Classification` (198/200) |
+| Lack | assignee, both date fields, priority, routing, and both linkage fields |
+
+**The decisive evidence is a capitalisation difference.** `Progress` reads:
+
+| cohort | value | n |
+|---|---|---|
+| shell | `'Not Started'` — capital S | 200 |
+| every other task | `'Not started'` — lower-case s | 300 |
+
+Two different writers. A pipeline that stopped populating fields would keep writing the same
+string; a **different creating process** produces a different literal. Combined with the
+unbroken ID block and the three-week window, this reads as a **bulk creation by a distinct
+route** — an import, a migration, or a second application — that writes only title,
+classification and progress, leaving assignment to be done later.
+
+That reframes it: most likely **not corruption but an unassigned backlog created in bulk**,
+and every one of them is `Not Started`, which is consistent. It still needs confirming by
+whoever knows what ran between 11 May and 3 June 2026 — but it should not be escalated as
+data loss without that answer.
+
+**Correction to §5 of this report.** The earlier "0/198 resolve" is now explained: these
+tasks point at documents **18987–20174**, a band the corpus's docs exports barely cover
+(50 documents across a 1,187-wide range). The non-resolution is a sampling gap, not evidence
+of orphaned tasks. That line in the Limits section is superseded by this paragraph.
 
 ---
 
