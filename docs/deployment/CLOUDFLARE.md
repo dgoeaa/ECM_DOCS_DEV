@@ -148,149 +148,99 @@ Without this, the deployment in Part E will fail.
 
 # PART B — SharePoint
 
-The flows you build in Part C write into these. Create them first or the flow steps will
-have nothing to point at.
+## Read this before doing anything in SharePoint
 
-## B1 · Open or create the site
+**Do not create new lists.** An earlier version of this document told you to create a
+`Correspondence` list with 24 columns. That was wrong, and following it would have left the
+platform reading one set of lists while the intake channel wrote to another.
 
-**B1.1** Open your SharePoint site in a browser. If you do not have one for this platform,
-go to https://www.office.com, click **SharePoint**, click **Create site**, choose **Team
-site**, name it `NITDA DGO Registry`, and finish the wizard.
+Two schemas already exist:
 
-**B1.2** Copy the site URL from the browser address bar — everything up to and including the
-site name, for example the part ending in `/sites/NITDADGORegistry`. Paste it into
-`deployment-values.txt` as **V8**.
+**1. Your operational lists.** These hold live correspondence today and the platform already
+reads them. The proof is in `core/domain.js`, which normalises columns named `RefIDD`,
+`Reference_ID`, `RoutedToDSU`, `DSU_KEY`, `CC_x0027_dTo` and `_x0033_rdAssigned` — the last
+two being SharePoint internal names for `CC'dTo` and `3rdAssigned`. Nobody invents those.
+They came from your lists.
 
-## B2 · Create the Correspondence list
-
-**B2.1** On the site home page, click **+ New** in the top bar, then click **List**.
-
-**B2.2** Click **Blank list**.
-
-**B2.3** In **Name**, type exactly:
+**2. The DGO_* platform lists.** Ten lists and 97 fields, fully specified — including the
+exact `SchemaXml` for every field — in `docs/reference/sharepoint-provisioning-spec.json`:
 
 ```
-Correspondence
+DGO_UserDirectory        DGO_RoleCatalogue        DGO_UserRoleHistory
+DGO_AuditLog             DGO_PendingWrites        DGO_DepartmentDirectory
+DGO_AccessScopes         DGO_PilotCohorts         DGO_EndpointRegistry
+DGO_AccessEvents
 ```
 
-**B2.4** Leave **Description** empty. Leave **Show in site navigation** ticked. Click
-**Create**.
+## B1 · Find out what you already have
 
-**B2.5** The new empty list opens. You now add columns. For each row in the table below,
-click **+ Add column**, choose the type given, type the name exactly as written, then click
-**Save**.
+**B1.1** Open your SharePoint site. Copy the URL from the address bar — everything up to and
+including the site name. Record it as **V8**.
 
-Type the names exactly. The flows reference them by these names and a different spelling
-will silently write nothing.
+**B1.2** Run the report. It changes nothing:
 
-| Column name | Type | Additional settings |
+```bash
+./scripts/setup-sharepoint.ps1 -SiteUrl "V8" -WhatIf
+```
+
+If PnP.PowerShell is not installed:
+
+```powershell
+Install-Module PnP.PowerShell -Scope CurrentUser
+```
+
+**B1.3** Read the output. It tells you three things:
+
+- which of the ten DGO_* lists exist and which would be created
+- which of your operational lists it found, and under what name
+- for each, which columns the platform reads and **which are missing**
+
+**B1.4** Write down the real name of your correspondence list. The script looks for
+`Activities`, `Correspondence`, `Documents` or `Records`; if yours is called something else it
+will say it found nothing, which is not an error — you simply need its real name for Part C.
+
+## B2 · Provision the DGO_* platform lists
+
+**B2.1** If B1.3 showed DGO_* lists missing, create them:
+
+```bash
+./scripts/setup-sharepoint.ps1 -SiteUrl "V8"
+```
+
+Everything comes from the specification file. Nothing is hardcoded in the script, and it is
+add-only — an existing list or column is reported and left alone.
+
+**B2.2** If all ten already exist, skip this. Nothing to do.
+
+## B3 · Decide about missing operational columns
+
+**B3.1** The report marks with `--` any column the platform reads that your list does not
+have. The script does **not** add these. Your operational lists hold live records, and adding
+a column to a register is a change to a system of record that a person should approve.
+
+**B3.2** For each one, decide: add the column in SharePoint by hand, or accept that the
+platform will show a blank there.
+
+**B3.3** One is worth particular attention. The public channel needs somewhere to record the
+**submitter's email address**, because the tracking page matches on reference *and* email —
+that pairing is what stops somebody who guesses a reference from reading another person's
+correspondence. If your correspondence list has no sender-email column, add one before
+opening the public channel. Note its exact internal name; you will map to it in C7.
+
+## B4 · The attachment library
+
+**B4.1** Confirm you have a document library for correspondence attachments, and record its
+name.
+
+**B4.2** It needs two columns the upload flow writes. Check whether they exist:
+
+| Column | Type | What it holds |
 |---|---|---|
-| `ReferenceId` | Single line of text | Under **More options**, set **Enforce unique values** to **Yes** |
-| `Subject` | Multiple lines of text | Set **Number of lines for editing** to `3` |
-| `Category` | Choice | Enter the 11 choices listed in B2.6 below, one per line |
-| `CorrespondenceType` | Single line of text | none |
-| `Channel` | Single line of text | none |
-| `SenderName` | Single line of text | none |
-| `SenderEmail` | Single line of text | none |
-| `SenderOrganisation` | Single line of text | none |
-| `SenderOrganisationType` | Single line of text | none |
-| `SenderPhone` | Single line of text | none |
-| `EventDate` | Single line of text | none |
-| `Description` | Multiple lines of text | Set **Number of lines for editing** to `10` |
-| `Status` | Choice | Enter the 6 choices listed in B2.7 below |
-| `StatusLabel` | Single line of text | none |
-| `ReceivedAt` | Single line of text | none |
-| `AcknowledgedAt` | Single line of text | none |
-| `UpdatedAt` | Single line of text | none |
-| `ClosedAt` | Single line of text | none |
-| `ActionRequired` | Yes/No | Set **Default value** to **No** |
-| `AttachmentManifest` | Multiple lines of text | Set **Number of lines for editing** to `6` |
-| `AttachmentLink` | Hyperlink | none |
-| `DeclaredBytes` | Number | none |
-| `CorrelationId` | Single line of text | none |
-| `Timeline` | Multiple lines of text | Set **Number of lines for editing** to `10` |
+| `ReferenceId` | Single line of text | ties the file to its registry reference |
+| `Sha256` | Single line of text | the digest, so you can prove later that the stored file is byte-for-byte what the citizen sent |
 
-The date fields are **Single line of text**, not Date and Time, on purpose. The platform
-sends and reads ISO 8601 strings such as `2026-08-04T09:15:22.431Z`. A SharePoint date column
-converts these to a local-time serial value and the exact instant is lost.
-
-**B2.6** The 11 choices for `Category`, one per line, exactly:
-
-```
-Official Correspondence
-Ministerial Directive
-Application
-Proposal
-Project Proposal
-Report
-Compliance Filing
-Policy Submission
-Event Invitation
-Meeting Request
-General Correspondence
-```
-
-Untick **Can add values manually**. A category outside this list matches no routing rule and
-the correspondence lands nowhere.
-
-**B2.7** The 6 choices for `Status`, one per line, exactly:
-
-```
-Received
-Under Review
-In Treatment
-Awaiting Response
-Completed
-Closed
-```
-
-Untick **Can add values manually**.
-
-## B3 · Create the document library
-
-**B3.1** Return to the site home page. Click **+ New**, then **Document library**.
-
-**B3.2** In **Name**, type exactly:
-
-```
-CorrespondenceDocuments
-```
-
-**B3.3** Click **Create**.
-
-**B3.4** Open the new library. Click **+ Add column**, choose **Single line of text**, name
-it exactly `ReferenceId`, click **Save**.
-
-**B3.5** Click **+ Add column** again, choose **Single line of text**, name it exactly
-`Sha256`, click **Save**.
-
-`Sha256` is how you verify later that the file in the library is byte-for-byte the file the
-citizen sent.
-
-## B4 · Create the Support Cases list
-
-**B4.1** Site home page → **+ New** → **List** → **Blank list**.
-
-**B4.2** Name it exactly:
-
-```
-SupportCases
-```
-
-**B4.3** Click **Create**, then add these columns:
-
-| Column name | Type | Additional settings |
-|---|---|---|
-| `CaseRef` | Single line of text | **Enforce unique values** = **Yes** |
-| `Name` | Single line of text | none |
-| `Email` | Single line of text | none |
-| `Topic` | Single line of text | none |
-| `Message` | Multiple lines of text | **Number of lines for editing** = `10` |
-| `AboutReference` | Single line of text | none |
-| `ReceivedAt` | Single line of text | none |
-
----
----
+**B4.3** Add either one that is missing. A library is not a register — adding a column here
+carries none of the risk of B3.
 
 # PART C — Power Automate
 
@@ -528,41 +478,41 @@ options** first.
 **C7.11** In the search box type `Create item`. Click the **SharePoint** connector, then
 click the **Create item** action.
 
-**C7.12** Set **Site Address** to your SharePoint site (V8). It appears in the dropdown; if
-not, choose **Enter custom value** and paste V8.
+**C7.12** Set **Site Address** to your SharePoint site (V8).
 
-**C7.13** Set **List Name** to `Correspondence`.
+**C7.13** Set **List Name** to **your existing correspondence list** — the real name you
+wrote down in B1.4. Do not create a new list for this. The platform loads the register from
+this list through `FETCH_ALL`; a submission written anywhere else is invisible to every
+officer.
 
-**C7.14** The list's columns now appear as fields. Fill each one by clicking the field and
-selecting the matching item from the dynamic content panel. Where the table says an
-expression, click **Expression** in the dynamic content panel, paste the expression, and
-click **OK**.
+**C7.14** Map the fields. The left column below is what `core/domain.js` actually reads, so
+these are the names that matter. Your list may use slightly different ones — use the report
+from B1.3 to confirm each, and map to what you actually have.
 
-| Field | What to put in it |
+| Column the platform reads | Set it to |
 |---|---|
-| `Title` | Dynamic content: `referenceId` |
-| `ReferenceId` | Dynamic content: `referenceId` |
-| `Subject` | Dynamic content: `subject` |
-| `Category` | Dynamic content: `category` |
-| `CorrespondenceType` | Dynamic content: `correspondenceType` |
-| `Channel` | Dynamic content: `channel` |
-| `SenderName` | Expression: `triggerBody()?['sender']?['name']` |
-| `SenderEmail` | Dynamic content: `senderEmail` |
-| `SenderOrganisation` | Expression: `triggerBody()?['sender']?['organisation']` |
-| `SenderOrganisationType` | Expression: `triggerBody()?['sender']?['organisationType']` |
-| `SenderPhone` | Dynamic content: `senderPhone` |
-| `EventDate` | Dynamic content: `eventDate` |
+| `Title` | Dynamic content: `subject` |
+| `RefIDD` — or `Reference_ID` if that is what your list uses | Dynamic content: `referenceId` |
 | `Description` | Dynamic content: `description` |
-| `Status` | Type the literal text: `Received` |
-| `StatusLabel` | Type the literal text: `Received and awaiting registry review` |
-| `ReceivedAt` | Dynamic content: `receivedAt` |
-| `ActionRequired` | Choose **No** |
-| `AttachmentManifest` | Expression: `string(triggerBody()?['attachments'])` |
-| `DeclaredBytes` | Dynamic content: `declaredBytes` |
-| `CorrelationId` | Expression: `triggerOutputs()['headers']?['X-Correlation-Id']` |
-| `Timeline` | Expression: `string(createArray(json(concat('{"at":"', triggerBody()?['receivedAt'], '","status":"Received","label":"Received by the registry","public":true,"note":"Your correspondence has been received and given a reference."}'))))` |
+| `Category` | Dynamic content: `category` |
+| `AssignmentStatus` | Type the literal text: `Not Assigned` |
+| your sender-email column from B3.3 | Dynamic content: `senderEmail` |
 
-Leave `AcknowledgedAt`, `UpdatedAt`, `ClosedAt` and `AttachmentLink` empty.
+Leave `RoutedToDSU`, `AssignedTo` and `AttachmentLink` empty. Routing and assignment are
+decided by a registry officer during triage — filling them here would pre-empt a decision
+that belongs to a person. `AttachmentLink` is written by the upload flow in C9.
+
+**C7.14a** If your list has columns for the submitter's name, organisation or phone, map
+them from `sender/name` using an expression such as:
+
+```
+triggerBody()?['sender']?['name']
+```
+
+and from `senderPhone` for the phone. If it does not have them, skip this — the platform does
+not read them, and the full submission is preserved in the audit trail either way.
+
+**C7.14b** `Created` is set by SharePoint automatically. Do not map `receivedAt` onto it.
 
 **C7.15** Click **+ New step**.
 
@@ -608,12 +558,15 @@ then click **Done**:
 
 **C8.5** Click **+ New step**. Search `Get items`. Choose **SharePoint** → **Get items**.
 
-**C8.6** Set **Site Address** to V8. Set **List Name** to `Correspondence`.
+**C8.6** Set **Site Address** to V8. Set **List Name** to **your existing correspondence
+list** — the same one you used in C7.13, not a new one.
 
-**C8.7** Click **Show advanced options**. In **Filter Query**, paste this expression exactly:
+**C8.7** Click **Show advanced options**. In **Filter Query**, paste this, replacing
+`RefIDD` with whichever reference column your list uses and `SenderEmail` with the
+sender-email column you identified in B3.3:
 
 ```
-ReferenceId eq '@{triggerBody()?['referenceId']}' and SenderEmail eq '@{toLower(triggerBody()?['email'])}'
+RefIDD eq '@{triggerBody()?['referenceId']}' and SenderEmail eq '@{toLower(triggerBody()?['email'])}'
 ```
 
 Both must match. The reference alone is not enough — requiring the pair is what stops
@@ -634,7 +587,11 @@ length(body('Get_items')?['value'])
 **C8.12** In the **If yes** branch, click **Add an action**. Search `Response`. Choose
 **Request** → **Response**.
 
-**C8.13** Set **Status Code** to `200`. In **Body**, paste exactly:
+**C8.13** Set **Status Code** to `200`. In **Body**, paste the following, then correct each
+column name on the right to match your list — `RefIDD`, `Status`, `Category` and the rest are
+the names `core/domain.js` reads, but your list is the authority. Any name that does not
+exist simply returns blank, which is why a mistake here is invisible until a citizen sees an
+empty tracking page:
 
 ```json
 {
@@ -698,10 +655,11 @@ application/octet-stream
 
 **C9.7** Set **Site Address** to V8.
 
-**C9.8** Set **Folder Path** to:
+**C9.8** Set **Folder Path** to your correspondence attachment library, the one you
+confirmed in B4.1. For example:
 
 ```
-/CorrespondenceDocuments
+/Shared Documents/Correspondence
 ```
 
 **C9.9** In **File Name**, click **Expression** and paste exactly:
@@ -722,7 +680,7 @@ triggerBody()
 **C9.11** Click **+ New step**. Search `Update file properties`. Choose **SharePoint** →
 **Update file properties**.
 
-**C9.12** Set **Site Address** to V8. Set **Library Name** to `CorrespondenceDocuments`.
+**C9.12** Set **Site Address** to V8. Set **Library Name** to the same library as C9.8.
 
 **C9.13** Set **Id** to the dynamic content **ItemId** from the Create file step.
 
@@ -860,6 +818,12 @@ click **Done**:
 
 **C11.5** Click **+ New step**. Search `Create item`. Choose **SharePoint** → **Create item**.
 Set **Site Address** to V8, **List Name** to `SupportCases`.
+
+Unlike the correspondence flows, this list genuinely is new. A support case is a question
+about the platform, not a piece of correspondence, and putting the two in one list would mean
+help-desk queries appearing in the register as though somebody had written to the agency.
+Create it with a `CaseRef` (unique), `Name`, `Email`, `Topic`, `Message`, `AboutReference` and
+`ReceivedAt` column — or skip this flow entirely, since the help desk is optional.
 
 **C11.6** Fill the fields with the matching dynamic content:
 

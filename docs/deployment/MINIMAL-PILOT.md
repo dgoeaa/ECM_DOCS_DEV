@@ -42,16 +42,31 @@ cp scripts/worker-secrets.example.env ~/dgo-secrets.env
 
 Leave it open. You will fill it in as you go.
 
-## 2 · SharePoint — 2 minutes
+## 2 · SharePoint — 10 minutes
+
+**Do not create new lists.** Your correspondence lists already exist and the platform already
+reads them. First find out what you have — this changes nothing:
 
 ```powershell
-Install-Module PnP.PowerShell -Scope CurrentUser      # first time only
-./scripts/setup-sharepoint.ps1 -SiteUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE"
+Install-Module PnP.PowerShell -Scope CurrentUser     # first time only
+./scripts/setup-sharepoint.ps1 -SiteUrl "https://YOURTENANT.sharepoint.com/sites/YOURSITE" -WhatIf
 ```
 
-Creates both lists, the document library and all 33 columns. Safe to re-run.
+The report tells you three things:
 
-If you have no site yet: office.com → SharePoint → Create site → Team site.
+1. Which of the ten `DGO_*` platform lists exist. If any are missing, run the same command
+   without `-WhatIf` to create them from `docs/reference/sharepoint-provisioning-spec.json`.
+2. The real name of your correspondence list. **Write it down** — you need it in step 3d.
+3. Which columns the platform reads that your lists do not have. These are reported, never
+   added: those lists hold live records.
+
+One missing column matters before you open the public channel: somewhere to store the
+**submitter's email**. The tracking page matches reference *and* email, and that pairing is
+what stops somebody who guesses a reference from reading another person's correspondence. If
+your list has no such column, add it by hand and note its internal name.
+
+Your attachment library also needs `ReferenceId` and `Sha256` columns. Add them if absent —
+a library is not a register, so there is no risk in doing so.
 
 ## 3 · Power Automate — 45 minutes
 
