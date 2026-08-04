@@ -1,0 +1,12 @@
+document_kind,publicly_selectable,notes
+General Correspondence,yes,
+Application,yes,
+Proposal,yes,
+Report,yes,
+Compliance Filing,yes,
+Policy Submission,yes,
+Event Invitation,yes,
+Ministerial Directive,no,Internal only
+Project Proposal,no,Internal only
+Meeting Request,no,Internal only
+Official Correspondence,no,Internal only

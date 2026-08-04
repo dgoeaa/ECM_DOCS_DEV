@@ -1,0 +1,14 @@
+template_name: access-policy
+sanitized: true
+policy:
+  name: DGO pilot access
+  action: Allow
+  include_groups:
+    - DGO-SystemAdmin
+    - DGO-UserAdmin
+    - DGO-Executive
+    - DGO-Director
+    - DGO-Operator
+    - DGO-Viewer
+notes:
+  - Capture policy UUIDs only outside Git if your operating procedure requires them.
