@@ -84,10 +84,11 @@ way to revoke one.
 | `STATUS` | POST | `{ referenceId, email }` | `{ record }` | See below |
 
 **Reference format.** Every reference the `SUBMISSION` flow issues must have the registry
-shape `NITDA-YYYY-NNNNNN` — the agency prefix, the four-digit year, and a six-digit sequence
-the flow holds and never restarts within a year. The workspace mints provisional references
-in the same shape (`core/reference-minter.js`); a flow that issues any other shape leaves the
-registry holding two key formats at once, which is the defect F-031 closed.
+shape `NITDA-YYYY-<sequence>` — the agency prefix, the four-digit year, and a sequence the
+flow holds and never restarts within a year. The sequence is **not zero-padded**: the live
+flow issues `NITDA-2026-217`, not `NITDA-2026-000217`. The workspace mints provisional
+references in the same shape (`core/reference-minter.js`); a flow that issues any other
+shape leaves the registry holding two key formats at once, which is the defect F-031 closed.
 
 **Filenames.** The agency's Universal Filename Policy
 (`universal_filename_policy_deliverables/`, implemented in

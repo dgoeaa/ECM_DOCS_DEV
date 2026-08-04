@@ -144,8 +144,9 @@ field value and expression is given there, ready to copy.
 - **C9** builds `DGO Intake Upload` → paste its URL as `DGO_ENDPOINT_INTAKE_UPLOAD`
 
 With no proxy in front of them these two flows carry the whole security burden of the public
-channel. C7 must mint the `NITDA-YYYY-NNNNNN` reference itself (monotonic, never restarting
-within a year), rate-limit by source and issue one single-use upload ticket per attachment;
+channel. C7 must mint the `NITDA-YYYY-<sequence>` reference itself (unpadded, monotonic, never
+restarting within a year), rate-limit by source and issue one single-use upload ticket per
+attachment;
 C9 must redeem that ticket once and verify the received bytes against the declared size and
 SHA-256. The steps in C7.9a and C9 spell this out. Do not treat it as optional polish — it is
 the only thing standing between the register and an anonymous stranger with the URL.

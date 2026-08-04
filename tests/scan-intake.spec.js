@@ -104,7 +104,12 @@ test.describe('registry scan intake', () => {
     await openWorkspace(page);
     const text = await page.textContent('.workspace');
     expect(text).toMatch(/Deposit unavailable/);
-    expect(text, 'the reason must be stated, not merely the symptom').toMatch(/nowhere to file a scan/);
+    // Assert the substance, not the sentence. The panel must name what is missing and what
+    // setting it would enable — an earlier version of this test pinned one phrase of the
+    // copy, so rewording the panel broke it while the behaviour was never in question.
+    expect(text, 'the reason must be stated, not merely the symptom')
+      .toMatch(/No scan endpoint is configured/);
+    expect(text, 'and it must name the setting that fixes it').toMatch(/SCAN_INTAKE/);
     await expect(page.locator('[data-files]')).toBeDisabled();
   });
 

@@ -24,6 +24,33 @@ async function boot(page) {
   await expect.poll(() => page.evaluate(() => window.__DGO_BOOTED__ === true), { timeout: 15_000 }).toBe(true);
 }
 
+/**
+ * Provision deploy-time endpoints by serving `config/config.local.js`, which is the file
+ * index.html loads and a deployment fills in.
+ *
+ * A governed write only raises the flow-execution gate when there is a flow to execute, so
+ * a test that asserts the gate must provision the endpoint that produces it. Without this
+ * the dispatch test passed or failed according to whether the machine running it happened
+ * to have a local config on disk — which is not a test result. Serving the file (rather
+ * than addInitScript) is required because config.local.js ASSIGNS `window.DGO_CONFIG`
+ * and would discard anything injected earlier.
+ */
+const serveConfig = (page, cfg) =>
+  page.route('**/config/config.local.js', route => route.fulfill({
+    status: 200, contentType: 'application/javascript',
+    body: `window.DGO_CONFIG = ${JSON.stringify(cfg)};`,
+  }));
+
+/* Dispatch is governed through the DYNAMIC_ACTIONS flow (config/endpoints.config.js), so
+   that is the URL to provision. The gate is DECLINED in the test, so nothing is ever sent
+   to it — the route below exists to make an accidental send fail loudly rather than reach
+   the network. */
+const DYNAMIC_ACTIONS_URL = 'https://dispatch.test.invalid/dynamic-actions';
+const withDispatchEndpoint = async page => {
+  await serveConfig(page, { endpoints: { DYNAMIC_ACTIONS: DYNAMIC_ACTIONS_URL } });
+  await page.route(DYNAMIC_ACTIONS_URL, route => route.abort('failed'));
+};
+
 const open = async (page, route, sel = '.workspace') => {
   await page.evaluate(r => { location.hash = '#/' + r; }, route);
   await page.waitForSelector(`[data-outlet] .route-stage ${sel}`);
@@ -174,6 +201,7 @@ test.describe('dispatch and closure', () => {
   };
 
   test('dispatching records the act and previews the outbound flow before anything leaves', async ({ page }) => {
+    await withDispatchEndpoint(page);
     await boot(page);
     await seed(page, { tracking: [task()], dispatches: [] });
     await open(page, 'dispatch');

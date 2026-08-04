@@ -291,3 +291,53 @@ from another capture. Not reconcilable from the corpus; verify against the live 
 | 05 Mapping Blueprint | **Field pairs sound** — the workbook's most usable output |
 | 06 Data Quality | 8 of 14 confirmed; 6 wrong via sentinels |
 | 07 JSON Paths | **122/130 sound**; two encoding traps; users count unexplained |
+
+---
+
+# Module parity — what the consolidation carried across
+
+`parity.py` reconciles the capability surface of the 20 source SPAs against the 29 modules
+declared in `config/module-boundaries.config.js`. A SPA's surface is read from what it
+**binds** — `data-action` attributes, named handler functions, `onclick` targets — rather
+than from its prose, because a heading is a claim and a binding is a fact.
+
+## Read the gaps, not the percentage
+
+The script reports 65 of 181 capability strings matched. **That number should not be
+quoted.** Function names in these SPAs are mostly internal wiring — `updateBreadcrumb`,
+`saveStateDebounced`, `attachEventListeners` — so the denominator measures the harvester's
+vocabulary, not the platform's completeness. 51 further strings were widget-level and
+excluded before matching; of the 116 unmatched, hand review found 88 to be helpers.
+
+What survives review is nine capabilities the source SPAs bind and no module declares.
+
+| gap | bindings | SPAs | why it matters |
+|---|---|---|---|
+| Category cascade | 5 | 3 | Choosing a category populates sub-category and downstream defaults. It drives the same taxonomy the AI classifier writes into, so a divergence here desynchronises human and AI intake — directly load-bearing for D2. |
+| People picker (co-assignee / CC) | 7 | 3 | Type-ahead directory filtering with multi-select CC. The assignment modules declare assignment but not the recipient-selection surface that makes it usable; 66 documents in the live payload carry CC addresses. |
+| Report generation per list family | 3 | 2 | Separate builders bound to the operational families. `reports` owns `print` and declares no generation surface. |
+| Flow-graph authoring | 6 | 2 | The Orchestrator SPA edits the routing graph — nodes, edges, import, dispatch. `orchestrator` declares runtime verbs only. **Scope decision:** authoring in-platform, or left in Power Automate. |
+| Cross-navigation document → assignment | 3 | 3 | Jumping from a document or email into its assignment carrying context. A contract *between* modules — exactly what a per-module ownership list omits and users notice at once. |
+| Reassignment | 1 | 1 | Changing an existing assignment. Both assignment modules declare creation only. |
+| DG marking | 1 | 1 | `executive` declares approve/escalate/return/clarify, not marking. |
+| Meeting agenda construction | 1 | 1 | `meetings` declares request/decide, not agenda assembly. |
+| Client telemetry | 1 | 2 | The two largest SPAs instrument themselves. `diagnostics` covers service health, not client instrumentation. |
+
+The classification lives in `GAPS` in `parity.py`, and the script asserts every string in it
+is still unmatched — so if a module later declares one, the run fails loudly rather than
+leaving a stale gap in this table.
+
+## The reverse direction is not evidence
+
+`parity.py` also lists module capabilities with no detected SPA binding. It is bounded, not
+answered: `archive hash` and `closure check` would never surface as a SPA function name
+however faithfully implemented. Absence there is weak evidence of new ground. Full data in
+`parity.json`.
+
+## Consequence for the approved decisions
+
+Two gaps sit on the critical path and are not cosmetic. **Category cascade** is shared
+ground between the human and AI spines — D2 puts them at par, which is only true if both
+write the same taxonomy the same way. **Cross-navigation** is a contract between modules
+rather than a capability inside one, so no amount of per-module completeness produces it;
+it has to be designed at the boundary. The other seven are additive and can be scheduled.

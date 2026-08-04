@@ -9,9 +9,9 @@
 //      reference, and two clerks logging in the same millisecond collide outright. A
 //      registry reference that repeats is not a reference.
 //
-//   2. IT IS A DIFFERENT SHAPE FROM THE SERVER'S. The registry issues `NITDA-YYYY-NNNNNN`.
-//      After step 7 the registry holds both shapes depending on which channel a record
-//      arrived through — `NITDA-2026-000318` from the portal and the counter,
+//   2. IT IS A DIFFERENT SHAPE FROM THE SERVER'S. The registry issues a year and a
+//      sequence. After step 7 the registry held both shapes depending on which channel a
+//      record arrived through — `NITDA-2026-217` from the portal and the counter,
 //      `NITDA-483920` from manual logging. One registry, two key formats.
 //
 // PROVISIONAL VERSUS ISSUED

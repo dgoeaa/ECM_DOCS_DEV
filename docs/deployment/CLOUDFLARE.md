@@ -425,8 +425,9 @@ full request and response contract, and every guarantee each flow must enforce, 
 under **"The contract each flow must satisfy"** in `document-portal/README.md`. Build to that
 table, not only to the skeleton. In particular:
 
-- the `SUBMISSION` flow (C7) mints the `NITDA-YYYY-NNNNNN` reference and must **never** restart
-  the six-digit sequence within a year; issues one short-lived, single-use upload ticket per
+- the `SUBMISSION` flow (C7) mints the `NITDA-YYYY-<sequence>` reference (unpadded — the live
+  flow issues `NITDA-2026-217`) and must **never** restart the sequence within a year; issues
+  one short-lived, single-use upload ticket per
   declared attachment; applies the Universal Filename Policy
   (`config/filename-policy.config.js`, `universal_filename_policy_deliverables/`) to every
   attachment name while keeping what the submitter sent as `originalName`; and rate-limits by
@@ -512,9 +513,10 @@ it is optional now, because nothing else runs between the anonymous browser and 
   reject a submission whose `verification` proof is missing or spent by returning HTTP `403`
   with body `{"error":"verification_required"}` — the portal recognises exactly that shape and
   asks the submitter for a code rather than queuing a doomed retry.
-- **Mint the registry reference.** Generate `NITDA-YYYY-NNNNNN` yourself, monotonic within the
-  year, and **never restart the sequence inside a year** — a collision reuses a citizen's
-  reference. This is the value you return and store, not anything the browser sent.
+- **Mint the registry reference.** Generate `NITDA-YYYY-<sequence>` yourself, monotonic within
+  the year, and **never restart the sequence inside a year** — a collision reuses a citizen's
+  reference. Do not zero-pad: the register's own shape is `NITDA-2026-217`. This is the value
+  you return and store, not anything the browser sent.
 - **Apply the Universal Filename Policy** to each attachment name, keeping the submitter's
   original name as `originalName`. See `config/filename-policy.config.js` and
   `universal_filename_policy_deliverables/` for the exact normalisation rules.

@@ -1,0 +1,1448 @@
+{
+ "spas": [
+  {
+   "file": "Assignment_Intelligence_Dashboard.html",
+   "kb": 56,
+   "capabilities": 8,
+   "flows": 0
+  },
+  {
+   "file": "Comments_Thread.html",
+   "kb": 7,
+   "capabilities": 0,
+   "flows": 0
+  },
+  {
+   "file": "Correspondence_Tracker.html",
+   "kb": 47,
+   "capabilities": 6,
+   "flows": 0
+  },
+  {
+   "file": "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "kb": 96,
+   "capabilities": 26,
+   "flows": 5
+  },
+  {
+   "file": "DGCEO Correspondence & Decision Hub.html",
+   "kb": 20,
+   "capabilities": 1,
+   "flows": 4
+  },
+  {
+   "file": "DGO_FastTrack_Monitoring_SPA.html",
+   "kb": 63,
+   "capabilities": 15,
+   "flows": 4
+  },
+  {
+   "file": "Executive_Operations_Hub_Build_v2.0.html",
+   "kb": 10,
+   "capabilities": 1,
+   "flows": 0
+  },
+  {
+   "file": "HTML Reports_Builder_SPA.html",
+   "kb": 88,
+   "capabilities": 8,
+   "flows": 7
+  },
+  {
+   "file": "NITDA_DGO_HUB_ACK.html",
+   "kb": 33,
+   "capabilities": 6,
+   "flows": 6
+  },
+  {
+   "file": "NITDA_Digital_Ops_Hub_patched.html",
+   "kb": 276,
+   "capabilities": 50,
+   "flows": 7
+  },
+  {
+   "file": "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html",
+   "kb": 107,
+   "capabilities": 19,
+   "flows": 3
+  },
+  {
+   "file": "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html",
+   "kb": 306,
+   "capabilities": 39,
+   "flows": 10
+  },
+  {
+   "file": "Reports_Dashboard_Live.html",
+   "kb": 35,
+   "capabilities": 4,
+   "flows": 2
+  },
+  {
+   "file": "Response Tracking & Matrix.html",
+   "kb": 32,
+   "capabilities": 4,
+   "flows": 3
+  },
+  {
+   "file": "Response matrix v2.html",
+   "kb": 37,
+   "capabilities": 7,
+   "flows": 4
+  },
+  {
+   "file": "Unified Smart Orchestrator.html",
+   "kb": 24,
+   "capabilities": 1,
+   "flows": 3
+  },
+  {
+   "file": "approvals.html",
+   "kb": 13,
+   "capabilities": 2,
+   "flows": 1
+  },
+  {
+   "file": "dg_ceo_office_platform-1.html",
+   "kb": 121,
+   "capabilities": 10,
+   "flows": 0
+  },
+  {
+   "file": "registry_movement.html",
+   "kb": 15,
+   "capabilities": 2,
+   "flows": 0
+  },
+  {
+   "file": "stats_screen_spa-2.html",
+   "kb": 86,
+   "capabilities": 10,
+   "flows": 7
+  }
+ ],
+ "moduleCapabilities": {
+  "home": [
+   "quick entry",
+   "workload summary"
+  ],
+  "ecm-erp-charter": [
+   "delivery sequencing",
+   "integration rules",
+   "ownership matrix",
+   "scope boundary charter",
+   "shared terminology"
+  ],
+  "activities": [
+   "activity attachment preview",
+   "activity lifecycle routing",
+   "activity view",
+   "flag document",
+   "phase filtering"
+  ],
+  "correspondence": [
+   "classify",
+   "create correspondence",
+   "duplicate",
+   "hold",
+   "reject",
+   "send to routing",
+   "triage"
+  ],
+  "briefs": [
+   "create brief",
+   "decide brief",
+   "submit brief"
+  ],
+  "meetings": [
+   "decide meeting",
+   "meeting actions to tasks",
+   "request meeting"
+  ],
+  "projects": [
+   "create project",
+   "update project"
+  ],
+  "scan-intake": [
+   "deposit custody attribution",
+   "scan deposit"
+  ],
+  "registry": [
+   "custody",
+   "file jacket",
+   "minutes",
+   "movement",
+   "registry closure candidate",
+   "registry file"
+  ],
+  "single-assignment": [
+   "assign one",
+   "create task",
+   "create task from email",
+   "route task",
+   "validate assignee"
+  ],
+  "bulk-assignment": [
+   "bulk assign",
+   "bulk validation",
+   "otp protected batch",
+   "partial results"
+  ],
+  "fasttrack": [
+   "escalate priority",
+   "fasttrack",
+   "notify owner",
+   "urgent assign"
+  ],
+  "acknowledgment": [
+   "acknowledge",
+   "acknowledge retry",
+   "escalate non ack",
+   "remind assignee"
+  ],
+  "orchestrator": [
+   "block",
+   "complete action",
+   "progress",
+   "resume",
+   "start work",
+   "submit review",
+   "update task"
+  ],
+  "response-tracking": [
+   "ageing",
+   "export monitoring",
+   "monitor response",
+   "route to owner"
+  ],
+  "comments": [
+   "comment",
+   "dispatch note",
+   "return reason",
+   "review note"
+  ],
+  "approvals": [
+   "approve",
+   "approve with edit",
+   "reject",
+   "return",
+   "review minute"
+  ],
+  "executive": [
+   "executive approve",
+   "executive escalate",
+   "executive return",
+   "request clarification"
+  ],
+  "dispatch": [
+   "capture receipt",
+   "closure check",
+   "no dispatch",
+   "prepare dispatch",
+   "retry dispatch",
+   "send dispatch"
+  ],
+  "archive": [
+   "archive access",
+   "archive file",
+   "archive hash",
+   "archive readiness",
+   "archive reference"
+  ],
+  "lookup": [
+   "filter",
+   "open active",
+   "open archive",
+   "search"
+  ],
+  "reports": [
+   "email report",
+   "evidence report",
+   "export",
+   "generate report",
+   "print"
+  ],
+  "statistics": [
+   "metrics",
+   "phase distribution",
+   "sla analytics",
+   "trends"
+  ],
+  "assistant": [
+   "ask",
+   "suggest next action",
+   "summarize"
+  ],
+  "operator-hud": [
+   "operator alerts",
+   "pending queue",
+   "runtime load",
+   "sync status"
+  ],
+  "correspondence-email": [
+   "archive correspondence email",
+   "create correspondence email draft",
+   "duplicate correspondence email",
+   "send correspondence email"
+  ],
+  "settings": [
+   "density",
+   "endpoint restore",
+   "profile",
+   "state import export",
+   "theme"
+  ],
+  "diagnostics": [
+   "contract health",
+   "governance health",
+   "release blockers",
+   "route health",
+   "run checks"
+  ],
+  "user-admin": [
+   "assign role",
+   "create user",
+   "disable user",
+   "edit user"
+  ]
+ },
+ "unmatched": {
+  "apply sort": [
+   "Assignment_Intelligence_Dashboard.html"
+  ],
+  "update kpis": [
+   "Assignment_Intelligence_Dashboard.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "sync registry": [
+   "Assignment_Intelligence_Dashboard.html"
+  ],
+  "delete record": [
+   "Correspondence_Tracker.html"
+  ],
+  "edit record": [
+   "Correspondence_Tracker.html"
+  ],
+  "update dashboard": [
+   "Correspondence_Tracker.html"
+  ],
+  "submit flag action": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "apply etask category cascade": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "open assign comments": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "filter email task co assignee": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "clear telemetry": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "filter co assignee list": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "reset lookup": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html"
+  ],
+  "filter email task users": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "close email task preview": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "open assignment from doc": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "filter email task cc": [
+   "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "attach event listeners": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "save user email": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "pairs": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "close email detail": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "clear error": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "open email detail": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "update loading status": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "sort emails desc": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "clear selection": [
+   "DGO_FastTrack_Monitoring_SPA.html",
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "matched": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "update overlays": [
+   "DGO_FastTrack_Monitoring_SPA.html"
+  ],
+  "update counter": [
+   "Executive_Operations_Hub_Build_v2.0.html"
+  ],
+  "sync report visibility": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "close nav": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "update context": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "open email composer": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "open nav": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "sync tag gallery highlight": [
+   "HTML Reports_Builder_SPA.html"
+  ],
+  "dashboard": [
+   "NITDA_DGO_HUB_ACK.html",
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "omni": [
+   "NITDA_DGO_HUB_ACK.html"
+  ],
+  "submit full assignment": [
+   "NITDA_DGO_HUB_ACK.html"
+  ],
+  "reset task filters": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "reset docs filters": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update ref data stats": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "filter bulk users": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update emails count": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "close task detail": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update rtcounts": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update bulk summary": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "reset label": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update welcome banner": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update user info": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "update docs count": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "apply bulk category cascade": [
+   "NITDA_Digital_Ops_Hub_patched.html"
+  ],
+  "import edges": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "close": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "reset local data": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "open edge editor": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "save": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "explorer": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "timeline": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "open settings": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "add or update edge": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "save json": [
+   "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+  ],
+  "apply filters and render": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "submit assignment instrumented": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "attach": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "apply category defaults notified": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "add cc": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "apply filters now": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "cancel active request": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "mark dg": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "reset draft": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "generate uuid": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "sync submit enable from validity": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "update state enhanced": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "sync cc multi select from state": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "open assign for email": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "clear endpoints override": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "sync select all checkbox": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "update breadcrumb": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "reassign": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "clear email filters": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "open assign for single patched": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "update sub category options": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "apply category defaults": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "apply": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "save state": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "add classes": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "apply filters and render patched": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "save state debounced": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "singleassignment": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "open email preview": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "generate request id": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "open email task params": [
+   "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+  ],
+  "generate dgoreport": [
+   "Reports_Dashboard_Live.html"
+  ],
+  "update label": [
+   "Reports_Dashboard_Live.html"
+  ],
+  "generate gtqreport": [
+   "Reports_Dashboard_Live.html"
+  ],
+  "update avatar": [
+   "Response Tracking & Matrix.html"
+  ],
+  "update stats": [
+   "Response matrix v2.html"
+  ],
+  "update user avatar": [
+   "Response matrix v2.html"
+  ],
+  "sync route from hash": [
+   "Unified Smart Orchestrator.html"
+  ],
+  "generate brief": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "import workspace": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "open command": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "create agenda days": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "send flow": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "reset to seed": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "sync section visibility": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "save flow": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "close command": [
+   "dg_ceo_office_platform-1.html"
+  ],
+  "open file": [
+   "registry_movement.html"
+  ],
+  "apply show report button": [
+   "stats_screen_spa-2.html"
+  ],
+  "apply view visibility": [
+   "stats_screen_spa-2.html"
+  ],
+  "update attachment btn state": [
+   "stats_screen_spa-2.html"
+  ],
+  "report tag": [
+   "stats_screen_spa-2.html"
+  ],
+  "toggle": [
+   "stats_screen_spa-2.html"
+  ],
+  "add recipient": [
+   "stats_screen_spa-2.html"
+  ],
+  "completed count": [
+   "stats_screen_spa-2.html"
+  ]
+ },
+ "matched": {
+  "apply filter": {
+   "spas": [
+    "Assignment_Intelligence_Dashboard.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "generate report": {
+   "spas": [
+    "Assignment_Intelligence_Dashboard.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "generate report",
+   "score": 1.0
+  },
+  "send": {
+   "spas": [
+    "Assignment_Intelligence_Dashboard.html",
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "correspondence"
+   ],
+   "moduleCapability": "send to routing",
+   "score": 0.75
+  },
+  "classify status": {
+   "spas": [
+    "Assignment_Intelligence_Dashboard.html"
+   ],
+   "modules": [
+    "correspondence"
+   ],
+   "moduleCapability": "classify",
+   "score": 0.5
+  },
+  "notify": {
+   "spas": [
+    "Assignment_Intelligence_Dashboard.html",
+    "Response matrix v2.html",
+    "stats_screen_spa-2.html"
+   ],
+   "modules": [
+    "fasttrack"
+   ],
+   "moduleCapability": "notify owner",
+   "score": 0.75
+  },
+  "apply filters": {
+   "spas": [
+    "Correspondence_Tracker.html",
+    "Response Tracking & Matrix.html",
+    "Response matrix v2.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "filter records": {
+   "spas": [
+    "Correspondence_Tracker.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "export to csv": {
+   "spas": [
+    "Correspondence_Tracker.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "update assign summary": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "filter cclist": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "flag doc action": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "activities"
+   ],
+   "moduleCapability": "flag document",
+   "score": 1.0
+  },
+  "open email to task": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 0.56
+  },
+  "cancel comments": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "comments"
+   ],
+   "moduleCapability": "comment",
+   "score": 0.5
+  },
+  "filter assignee list": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "edit assign entries": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "submit email task": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 0.56
+  },
+  "preview assignment": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html",
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "close email to task": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 0.56
+  },
+  "submit assignment": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html",
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "save comments": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "comments"
+   ],
+   "moduleCapability": "comment",
+   "score": 0.5
+  },
+  "submit task update": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "orchestrator"
+   ],
+   "moduleCapability": "update task",
+   "score": 0.67
+  },
+  "preview email task": {
+   "spas": [
+    "DAA_DGO_HUB_ASSIGN_ITEM_DIRECT_Build_v2.0.html",
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 0.56
+  },
+  "sync data": {
+   "spas": [
+    "DGCEO Correspondence & Decision Hub.html",
+    "Response Tracking & Matrix.html",
+    "Response matrix v2.html"
+   ],
+   "modules": [
+    "operator-hud"
+   ],
+   "moduleCapability": "sync status",
+   "score": 0.75
+  },
+  "filter by category": {
+   "spas": [
+    "DGO_FastTrack_Monitoring_SPA.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "search emails": {
+   "spas": [
+    "DGO_FastTrack_Monitoring_SPA.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "search",
+   "score": 0.5
+  },
+  "matrix": {
+   "spas": [
+    "DGO_FastTrack_Monitoring_SPA.html",
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "ecm-erp-charter"
+   ],
+   "moduleCapability": "ownership matrix",
+   "score": 0.75
+  },
+  "filter by priority": {
+   "spas": [
+    "DGO_FastTrack_Monitoring_SPA.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "filter",
+   "score": 0.5
+  },
+  "sync status label": {
+   "spas": [
+    "HTML Reports_Builder_SPA.html"
+   ],
+   "modules": [
+    "operator-hud"
+   ],
+   "moduleCapability": "sync status",
+   "score": 0.67
+  },
+  "ack color": {
+   "spas": [
+    "HTML Reports_Builder_SPA.html"
+   ],
+   "modules": [
+    "acknowledgment"
+   ],
+   "moduleCapability": "acknowledge",
+   "score": 0.5
+  },
+  "open task update": {
+   "spas": [
+    "NITDA_DGO_HUB_ACK.html"
+   ],
+   "modules": [
+    "orchestrator"
+   ],
+   "moduleCapability": "update task",
+   "score": 0.67
+  },
+  "submit email to task": {
+   "spas": [
+    "NITDA_DGO_HUB_ACK.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 0.56
+  },
+  "tasks": {
+   "spas": [
+    "NITDA_DGO_HUB_ACK.html"
+   ],
+   "modules": [
+    "meetings"
+   ],
+   "moduleCapability": "meeting actions to tasks",
+   "score": 0.75
+  },
+  "update tasks count": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "orchestrator"
+   ],
+   "moduleCapability": "update task",
+   "score": 0.67
+  },
+  "comments": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "comments"
+   ],
+   "moduleCapability": "comment",
+   "score": 1.0
+  },
+  "add etask cctag": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task",
+   "score": 0.67
+  },
+  "export rtcsv": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "submit bulk assign": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "bulk-assignment"
+   ],
+   "moduleCapability": "bulk assign",
+   "score": 0.67
+  },
+  "cancel assignment": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "assignee": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "validate assignee",
+   "score": 0.75
+  },
+  "open bulk assign": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "bulk-assignment"
+   ],
+   "moduleCapability": "bulk assign",
+   "score": 0.67
+  },
+  "search": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "lookup"
+   ],
+   "moduleCapability": "search",
+   "score": 1.0
+  },
+  "clear assign entries": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "close doc detail": {
+   "spas": [
+    "NITDA_Digital_Ops_Hub_patched.html"
+   ],
+   "modules": [
+    "activities"
+   ],
+   "moduleCapability": "activity view",
+   "score": 0.67
+  },
+  "export state": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "settings"
+   ],
+   "moduleCapability": "state import export",
+   "score": 0.83
+  },
+  "sync all": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "operator-hud"
+   ],
+   "moduleCapability": "sync status",
+   "score": 0.75
+  },
+  "export csv": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "export edges": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "reports": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "evidence report",
+   "score": 0.75
+  },
+  "export json": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "trends": {
+   "spas": [
+    "Optimized_NITDA DGO Smart Orchestrator Merged Launcher.html"
+   ],
+   "modules": [
+    "statistics"
+   ],
+   "moduleCapability": "trends",
+   "score": 1.0
+  },
+  "create task from email": {
+   "spas": [
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "create task from email",
+   "score": 1.0
+  },
+  "open assign for bulk": {
+   "spas": [
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "bulk-assignment"
+   ],
+   "moduleCapability": "bulk assign",
+   "score": 0.67
+  },
+  "open assign for bulk patched": {
+   "spas": [
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "bulk-assignment"
+   ],
+   "moduleCapability": "bulk assign",
+   "score": 0.5
+  },
+  "open assign for single": {
+   "spas": [
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "single-assignment"
+   ],
+   "moduleCapability": "assign one",
+   "score": 0.5
+  },
+  "start": {
+   "spas": [
+    "REGEN_DGO_LIVE_V2_8_ENHANCED_FINAL.html"
+   ],
+   "modules": [
+    "orchestrator"
+   ],
+   "moduleCapability": "start work",
+   "score": 0.75
+  },
+  "generate dual report": {
+   "spas": [
+    "Reports_Dashboard_Live.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "generate report",
+   "score": 0.67
+  },
+  "view details": {
+   "spas": [
+    "Response Tracking & Matrix.html"
+   ],
+   "modules": [
+    "activities"
+   ],
+   "moduleCapability": "activity view",
+   "score": 0.75
+  },
+  "submit minute": {
+   "spas": [
+    "Response matrix v2.html"
+   ],
+   "modules": [
+    "registry"
+   ],
+   "moduleCapability": "minutes",
+   "score": 0.5
+  },
+  "submit ack": {
+   "spas": [
+    "Response matrix v2.html"
+   ],
+   "modules": [
+    "acknowledgment"
+   ],
+   "moduleCapability": "acknowledge",
+   "score": 0.5
+  },
+  "reject": {
+   "spas": [
+    "approvals.html"
+   ],
+   "modules": [
+    "correspondence",
+    "approvals"
+   ],
+   "moduleCapability": "reject",
+   "score": 1.0
+  },
+  "approve": {
+   "spas": [
+    "approvals.html"
+   ],
+   "modules": [
+    "approvals"
+   ],
+   "moduleCapability": "approve",
+   "score": 1.0
+  },
+  "export workspace": {
+   "spas": [
+    "dg_ceo_office_platform-1.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "export",
+   "score": 0.5
+  },
+  "add minute": {
+   "spas": [
+    "registry_movement.html"
+   ],
+   "modules": [
+    "registry"
+   ],
+   "moduleCapability": "minutes",
+   "score": 0.5
+  },
+  "progress count": {
+   "spas": [
+    "stats_screen_spa-2.html"
+   ],
+   "modules": [
+    "orchestrator"
+   ],
+   "moduleCapability": "progress",
+   "score": 0.5
+  },
+  "generate report id": {
+   "spas": [
+    "stats_screen_spa-2.html"
+   ],
+   "modules": [
+    "reports"
+   ],
+   "moduleCapability": "generate report",
+   "score": 0.67
+  }
+ },
+ "moduleCapabilitiesWithoutSpaAncestry": [
+  "acknowledge retry",
+  "activity attachment preview",
+  "activity lifecycle routing",
+  "ageing",
+  "approve with edit",
+  "archive access",
+  "archive correspondence email",
+  "archive file",
+  "archive hash",
+  "archive readiness",
+  "archive reference",
+  "ask",
+  "assign role",
+  "block",
+  "bulk validation",
+  "capture receipt",
+  "closure check",
+  "complete action",
+  "contract health",
+  "create brief",
+  "create correspondence",
+  "create correspondence email draft",
+  "create project",
+  "create user",
+  "custody",
+  "decide brief",
+  "decide meeting",
+  "delivery sequencing",
+  "density",
+  "deposit custody attribution",
+  "disable user",
+  "dispatch note",
+  "duplicate",
+  "duplicate correspondence email",
+  "edit user",
+  "email report",
+  "endpoint restore",
+  "escalate non ack",
+  "escalate priority",
+  "executive approve",
+  "executive escalate",
+  "executive return",
+  "export monitoring",
+  "fasttrack",
+  "file jacket",
+  "governance health",
+  "hold",
+  "integration rules",
+  "metrics",
+  "monitor response",
+  "movement",
+  "no dispatch",
+  "open active",
+  "open archive",
+  "operator alerts",
+  "otp protected batch",
+  "partial results",
+  "pending queue",
+  "phase distribution",
+  "phase filtering",
+  "prepare dispatch",
+  "print",
+  "profile",
+  "quick entry",
+  "registry closure candidate",
+  "registry file",
+  "release blockers",
+  "remind assignee",
+  "request clarification",
+  "request meeting",
+  "resume",
+  "retry dispatch",
+  "return",
+  "return reason",
+  "review minute",
+  "review note",
+  "route health",
+  "route task",
+  "route to owner",
+  "run checks",
+  "runtime load",
+  "scan deposit",
+  "scope boundary charter",
+  "send correspondence email",
+  "send dispatch",
+  "shared terminology",
+  "sla analytics",
+  "submit brief",
+  "submit review",
+  "suggest next action",
+  "summarize",
+  "theme",
+  "triage",
+  "update project",
+  "urgent assign",
+  "workload summary"
+ ]
+}

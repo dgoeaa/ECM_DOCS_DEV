@@ -71,10 +71,15 @@ test.describe('manual correspondence logging', () => {
 
     const recs = await logged(page);
     expect(recs.length).toBe(1);
-    expect(recs[0].referenceId, 'NITDA-YYYY-NNNNNN, as the intake flow issues')
-      .toMatch(/^NITDA-\d{4}-\d{6}$/);
+    // Unpadded, per D1. The SUBMISSION flow issues `NITDA-2026-217`; this test used to
+    // demand six padded digits, which is what the platform emitted before the register was
+    // consulted rather than what the register actually does.
+    expect(recs[0].referenceId, 'NITDA-YYYY-<sequence>, as the intake flow issues')
+      .toMatch(/^NITDA-\d{4}-\d{1,6}$/);
     expect(recs[0].referenceId, 'the retired six-digit timestamp form must not return')
       .not.toMatch(/^NITDA-\d{6}$/);
+    expect(recs[0].referenceId, 'the register does not zero-pad; the platform must not either')
+      .not.toMatch(/^NITDA-\d{4}-0\d+$/);
     expect(recs[0].id).toBe(recs[0].referenceId);
   });
 
@@ -85,8 +90,10 @@ test.describe('manual correspondence logging', () => {
 
     // The same shape document-portal/README.md requires of the SUBMISSION flow. If the two
     // drift apart the registry goes back to holding two key formats, which is half of F-031.
+    // The authority is the flow definition itself, which mints `NITDA-2026-217` — see
+    // docs/reference/foundational/flows/DOCUMENT SUBMISSION PORTAL POWER AU.txt.
     const year = new Date().getFullYear();
-    expect(rec.referenceId).toMatch(new RegExp(`^NITDA-${year}-\\d{6}$`));
+    expect(rec.referenceId).toMatch(new RegExp(`^NITDA-${year}-[1-9]\\d{0,5}$`));
   });
 
   test('logging several in quick succession does not repeat a reference', async ({ page }) => {
