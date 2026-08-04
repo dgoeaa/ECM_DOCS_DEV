@@ -1,0 +1,434 @@
+1. Get Emails response schema (sample JSON) (See attached)
+
+2. Get Attachments is an array. The respnse structure for Get attachments is : 
+"{
+  "Name": "@{outputs('Get_Attachment_(V2)')?['body/name']}",
+  "ContentType": "@{outputs('Get_Attachment_(V2)')?['body/contentType']}",
+  "ContentBytes": "@{outputs('Get_Attachment_(V2)')?['body/contentBytes']}"
+}"
+
+
+
+3. Create Task flow request  schema:
+
+"{
+    "type": "object",
+    "properties": {
+        "AssignmentType": {
+            "type": "string"
+        },
+        "NewActivityTask": {
+            "type": "object",
+            "properties": {
+                "StartDate": {
+                    "type": "string"
+                },
+                "ActivityID": {
+                    "type": "integer"
+                },
+                "AttachmentLink": {
+                    "type": "string"
+                },
+                "Title": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CategoryCode": {
+                    "type": "string"
+                },
+                "SubCategory": {
+                    "type": "string"
+                },
+                "SubCategoryCode": {
+                    "type": "string"
+                },
+                "AssignedTo": {
+                    "type": "string"
+                },
+                "AssignedToTitle": {
+                    "type": "string"
+                },
+                "AssignedDSU": {
+                    "type": "string"
+                },
+                "supportingAssignedTo": {
+                    "type": "string"
+                },
+                "SupportAssignedToTitle": {
+                    "type": "string"
+                },
+                "SupportDSU": {
+                    "type": "string"
+                },
+                "AcknolwedgementDueBy": {
+                    "type": "string"
+                },
+                "TaskDueDate": {
+                    "type": "string"
+                },
+                "CopyTo": {
+                    "type": "string"
+                },
+                "Priority": {
+                    "type": "string"
+                },
+                "PreReferenceID": {
+                    "type": "string"
+                },
+                "Categorization": {
+                    "type": "string"
+                },
+                "Comments": {
+                    "type": "string"
+                }
+            }
+        },
+        "Selected": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "RefIDD": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}"
+
+The create task flow response body structure is:
+"{
+  "success": true,
+  "referenceId": "@{triggerBody()?['NewActivityTask']?['PreReferenceID']}",
+  "patchId": "@{outputs('Get_item_2')?['body/ID']}"
+}"
+
+Status Update flow URL & schema (single & bulk).
+URL for status update is : "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3cea46a4f06748cb8a680ee1532d73cb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=9ZYNDHxGOMYvpWWyiPKw93loIv-qru_SzuPy6jiwJvo"
+Status update http trigger request schema is : "{
+    "type": "object",
+    "properties": {
+        "taskName": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "Completed"
+            ]
+        },
+        "TaskId": {
+            "type": "string"
+        },        "comment": {
+            "type": "string"
+        },
+        "securityToken": {
+            "type": "string"
+        }
+    }
+}"
+
+Task Status Update response body structure:
+"{
+  "Status": "Task Updated Successfully"
+}"
+
+OTP flows URLs (same for both OTP generate/send and OTPverify): "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/314aaf27593147089b38322e5ca25936/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=OWBIO1ooq0y8Zh9BTPp3sBOQoyVWs_a463FhFUT66fU"
+
+Send/Generate OPT response structure:
+
+    "status": "success",
+    "message": "OTP sent",
+    "expiry_minutes": @{outputs('Create_item_OTP_Record')?['body/Expires_At']}
+}
+
+Verify OTP response structure: { "valid": true, "message": "Verification successful" }
+Email notification attacShments field name should be "fileName"
+
+
+
+Update url:
+
+https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3cea46a4f06748cb8a680ee1532d73cb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=9ZYNDHxGOMYvpWWyiPKw93loIv-qru_SzuPy6jiwJvo
+
+
+update request trigger schema:
+{
+    "type": "object",
+    "properties": {
+        "taskName": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "Completed"
+            ]
+        },
+        "TaskId": {
+            "type": "string"
+        },
+        "comment": {
+            "type": "string"
+        },
+        "securityToken": {
+            "type": "string"
+        }
+    }
+}
+
+UPdate response structure:
+
+{
+  "Status": "pdated Successfully"
+}
+
+
+
+
+
+​Hamza Kani​
+FLOW_GET_EMAILS_URL = "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U"
+    // 2. Flow: Get email attachments :"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/20e6340941ce4b1bbb87b43c9102a777/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=aoDNRVjvGpUWGq2zB7H5JG10xQTEFhFLt1PTxmpCX6Y"
+ 3. Flow: Email-to-Task AI summary:
+'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE"
+4. Flow: Send email notification
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2e37b6310842410eb15c4561f2b0c1eb/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=JWa3c_EuUTSNguAGK05GF3arABlaeKANnoFn5tCV4qQ" 5. Flow: AI chat over email + task context :
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe794e0139784ac694768e5a716e0be7/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=lD76CTAMr77WcIpmZCx7Xqv10-6hybEB6ieFewDOt2k"
+6. FLow: Create task:
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&amp;sp=%2Ftriggers%2Fmanual%2Frun&amp;sv=1.0&amp;sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0"
+
+
+
+Get attachments request: {
+  "type": "object",
+  "properties": {
+    "emailId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "emailId"
+  ]
+}Get attachments response: {
+  "Name": "@{outputs('Get_Attachment_(V2)')?['body/name']}",
+  "ContentType": "@{outputs('Get_Attachment_(V2)')?['body/contentType']}",
+  "ContentBytes": "@{outputs('Get_Attachment_(V2)')?['body/contentBytes']}"
+}Create task: request: {
+    "type": "object",
+    "properties": {
+        "AssignmentType": {
+            "type": "string"
+        },
+        "NewActivityTask": {
+            "type": "object",
+            "properties": {
+                "StartDate": {
+                    "type": "string"
+                },
+                "ActivityID": {
+                    "type": "integer"
+                },
+                "AttachmentLink": {
+                    "type": "string"
+                },
+                "Title": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CategoryCode": {
+                    "type": "string"
+                },
+                "SubCategory": {
+                    "type": "string"
+                },
+                "SubCategoryCode": {
+                    "type": "string"
+                },
+                "AssignedTo": {
+                    "type": "string"
+                },
+                "AssignedToTitle": {
+                    "type": "string"
+                },
+                "AssignedDSU": {
+                    "type": "string"
+                },
+                "supportingAssignedTo": {
+                    "type": "string"
+                },
+                "SupportAssignedToTitle": {
+                    "type": "string"
+                },
+                "SupportDSU": {
+                    "type": "string"
+                },
+                "AcknolwedgementDueBy": {
+                    "type": "string"
+                },
+                "TaskDueDate": {
+                    "type": "string"
+                },
+                "CopyTo": {
+                    "type": "string"
+                },
+                "Priority": {
+                    "type": "string"
+                },
+                "PreReferenceID": {
+                    "type": "string"
+                },
+                "Categorization": {
+                    "type": "string"
+                },
+                "Comments": {
+                    "type": "string"
+                }
+            }
+        },
+        "Selected": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "RefIDD": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}create task response: {
+  "success": true,
+  "referenceId": "@{triggerBody()?['NewActivityTask']?['PreReferenceID']}",
+  "patchId": "@{outputs('Get_item_2')?['body/ID']}"
+}AI Assist: request:{
+    "type": "object",
+    "properties": {
+        "prompt": {
+            "type": "string",
+            "description": "Please enter your input"
+        },
+        "emailSubject": {
+            "type": "string",
+            "description": "Please enter your input"
+        },
+        "emailBody": {
+            "type": "string",
+            "description": "Please enter your input"
+        }
+    }
+}AI Assist response: {
+  "ai_response": "@{outputs('ai_response')}"
+}Email to task:request:{
+    "type": "object",
+    "properties": {
+        "emailId": {
+            "type": "string"
+        }
+    }
+}Email to task response: {
+  "summary": "@{body('Parse_JSON')?['Summary']}.",
+  "actionRequired": ".@{body('Parse_JSON')?['ActionRequired']}",
+  "recommendedAction": "@{body('Parse_JSON')?['RecommendedAction']}",
+  "suggestedCategoryCode": "@{body('Parse_JSON')?['Department']}",
+  "suggestedPriority": "@{body('Parse_JSON')?['Priority']}",
+  "suggestedAssigneeEmail": ""
+}Send Email Notification:request: {
+    "type": "object",
+    "properties": {
+        "itemID": {
+            "type": "string",
+            "description": "Unique identifier for the item or email"
+        },
+        "to": {
+            "type": "string",
+            "description": "Primary recipient email address"
+        },
+        "cc": {
+            "type": "string",
+            "description": "CC recipient email address(es), comma-separated"
+        },
+        "bcc": {
+            "type": "string",
+            "description": "BCC recipient email address(es), comma-separated"
+        },
+        "subject": {
+            "type": "string",
+            "description": "Email subject line"
+        },
+        "body": {
+            "type": "string",
+            "description": "Email body content"
+        },
+        "isHtml": {
+            "type": "boolean",
+            "description": "True if body is HTML, false if plain text"
+        },
+        "attachments": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "contentBytes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "contentBytes"
+                ]
+            },
+            "description": "List of attachments with name and base64 content"
+        },
+        "importance": {
+            "type": "string",
+            "enum": [
+                "Low",
+                "Normal",
+                "High"
+            ],
+            "description": "Sets the importance level of the email"
+        }
+    },
+    "required": [
+        "itemID",
+        "to",
+        "subject",
+        "body"
+    ]
+}send notfication response:{
+  "status": "success",
+  "message": "Email sent successfully",
+  "itemID": "@{triggerBody()?['itemID']}",
+  "to": "@{triggerBody()?['to']}",
+  "cc": "@{triggerBody()?['cc']}",
+  "bcc": "@{triggerBody()?['bcc']}",
+  "subject": "@{triggerBody()?['subject']}",
+  "importance": "@{triggerBody()?['importance']}",
+  "AttachmentsCount": "25"
+}
+
+
+
+

@@ -1,0 +1,469 @@
+{
+  "version": "1.1",
+  "exportedAt": "2025-12-18T02:00:00.000Z",
+  "description": "Complete Master Export of 16 Control Deck Endpoints",
+  "endpoints": [
+    {
+      "id": "id-ep-101",
+      "name": "Get Tasks",
+      "category": "Core",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4",
+      "method": "POST",
+      "tags": ["SharePoint", "Tasks"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "Title": "Author.Title",
+        "AssignedTo": "AssignedTo",
+        "Status": "Status",
+        "DueDate": "DueDate",
+        "RefID": "RefID",
+        "GBDLookUp": "GBDLookUp"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-102",
+      "name": "Get Users",
+      "category": "HR",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/607795813ee14d8abee6d1b4e8dd866b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=h2_puKrpuilVsarIykmC92g2JqsSsKR-afgyv2azjPo",
+      "method": "POST",
+      "tags": ["AzureAD", "Users"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "name": "DisplayName",
+        "email": "Mail",
+        "department": "Department",
+        "jobTitle": "JobTitle"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-103",
+      "name": "Subsidiary Actions",
+      "category": "Workflow",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85c556f10b8244ba9d839a2ebe240b91/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8ikbMhXrOn_L4QRUBF94wiq2swh7GlNVY_GZ5BD5jK0",
+      "method": "POST",
+      "tags": ["Actions", "Sub-task"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "AssignmentType": { "type": "string" },
+          "NewActivityTask": {
+            "type": "object",
+            "properties": {
+              "StartDate": { "type": "string" },
+              "ActivityID": { "type": "integer" },
+              "Title": { "type": "string" },
+              "Description": { "type": "string" },
+              "Category": { "type": "string" },
+              "AssignedTo": { "type": "string" },
+              "Priority": { "type": "string" }
+            }
+          }
+        }
+      },
+      "samplePayload": {
+        "AssignmentType": "New",
+        "NewActivityTask": {
+          "Title": "Sub-Action",
+          "ActivityID": 999,
+          "AssignedTo": "user@example.com"
+        }
+      },
+      "responseMap": {
+        "status": "success"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-104",
+      "name": "Get Docs",
+      "category": "Documents",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+      "method": "POST",
+      "tags": ["SharePoint", "Files"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": { "type": "string" },
+          "userEmail": { "type": "string" }
+        }
+      },
+      "samplePayload": {
+        "action": "fetch",
+        "userEmail": "user@example.com"
+      },
+      "responseMap": {
+        "ID": "ID",
+        "Title": "Title",
+        "Routed_x0020_To": "Routed To",
+        "AttachmentLink": "Link"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-105",
+      "name": "Get Categories",
+      "category": "Metadata",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9df45c5086ea42f2ab2b6ee9afae3f29/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=fGsqxEnBnrjdOm7CWre6485XfuJsdW_GxMCblmY0gFQ",
+      "method": "POST",
+      "tags": ["Lookup", "Config"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "Category": "Title",
+        "Subcategory": "field_2",
+        "Category Code": "field_1"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-106",
+      "name": "Events Processing",
+      "category": "Calendar",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b29edc84b5d4a8db3c885d8441aa977/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=C_qVMrcigwXBW1zt6g9LMGEmGGKURAj1en5BKB7QcwM",
+      "method": "POST",
+      "tags": ["Events", "AI"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "DocId": { "type": "string" },
+          "TaskId": { "type": "string" }
+        },
+        "required": ["DocId"]
+      },
+      "samplePayload": {
+        "DocId": "DOC-123",
+        "TaskId": "TASK-456"
+      },
+      "responseMap": {
+        "event_name": "Event Name",
+        "ai_summary": "AI Summary",
+        "accept_url": "URL"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-107",
+      "name": "DGO Attention Items",
+      "category": "Executive",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/4f733288d90e49a68d4d5715d9198d40/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3xcKOleGDXlmNLEC6O6agA-Nd2Msk7-JaaFXqBZbQ14",
+      "method": "POST",
+      "tags": ["DGO", "Urgent"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "Title": "Title",
+        "UrgencyLevel": "UrgencyLevel/Value",
+        "MarkedBy": "MarkedBy"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-108",
+      "name": "Get Departments",
+      "category": "Metadata",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3c7094de10ce473e985e5cadcf66bc67/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=EGbfe4BGaIRpq1CR-atEpF9_i8kX4yGbedQueJQdGjo",
+      "method": "POST",
+      "tags": ["Config", "DSU"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "DSU_KEY": "field_1",
+        "DSU_Email": "field_2"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-109",
+      "name": "Get Letters",
+      "category": "Documents",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f480ade951a1437c91604bee33279b0e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=nQxuZzpCIgpNqRzy5E1Ta6T318A0cd8XsIN5zbzMNJ0",
+      "method": "POST",
+      "tags": ["Letters", "Correspondence"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "ID": "ID",
+        "Title": "Title"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-110",
+      "name": "Get Correspondence",
+      "category": "Documents",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5729f50aa0fc4248be30ed4e9d7a7a4f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=z7KX5-d9cZJleItqfA1W-5kGwHnwc5UY6teggFUKI8Q",
+      "method": "POST",
+      "tags": ["Correspondence", "Status"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {
+        "Title": "Title",
+        "Status": "Status/Value",
+        "AttachmentLink": "Link"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-1",
+      "name": "Get Emails",
+      "category": "Communication",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/820c4a576cbb4a948d6a99dd85721e71/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TfQEDPwybgcoEsK69MPRxPuULtU5oxNagvOar29Rulo",
+      "method": "POST",
+      "tags": ["Outlook", "Emails"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {}
+      },
+      "samplePayload": {},
+      "responseMap": {},
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-2",
+      "name": "Get Attachments",
+      "category": "Communication",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/20e6340941ce4b1bbb87b43c9102a777/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=aoDNRVjvGpUWGq2zB7H5JG10xQTEFhFLt1PTxmpCX6Y",
+      "method": "POST",
+      "tags": ["Files", "Attachments"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "emailId": { "type": "string" }
+        },
+        "required": ["emailId"]
+      },
+      "samplePayload": {
+        "emailId": "MSG-ID-123"
+      },
+      "responseMap": {
+        "Name": "File Name",
+        "ContentBytes": "Base64"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-3",
+      "name": "Email to Task (Summary)",
+      "category": "AI",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE",
+      "method": "POST",
+      "tags": ["AI", "Summary"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "emailId": { "type": "string" }
+        },
+        "required": ["emailId"]
+      },
+      "samplePayload": {
+        "emailId": "MSG-ID-123"
+      },
+      "responseMap": {
+        "summary": "Summary Text",
+        "actionRequired": "Boolean"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-4",
+      "name": "Send Notification",
+      "category": "Communication",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2e37b6310842410eb15c4561f2b0c1eb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=JWa3c_EuUTSNguAGK05GF3arABlaeKANnoFn5tCV4qQ",
+      "method": "POST",
+      "tags": ["Email", "Alerts"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemID": { "type": "string" },
+          "to": { "type": "string" },
+          "subject": { "type": "string" },
+          "body": { "type": "string" }
+        },
+        "required": ["to", "subject", "body"]
+      },
+      "samplePayload": {
+        "itemID": "100",
+        "to": "user@example.com",
+        "subject": "Update",
+        "body": "This is a notification."
+      },
+      "responseMap": {
+        "status": "success",
+        "message": "Sent"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-5",
+      "name": "AI Assist Chat",
+      "category": "AI",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe794e0139784ac694768e5a716e0be7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lD76CTAMr77WcIpmZCx7Xqv10-6hybEB6ieFewDOt2k",
+      "method": "POST",
+      "tags": ["LLM", "Chat"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "prompt": { "type": "string" },
+          "emailSubject": { "type": "string" }
+        },
+        "required": ["prompt"]
+      },
+      "samplePayload": {
+        "prompt": "Summarize this",
+        "emailSubject": "Urgent"
+      },
+      "responseMap": {
+        "ai_response": "Response Text"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    },
+    {
+      "id": "id-ep-6",
+      "name": "Create Task",
+      "category": "Core",
+      "url": "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0",
+      "method": "POST",
+      "tags": ["Task", "SharePoint"],
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "AssignmentType": { "type": "string" },
+          "NewActivityTask": {
+            "type": "object",
+            "properties": {
+              "Title": { "type": "string" },
+              "AssignedTo": { "type": "string" },
+              "Description": { "type": "string" }
+            }
+          }
+        },
+        "required": ["AssignmentType", "NewActivityTask"]
+      },
+      "samplePayload": {
+        "AssignmentType": "Standard",
+        "NewActivityTask": {
+          "Title": "New Task",
+          "AssignedTo": "user@example.com"
+        }
+      },
+      "responseMap": {
+        "success": "boolean",
+        "referenceId": "ID"
+      },
+      "createdAt": "2025-12-18T02:00:00.000Z",
+      "updatedAt": "2025-12-18T02:00:00.000Z",
+      "spItemId": null
+    }
+  ],
+  "logs": [],
+  "dataSource": {
+    "mode": "local",
+    "sp": {
+      "siteUrl": "",
+      "listName": "FlowEndpoints"
+    }
+  }
+}

@@ -1,0 +1,1393 @@
+- BottomContainer2_8:
+    Control: GroupContainer@1.4.0
+    Variant: AutoLayout
+    Properties:
+      BorderColor: =AppTheme.NeutralLight
+      Fill: =AppTheme.SecondaryBackground
+      Height: =-1
+      LayoutAlignItems: =LayoutAlignItems.Stretch
+      LayoutDirection: =If(App.Width < BreakpointMedium, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+      LayoutGap: =AppSpacing.S
+      LayoutMaxHeight: =
+      LayoutMaxWidth: =
+      PaddingBottom: =AppSpacing.S
+      PaddingLeft: =AppSpacing.S
+      PaddingRight: =AppSpacing.S
+      PaddingTop: =AppSpacing.S
+      Width: =Parent.Width
+    Children:
+      - SidebarContainer2_6:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =AppTheme.BrandPrimary
+            BorderThickness: =1
+            Fill: =AppTheme.PrimaryBackground
+            Height: =-1
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =AppSpacing.S
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            LayoutMinWidth: =
+            PaddingBottom: =AppSpacing.S
+            PaddingLeft: =AppSpacing.S
+            PaddingRight: =AppSpacing.S
+            PaddingTop: =AppSpacing.S
+            RadiusBottomLeft: =AppSpacing.Radius
+            RadiusBottomRight: =AppSpacing.Radius
+            RadiusTopLeft: =AppSpacing.Radius
+            RadiusTopRight: =AppSpacing.Radius
+            Visible: =If(Parent.Width >= 750, Not(showComments) && Not(showPreview), showEntryControls)
+            Width: =If(Parent.Width >= 750, Parent.Width * 0.48, Parent.Width - (AppSpacing.S * 2))
+          Children:
+            - btnTag_30:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  Align: =Align.Left
+                  AlignInContainer: =AlignInContainer.Stretch
+                  AutoDisableOnSelect: =false
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.PrimaryForeground
+                  DisabledBorderColor: =AppTheme.NeutralTertiary
+                  DisabledColor: =AppTheme.NeutralSecondary
+                  DisabledFill: =AppTheme.NeutralLight
+                  Fill: =AppTheme.BrandPrimary
+                  FocusedBorderColor: =AppTheme.AccentGold
+                  FocusedBorderThickness: =2
+                  Font: =Font.Verdana
+                  Height: =If(App.Width < BreakpointSmall, 52, 60)
+                  HoverBorderColor: =ColorFade(AppTheme.BrandPrimary, -15%)
+                  HoverColor: =AppTheme.PrimaryForeground
+                  HoverFill: =ColorFade(AppTheme.BrandPrimary, -15%)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: |-
+                    =
+                    If(
+                        !cb1Active,
+                        UpdateContext({ cb1Active: true, cb2Active: false, cb3Active: false, cb4Active: false, cb5Active: false, cb6Active: false, cb7Active: false }),
+                        UpdateContext({ cb1Active: false, cb2Active: false, cb3Active: false, cb4Active: false, cb5Active: false, cb6Active: false, cb7Active: false })
+                    )
+                  PaddingBottom: =AppSpacing.S
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  PressedBorderColor: =ColorFade(AppTheme.BrandPrimary, -25%)
+                  PressedColor: =AppTheme.PrimaryForeground
+                  PressedFill: =AppTheme.BrandTertiary
+                  RadiusBottomLeft: =AppSpacing.Radius
+                  RadiusBottomRight: =AppSpacing.Radius
+                  RadiusTopLeft: =AppSpacing.Radius
+                  RadiusTopRight: =AppSpacing.Radius
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Text: =If(IsBlank(selectedCategory), "Click to choose a Category", "Category:" & Char(10) & "  " & selectedCategory & " (" & selectedCategoryCode & ") - " & selectedSubCategory & " (" & selectedSubCategoryCode & ")")
+                  Tooltip: ="Open category selector"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - cblblCategoryMasterselecta_4:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.BrandPrimary
+                  ChevronFill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  ChevronHoverFill: =ColorFade(AppTheme.BrandPrimary, 60%)
+                  Color: =AppTheme.NeutralPrimary
+                  DisplayFields: =["Title","field_2"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.Verdana
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.BrandPrimary
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =ColorFade(AppTheme.TextInputFill, -10%)
+                  InputTextPlaceholder: ="Find items by Email"
+                  Items: =colCategoriesInfo
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Select Category/Subcategory"
+                  OnChange: |-
+                    =
+                    UpdateContext({ ErrorMessage: "", SuccessMessage: "" });
+
+                    UpdateContext(
+                        {
+                            selectedCategory: Self.Selected.Category,
+                            selectedCategoryCode: Self.Selected.'Category Code',
+                            selectedSubCategory: Self.Selected.Subcategory,
+                            selectedSubCategoryCode: Self.Selected.'SubCategory Code',
+                            selectedPrimaryDSU: Self.Selected.'Default Primary Responsible',
+                            selectedSupportDSU: Self.Selected.'Default Supporting Department/Unit',
+                            selectedSubUnit: Self.Selected.'Default Supporting SubUnit',
+                            selectedInfoDSU1: Self.Selected.INFORMDSU1,
+                            selectedInfoDSU2: Self.Selected.INFORMDSU2,
+                            selectedInfoDSU3: Self.Selected.INFORMDSU3,
+                            selectedTimeline: Self.Selected.Timeline,
+                            selectedPriority: Self.Selected.Priority,
+                            selectedPermission: Self.Selected.Permissions,
+                            selectedProgress: ""
+                        }
+                    );
+
+                    If(
+                        IsBlank(ErrorMessage),
+                        UpdateContext(
+                            {
+                                selectedAssignedTo: LookUp(colDepartmentsInfo, DSU_KEY = selectedPrimaryDSU, 'DSU_Head Personal_Email'),
+                                selectedAssignedToTitle: LookUp(colDepartmentsInfo, DSU_KEY = selectedPrimaryDSU, DSU_HeadTitle)
+                            }
+                        )
+                    );
+
+                    If(
+                        !IsBlank(selectedSupportDSU),
+                        UpdateContext(
+                            {
+                                selectedSupportAssignedTo: LookUp(colDepartmentsInfo, DSU_KEY = selectedSupportDSU, 'DSU_Head Personal_Email'),
+                                selectedSupportAssignedToTitle: LookUp(colDepartmentsInfo, DSU_KEY = selectedSupportDSU, DSU_HeadTitle)
+                            }
+                        )
+                    );
+
+                    UpdateContext(
+                        {
+                            selectedInform1Email: If(!IsBlank(selectedInfoDSU1), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU1, 'DSU_Head Personal_Email'), Blank()),
+                            selectedInform2Email: If(!IsBlank(selectedInfoDSU2), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU2, 'DSU_Head Personal_Email'), Blank()),
+                            selectedInform3Email: If(!IsBlank(selectedInfoDSU3), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU3, 'DSU_Head Personal_Email'), Blank())
+                        }
+                    );
+
+                    UpdateContext(
+                        {
+                            selectedCopyTo:
+                                Concat(
+                                    Filter(
+                                        [selectedInform1Email, selectedInform2Email, selectedInform3Email],
+                                        !IsBlank(Value)
+                                    ),
+                                    Value,
+                                    ";"
+                                )
+                        }
+                    );
+
+                    If(
+                        !IsBlank(ErrorMessage),
+                        UpdateContext({ NotifyMessage: ErrorMessage, NotifyType: "Error", showNotifyMessage: true }),
+                        UpdateContext({ NotifyMessage: "Selection registered", NotifyType: "Success", showNotifyMessage: true })
+                    );
+
+                    UpdateContext(
+                        {
+                            selectedValues:
+                                {
+                                    Category: Self.Selected.Category,
+                                    CategoryCode: Self.Selected.'Category Code',
+                                    Subcategory: Self.Selected.Subcategory,
+                                    SubCategoryCode: Self.Selected.'SubCategory Code',
+                                    PrimaryDSU: Self.Selected.'Default Primary Responsible',
+                                    SupportDSU: Self.Selected.'Default Supporting Department/Unit',
+                                    SubUnit: Self.Selected.'Default Supporting SubUnit',
+                                    InfoDSU1: Self.Selected.INFORMDSU1,
+                                    InfoDSU2: Self.Selected.INFORMDSU2,
+                                    InfoDSU3: Self.Selected.INFORMDSU3,
+                                    Timeline: Self.Selected.Timeline,
+                                    Priority: Self.Selected.Priority,
+                                    Permissions: Self.Selected.Permissions,
+                                    Progress: Blank(),
+                                    CopyTo: selectedCopyTo,
+                                    AssignedTo: selectedAssignedTo,
+                                    CoAssignedTo: selectedSupportAssignedTo
+                                }
+                        }
+                    )
+                  OnSelect: |-
+                    =// duplicate OnSelect (keeps existing behaviour)
+                    UpdateContext({
+                        ErrorMessage: "",
+                        SuccessMessage: ""
+                    });
+                    UpdateContext({
+                        selectedCategory: Self.Selected.Category,
+                        selectedCategoryCode: Self.Selected.'Category Code',
+                        selectedSubCategory: Self.Selected.Subcategory,
+                        selectedSubCategoryCode: Self.Selected.'SubCategory Code',
+                        selectedPrimaryDSU: Self.Selected.'Default Primary Responsible',
+                        selectedSupportDSU: Self.Selected.'Default Supporting Department/Unit',
+                        selectedSubUnit: Self.Selected.'Default Supporting SubUnit',
+                        selectedInfoDSU1: Self.Selected.INFORMDSU1,
+                        selectedInfoDSU2: Self.Selected.INFORMDSU2,
+                        selectedInfoDSU3: Self.Selected.INFORMDSU3,
+                        selectedTimeline: Self.Selected.Timeline,
+                        selectedPriority: Self.Selected.Priority,
+                        selectedPermission: Self.Selected.Permissions,
+                        selectedProgress: Blank()
+                    });
+                    If(
+                        IsBlank(ErrorMessage),
+                        UpdateContext({
+                            selectedAssignedTo: LookUp(colDepartmentsInfo, DSU_KEY = selectedPrimaryDSU, 'DSU_Head Personal_Email'),
+                            selectedAssignedToTitle: LookUp(colDepartmentsInfo, DSU_KEY = selectedPrimaryDSU, DSU_HeadTitle)
+                        })
+                    );
+                    If(
+                        !IsBlank(selectedSupportDSU),
+                        UpdateContext({
+                            selectedSupportAssignedTo: LookUp(colDepartmentsInfo, DSU_KEY = selectedSupportDSU, 'DSU_Head Personal_Email'),
+                            selectedSupportAssignedToTitle: LookUp(colDepartmentsInfo, DSU_KEY = selectedSupportDSU, DSU_HeadTitle)
+                        })
+                    );
+                    UpdateContext({
+                        selectedInform1Email: If(!IsBlank(selectedInfoDSU1), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU1, 'DSU_Head Personal_Email'), Blank()),
+                        selectedInform2Email: If(!IsBlank(selectedInfoDSU2), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU2, 'DSU_Head Personal_Email'), Blank()),
+                        selectedInform3Email: If(!IsBlank(selectedInfoDSU3), LookUp(colDepartmentsInfo, DSU_KEY = selectedInfoDSU3, 'DSU_Head Personal_Email'), Blank())
+                    });
+                    UpdateContext({
+                        selectedCopyTo: Concat(
+                            Filter(
+                                [selectedInform1Email, selectedInform2Email, selectedInform3Email],
+                                !IsBlank(Value)
+                            ),
+                            Value,
+                            ";"
+                        )
+                    });
+                    If(
+                        !IsBlank(ErrorMessage),
+                        UpdateContext({NotifyMessage: ErrorMessage, NotifyType: "Error", showNotifyMessage: true}),
+                        UpdateContext({NotifyMessage: "Selection Registered", NotifyType: "Success", showNotifyMessage: true})
+                    );
+                    UpdateContext({
+                        selectedValues: {
+                            Category: Self.Selected.Category,
+                            CategoryCode: Self.Selected.'Category Code',
+                            Subcategory: Self.Selected.Subcategory,
+                            SubCategoryCode: Self.Selected.'SubCategory Code',
+                            PrimaryDSU: Self.Selected.'Default Primary Responsible',
+                            SupportDSU: Self.Selected.'Default Supporting Department/Unit',
+                            SubUnit: Self.Selected.'Default Supporting SubUnit',
+                            InfoDSU1: Self.Selected.INFORMDSU1,
+                            InfoDSU2: Self.Selected.INFORMDSU2,
+                            InfoDSU3: Self.Selected.INFORMDSU3,
+                            Timeline: Self.Selected.Timeline,
+                            Priority: Self.Selected.Priority,
+                            Permissions: Self.Selected.Permissions,
+                            Progress: Blank(),
+                            CopyTo: selectedCopyTo,
+                            AssignedTo: selectedAssignedTo,
+                            CoAssignedTo: selectedSupportAssignedTo
+                        }
+                    });
+                  PaddingBottom: =AppSpacing.XS
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.XS
+                  PressedBorderColor: =AppTheme.BrandPrimary
+                  PressedColor: =AppTheme.NeutralPrimary
+                  Reset: =gblReset
+                  SearchFields: =["Title","field_2"]
+                  SelectMultiple: =false
+                  SelectionColor: =AppTheme.PrimaryForeground
+                  SelectionFill: =AppTheme.BrandPrimary
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Tooltip: ="Select Category/Subcategory to prefill routing"
+                  Visible: =cb1Active
+                  Width: =200
+            - lblAssignedTo_3:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  AutoHeight: =true
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.BrandPrimary
+                  Fill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  FocusedBorderColor: =AppTheme.AccentGold
+                  FocusedBorderThickness: =2
+                  Font: =Font.Verdana
+                  FontWeight: =FontWeight.Semibold
+                  Height: =If(App.Width < BreakpointSmall, 52, 60)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: |-
+                    =
+                    If(
+                        !cb2Active,
+                        UpdateContext({ cb1Active:false, cb3Active:false, cb2Active:true, cb4Active:false, cb5Active:false, cb6Active:false, cb7Active:false }),
+                        UpdateContext({ cb1Active:false, cb2Active:false, cb3Active:false, cb4Active:false, cb5Active:false, cb6Active:false, cb7Active:false })
+                    )
+                  PaddingBottom: =AppSpacing.S
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  Size: =RoundDown(12 * TextScale, 0)
+                  TabIndex: =0
+                  Text: |-
+                    ="AssignedTo:" & Char(10) &
+                    If(
+                      IsBlank(selectedAssignedTo),
+                      "Click to select or change the assignee",
+                      selectedPrimaryDSU & " (" & selectedAssignedToTitle & ")"
+                    )
+                  Tooltip: ="Toggle assignee selectors"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - cbAllUsers_7:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.NeutralLight
+                  ChevronDisabledBackground: =AppTheme.NeutralLight
+                  ChevronDisabledFill: =AppTheme.NeutralSecondary
+                  ChevronFill: =AppTheme.NeutralPrimary
+                  ChevronHoverBackground: =AppTheme.NeutralLight
+                  ChevronHoverFill: =AppTheme.NeutralPrimary
+                  Color: =AppTheme.NeutralPrimary
+                  DisabledBorderColor: =AppTheme.NeutralTertiary
+                  DisabledColor: =AppTheme.NeutralSecondary
+                  DisabledFill: =AppTheme.NeutralLight
+                  DisplayFields: =["DisplayName","Mail"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.'Segoe UI'
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.AccentBlue
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =AppTheme.TextInputFill
+                  Items: =colAllUsers
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Search user by name or email"
+                  OnChange: |-
+                    =
+                    UpdateContext({ selectedAssignedTo: Self.Selected.Mail });
+                    If(
+                      CountRows(Filter(colDepartmentsInfo, 'DSU_Head Personal_Email' = selectedAssignedTo)) > 0,
+                      UpdateContext({
+                        selectedAssignedToTitle: LookUp(colDepartmentsInfo, 'DSU_Head Personal_Email' = selectedAssignedTo, DSU_HeadTitle),
+                        selectedPrimaryDSU: LookUp(colDepartmentsInfo, 'DSU_Head Personal_Email' = selectedAssignedTo, DSU_KEY)
+                      }),
+                      UpdateContext({
+                        selectedAssignedToTitle: Self.Selected.DisplayName,
+                        selectedPrimaryDSU: Self.Selected.Department
+                      })
+                    )
+                  OnSelect: "= UpdateContext({\r\n        selectedAssignedTo:Self.Selected.Mail\r\n      });\r\n\r\n      If(CountRows(Filter(colDepartmentsInfo,'DSU_Head Personal_Email'=selectedAssignedTo))>0, UpdateContext({\r\n  \r\n        selectedAssignedToTitle:LookUp(colDepartmentsInfo,'DSU_Head Personal_Email'= selectedAssignedTo,DSU_HeadTitle),\r\n        selectedPrimaryDSU: LookUp(colDepartmentsInfo,'DSU_Head Personal_Email'= selectedAssignedTo,DSU_KEY)\r\n      }),UpdateContext({\r\n  \r\n        selectedAssignedToTitle:Self.Selected.DisplayName,\r\n        selectedPrimaryDSU: Self.Selected.Department\r\n      }))"
+                  PaddingBottom: =AppSpacing.XS
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.XS
+                  PressedBorderColor: =AppTheme.AccentBlue
+                  PressedColor: =AppTheme.PrimaryForeground
+                  PressedFill: =AppTheme.BrandPrimary
+                  Reset: =gblReset
+                  SearchFields: =["DisplayName","Mail","GivenName"]
+                  SelectMultiple: =false
+                  SelectionColor: =AppTheme.PrimaryForeground
+                  SelectionFill: =AppTheme.AccentBlue
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Tooltip: ="Pick assignee from users collection"
+                  Visible: =cb2Active
+                  Width: =200
+            - cbAssignedTo_6:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.BrandPrimary
+                  ChevronFill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  ChevronHoverFill: =ColorFade(AppTheme.BrandPrimary, 60%)
+                  Color: =AppTheme.NeutralPrimary
+                  DisplayFields: =["Title","field_2"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.Verdana
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.BrandPrimary
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =ColorFade(AppTheme.TextInputFill, -10%)
+                  InputTextPlaceholder: ="Search Assign Designation"
+                  Items: =colDepartmentsInfo
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Select department head"
+                  OnChange: |-
+                    =
+                    UpdateContext({
+                      selectedAssignedTo: Self.Selected.'DSU_Head Personal_Email',
+                      selectedAssignedToTitle: Self.Selected.DSU_HeadTitle,
+                      selectedPrimaryDSU: Self.Selected.DSU_KEY
+                    })
+                  OnSelect: |-
+                    = UpdateContext({
+                            selectedAssignedTo:Self.Selected.'DSU_Head Personal_Email',
+                            selectedAssignedToTitle: Self.Selected.DSU_HeadTitle,
+                            selectedPrimaryDSU: Self.Selected.DSU_KEY
+                          })
+                  PaddingBottom: =AppSpacing.XS
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.XS
+                  PressedBorderColor: =AppTheme.BrandPrimary
+                  PressedColor: =AppTheme.NeutralPrimary
+                  PressedFill: =AppTheme.BrandPrimary
+                  Reset: =gblReset
+                  SearchFields: =["Title","field_1"]
+                  SelectMultiple: =false
+                  SelectionColor: =AppTheme.PrimaryForeground
+                  SelectionFill: =AppTheme.BrandPrimary
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Tooltip: ="Pick assignee from DSU list"
+                  Visible: =cb2Active
+                  Width: =200
+            - lblSupportAssignedTo_3:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  AutoHeight: =true
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.BrandPrimary
+                  Fill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  Font: =Font.Verdana
+                  FontWeight: =FontWeight.Semibold
+                  Height: =If(App.Width < BreakpointSmall, 52, 60)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: |-
+                    =
+                    If(
+                        !cb3Active,
+                        UpdateContext({ cb1Active:false, cb2Active:false, cb3Active:true, cb4Active:false, cb5Active:false, cb6Active:false, cb7Active:false }),
+                        UpdateContext({ cb1Active:false, cb2Active:false, cb3Active:false, cb4Active:false, cb5Active:false, cb6Active:false, cb7Active:false })
+                    )
+                  PaddingBottom: =AppSpacing.S
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  Size: =RoundDown(12 * TextScale, 0)
+                  TabIndex: =0
+                  Text: |-
+                    ="Co-AssignedTo:" & Char(10) &
+                    If(
+                      IsBlank(selectedSupportAssignedTo),
+                      "Click to select or change a co-assignee",
+                      selectedSupportDSU & " (" & selectedSupportAssignedToTitle & ")"
+                    )
+                  Tooltip: ="Toggle co-assignee selectors"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - cbSupportAssignedTo_3:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.BrandPrimary
+                  ChevronFill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  ChevronHoverFill: =ColorFade(AppTheme.BrandPrimary, 60%)
+                  Color: =AppTheme.NeutralPrimary
+                  DisplayFields: =["Title","field_3"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.Verdana
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.BrandPrimary
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =ColorFade(AppTheme.TextInputFill, -10%)
+                  InputTextPlaceholder: ="Search Designation of Assignee"
+                  Items: =colDepartmentsInfo
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Select co-assignee DSU"
+                  OnChange: |-
+                    =
+                    UpdateContext({
+                      selectedSupportAssignedTo: Self.Selected.'DSU_Head Personal_Email',
+                      selectedSupportDSU: Self.Selected.DSU_KEY,
+                      selectedSupportAssignedToTitle: Self.Selected.DSU_HeadTitle
+                    })
+                  OnSelect: |-
+                    = UpdateContext({
+                            selectedSupportAssignedTo: Self.Selected.'DSU_Head Personal_Email',
+                            selectedSupportDSU: Self.Selected.DSU_KEY,
+                            selectedSupportAssignedToTitle: Self.Selected.DSU_HeadTitle
+                          })
+                  PaddingBottom: =AppSpacing.XS
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.XS
+                  PressedBorderColor: =AppTheme.BrandPrimary
+                  PressedColor: =AppTheme.NeutralPrimary
+                  PressedFill: =AppTheme.BrandPrimary
+                  Reset: =gblReset
+                  SearchFields: =["Title","field_3"]
+                  SelectMultiple: =false
+                  SelectionColor: =AppTheme.PrimaryForeground
+                  SelectionFill: =AppTheme.BrandPrimary
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Tooltip: ="Pick co-assignee from DSU list"
+                  Visible: =cb3Active
+                  Width: =200
+            - cbAllUsers_8:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.NeutralLight
+                  ChevronDisabledBackground: =AppTheme.NeutralLight
+                  ChevronDisabledFill: =AppTheme.NeutralSecondary
+                  ChevronFill: =AppTheme.NeutralPrimary
+                  ChevronHoverBackground: =AppTheme.NeutralLight
+                  ChevronHoverFill: =AppTheme.NeutralPrimary
+                  Color: =AppTheme.NeutralPrimary
+                  DisplayFields: =["DisplayName","Mail"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.'Segoe UI'
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.AccentBlue
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =AppTheme.TextInputFill
+                  Items: =colAllUsers
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Search user by name or email"
+                  OnChange: |-
+                    =
+                    UpdateContext({
+                      selectedSupportAssignedTo: Self.Selected.Mail,
+                      selectedSupportDSU: LookUp(colDepartmentsInfo, 'DSU_Head Personal_Email' = Self.Selected.Mail, DSU_KEY),
+                      selectedSupportAssignedToTitle: LookUp(colDepartmentsInfo, 'DSU_Head Personal_Email' = Self.Selected.Mail, DSU_HeadTitle)
+                    })
+                  OnSelect: |-
+                    = UpdateContext({
+                            selectedSupportAssignedTo: Self.Selected.Mail,
+                            selectedSupportDSU:LookUp(colDepartmentsInfo,'DSU_Head Personal_Email'=Self.Selected.Mail,DSU_KEY),
+                            selectedSupportAssignedToTitle: LookUp(colDepartmentsInfo,'DSU_Head Personal_Email'=Self.Selected.Mail,DSU_HeadTitle)
+                          })
+                  PaddingBottom: =AppSpacing.XS
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.XS
+                  PressedBorderColor: =AppTheme.AccentBlue
+                  PressedColor: =AppTheme.PrimaryForeground
+                  PressedFill: =AppTheme.AccentBlue
+                  Reset: =gblReset
+                  SearchFields: =["DisplayName"]
+                  SelectMultiple: =false
+                  SelectionColor: =AppTheme.PrimaryForeground
+                  SelectionFill: =AppTheme.AccentBlue
+                  Size: =RoundDown(12 * TextScale, 0)
+                  Tooltip: ="Pick co-assignee from users collection"
+                  Visible: =cb3Active
+                  Width: =200
+            - lblCCToAssn_3:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  AutoHeight: =true
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.BrandPrimary
+                  Fill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  Font: =Font.Verdana
+                  FontWeight: =FontWeight.Semibold
+                  Height: =If(App.Width < BreakpointSmall, 52, 60)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: |-
+                    =
+                    If(
+                      !cb4Active,
+                      UpdateContext({ cb1Active:false, cb2Active:false, cb3Active:false, cb4Active:true, cb5Active:false, cb6Active:false, cb7Active:false }),
+                      UpdateContext({ cb1Active:false, cb2Active:false, cb3Active:false, cb4Active:false, cb5Active:false, cb6Active:false, cb7Active:false })
+                    )
+                  PaddingBottom: =AppSpacing.S
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  Size: =RoundDown(12 * TextScale, 0)
+                  TabIndex: =0
+                  Text: |-
+                    ="CcTo:" & Char(10) &
+                    If(IsBlank(selectedCopyTo), "Click to choose copied recipients", selectedCopyTo)
+                  Tooltip: ="Toggle CC recipients"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - cbCCTo_3:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralLight
+                  BorderThickness: =1
+                  ChevronBackground: =AppTheme.BrandPrimary
+                  ChevronFill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  ChevronHoverFill: =ColorFade(AppTheme.BrandPrimary, 60%)
+                  Color: =AppTheme.NeutralPrimary
+                  DisplayFields: =["Title","field_3"]
+                  Fill: =AppTheme.TextInputFill
+                  Font: =Font.Verdana
+                  Height: =Max(30, RoundDown(36 * TextScale, 0))
+                  HoverBorderColor: =AppTheme.BrandPrimary
+                  HoverColor: =AppTheme.NeutralPrimary
+                  HoverFill: =ColorFade(AppTheme.TextInputFill, -10%)
+                  InputTextPlaceholder: ="Search any CCTo DSU Head Personal Email"
+                  Items: =colDepartmentsInfo
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  NoSelectionText: ="Add DSU heads to CC"
+                  OnChange: |-
+                    =UpdateContext({
+                        selectedCopyTo: 
+                            If(
+                                !IsEmpty(cbCCTo_3.SelectedItems),
+                                Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email', ";"), // Concatenate selected emails
+                                "" // Clear if no selection
+                            )
+                    });
+                        UpdateContext({NotifyMessage: "Copy to:   " & If(
+                                !IsEmpty(cbCCTo_3.SelectedItems),
+                                Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email', ";"), // Concatenate selected emails
+                                "" // Clear if no selection
+                            ), NotifyType: "Success", showNotifyMessage: true});
+                  OnSelect: |-
+                    =UpdateContext({
+                        selectedCopyTo: 
+                            If(
+                                !IsEmpty(cbCCTo_3.SelectedItems),
+                                Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email', ";"), // Concatenate selected emails
+                                "" // Clear if no selection
+                            )
+                    });
+                        UpdateContext({NotifyMessage: "Copy to:   " & If(
+                                !IsEmpty(cbCCTo_3.SelectedItems),
+                                Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email', ";"), // Concatenate selected emails
+                                "" // Clear if no selection
+                            ), NotifyType: "Success", showNotifyMessage: true});
+                  Reset: =gblReset
+                  SearchFields: =["Title"]
+                  Width: =200
+            - cbAllUsers_9:
+                Control: Classic/ComboBox@2.4.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =RGBA(245, 245, 245, 1)
+                  ChevronBackground: =RGBA(245, 245, 245, 1)
+                  ChevronDisabledBackground: =RGBA(242, 242, 241, 0)
+                  ChevronDisabledFill: =RGBA(161, 159, 157, 1)
+                  ChevronFill: =RGBA(50, 49, 48, 1)
+                  ChevronHoverBackground: =RGBA(245, 245, 245, 1)
+                  ChevronHoverFill: =RGBA(50, 49, 48, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  DisabledBorderColor: =RGBA(0, 0, 0, 0)
+                  DisabledColor: =RGBA(161, 159, 157, 1)
+                  DisabledFill: =RGBA(242, 242, 241, 0)
+                  DisplayFields: =["DisplayName","Mail"]
+                  Fill: =RGBA(245, 245, 245, 1)
+                  Font: =Font.'Segoe UI'
+                  HoverBorderColor: =RGBA(16, 110, 190, 1)
+                  HoverColor: =RGBA(50, 49, 48, 1)
+                  HoverFill: =RGBA(245, 245, 245, 1)
+                  Items: =colAllUsers
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnChange: |-
+                    =UpdateContext({
+                        selectedCopyTo: 
+                            Concatenate(
+                                If(!IsEmpty(cbCCTo_3.SelectedItems), Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email' & ";"), ""),
+                                If(!IsEmpty(cbAllUsers_9.SelectedItems), Concat(cbAllUsers_9.SelectedItems, Mail & ";"), "")
+                            )
+                    });
+                    UpdateContext({
+                        NotifyMessage: "Copy to: " & selectedCopyTo,
+                        NotifyType: "Success",
+                        showNotifyMessage: true
+                    });
+                  OnSelect: |-
+                    =UpdateContext({
+                        selectedCopyTo: 
+                            Concatenate(
+                                If(!IsEmpty(cbCCTo_3.SelectedItems), Concat(cbCCTo_3.SelectedItems, 'DSU_Head Personal_Email' & ";"), ""),
+                                If(!IsEmpty(cbAllUsers_9.SelectedItems), Concat(cbAllUsers_9.SelectedItems,Mail & ";"), "")
+                            )
+                    });
+                    UpdateContext({
+                        NotifyMessage: "Copy to: " & selectedCopyTo,
+                        NotifyType: "Success",
+                        showNotifyMessage: true
+                    });
+                  PressedBorderColor: =RGBA(16, 110, 190, 1)
+                  PressedColor: =RGBA(255, 255, 255, 1)
+                  PressedFill: =RGBA(0, 120, 212, 1)
+                  Reset: =gblReset
+                  SearchFields: =["DisplayName"]
+                  SelectionColor: =RGBA(255, 255, 255, 1)
+                  SelectionFill: =RGBA(0, 120, 212, 1)
+                  Visible: =cb4Active=true
+                  Width: =200
+            - lblUploadFiles_26:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Justify
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.BrandPrimary
+                  Fill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  Font: =AppTheme.Fonts.Default
+                  FontWeight: =FontWeight.Semibold
+                  Height: =If(App.Width <= BreakpointSmall, 50, 60)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  LineHeight: =1
+                  OnSelect: |-
+                    =If(
+                        cb5Active=false,
+                        UpdateContext({cb1Active:false,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:true,cb6Active:false,cb7Active:false}),
+                        UpdateContext({cb1Active:false,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,cb6Active:false,cb7Active:false})
+                    )
+                  PaddingLeft: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  Size: |-
+                    =Switch(
+                        true,
+                        App.Width <= BreakpointSmall, 10,
+                        App.Width <= BreakpointMedium, 11,
+                        12
+                    )
+                  Text: ="Priority:" & Char(10) & "(" & selectedPriority & ")"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - galAssnPrrioritySelect_8:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                  BorderStyle: =BorderStyle.None
+                  Fill: =Color.Transparent
+                  FillPortions: =0
+                  Height: =If(App.Width <= BreakpointSmall, 36, 40)
+                  Items: =Choices('Global Tracking Queue'.Priority)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: =UpdateContext({selectedPriority:galAssnPrrioritySelect_8.Selected.Value})
+                  ShowScrollbar: =false
+                  TemplateFill: =Color.Transparent
+                  TemplatePadding: =AppSpacing.XS
+                  TemplateSize: |-
+                    =If(
+                        Self.AllItemsCount <= 0,
+                        Self.Width,
+                        Self.Width / Max(1, Self.AllItemsCount)
+                    )
+                  Visible: =cb5Active
+                  Width: =200
+                Children:
+                  - btnTag_21:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =AppTheme.White
+                        DisabledBorderColor: =AppTheme.NeutralTertiary
+                        Fill: =AppTheme.BrandPrimary
+                        Font: =AppTheme.Fonts.Default
+                        FontWeight: =FontWeight.Normal
+                        Height: =Parent.TemplateHeight - AppSpacing.XS
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =ColorFade(AppTheme.BrandPrimary, 80%)
+                        HoverFill: =ColorFade(AppTheme.BrandPrimary, -10%)
+                        OnSelect: =Select(Parent)
+                        PressedBorderColor: =ColorFade(Self.BorderColor, -10%)
+                        PressedColor: =ColorFade(Self.Fill, -15%)
+                        PressedFill: =AppTheme.BrandTertiary
+                        RadiusBottomLeft: =AppSpacing.Radius
+                        RadiusBottomRight: =AppSpacing.Radius
+                        RadiusTopLeft: =AppSpacing.Radius
+                        RadiusTopRight: =AppSpacing.Radius
+                        Size: |-
+                          =Switch(
+                              true,
+                              App.Width <= BreakpointSmall, 10,
+                              App.Width <= BreakpointMedium, 11,
+                              12
+                          )
+                        Text: =ThisItem.Value
+                        Width: =Parent.TemplateWidth - AppSpacing.XS
+            - lblUploadFiles_27:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Justify
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.BrandPrimary
+                  BorderThickness: =1
+                  Color: =AppTheme.BrandPrimary
+                  Fill: =ColorFade(AppTheme.BrandPrimary, 80%)
+                  Font: =AppTheme.Fonts.Default
+                  FontWeight: =FontWeight.Semibold
+                  Height: =If(App.Width <= BreakpointSmall, 50, 60)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  LineHeight: =1
+                  OnSelect: |-
+                    =If(
+                        cb6Active=false,
+                        UpdateContext({cb1Active:false,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,cb6Active:true,cb7Active:false}),
+                        UpdateContext({cb1Active:false,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,cb6Active:false,cb7Active:false})
+                    )
+                  PaddingLeft: =AppSpacing.M
+                  PaddingTop: =AppSpacing.S
+                  Size: |-
+                    =Switch(
+                        true,
+                        App.Width <= BreakpointSmall, 10,
+                        App.Width <= BreakpointMedium, 11,
+                        12
+                    )
+                  Text: ="Action Required:" & Char(10) & "(" & selectedActionRequired & ")"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =200
+            - galAssnPrrioritySelect_6:
+                Control: Gallery@2.15.0
+                Variant: Horizontal
+                Properties:
+                  BorderStyle: =BorderStyle.None
+                  Fill: =Color.Transparent
+                  FillPortions: =0
+                  Height: =If(App.Width <= BreakpointSmall, 36, 40)
+                  Items: =["Review", "Approval", "Information"]
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  OnSelect: =UpdateContext({selectedActionRequired:galAssnPrrioritySelect_6.Selected.Value})
+                  ShowScrollbar: =false
+                  TemplateFill: =Color.Transparent
+                  TemplatePadding: =AppSpacing.XS
+                  TemplateSize: |-
+                    =If(
+                        Self.AllItemsCount <= 0,
+                        Self.Width,
+                        Self.Width / Max(1, Self.AllItemsCount)
+                    )
+                  Visible: =cb6Active
+                  Width: =200
+                Children:
+                  - btnTag_18:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorFade(Self.Fill, -15%)
+                        Color: =AppTheme.White
+                        DisabledBorderColor: =AppTheme.NeutralTertiary
+                        Fill: =AppTheme.BrandPrimary
+                        Font: =AppTheme.Fonts.Default
+                        FontWeight: =FontWeight.Normal
+                        Height: =Parent.TemplateHeight - AppSpacing.XS
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+                        HoverColor: =ColorFade(AppTheme.BrandPrimary, 80%)
+                        HoverFill: =ColorFade(AppTheme.BrandPrimary, -10%)
+                        OnSelect: =Select(Parent)
+                        PressedBorderColor: =ColorFade(Self.BorderColor, -10%)
+                        PressedColor: =ColorFade(Self.Fill, -15%)
+                        PressedFill: =AppTheme.BrandTertiary
+                        RadiusBottomLeft: =AppSpacing.Radius
+                        RadiusBottomRight: =AppSpacing.Radius
+                        RadiusTopLeft: =AppSpacing.Radius
+                        RadiusTopRight: =AppSpacing.Radius
+                        Size: |-
+                          =Switch(
+                              true,
+                              App.Width <= BreakpointSmall, 10,
+                              App.Width <= BreakpointMedium, 11,
+                              12
+                          )
+                        Text: =ThisItem.Value
+                        Width: =Parent.TemplateWidth - AppSpacing.XS
+            - attAttachFiles:
+                Control: Attachments@2.3.0
+                Properties:
+                  AccessibleLabel: ="Upload files here"
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =App.Theme.Colors.Lighter60
+                  BorderThickness: =3
+                  Color: =App.Theme.Colors.Darker30
+                  ContentLanguage: =Language()
+                  Fill: =ColorFade(App.Theme.Colors.Lighter80, 70%)
+                  FillPortions: =1
+                  FocusedBorderThickness: =2
+                  Height: =100
+                  HoverColor: =Self.Color
+                  ItemErrorColor: =Color.Red
+                  Items: =DGOselected.Attachments
+                  Items.Name: =DisplayName
+                  Items.Value: =Id
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  MaxAttachmentSize: =50
+                  MaxAttachments: =10
+                  PaddingBottom: =10
+                  PaddingLeft: =10
+                  PaddingRight: =10
+                  PaddingTop: =10
+                  Tooltip: ="Upload files here"
+                  Visible: =false
+                  Width: =200
+      - Container3_9:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =ColorValue("#05583B")
+            BorderThickness: =1
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            LayoutMinWidth: =
+            RadiusBottomLeft: =6
+            RadiusBottomRight: =6
+            RadiusTopLeft: =6
+            RadiusTopRight: =6
+            Visible: =Parent.Width>=750||showComments
+            Width: =If(Parent.Width>=750, Parent.Width * 0.48, Parent.Width - 12)
+          Children:
+            - lblFormTitle_5:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =ColorFade(ColorValue("#05583B"), -10%)
+                  BorderThickness: =2
+                  Color: =ColorValue("#05583B")
+                  Font: =Font.'Lato Black'
+                  Height: =48
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =14
+                  TabIndex: =1
+                  Text: ="Comments:"
+                  Visible: =showComments
+                  Width: =Parent.Width
+            - icoSeparator_6:
+                Control: Rectangle@2.3.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =ColorValue("#05583B")
+                  Fill: =ColorValue("#05583B")
+                  Height: =4
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  TabIndex: =1
+                  Visible: =showComments
+                  Width: =Parent.Width
+            - rteNotes_9:
+                Control: RichTextEditor@2.7.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =ColorFade(ColorValue("#05583B"), 30%)
+                  Default: =
+                  FillPortions: =1
+                  Height: =200
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =12
+                  TabIndex: =1
+                  Visible: =showComments
+                  Width: =Parent.Width
+            - HtmlText20_8:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  FillPortions: =1
+                  Font: =Font.Verdana
+                  Height: =200
+                  HtmlText: |
+                    =Concatenate(
+                        "<div style='font-family: Verdana, Arial, sans-serif; max-width: 100%; margin: 0 auto; padding: 10px; background-color: #ffffff; border-radius: 6px;'>",
+                        "<div style='padding: 10px; border: 1px solid ", "#05583B", "; margin-top: 8px; background-color: #ffffff;'>",
+                        "<a href='", DGOselected.AttachmentLink, "' target='_blank' style='color: ", "#05583B", "; text-decoration: none;'>","AssignmentType:    " & AssignmentType & "   " &   DGOselected.Title, "</a>",
+                        "</div>",
+                    "<div style='padding: 10px; border: 1px solid #ddd; margin-top: 10px; background-color: ", If(DGOselected.AssignmentStatus.Value="Assigned" Or DGOselected.Status.Value="Treated", "#d4edda", "#f8d7da"), "; color: ", If(DGOselected.AssignmentStatus.Value="Assigned"Or DGOselected.Status.Value="Treated", "#155724", "#721c24"), ";'>",
+                    "<strong>Status: </strong>", If(DGOselected.AssignmentStatus.Value="Assigned"Or DGOselected.Status.Value="Treated", 
+                        "Assigned To: " & DGOselected.AssignedTo & " on: " & LookUp('Global Tracking Queue',Value(RefIDDN)=DGOselected.ID,Created),
+                        "Awaiting Assignment"
+                    ),
+                        "</div>",
+                        "<table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>",
+                        "<tr><th style='text-align: left; padding: 8px; background-color: ", "#05583B", "; color: white;'>Field</th>",
+                        "<th style='text-align: left; padding: 8px; background-color: ", "#05583B", "; color: white;'>Details</th></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Activity ID</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", DGOselected.ID, "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Category/SubCategory</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedCategory, " (", selectedCategoryCode, ") ", selectedSubCategory, " (", selectedSubCategoryCode, ")</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Categorization</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedCategory & "/" & selectedPermission, "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Assign To</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedAssignedTo, " (", selectedAssignedToTitle, ")</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Co-Assign To</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedSupportAssignedTo, " (", selectedSupportAssignedToTitle, ")</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Copy To</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedCopyTo, "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Priority</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedPriority, "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Comments</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", selectedComments, "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Start Date</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", Text(Today(), "dd/mm/yyyy"), "</td></tr>",
+                        "<tr><td style='padding: 8px; border: 1px solid #ddd;'>Task Due </td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", Text(Today(), "dd/mm/yyyy"), "</td></tr>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>Description</td>",
+                        "<td style='padding: 8px; border: 1px solid #ddd;'>", DGOselected.Description, "</td></tr>",
+                        "</table>",
+                        "</div>"
+                    )
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =12
+                  Visible: =showComments=false
+      - Container14_6:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            BorderThickness: =1
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            LayoutMinWidth: =
+            RadiusBottomLeft: =6
+            RadiusBottomRight: =6
+            RadiusTopLeft: =6
+            RadiusTopRight: =6
+            Visible: =showPreview
+            Width: =Parent.Width
+          Children:
+            - HtmlTextReassignmentNotification_1:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  FillPortions: =1
+                  Height: =688
+                  HtmlText: "=\"<!DOCTYPE html>\r\n\r\n<html lang='en'>\r\n<head>\r\n<meta charset='utf-8'>\r\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\r\n<title>Task Reassignment Notification - NITDA</title>\r\n</head>\r\n<body style='background-color: #f4f4f4; font-family: Verdana, sans-serif; margin: 0; padding: 0;'>\r\n<table align='center' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);'>\r\n<tbody>\r\n<tr>\r\n<td align='center' style='padding: 10px;'>\r\n<img src='https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/BeeProAgency/942233_926692/NITDA%20LOGO%20png%20smallest_1.png' alt='NITDA Logo' style='width: 100px; height: auto;' />\r\n<h3 style='margin: 0; color: #05583B; font-size: 10px;'>Office of the Director-General/CEO</h3>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td style='padding: 5px;'>\r\n<!-- CHANGE 1: Updated Notification Header -->\r\n<div align='center' style='padding: 4px; border: 1px solid #ddd; background-color: #ffedcc; margin-bottom: 3px; color: #cc6600;'>\r\n<strong>Task Reassignment Notification</strong>\r\n</div>\r\n<!-- The existing title/recipient block remains the same -->\r\n<p align=style='font-size: 9px; font-weight: bold;'>\"& [@NewActivityTask].AssignedToTitle &\"</p>\r\n\r\n                <!-- CHANGE 2: Updated Body Text for Reassignment -->\r\n                <p style='margin: 5px 0;'>\r\n                    An existing activity has been reassigned to you for consideration and appropriate action, please.\r\n                \r\n                </p>\r\n                \r\n                <h5 style='font-size: 10px; color: #05583B; margin-bottom: 10px;'>\r\n                    Subject: <a href='\" & [@NewActivityTask].AttachmentLink & \"' style='color: #05583B; text-decoration: none;'>\" & [@NewActivityTask].Title & \"</a>\r\n                </h5>\r\n                <div style='padding: 8px; border: 1px solid #ddd; background-color: #f0f8ff; color: #333; margin-bottom: 10px;'>\r\n                    <strong>Comments:</strong><br/>\" & selectedComments & \"\r\n                </div>\r\n\r\n                <table style='width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 13px;'>\r\n                    <tbody>\r\n                        <!-- CHANGE 3: Added Previous Assignee row for clarity -->\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd; background-color: #ffe8d6;'><strong>****</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd; background-color: #ffe8d6;'>***</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Reference ID:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].PreReferenceID & varPatchRecord.ID & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Category:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].Categorization & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Initiation Date:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].StartDate & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Acknowledgement Due By:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].AcknolwedgementDueBy & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Activity Due Date:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].TaskDueDate & \"</td>\r\n                        </tr>\r\n                        <!-- Note: Assigned To now explicitly means the NEW person -->\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd; background-color: #dff0d8;'><strong>New Assigned To:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd; background-color: #dff0d8;'>\" & [@NewActivityTask].AssignedTo & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Co-Assignees:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].supportingAssignedTo & \"</td>\r\n                        </tr>\r\n                    </tbody>\r\n                </table>\r\n\r\n                <!-- CTA links remain functional -->\r\n                <div style='text-align: center; margin-top: 20px;'>\r\n                    <a href='https://apps.powerapps.com/play/1b402856-92cb-45e8-afbf-f362265afaa1?AssnPID=\" & varPatchRecord.ID & \"' style='padding: 10px 20px; background-color: #ff9900; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>Acknowledge Task</a>\r\n                    <a href='\" & [@NewActivityTask].AttachmentLink & \"' style='padding: 10px 20px; background-color: #008000; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>View Details</a>\r\n                    <a href='https://apps.powerapps.com/play/1b402856-92cb-45e8-afbf-f362265afaa1?USERSUPPORT=USERSUPPORT' style='padding: 10px 20px; background-color: #005f00; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>Support</a>\r\n                </div>\r\n            </td>\r\n        </tr>\r\n        <tr>\r\n            <td align='center' style='padding: 10px; background-color: #f0f5f9;'>\r\n                <p>Need help? Reach out to the <a href='mailto:dgs@nitda.gov.ng' style='color: #008000; text-decoration: none; font-weight: bold;'>support team</a>.</p>\r\n            </td>\r\n        </tr>\r\n        <tr>\r\n            <td align='center' style='color: #aaa; font-size: 12px; padding: 10px;'>\r\n                <a href='https://nitda.gov.ng/' style='color: #008000; text-decoration: none;'>National Information Technology Development Agency (NITDA)</a>\r\n            </td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\n</body>\r\n</html>\""
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinWidth: =
+                  Size: =10
+                  Visible: =AssignmentType = "reassignment"
+                  Width: =100
+            - HtmlText43_2:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  FillPortions: =1
+                  Height: =404
+                  HtmlText: "=\"<!DOCTYPE html>\r\n\r\n<html lang='en'>\r\n<head>\r\n<meta charset='utf-8'>\r\n<meta name='viewport' content='width=device-width, initial-scale=1.0'>\r\n<title>Official Invitation Briefing - NITDA</title>\r\n</head>\r\n<body style='background-color: #f4f4f4; font-family: Verdana, sans-serif; margin: 0; padding: 0;'>\r\n<table align='center' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);'>\r\n<tbody>\r\n<tr>\r\n<td align='center' style='padding: 10px;'>\r\n<img src='https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/BeeProAgency/942233_926692/NITDA%20LOGO%20png%20smallest_1.png' alt='NITDA Logo' style='width: 100px; height: auto;' />\r\n<h3 style='margin: 0; color: #05583B; font-size: 10px;'>Office of the Director-General/CEO</h3>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td style='padding: 5px;'>\r\n<!-- UNIFIED HEADER: Official Invitation Notification -->\r\n<div align='center' style='padding: 4px; border: 1px solid #ddd; background-color: #e6f2ff; margin-bottom: 3px; color: #0056b3;'>\r\n<strong>Official Invitation Briefing</strong>\r\n</div>\r\n\r\n                <p style='font-size: 9px; font-weight: bold;'>\"& [@NewActivityTask].AssignedToTitle &\"</p>\r\n                \r\n                <p style='margin: 5px 0;'>\r\n                    A brief on an external invitation, detailed below, requires your review and decision (Accept/Decline/Delegate) for appropriate action, please.\r\n                </p>\r\n                \r\n                <h5 style='font-size: 10px; color: #05583B; margin-bottom: 10px;'>\r\n                    Subject: <a href='\" & [@NewActivityTask].AttachmentLink & \"' style='color: #05583B; text-decoration: none;'>\" & [@NewActivityTask].Title & \"</a>\r\n                </h5>\r\n                \r\n                <!-- INVITATION DETAILS TABLE (Merged from Template 1 and Template 2 fields) -->\r\n                <table style='width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 13px;'>\r\n                    <tbody>\r\n                        <tr style='background-color: #f5f5f5;'>\r\n                            <td style='padding: 8px; border: 1px solid #ddd; width: 35%;'><strong>Event Title:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].Title & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Inviting Organization:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & EventDetails.InvitingOrganization & \"</td>\r\n                        </tr>\r\n                        <tr style='background-color: #f5f5f5;'>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Date & Time:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & EventDetails.EventDate & \" at \" & EventDetails.EventTime & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Location:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & EventDetails.Location & \"</td>\r\n                        </tr>\r\n                        <tr style='background-color: #dff0d8;'>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Proposed Role:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & EventDetails.InviteeRole & \"</td>\r\n                        </tr>\r\n                        <tr>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'><strong>Reference ID:</strong></td>\r\n                            <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].PreReferenceID & varPatchRecord.ID & \"</td>\r\n                        </tr>\r\n                    </tbody>\r\n                </table>\r\n\r\n                <!-- STRATEGIC ANALYSIS SECTION (From Template 1) -->\r\n                <div style='margin-top: 15px;'>\r\n                    <h2 style='color:#05583B; border-bottom: 2px solid #eee; padding-bottom: 5px; font-size: 14px; margin-top: 0;'>STRATEGIC ANALYSIS & BRIEFING NOTES</h2>\r\n                    \r\n                    <div style='padding: 8px; border: 1px solid #ddd; background-color: #f0f8ff; color: #333; margin-bottom: 10px;'>\r\n                        <strong>AI-GENERATED SUMMARY:</strong><br/>\" & \"EventDetails.AI_Summary\" & \"\r\n                    </div>\r\n                    \r\n                    <div style='padding: 8px; border: 1px solid #ddd; background-color: #fff8e1; color: #333; margin-bottom: 10px;'>\r\n                        <strong>Strategic Value:</strong> \" & \"EventDetails.AI_StrategicValue\" & \"\r\n                    </div>\r\n                    \r\n                    <div style='padding: 8px; border: 1px solid #ddd; background-color: #f9f9f9; color: #333;'>\r\n                        <strong>Justification/Comments:</strong><br/>\" & EventDetails.Justification & \"\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- ACTION BUTTONS: ACCEPT/DECLINE/DELEGATE (From Template 1) -->\r\n                <div style='text-align: center; margin-top: 30px;'>\r\n                    <p style='font-size: 14px; font-weight: bold; color: #05583B; margin-bottom: 15px;'>Your Action is Required:</p>\r\n                    \r\n                    <a href='\" & \"EventDetails.AcceptURL\" & \"' style='display:inline-block; padding:12px 20px; margin:0 5px; border-radius:5px; text-decoration:none; font-weight:bold; color:#fff; background-color:#178255;'>✅ ACCEPT</a>\r\n                    \r\n                    <a href='\" & \"EventDetails.DeclineURL\" & \"' style='display:inline-block; padding:12px 20px; margin:0 5px; border-radius:5px; text-decoration:none; font-weight:bold; color:#fff; background-color:#dc3545;'>❌ DECLINE</a>\r\n                    \r\n                    <a href='\" & \"EventDetails.DelegateURL\" & \"' style='display:inline-block; padding:12px 20px; margin:0 5px; border-radius:5px; text-decoration:none; font-weight:bold; color:#333; background-color:#ffc107;'>➡️ DELEGATE</a>\r\n                </div>\r\n            </td>\r\n        </tr>\r\n        <tr>\r\n            <td align='center' style='padding: 10px; background-color: #f0f5f9;'>\r\n                <p>Need help? Reach out to the <a href='mailto:dgs@nitda.gov.ng' style='color: #008000; text-decoration: none; font-weight: bold;'>support team</a>.</p>\r\n            </td>\r\n        </tr>\r\n        <tr>\r\n            <td align='center' style='color: #aaa; font-size: 12px; padding: 10px;'>\r\n                <a href='https://nitda.gov.ng/' style='color: #008000; text-decoration: none;'>National Information Technology Development Agency (NITDA)</a>\r\n            </td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\n</body>\r\n</html>\""
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinWidth: =
+                  Size: =10
+                  Visible: =selectedCategory="Engagements and Events"
+                  Width: =100
+            - HtmlNewAssignmentNotification_1:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  FillPortions: =1
+                  HtmlText: "=\"<!DOCTYPE html>\r\n<html lang='en'>\r\n<head>\r\n    <meta charset='utf-8'>\r\n    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\r\n    <title>NITDA Notification</title>\r\n</head>\r\n<body style='background-color: #f4f4f4; font-family: Verdana, sans-serif; margin: 0; padding: 0;'>\r\n    <table align='center' border='0' cellpadding='0' cellspacing='0' width='100%' style='max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 5px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);'>\r\n        <tbody>\r\n            <tr>\r\n                <td align='center' style='padding: 10px;'>\r\n                    <img src='https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/BeeProAgency/942233_926692/NITDA%20LOGO%20png%20smallest_1.png' alt='NITDA Logo' style='width: 100px; height: auto;' />\r\n                    <h3 style='margin: 0; color: #05583B; font-size: 10px;'>Office of the Director-General/CEO</h3>\r\n                </td>\r\n            </tr>\r\n            <tr>\r\n                <td style='padding: 5px;'>\r\n                    <div align='center' style='padding: 4px; border: 1px solid #ddd; background-color: #dff0d8; margin-bottom: 3px;'>\r\n                        <strong>Activity Notification</strong>\r\n                    </div>\r\n                      <p align=style='font-size: 9px; font-weight: bold;'>\" & [@NewActivityTask].AssignedToTitle & \"</p>\r\n                    <p style='margin: 5px 0;'>A new activity as detailed below has been initiated for consideration and appropriate action, please.</p>\r\n                  \r\n                    <h5 style='font-size: 10px; color: #05583B; margin-bottom: 10px;'>\r\n                        Subject: <a href='\" & [@NewActivityTask].AttachmentLink & \"' style='color: #05583B; text-decoration: none;'>\" & [@NewActivityTask].Title & \"</a>\r\n                    </h5>\r\n                    <div style='padding: 8px; border: 1px solid #ddd; background-color: #e0f2f1; color: #333; margin-bottom: 10px;'>\r\n                        <strong>Comments:</strong><br/>\" & selectedComments & \"\r\n                    </div>\r\n\r\n                    <table style='width: 100%; margin-top: 10px; border-collapse: collapse;'>\r\n                        <tbody>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Reference ID:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].PreReferenceID & varPatchRecord.ID & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Category:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].Categorization & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Initiation Date:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].StartDate & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Acknowledgement Due By:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].AcknolwedgementDueBy & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Activity Due Date:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].TaskDueDate & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Assigned To:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].AssignedTo & \"</td>\r\n                            </tr>\r\n                            <tr>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'><strong>Co-Assignees:</strong></td>\r\n                                <td style='padding: 8px; border: 1px solid #ddd;'>\" & [@NewActivityTask].supportingAssignedTo & \"</td>\r\n                            </tr>\r\n                        </tbody>\r\n                    </table>\r\n\r\n                    <div style='text-align: center; margin-top: 20px;'>\r\n                        <a href='https://apps.powerapps.com/play/1b402856-92cb-45e8-afbf-f362265afaa1?AssnPID=\" & varPatchRecord.ID & \"' style='padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>Acknowledge</a>\r\n                        <a href='\" & [@NewActivityTask].AttachmentLink & \"' style='padding: 10px 20px; background-color: #008000; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>View</a>\r\n                        <a href='https://apps.powerapps.com/play/1b402856-92cb-45e8-afbf-f362265afaa1?USERSUPPORT=USERSUPPORT' style='padding: 10px 20px; background-color: #005f00; color: white; border: none; border-radius: 5px; display: inline-block; text-decoration: none;'>Support</a>\r\n                    </div>\r\n                </td>\r\n            </tr>\r\n            <tr>\r\n                <td align='center' style='padding: 10px; background-color: #f0f5f9;'>\r\n                    <p>Need help? Reach out to the <a href='mailto:dgs@nitda.gov.ng' style='color: #008000; text-decoration: none; font-weight: bold;'>support team</a>.</p>\r\n                </td>\r\n            </tr>\r\n            <tr>\r\n                <td align='center' style='color: #aaa; font-size: 12px; padding: 10px;'>\r\n                    <a href='https://nitda.gov.ng/' style='color: #008000; text-decoration: none;'>National Information Technology Development Agency (NITDA)</a>\r\n                </td>\r\n            </tr>\r\n        </tbody>\r\n    </table>\r\n</body>\r\n</html>\""
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinWidth: =
+                  Visible: '=AssignmentType = "newassignment" '
+                  Width: =100
+      - Container3_10:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =ColorValue("#05583B")
+            BorderThickness: =1
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutMaxHeight: =
+            LayoutMaxWidth: =
+            LayoutMinWidth: =
+            RadiusBottomLeft: =6
+            RadiusBottomRight: =6
+            RadiusTopLeft: =6
+            RadiusTopRight: =6
+            Visible: =false
+            Width: =If(Parent.Width>=750, Parent.Width * 0.48, Parent.Width - 12)
+          Children:
+            - btn_SendEmail:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Color: =AppTheme.PrimaryForeground
+                  Fill: =AppTheme.BrandPrimary
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(50 * TextScale, 0)
+                  HoverFill: =ColorFade(AppTheme.BrandPrimary, -10%)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  OnSelect: |+
+                    =Office365Outlook.SendEmailV2(
+                      txtRecipient.Text,
+                      lbl_Preview.Text,
+                      Concatenate(
+                        txtBody.Text,
+                        "<br><br><hr><small><i>",
+                        "Routing Codes: ",
+                        dd_RecipientType.Selected.Value, " | ",
+                        dd_PriorityLevel.Selected.Value, " | ",
+                        dd_Category.Selected.Value, " - ",
+                        dd_Subcategory.Selected.Value,
+                        "</i></small>"
+                      ),
+                      {
+                        IsHtml: true,
+                        Importance: Switch(
+                          dd_PriorityLevel.Selected.Value,
+                          "High","High",
+                          "Low","Low",
+                          "Normal"
+                        )
+                      }
+                    );
+                    UpdateContext({ varStatusVisible: true });
+
+                  PressedFill: =ColorFade(AppTheme.BrandPrimary, -25%)
+                  RadiusBottomLeft: =AppSpacing.Radius
+                  RadiusBottomRight: =AppSpacing.Radius
+                  RadiusTopLeft: =AppSpacing.Radius
+                  RadiusTopRight: =AppSpacing.Radius
+                  Text: ="Send Email"
+                  Tooltip: ="Send email with auto-generated subject and classification"
+                  Width: =200
+            - lbl_Preview:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Color: =AppTheme.NeutralSecondary
+                  FillPortions: =1
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(30 * TextScale, 0)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =200
+                  Text: |-
+                    =Concatenate(
+                            Switch(dd_RecipientType.Selected.Value,
+                                   "DG","🅓 ",
+                                   "Copy","🅒 ",
+                                   "Routed","🅡 "),
+                            Switch(dd_PriorityLevel.Selected.Value,
+                                   "High","🔴 ",
+                                   "Normal","🟡 ",
+                                   "Low","🟢 "),
+                            Switch(dd_Category.Selected.Value,
+                              "Administrative Matters","🏢 ",
+                              "Contracts and Services","📜 ",
+                              "Finance Matters","💰 ",
+                              "Engagements and Events","🎯 ",
+                              "Public Relations","📢 ",
+                              "NITDA Services","🖥️ ",
+                              "Unclassifieds","📦 ",
+                              "Memo","📄 ",
+                              "Report","📊 ",
+                              "Directive","📜 ",
+                              "Meeting","🗓️ ",
+                              "Finance","💰 ",
+                              "HR","👥 ",
+                              "Event","🎯 ",
+                              "🗂️ "
+                            ),
+                            txtSubject_2.Text
+                          )
+                  Tooltip: ="Displays the final generated subject line preview"
+                  Width: =200
+            - txtRecipient:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  BorderThickness: =1
+                  Color: =AppTheme.NeutralPrimary
+                  Default: =""
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  HintText: ="Enter recipient email address"
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Input the DG’s or team member’s email address"
+                  Width: =200
+            - dd_RecipientType:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  Color: =AppTheme.NeutralPrimary
+                  Default: ="DG"
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  Items: =["DG", "Copy", "Routed"]
+                  Items.Value: =Value
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Select the email routing recipient type"
+                  Width: =200
+            - dd_PriorityLevel:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  Color: =AppTheme.NeutralPrimary
+                  Default: ="Normal"
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  Items: =["High", "Normal", "Low"]
+                  Items.Value: =Value
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Select the priority level"
+                  Width: =200
+            - dd_Category:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  Color: =AppTheme.NeutralPrimary
+                  Default: =If(Not(IsEmpty(colCategoriesInfo)), First(Distinct(colCategoriesInfo, Category)).Value, "")
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  Items: =Distinct(colCategoriesInfo, Category)
+                  Items.Value: =Value
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Select the document category"
+                  Width: =200
+            - dd_Subcategory:
+                Control: Classic/DropDown@2.3.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  Color: =AppTheme.NeutralPrimary
+                  Default: =If(Not(IsEmpty(colCategoriesInfo)), First(Distinct(Filter(colCategoriesInfo, Category = dd_Category.Selected.Value), Subcategory)).Value, "")
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  Items: =Distinct(Filter(colCategoriesInfo, Category = dd_Category.Selected.Value), Subcategory)
+                  Items.Value: =Value
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Select the relevant subcategory"
+                  Width: =200
+            - txtSubject_2:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  BorderThickness: =1
+                  Color: =AppTheme.NeutralPrimary
+                  Default: = [@NewActivityTask].Title & " " & Reference_ID
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  HintText: ="Enter subject line"
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Tooltip: ="Provide a brief email subject"
+                  Width: =200
+            - txtBody:
+                Control: Classic/TextInput@2.3.2
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  BorderColor: =AppTheme.NeutralTertiary
+                  BorderThickness: =1
+                  Color: =AppTheme.NeutralPrimary
+                  Default: =emailmessage
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(200 * TextScale, 0)
+                  HintText: ="Enter email body text"
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Mode: =TextMode.MultiLine
+                  Tooltip: ="Write the content of the email"
+                  Width: =200
+            - btn_Reset:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Color: =AppTheme.NeutralPrimary
+                  Fill: =AppTheme.NeutralLight
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(40 * TextScale, 0)
+                  HoverFill: =ColorFade(AppTheme.NeutralLight, -10%)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  OnSelect: |-
+                    =Reset(txtRecipient);
+                    Reset(dd_RecipientType);
+                    Reset(dd_PriorityLevel);
+                    Reset(dd_Category);
+                    Reset(dd_Subcategory);
+                    Reset(txtSubject_2);
+                    Reset(txtBody);
+                    UpdateContext({ varStatusVisible: false })
+                  PressedFill: =ColorFade(AppTheme.NeutralLight, -25%)
+                  Text: ="Reset Form"
+                  Width: =200
+            - lbl_Status_4:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Color: =AppTheme.Success
+                  Font: =AppTheme.Fonts.Default
+                  FontWeight: =FontWeight.Semibold
+                  Height: =RoundDown(30 * TextScale, 0)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Text: ="✅ Email Sent Successfully!"
+                  Visible: =varStatusVisible
+                  Width: =200
+            - lbl_Footer:
+                Control: Label@2.5.1
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Color: =AppTheme.NeutralSecondary
+                  Font: =AppTheme.Fonts.Default
+                  Height: =RoundDown(20 * TextScale, 0)
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =RoundDown(10 * TextScale, 0)
+                  Text: ="DG Correspondence Routing App • v1.0 • Powered by NITDA Process Automation"
+                  Width: =200

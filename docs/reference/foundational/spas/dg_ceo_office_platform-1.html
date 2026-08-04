@@ -1,0 +1,2361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DG/CEO Executive Office Operating System</title>
+  <style>
+    :root{
+      --bg:#0a1020;
+      --bg-soft:#101830;
+      --surface:#121d34;
+      --surface-2:#182541;
+      --surface-3:#203156;
+      --line:rgba(145,173,228,.16);
+      --line-strong:rgba(145,173,228,.28);
+      --text:#edf4ff;
+      --muted:#9cafcf;
+      --accent:#78a8ff;
+      --accent-2:#5fe0d0;
+      --success:#74d98c;
+      --warning:#f7bf66;
+      --danger:#ff8d8d;
+      --purple:#b59bff;
+      --shadow:0 24px 56px rgba(3,8,20,.45);
+      --radius-xl:28px;
+      --radius-lg:20px;
+      --radius-md:16px;
+      --radius-sm:12px;
+      --max:1700px;
+    }
+    body.theme-light{
+      --bg:#f3f6fc;
+      --bg-soft:#ffffff;
+      --surface:#ffffff;
+      --surface-2:#f7f9fe;
+      --surface-3:#edf2fb;
+      --line:rgba(71,96,145,.12);
+      --line-strong:rgba(71,96,145,.22);
+      --text:#0f1a2f;
+      --muted:#657491;
+      --accent:#365cff;
+      --accent-2:#16b6a1;
+      --success:#1f9f57;
+      --warning:#c78518;
+      --danger:#c85f5f;
+      --purple:#7a58ff;
+      --shadow:0 20px 50px rgba(33,50,89,.12);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(120,168,255,.18), transparent 26%),
+        radial-gradient(circle at top right, rgba(95,224,208,.14), transparent 24%),
+        linear-gradient(180deg,var(--bg) 0%, #0d1529 100%);
+      transition:background .25s ease,color .25s ease;
+    }
+    body.theme-light{
+      background:
+        radial-gradient(circle at top left, rgba(54,92,255,.08), transparent 26%),
+        radial-gradient(circle at top right, rgba(22,182,161,.08), transparent 22%),
+        linear-gradient(180deg,#eff4fb 0%, #f7f9fd 100%);
+    }
+    button,input,select,textarea{font:inherit}
+    a{text-decoration:none;color:inherit}
+    .shell{
+      display:grid;
+      grid-template-columns:300px 1fr 360px;
+      gap:22px;
+      max-width:var(--max);
+      margin:0 auto;
+      padding:22px;
+      min-height:100vh;
+    }
+    .panel{
+      background:linear-gradient(180deg,rgba(19,29,52,.96),rgba(14,23,43,.94));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+      backdrop-filter:blur(18px);
+    }
+    body.theme-light .panel{
+      background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,255,.98));
+    }
+    .sidebar{
+      position:sticky;
+      top:22px;
+      height:calc(100vh - 44px);
+      overflow:auto;
+      padding:20px 18px 18px;
+    }
+    .sidebar::-webkit-scrollbar,.right-rail::-webkit-scrollbar,.content::-webkit-scrollbar,.drawer-body::-webkit-scrollbar,.command-results::-webkit-scrollbar,.flow-log::-webkit-scrollbar,.modal-content::-webkit-scrollbar{width:10px}
+    .sidebar::-webkit-scrollbar-thumb,.right-rail::-webkit-scrollbar-thumb,.content::-webkit-scrollbar-thumb,.drawer-body::-webkit-scrollbar-thumb,.command-results::-webkit-scrollbar-thumb,.flow-log::-webkit-scrollbar-thumb,.modal-content::-webkit-scrollbar-thumb{background:rgba(127,157,214,.24);border-radius:999px}
+    .brand{
+      display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--line)
+    }
+    .crest{
+      width:58px;height:58px;border-radius:20px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#09111f;font-weight:900;display:grid;place-items:center;font-size:1.15rem;letter-spacing:.08em
+    }
+    .brand h1{margin:0;font-size:1.06rem;line-height:1.3}
+    .brand p{margin:4px 0 0;color:var(--muted);font-size:.87rem}
+    .quick-status{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px
+    }
+    .stat-tile{
+      padding:12px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)
+    }
+    .stat-tile .k{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em}
+    .stat-tile .v{margin-top:8px;font-size:1.2rem;font-weight:800}
+    .nav-section{margin:16px 0}
+    .nav-section h4{
+      margin:0 0 10px;padding:0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:.73rem
+    }
+    .nav-btn{
+      width:100%;display:flex;align-items:center;gap:12px;
+      padding:12px 12px;border-radius:16px;border:1px solid transparent;background:transparent;color:var(--text);
+      cursor:pointer;transition:.18s ease;margin-bottom:8px;text-align:left
+    }
+    .nav-btn:hover,.nav-btn.active{
+      background:linear-gradient(135deg,rgba(120,168,255,.18),rgba(95,224,208,.14));
+      border-color:var(--line-strong);
+      transform:translateX(2px);
+    }
+    .nav-icon{
+      width:34px;height:34px;border-radius:12px;display:grid;place-items:center;background:var(--surface-2);flex:0 0 auto;font-size:1rem
+    }
+    .nav-meta strong{display:block;font-size:.94rem}
+    .nav-meta span{color:var(--muted);font-size:.8rem}
+    .sidebar-actions{
+      margin-top:18px;padding-top:18px;border-top:1px solid var(--line)
+    }
+    .sidebar-actions .btn{width:100%;margin-bottom:10px}
+    .main-column{
+      display:flex;flex-direction:column;gap:18px;min-width:0
+    }
+    .topbar{
+      padding:18px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px
+    }
+    .headline h2{margin:0;font-size:1.7rem;line-height:1.15}
+    .headline p{margin:7px 0 0;color:var(--muted);max-width:740px}
+    .top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;justify-content:center;
+      min-height:42px;padding:10px 14px;border-radius:14px;border:1px solid var(--line);
+      background:var(--surface);color:var(--text);cursor:pointer;transition:.18s ease
+    }
+    .btn:hover{transform:translateY(-1px);border-color:var(--line-strong)}
+    .btn.primary{
+      background:linear-gradient(135deg,var(--accent),#95b8ff);
+      color:#07111e;border-color:transparent;font-weight:800
+    }
+    .btn.secondary{
+      background:linear-gradient(135deg,rgba(120,168,255,.14),rgba(95,224,208,.12))
+    }
+    .btn.ghost{background:transparent}
+    .btn.warning{color:var(--warning)}
+    .btn.small{min-height:36px;padding:8px 12px;font-size:.88rem;border-radius:12px}
+    .content{
+      min-height:0;display:flex;flex-direction:column;gap:18px
+    }
+    .hero{
+      padding:18px 20px 20px;display:grid;grid-template-columns:1.45fr .9fr;gap:18px
+    }
+    .hero-card{
+      background:
+        linear-gradient(140deg,rgba(120,168,255,.15),rgba(95,224,208,.08)),
+        var(--surface);
+      border:1px solid var(--line);border-radius:24px;padding:18px
+    }
+    .hero-grid{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px
+    }
+    .metric-card{
+      padding:14px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line);
+      min-height:115px;display:flex;flex-direction:column;justify-content:space-between
+    }
+    .metric-card .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .metric-card .value{font-size:2rem;font-weight:900;margin:8px 0 0}
+    .metric-card .delta{font-size:.83rem}
+    .chip-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03);font-size:.86rem
+    }
+    body.theme-light .chip{background:rgba(14,23,43,.02)}
+    .section-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:18px}
+    .full-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+    .span-12{grid-column:span 12}
+    .span-8{grid-column:span 8}
+    .span-7{grid-column:span 7}
+    .span-6{grid-column:span 6}
+    .span-5{grid-column:span 5}
+    .span-4{grid-column:span 4}
+    .card{
+      padding:18px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)
+    }
+    .card h3,.card h4{margin:0}
+    .card-head{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px
+    }
+    .subtle{color:var(--muted);font-size:.88rem}
+    .table-wrap{overflow:auto;border-radius:18px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{font-size:.76rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--surface-2)}
+    tr:last-child td{border-bottom:none}
+    tr.clickable{cursor:pointer}
+    tr.clickable:hover{background:rgba(120,168,255,.08)}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:.78rem;font-weight:700;
+      border:1px solid transparent
+    }
+    .badge.high{background:rgba(255,141,141,.12);color:var(--danger);border-color:rgba(255,141,141,.2)}
+    .badge.medium{background:rgba(247,191,102,.12);color:var(--warning);border-color:rgba(247,191,102,.24)}
+    .badge.low{background:rgba(116,217,140,.12);color:var(--success);border-color:rgba(116,217,140,.22)}
+    .badge.info{background:rgba(120,168,255,.14);color:var(--accent);border-color:rgba(120,168,255,.2)}
+    .badge.purple{background:rgba(181,155,255,.14);color:var(--purple);border-color:rgba(181,155,255,.24)}
+    .progress{
+      height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)
+    }
+    .progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .stack{display:flex;flex-direction:column;gap:12px}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .list-item{
+      padding:14px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line);
+      display:flex;justify-content:space-between;gap:12px;align-items:flex-start
+    }
+    .list-item:hover{border-color:var(--line-strong)}
+    .list-item strong{display:block;margin-bottom:4px}
+    .list-item .meta{color:var(--muted);font-size:.83rem}
+    .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kanban-col{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:14px;min-height:220px}
+    .kanban-col h4{margin:0 0 12px;font-size:.92rem}
+    .kanban-item{
+      margin-bottom:10px;padding:12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);cursor:pointer
+    }
+    .kanban-item:hover{border-color:var(--line-strong)}
+    .timeline{position:relative;margin-left:6px;padding-left:18px}
+    .timeline::before{content:"";position:absolute;left:7px;top:3px;bottom:3px;width:2px;background:var(--line-strong)}
+    .timeline-item{position:relative;padding:0 0 14px 18px}
+    .timeline-item::before{
+      content:"";position:absolute;left:-1px;top:5px;width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 0 4px rgba(120,168,255,.12)
+    }
+    .timeline-item strong{display:block;margin-bottom:4px}
+    .timeline-item span{display:block;color:var(--muted);font-size:.82rem}
+    .strip{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+    }
+    .micro-card{
+      padding:14px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line)
+    }
+    .micro-card .eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .micro-card .big{font-size:1.35rem;font-weight:800;margin-top:8px}
+    .workspace{
+      display:flex;flex-direction:column;gap:18px
+    }
+    .section{display:none}
+    .section.active{display:flex;flex-direction:column;gap:18px}
+    .filters{
+      display:flex;gap:10px;flex-wrap:wrap
+    }
+    .input, select, textarea{
+      width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surface-2);color:var(--text)
+    }
+    textarea{min-height:120px;resize:vertical}
+    .searchbar{
+      display:grid;grid-template-columns:minmax(0,1fr) 190px 180px auto;gap:10px
+    }
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .note{
+      padding:14px;border-radius:18px;background:rgba(120,168,255,.08);border:1px solid rgba(120,168,255,.18);color:var(--text)
+    }
+    .right-rail{
+      position:sticky;top:22px;height:calc(100vh - 44px);overflow:auto;padding:18px;display:flex;flex-direction:column;gap:18px
+    }
+    .rail-card{
+      padding:16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)
+    }
+    .rail-card h3{margin:0 0 10px}
+    .action-pill{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:11px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:10px
+    }
+    .pill-left strong{display:block;font-size:.9rem}
+    .pill-left span{display:block;color:var(--muted);font-size:.8rem}
+    .drawer{
+      position:fixed;top:0;right:-460px;width:440px;max-width:96vw;height:100vh;background:var(--bg-soft);
+      border-left:1px solid var(--line);box-shadow:var(--shadow);z-index:80;transition:right .25s ease;
+      display:flex;flex-direction:column
+    }
+    .drawer.open{right:0}
+    .drawer-head{padding:18px 18px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:14px}
+    .drawer-body{padding:16px 18px 26px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+    .drawer-block{padding:14px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line)}
+    .drawer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .meta-line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+    .meta-line:last-child{border-bottom:none}
+    .modal,.command-palette,.toast-wrap{
+      position:fixed;inset:0;pointer-events:none
+    }
+    .modal.open,.command-palette.open{pointer-events:auto}
+    .modal::before,.command-palette::before{
+      content:"";position:absolute;inset:0;background:rgba(3,8,20,.56);backdrop-filter:blur(12px);opacity:0;transition:.2s ease
+    }
+    .modal.open::before,.command-palette.open::before{opacity:1}
+    .modal-card,.command-card{
+      position:absolute;left:50%;transform:translateX(-50%) translateY(18px);opacity:0;
+      width:min(900px,92vw);background:var(--bg-soft);border:1px solid var(--line-strong);box-shadow:var(--shadow);
+      border-radius:28px;transition:.22s ease
+    }
+    .modal.open .modal-card,.command-palette.open .command-card{
+      opacity:1;transform:translateX(-50%) translateY(0)
+    }
+    .modal-card{top:6vh;max-height:88vh;overflow:auto}
+    .command-card{top:10vh;max-height:76vh;overflow:hidden}
+    .modal-head,.command-head{
+      padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start
+    }
+    .modal-content{padding:18px 20px 22px;display:flex;flex-direction:column;gap:16px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .form-grid .full{grid-column:1 / -1}
+    .command-search{padding:16px 20px;border-bottom:1px solid var(--line)}
+    .command-results{max-height:58vh;overflow:auto;padding:10px 12px 18px}
+    .command-item{
+      padding:12px 14px;border-radius:16px;border:1px solid transparent;display:flex;justify-content:space-between;gap:12px;cursor:pointer
+    }
+    .command-item:hover,.command-item.active{background:var(--surface-2);border-color:var(--line-strong)}
+    .command-item small{color:var(--muted)}
+    .flow-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .flow-card{
+      padding:16px;border-radius:20px;background:var(--surface-2);border:1px solid var(--line)
+    }
+    .flow-log{
+      max-height:300px;overflow:auto;padding:12px;border-radius:16px;background:#0a1122;border:1px solid var(--line);font-size:.84rem
+    }
+    body.theme-light .flow-log{background:#f4f7fe}
+    .flow-log pre{white-space:pre-wrap;word-break:break-word;margin:0 0 12px}
+    .empty{
+      padding:28px 16px;border:1px dashed var(--line-strong);border-radius:20px;text-align:center;color:var(--muted)
+    }
+    .avatar{
+      width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#09111f;font-weight:800
+    }
+    .people{
+      display:flex;align-items:center;gap:10px;flex-wrap:wrap
+    }
+    .toast-wrap{display:flex;justify-content:flex-end;align-items:flex-end;padding:20px;z-index:120}
+    .toast{
+      min-width:280px;max-width:420px;padding:14px 16px;border-radius:16px;background:var(--surface);border:1px solid var(--line-strong);box-shadow:var(--shadow);
+      opacity:0;transform:translateY(10px);transition:.2s ease
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    .tag{
+      padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:.75rem;color:var(--muted)
+    }
+    .heatmap{
+      display:grid;grid-template-columns:repeat(7,1fr);gap:10px
+    }
+    .heat-cell{
+      padding:12px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);min-height:78px
+    }
+    .heat-cell strong{display:block}
+    .heat-cell span{display:block;color:var(--muted);font-size:.82rem;margin-top:8px}
+    .calendar{
+      display:grid;grid-template-columns:repeat(5,1fr);gap:12px
+    }
+    .day-card{
+      padding:14px;border-radius:18px;background:var(--surface-2);border:1px solid var(--line);min-height:140px
+    }
+    .day-card .day{font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .agenda-pill{
+      margin-top:10px;padding:9px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:.82rem
+    }
+    .score-ring{
+      width:110px;height:110px;border-radius:50%;
+      background:conic-gradient(var(--accent) 0 72%, rgba(120,168,255,.12) 72% 100%);
+      display:grid;place-items:center;margin:auto
+    }
+    .score-ring::after{
+      content:"";width:76px;height:76px;border-radius:50%;background:var(--surface)
+    }
+    .score-ring span{position:absolute;font-size:1.4rem;font-weight:900}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .legend .tag{color:var(--text)}
+    .toolbar-line{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .small-text{font-size:.82rem;color:var(--muted)}
+    @media (max-width:1400px){
+      .shell{grid-template-columns:280px 1fr}
+      .right-rail{position:static;height:auto}
+    }
+    @media (max-width:1160px){
+      .hero,.section-grid,.split,.flow-grid,.searchbar,.kanban,.calendar{grid-template-columns:1fr}
+      .full-grid{display:flex;flex-direction:column}
+      .hero-grid,.strip,.mini-grid,.form-grid{grid-template-columns:repeat(2,1fr)}
+      .shell{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto}
+      .right-rail{order:3}
+    }
+    @media (max-width:720px){
+      .hero-grid,.strip,.mini-grid,.form-grid{grid-template-columns:1fr}
+      .topbar,.card-head,.toolbar-line{flex-direction:column;align-items:stretch}
+      .headline h2{font-size:1.4rem}
+      .shell{padding:12px}
+      .topbar,.hero,.card,.right-rail,.sidebar{padding:14px}
+      table{min-width:640px}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar panel">
+      <div class="brand">
+        <div class="crest">DG</div>
+        <div>
+          <h1>Executive Office OS</h1>
+          <p>Director-General / CEO command, document and operations platform</p>
+        </div>
+      </div>
+
+      <div class="quick-status" id="quickStatus"></div>
+
+      <div class="nav-section">
+        <h4>Command</h4>
+        <button class="nav-btn active" data-section="overview"><span class="nav-icon">🏛️</span><span class="nav-meta"><strong>Executive overview</strong><span>Daily brief, priorities and command posture</span></span></button>
+        <button class="nav-btn" data-section="decisions"><span class="nav-icon">⚖️</span><span class="nav-meta"><strong>Decision desk</strong><span>Approvals, decisions, escalations and sign-offs</span></span></button>
+        <button class="nav-btn" data-section="operations"><span class="nav-icon">🧭</span><span class="nav-meta"><strong>Operations board</strong><span>Directives, tasks, meetings, travel and protocol</span></span></button>
+        <button class="nav-btn" data-section="documents"><span class="nav-icon">🗂️</span><span class="nav-meta"><strong>Document control</strong><span>Registry, versions, routing and archival</span></span></button>
+        <button class="nav-btn" data-section="correspondence"><span class="nav-icon">✉️</span><span class="nav-meta"><strong>Correspondence</strong><span>Incoming, outgoing, referrals and response SLAs</span></span></button>
+      </div>
+
+      <div class="nav-section">
+        <h4>Programs</h4>
+        <button class="nav-btn" data-section="initiatives"><span class="nav-icon">🚀</span><span class="nav-meta"><strong>Strategic initiatives</strong><span>Programs, milestones, dependencies and benefits</span></span></button>
+        <button class="nav-btn" data-section="engagement"><span class="nav-icon">🤝</span><span class="nav-meta"><strong>Stakeholder engagement</strong><span>VIPs, partners, board, media and protocol</span></span></button>
+        <button class="nav-btn" data-section="risk"><span class="nav-icon">🛡️</span><span class="nav-meta"><strong>Risk & issues</strong><span>Risk posture, incidents and mitigation tracking</span></span></button>
+        <button class="nav-btn" data-section="resources"><span class="nav-icon">💼</span><span class="nav-meta"><strong>Resources & procurement</strong><span>Budget, spend, requests and vendor actions</span></span></button>
+        <button class="nav-btn" data-section="people"><span class="nav-icon">👥</span><span class="nav-meta"><strong>People & delegations</strong><span>Delegation map, office roles and leave cover</span></span></button>
+      </div>
+
+      <div class="nav-section">
+        <h4>Automation</h4>
+        <button class="nav-btn" data-section="workflows"><span class="nav-icon">⚙️</span><span class="nav-meta"><strong>Workflow hub</strong><span>Power Automate HTTP flows, payloads and run logs</span></span></button>
+        <button class="nav-btn" data-section="reports"><span class="nav-icon">📊</span><span class="nav-meta"><strong>Reports & briefing</strong><span>Executive summaries, readiness and export</span></span></button>
+        <button class="nav-btn" data-section="settings"><span class="nav-icon">🔧</span><span class="nav-meta"><strong>Workspace settings</strong><span>Theme, data packs and environment controls</span></span></button>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn primary" id="quickAddBtn">＋ Quick add record</button>
+        <button class="btn secondary" id="commandBtn">⌘ Open command palette</button>
+        <button class="btn" id="exportBtn">⬇ Export workspace JSON</button>
+        <button class="btn" id="importBtn">⬆ Import workspace JSON</button>
+        <input type="file" id="importFile" accept=".json" hidden />
+      </div>
+    </aside>
+
+    <main class="main-column">
+      <section class="topbar panel">
+        <div class="headline">
+          <h2>Office of the Director-General / CEO</h2>
+          <p>This build is structured as an executive operating system: decision management, document governance, activity coordination, stakeholder handling, operational control, and HTTP-triggered workflow integration for Microsoft Power Automate.</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn secondary" id="themeBtn">🌓 Theme</button>
+          <button class="btn" id="briefBtn">📝 Generate daily brief</button>
+          <button class="btn" id="resetDemoBtn">↺ Reset demo data</button>
+          <button class="btn primary" id="launchFlowBtn">⚡ Trigger workflow</button>
+        </div>
+      </section>
+
+      <section class="hero panel">
+        <div class="hero-card">
+          <div class="toolbar-line">
+            <div>
+              <div class="subtle">Executive command view</div>
+              <h3 style="margin-top:4px;font-size:1.35rem">Today’s posture</h3>
+            </div>
+            <div class="filters" id="heroChips"></div>
+          </div>
+          <div class="hero-grid" id="metricsGrid"></div>
+          <div class="chip-row" id="priorityChips"></div>
+        </div>
+        <div class="hero-card">
+          <div class="card-head" style="margin-bottom:10px">
+            <div>
+              <div class="subtle">Readiness index</div>
+              <h3 style="margin-top:4px">Office execution health</h3>
+            </div>
+            <span class="badge info" id="healthLabel">On track</span>
+          </div>
+          <div class="score-ring"><span id="healthScore">72%</span></div>
+          <div class="legend" id="healthLegend"></div>
+          <div class="note" style="margin-top:14px" id="briefSummary"></div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <section class="section active" id="section-overview">
+          <div class="full-grid">
+            <div class="card span-7">
+              <div class="card-head">
+                <div>
+                  <h3>Daily executive brief</h3>
+                  <div class="subtle">What needs attention across the office right now</div>
+                </div>
+                <button class="btn small" data-open-drawer="brief">Open detail</button>
+              </div>
+              <div class="strip" id="briefStrip"></div>
+              <div class="timeline" id="executiveTimeline" style="margin-top:18px"></div>
+            </div>
+            <div class="card span-5">
+              <div class="card-head">
+                <div>
+                  <h3>Calendar horizon</h3>
+                  <div class="subtle">Five-day executive agenda with protocol checkpoints</div>
+                </div>
+              </div>
+              <div class="calendar" id="calendarGrid"></div>
+            </div>
+
+            <div class="card span-8">
+              <div class="card-head">
+                <div>
+                  <h3>Strategic priorities</h3>
+                  <div class="subtle">Mission initiatives and delivery momentum</div>
+                </div>
+                <button class="btn small" data-section-link="initiatives">View full board</button>
+              </div>
+              <div class="stack" id="priorityList"></div>
+            </div>
+            <div class="card span-4">
+              <div class="card-head">
+                <div>
+                  <h3>Attention hotspots</h3>
+                  <div class="subtle">Escalations by day and pressure area</div>
+                </div>
+              </div>
+              <div class="heatmap" id="heatmap"></div>
+            </div>
+
+            <div class="card span-6">
+              <div class="card-head">
+                <div>
+                  <h3>Decision queue</h3>
+                  <div class="subtle">Pending approvals and executive actions</div>
+                </div>
+                <button class="btn small" data-section-link="decisions">Open decision desk</button>
+              </div>
+              <div class="list" id="decisionQueue"></div>
+            </div>
+            <div class="card span-6">
+              <div class="card-head">
+                <div>
+                  <h3>Recent office activity</h3>
+                  <div class="subtle">Documents, meetings, communications and workflow events</div>
+                </div>
+              </div>
+              <div class="list" id="activityFeed"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-decisions">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Decision desk</h3>
+                <div class="subtle">Central place for approvals, sign-offs, decision memos and escalations</div>
+              </div>
+              <div class="filters">
+                <button class="btn small" data-add-type="approval">New approval</button>
+                <button class="btn small" data-run-template="approval">Send to Power Automate</button>
+              </div>
+            </div>
+            <div class="searchbar">
+              <input class="input" id="approvalSearch" placeholder="Search approvals, memos, approvals owners, refs..." />
+              <select id="approvalStatusFilter"><option value="all">All status</option></select>
+              <select id="approvalPriorityFilter"><option value="all">All priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+              <button class="btn" id="clearApprovalFilters">Clear filters</button>
+            </div>
+            <div class="table-wrap" style="margin-top:16px">
+              <table>
+                <thead><tr><th>Reference</th><th>Item</th><th>Owner</th><th>Status</th><th>Priority</th><th>Due</th><th>Decision</th></tr></thead>
+                <tbody id="approvalsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Decision calendar</h3><div class="subtle">Approval deadlines, board windows and consent items</div></div></div>
+              <div class="timeline" id="decisionTimeline"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Approval pipeline</h3><div class="subtle">How many are waiting, in review, ready and overdue</div></div></div>
+              <div class="stack" id="approvalPipeline"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-operations">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Operations board</h3>
+                <div class="subtle">Director-General activities, action tracking, meetings, field missions and protocol coordination</div>
+              </div>
+              <div class="filters">
+                <button class="btn small" data-add-type="task">New directive</button>
+                <button class="btn small" data-add-type="meeting">New meeting</button>
+                <button class="btn small" data-add-type="trip">New trip/event</button>
+              </div>
+            </div>
+            <div class="kanban" id="taskBoard"></div>
+          </div>
+
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Meeting & protocol room</h3><div class="subtle">Agenda packs, briefings, attendees and protocol notes</div></div></div>
+              <div class="list" id="meetingsList"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Travel, visits & events</h3><div class="subtle">Movements, hosting, speaking engagements and logistics readiness</div></div></div>
+              <div class="list" id="tripsList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-documents">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Document control</h3>
+                <div class="subtle">Registry, classification, lifecycle, routing, due review dates and executive briefing packs</div>
+              </div>
+              <div class="filters">
+                <button class="btn small" data-add-type="document">Register document</button>
+                <button class="btn small" data-run-template="document">Route document</button>
+              </div>
+            </div>
+            <div class="searchbar">
+              <input class="input" id="documentSearch" placeholder="Search title, reference, custodian, tags..." />
+              <select id="documentClassFilter"><option value="all">All classifications</option></select>
+              <select id="documentStageFilter"><option value="all">All stages</option></select>
+              <button class="btn" id="clearDocumentFilters">Clear filters</button>
+            </div>
+            <div class="table-wrap" style="margin-top:16px">
+              <table>
+                <thead><tr><th>Reference</th><th>Document</th><th>Type</th><th>Classification</th><th>Stage</th><th>Custodian</th><th>Review</th></tr></thead>
+                <tbody id="documentsTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Document lifecycle</h3><div class="subtle">Draft to archival posture</div></div></div>
+              <div class="stack" id="documentLifecycle"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Briefing pack composition</h3><div class="subtle">How documents are grouped for executive use</div></div></div>
+              <div class="list" id="briefingPacks"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-correspondence">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Correspondence control center</h3>
+                <div class="subtle">Incoming/outgoing letters, referrals, acknowledgments, response ownership and service levels</div>
+              </div>
+              <div class="filters">
+                <button class="btn small" data-add-type="correspondence">Log correspondence</button>
+                <button class="btn small" data-run-template="correspondence">Send correspondence workflow</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Reference</th><th>Subject</th><th>Direction</th><th>From/To</th><th>Owner</th><th>SLA</th><th>Status</th></tr></thead>
+                <tbody id="correspondenceTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>SLA watchlist</h3><div class="subtle">Items nearing breach or awaiting clearance</div></div></div>
+              <div class="list" id="slaWatch"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Routing matrix</h3><div class="subtle">Functional desks and referral patterns</div></div></div>
+              <div class="list" id="routingMatrix"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-initiatives">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Strategic initiatives</h3>
+                <div class="subtle">Programs, milestones, benefits, risks, funding and executive sponsorship</div>
+              </div>
+              <button class="btn small" data-add-type="initiative">Add initiative</button>
+            </div>
+            <div class="stack" id="initiativeCards"></div>
+          </div>
+        </section>
+
+        <section class="section" id="section-engagement">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Stakeholder portfolio</h3><div class="subtle">Partners, VIPs, board members, media and strategic allies</div></div></div>
+              <div class="list" id="stakeholderList"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Engagement agenda</h3><div class="subtle">Who needs contact, prep notes and next touchpoints</div></div></div>
+              <div class="timeline" id="engagementTimeline"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-risk">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Risk register</h3><div class="subtle">Enterprise, office and reputation risks</div></div></div>
+              <div class="list" id="riskList"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Issue & incident tracker</h3><div class="subtle">Current incidents and recovery actions</div></div></div>
+              <div class="list" id="issueList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-resources">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Budget & utilization</h3><div class="subtle">Office operating budget, allocations and burn</div></div></div>
+              <div class="stack" id="budgetList"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Procurement & vendor actions</h3><div class="subtle">Requests, approvals, purchase readiness and vendor commitments</div></div></div>
+              <div class="list" id="procurementList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-people">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Office roles & delegation cover</h3><div class="subtle">Decision rights, acting arrangements and continuity plans</div></div></div>
+              <div class="list" id="peopleList"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Capacity outlook</h3><div class="subtle">Coverage, leave windows and support load</div></div></div>
+              <div class="list" id="capacityList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-workflows">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Workflow hub</h3>
+                <div class="subtle">HTTP-triggered Power Automate endpoints, payload templates, authentication headers and run monitoring</div>
+              </div>
+              <div class="filters">
+                <button class="btn small" id="registerFlowBtn">Register flow</button>
+                <button class="btn small" id="testFlowBtn">Send test payload</button>
+              </div>
+            </div>
+
+            <div class="flow-grid">
+              <div class="flow-card">
+                <h4>Registered flow endpoints</h4>
+                <div class="small-text" style="margin:6px 0 12px">Paste your request-triggered flow URLs and choose how the page should send authorization.</div>
+                <div class="list" id="flowList"></div>
+              </div>
+
+              <div class="flow-card">
+                <h4>Payload builder</h4>
+                <div class="small-text" style="margin:6px 0 12px">Use presets from live records or edit the payload before posting to your flow.</div>
+                <div class="stack">
+                  <select id="flowTemplateSelect"></select>
+                  <select id="flowTargetSelect"></select>
+                  <input class="input" id="flowActionName" placeholder="Action label e.g. Route correspondence for response" />
+                  <textarea id="flowPayload"></textarea>
+                  <div class="filters">
+                    <button class="btn secondary" id="loadTemplateBtn">Load template</button>
+                    <button class="btn primary" id="sendFlowBtn">Send HTTP POST</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="split" style="margin-top:18px">
+              <div class="card" style="padding:16px">
+                <div class="card-head"><div><h4>Integration patterns</h4><div class="subtle">Suggested flow entry points for this platform</div></div></div>
+                <div class="list" id="flowPatterns"></div>
+              </div>
+              <div class="card" style="padding:16px">
+                <div class="card-head"><div><h4>Run log</h4><div class="subtle">Latest send attempts and responses</div></div></div>
+                <div class="flow-log" id="flowLog"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-reports">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Auto briefing panels</h3><div class="subtle">Executive outputs generated from current workspace data</div></div><button class="btn small" id="refreshReportsBtn">Refresh</button></div>
+              <div class="list" id="reportPanels"></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Daily brief output</h3><div class="subtle">Editable text suitable for circulation or briefing note draft</div></div></div>
+              <textarea id="reportText" style="min-height:360px"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-settings">
+          <div class="split">
+            <div class="card">
+              <div class="card-head"><div><h3>Workspace controls</h3><div class="subtle">Theme, data handling, environment tags and demo mode</div></div></div>
+              <div class="stack">
+                <div class="list-item"><div><strong>Theme mode</strong><div class="meta">Switch between dark executive mode and bright boardroom mode.</div></div><button class="btn small" id="themeBtn2">Toggle</button></div>
+                <div class="list-item"><div><strong>Export full workspace</strong><div class="meta">Create a JSON backup of all office data and flow registrations.</div></div><button class="btn small" id="exportBtn2">Export</button></div>
+                <div class="list-item"><div><strong>Import workspace</strong><div class="meta">Restore a previously exported JSON workspace snapshot.</div></div><button class="btn small" id="importBtn2">Import</button></div>
+                <div class="list-item"><div><strong>Reset to demo pack</strong><div class="meta">Return to a realistic preloaded dataset for demonstrations.</div></div><button class="btn small warning" id="resetDemoBtn2">Reset</button></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div><h3>Implementation notes</h3><div class="subtle">How to take this prototype to production</div></div></div>
+              <div class="stack">
+                <div class="note">Replace localStorage with your backend or Microsoft 365 data layer for real records, role-based access, auditing and retention.</div>
+                <div class="note">Place a secure API layer or trusted service between the browser and sensitive flow endpoints when tokens or confidential data are involved.</div>
+                <div class="note">Connect document records to SharePoint/OneDrive, meeting data to Outlook/Teams, and approvals to Dataverse or a controlled line-of-business store.</div>
+                <div class="note">Use this page as a UX shell: the modules are already segmented for documents, activities, correspondence, operations, decisions and automation.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <aside class="right-rail panel">
+      <div class="rail-card">
+        <div class="card-head">
+          <div>
+            <h3>Action center</h3>
+            <div class="subtle">Overdue items, SLAs, signatures and protocol tasks</div>
+          </div>
+          <span class="badge high" id="urgentCount">0 urgent</span>
+        </div>
+        <div id="actionCenter"></div>
+      </div>
+
+      <div class="rail-card">
+        <div class="card-head">
+          <div>
+            <h3>People in today’s orbit</h3>
+            <div class="subtle">Core support and external touchpoints</div>
+          </div>
+        </div>
+        <div class="people" id="peopleOrbit"></div>
+      </div>
+
+      <div class="rail-card">
+        <div class="card-head">
+          <div>
+            <h3>Protocol readiness</h3>
+            <div class="subtle">Events, meetings and movement checks</div>
+          </div>
+        </div>
+        <div id="protocolReadiness"></div>
+      </div>
+
+      <div class="rail-card">
+        <div class="card-head">
+          <div>
+            <h3>Quick launch flows</h3>
+            <div class="subtle">One-click templates mapped to Power Automate</div>
+          </div>
+        </div>
+        <div id="quickFlowLaunch"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="drawer" id="detailDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="subtle" id="drawerType">Detail</div>
+        <h3 id="drawerTitle">Record detail</h3>
+      </div>
+      <button class="btn small" id="closeDrawerBtn">Close</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </div>
+
+  <div class="modal" id="recordModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="subtle" id="modalTypeLabel">Quick add</div>
+          <h3 id="modalTitle">Create record</h3>
+        </div>
+        <button class="btn small" id="closeModalBtn">Close</button>
+      </div>
+      <div class="modal-content">
+        <div class="form-grid" id="modalFields"></div>
+        <div class="filters" style="justify-content:flex-end">
+          <button class="btn" id="cancelModalBtn">Cancel</button>
+          <button class="btn primary" id="saveModalBtn">Save record</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="flowModal">
+    <div class="modal-card" style="width:min(820px,92vw)">
+      <div class="modal-head">
+        <div>
+          <div class="subtle">Workflow endpoint</div>
+          <h3>Register Power Automate HTTP flow</h3>
+        </div>
+        <button class="btn small" id="closeFlowModalBtn">Close</button>
+      </div>
+      <div class="modal-content">
+        <div class="form-grid">
+          <div><label>Name</label><input class="input" id="flowNameField" placeholder="e.g. Route incoming correspondence" /></div>
+          <div><label>Category</label><select id="flowCategoryField"></select></div>
+          <div class="full"><label>HTTP endpoint URL</label><input class="input" id="flowUrlField" placeholder="https://prod-00.westeurope.logic.azure.com:443/workflows/..." /></div>
+          <div><label>Authorization mode</label><select id="flowAuthField"></select></div>
+          <div><label>Auth value / token</label><input class="input" id="flowTokenField" placeholder="Optional token or API key" /></div>
+          <div><label>Header name</label><input class="input" id="flowHeaderField" placeholder="Authorization or x-api-key" /></div>
+          <div class="full"><label>Description</label><textarea id="flowDescriptionField" placeholder="What this flow is meant to do"></textarea></div>
+        </div>
+        <div class="filters" style="justify-content:flex-end">
+          <button class="btn" id="cancelFlowModalBtn">Cancel</button>
+          <button class="btn primary" id="saveFlowBtn">Save flow</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="command-palette" id="commandPalette">
+    <div class="command-card">
+      <div class="command-head">
+        <div>
+          <div class="subtle">Command palette</div>
+          <h3>Search records, jump to sections, trigger actions</h3>
+        </div>
+        <button class="btn small" id="closeCommandBtn">Close</button>
+      </div>
+      <div class="command-search">
+        <input class="input" id="commandSearch" placeholder="Type to search modules, records, and actions..." />
+      </div>
+      <div class="command-results" id="commandResults"></div>
+    </div>
+  </div>
+
+  <div class="toast-wrap"><div class="toast" id="toast"></div></div>
+
+  <script>
+    const STORAGE_KEY = 'dg-ceo-office-os-v2';
+    const CONFIG = {
+      sectionTitles: {
+        overview:'Executive overview',
+        decisions:'Decision desk',
+        operations:'Operations board',
+        documents:'Document control',
+        correspondence:'Correspondence',
+        initiatives:'Strategic initiatives',
+        engagement:'Stakeholder engagement',
+        risk:'Risk & issues',
+        resources:'Resources & procurement',
+        people:'People & delegations',
+        workflows:'Workflow hub',
+        reports:'Reports & briefing',
+        settings:'Workspace settings'
+      },
+      modalDefs: {
+        approval: [
+          {key:'title', label:'Approval item', type:'text', full:true},
+          {key:'reference', label:'Reference', type:'text'},
+          {key:'owner', label:'Owner', type:'text'},
+          {key:'status', label:'Status', type:'select', options:['Pending review','Ready for sign-off','In review','Awaiting input','Approved']},
+          {key:'priority', label:'Priority', type:'select', options:['High','Medium','Low']},
+          {key:'due', label:'Due date', type:'date'},
+          {key:'decision', label:'Required decision', type:'text', full:true},
+          {key:'notes', label:'Notes', type:'textarea', full:true}
+        ],
+        task: [
+          {key:'title', label:'Directive / task', type:'text', full:true},
+          {key:'owner', label:'Owner', type:'text'},
+          {key:'lane', label:'Board lane', type:'select', options:['Incoming','In motion','Awaiting DG','Closed']},
+          {key:'priority', label:'Priority', type:'select', options:['High','Medium','Low']},
+          {key:'due', label:'Due date', type:'date'},
+          {key:'support', label:'Supporting office', type:'text'},
+          {key:'notes', label:'Action note', type:'textarea', full:true}
+        ],
+        meeting: [
+          {key:'title', label:'Meeting / event', type:'text', full:true},
+          {key:'datetime', label:'Date & time', type:'datetime-local'},
+          {key:'venue', label:'Venue', type:'text'},
+          {key:'lead', label:'Lead office', type:'text'},
+          {key:'attendees', label:'Attendees', type:'text', full:true},
+          {key:'notes', label:'Agenda / protocol notes', type:'textarea', full:true}
+        ],
+        trip: [
+          {key:'title', label:'Trip / visit', type:'text', full:true},
+          {key:'date', label:'Date', type:'date'},
+          {key:'location', label:'Location', type:'text'},
+          {key:'status', label:'Status', type:'select', options:['Planning','Confirmed','Ready','In progress']},
+          {key:'logistics', label:'Logistics status', type:'text'},
+          {key:'notes', label:'Purpose and notes', type:'textarea', full:true}
+        ],
+        document: [
+          {key:'title', label:'Document title', type:'text', full:true},
+          {key:'reference', label:'Reference', type:'text'},
+          {key:'type', label:'Type', type:'select', options:['Memo','Board paper','Briefing note','Policy','Report','Contract']},
+          {key:'classification', label:'Classification', type:'select', options:['Public','Internal','Confidential','Restricted']},
+          {key:'stage', label:'Stage', type:'select', options:['Draft','Under review','Ready for sign-off','Issued','Archived']},
+          {key:'custodian', label:'Custodian', type:'text'},
+          {key:'review', label:'Review date', type:'date'},
+          {key:'tags', label:'Tags (comma separated)', type:'text', full:true},
+          {key:'notes', label:'Description / routing note', type:'textarea', full:true}
+        ],
+        correspondence: [
+          {key:'subject', label:'Subject', type:'text', full:true},
+          {key:'reference', label:'Reference', type:'text'},
+          {key:'direction', label:'Direction', type:'select', options:['Incoming','Outgoing']},
+          {key:'party', label:'From / To', type:'text'},
+          {key:'owner', label:'Owner desk', type:'text'},
+          {key:'sla', label:'SLA / due date', type:'date'},
+          {key:'status', label:'Status', type:'select', options:['Logged','Awaiting acknowledgment','Assigned','Drafting response','Cleared','Dispatched']},
+          {key:'notes', label:'Notes', type:'textarea', full:true}
+        ],
+        initiative: [
+          {key:'title', label:'Initiative', type:'text', full:true},
+          {key:'sponsor', label:'Sponsor', type:'text'},
+          {key:'owner', label:'Delivery owner', type:'text'},
+          {key:'progress', label:'Progress %', type:'number'},
+          {key:'status', label:'Status', type:'select', options:['On track','Watch','Recovery','Completed']},
+          {key:'milestone', label:'Next milestone', type:'text'},
+          {key:'notes', label:'Delivery note', type:'textarea', full:true}
+        ]
+      }
+    };
+
+    const seedData = {
+      theme: 'dark',
+      approvals: [
+        {id:'ap1',reference:'AP-2026-014',title:'Board memo for Q2 capital allocation',owner:'Chief of Staff',status:'Ready for sign-off',priority:'High',due:'2026-03-29',decision:'Approve memo and release to Board Secretariat',notes:'Finance and legal comments incorporated. Requires DG signature before Monday board circulation.'},
+        {id:'ap2',reference:'AP-2026-009',title:'Travel clearance for regional investment summit',owner:'Protocol Lead',status:'Pending review',priority:'Medium',due:'2026-03-31',decision:'Confirm delegation size and approve itinerary',notes:'Security and media support plans attached.'},
+        {id:'ap3',reference:'AP-2026-011',title:'Media response pack for policy announcement',owner:'Communications Director',status:'In review',priority:'High',due:'2026-03-30',decision:'Validate tone, talking points and release timing',notes:'Waiting for one final statistics annex.'},
+        {id:'ap4',reference:'AP-2026-015',title:'Procurement waiver for executive retreat venue',owner:'Head of Procurement',status:'Awaiting input',priority:'Medium',due:'2026-04-02',decision:'Approve waiver or request rebid',notes:'Venue selected due to security and privacy requirements.'}
+      ],
+      tasks: [
+        {id:'ta1',title:'Finalize DG remarks for innovation forum',owner:'Speechwriter',lane:'In motion',priority:'High',due:'2026-03-29',support:'Comms',notes:'Add investor-specific examples and updated policy figures.'},
+        {id:'ta2',title:'Secure briefing pack for Board audit committee',owner:'Board Affairs',lane:'Awaiting DG',priority:'High',due:'2026-03-28',support:'Finance',notes:'Pack compiled, waiting for final executive note.'},
+        {id:'ta3',title:'Track action closure from bilateral energy meeting',owner:'Special Assistant',lane:'Incoming',priority:'Medium',due:'2026-03-30',support:'Strategy',notes:'Need owner confirmation from technical team.'},
+        {id:'ta4',title:'Issue delegation note for acting authority next week',owner:'HR Business Partner',lane:'Closed',priority:'Low',due:'2026-03-27',support:'HR',notes:'Released and acknowledged.'},
+        {id:'ta5',title:'Prepare host protocol for ministerial visit',owner:'Protocol Lead',lane:'In motion',priority:'High',due:'2026-03-30',support:'Security',notes:'Vehicle, reception line and seating plan in progress.'}
+      ],
+      meetings: [
+        {id:'me1',title:'Weekly executive management committee',datetime:'2026-03-30T09:00',venue:'Board Room A',lead:'Chief of Staff',attendees:'DG, EDs, Finance, Strategy, Legal',notes:'Agenda: Q2 priorities, risk review, procurement escalations, board prep.'},
+        {id:'me2',title:'Bilateral with development finance partner',datetime:'2026-03-29T14:30',venue:'Executive Lounge',lead:'Partnerships',attendees:'DG, Partnerships Lead, Chief Economist',notes:'Talking points and country portfolio brief required.'},
+        {id:'me3',title:'Media prep session for sector announcement',datetime:'2026-03-31T11:00',venue:'Comms Studio',lead:'Communications',attendees:'DG, Comms Director, Policy Advisor',notes:'Mock Q&A and key messages.'}
+      ],
+      trips: [
+        {id:'tr1',title:'Regional investment summit',date:'2026-04-03',location:'Abuja',status:'Ready',logistics:'Travel, protocol and media accredited',notes:'DG keynote plus bilateral meetings with investors.'},
+        {id:'tr2',title:'Ministerial host visit',date:'2026-03-30',location:'HQ Auditorium',status:'Confirmed',logistics:'Guest list frozen, security sweep booked',notes:'Reception line and press standup planned.'},
+        {id:'tr3',title:'Field mission to industrial cluster',date:'2026-04-08',location:'Kaduna',status:'Planning',logistics:'Aircraft and convoy pending',notes:'Operations walkthrough and stakeholder clinic.'}
+      ],
+      documents: [
+        {id:'do1',reference:'DOC-2026-021',title:'Q2 strategic priorities briefing pack',type:'Briefing note',classification:'Confidential',stage:'Ready for sign-off',custodian:'Strategy Office',review:'2026-04-15',tags:['strategy','q2','board'],notes:'Brief pack for DG weekly prep.'},
+        {id:'do2',reference:'DOC-2026-018',title:'Procurement exception memo for retreat venue',type:'Memo',classification:'Restricted',stage:'Under review',custodian:'Procurement',review:'2026-04-06',tags:['procurement','retreat'],notes:'Legal and finance concurrence requested.'},
+        {id:'do3',reference:'DOC-2026-016',title:'Stakeholder engagement map 2026',type:'Report',classification:'Internal',stage:'Issued',custodian:'Stakeholder Relations',review:'2026-05-01',tags:['stakeholders','engagement'],notes:'Master relationship map and touchpoint cadence.'},
+        {id:'do4',reference:'DOC-2026-012',title:'Board audit committee pack',type:'Board paper',classification:'Confidential',stage:'Draft',custodian:'Board Affairs',review:'2026-03-29',tags:['board','audit'],notes:'Pending DG foreword.'},
+        {id:'do5',reference:'DOC-2026-010',title:'Policy announcement media Q&A',type:'Briefing note',classification:'Restricted',stage:'Under review',custodian:'Communications',review:'2026-03-30',tags:['media','policy'],notes:'Working response lines.'}
+      ],
+      correspondence: [
+        {id:'co1',reference:'COR-2026-033',subject:'Invitation to regional trade roundtable',direction:'Incoming',party:'Chamber of Commerce',owner:'Protocol Desk',sla:'2026-03-30',status:'Assigned',notes:'Recommendation note prepared for attendance options.'},
+        {id:'co2',reference:'COR-2026-030',subject:'Response to parliamentary oversight request',direction:'Outgoing',party:'National Assembly Committee',owner:'Legal & Policy',sla:'2026-03-29',status:'Drafting response',notes:'Needs approved annex and DG cover note.'},
+        {id:'co3',reference:'COR-2026-028',subject:'Thank-you letter to strategic investor',direction:'Outgoing',party:'NorthBridge Capital',owner:'Stakeholder Relations',sla:'2026-03-28',status:'Cleared',notes:'Ready for signature and dispatch.'},
+        {id:'co4',reference:'COR-2026-026',subject:'Complaint regarding permit processing delays',direction:'Incoming',party:'Industrial Association',owner:'Operations Desk',sla:'2026-03-28',status:'Awaiting acknowledgment',notes:'Escalated due to reputational angle.'}
+      ],
+      initiatives: [
+        {id:'in1',title:'Executive service digitization program',sponsor:'DG',owner:'Transformation Office',progress:68,status:'On track',milestone:'Pilot launch with correspondence and approvals desks',notes:'Change champions assigned. Flow automation pack under configuration.'},
+        {id:'in2',title:'National stakeholder confidence roadmap',sponsor:'DG',owner:'Stakeholder Relations',progress:54,status:'Watch',milestone:'Publish engagement commitments and sector listening forums',notes:'Comms alignment needed.'},
+        {id:'in3',title:'Board governance uplift',sponsor:'Board Chair',owner:'Board Affairs',progress:82,status:'On track',milestone:'Cycle close after audit committee',notes:'Meeting packs and tracking improved.'}
+      ],
+      stakeholders: [
+        {id:'st1',name:'Minister of Industry',type:'Government',importance:'High',next:'2026-03-30',purpose:'Host visit',notes:'Needs briefing card and seating protocol.'},
+        {id:'st2',name:'NorthBridge Capital',type:'Investor',importance:'High',next:'2026-04-03',purpose:'Summit bilateral',notes:'Investment appetite update requested.'},
+        {id:'st3',name:'Development Finance Partner',type:'Partner',importance:'Medium',next:'2026-03-29',purpose:'Pipeline discussion',notes:'Project financing options and policy reform milestones.'},
+        {id:'st4',name:'Board Audit Committee Chair',type:'Board',importance:'High',next:'2026-03-31',purpose:'Pack preview',notes:'Sensitive on procurement controls.'}
+      ],
+      risks: [
+        {id:'ri1',title:'Delay in approval of critical procurement',severity:'High',owner:'Procurement',status:'Mitigating',notes:'Could impact executive retreat and board prep logistics.'},
+        {id:'ri2',title:'Stakeholder backlash on permit complaints',severity:'High',owner:'Operations',status:'Active',notes:'Response pack and engagement plan being prepared.'},
+        {id:'ri3',title:'Overload on executive secretariat',severity:'Medium',owner:'Chief of Staff',status:'Monitoring',notes:'Redistribute correspondence handling and add temporary support.'}
+      ],
+      issues: [
+        {id:'is1',title:'Late receipt of annex for media response pack',severity:'Medium',owner:'Communications',status:'Open',notes:'Blocks final DG review.'},
+        {id:'is2',title:'Vehicle reassignment needed for ministerial visit',severity:'High',owner:'Protocol',status:'Escalated',notes:'Alternative fleet option requested.'}
+      ],
+      budgets: [
+        {id:'bu1',name:'Executive operations',amount:220000000,used:146000000,owner:'Chief of Staff'},
+        {id:'bu2',name:'Protocol & events',amount:76000000,used:61500000,owner:'Protocol Lead'},
+        {id:'bu3',name:'Strategy & board affairs',amount:94000000,used:50200000,owner:'Strategy Office'}
+      ],
+      procurement: [
+        {id:'pr1',title:'Venue sourcing for executive retreat',owner:'Procurement',status:'Approval required',eta:'2026-04-01',notes:'Security-driven exception requested.'},
+        {id:'pr2',title:'Printing of board committee packs',owner:'Board Affairs',status:'In process',eta:'2026-03-29',notes:'Restricted print vendor only.'},
+        {id:'pr3',title:'Media backdrop and studio adjustments',owner:'Communications',status:'Ready',eta:'2026-03-30',notes:'Awaiting schedule lock.'}
+      ],
+      people: [
+        {id:'pe1',name:'Chief of Staff',role:'Executive coordination',cover:'Deputy Chief of Staff',capacity:'High load',notes:'Owns daily command and approvals triage.'},
+        {id:'pe2',name:'Protocol Lead',role:'Visits, movement and hosting',cover:'Protocol Officer',capacity:'Critical week',notes:'Ministerial visit and summit preparation overlap.'},
+        {id:'pe3',name:'Board Affairs Manager',role:'Board packs and governance',cover:'Legal Counsel',capacity:'Moderate',notes:'Audit committee pack due.'},
+        {id:'pe4',name:'Special Assistant',role:'Follow-ups and scheduling',cover:'Executive Secretary',capacity:'Available',notes:'Can absorb extra action tracking.'}
+      ],
+      flows: [
+        {id:'fl1',name:'Route incoming correspondence',category:'Correspondence',url:'',authMode:'None',token:'',headerName:'Authorization',description:'Create or update an item when correspondence is logged.'},
+        {id:'fl2',name:'Launch approval request',category:'Approvals',url:'',authMode:'Bearer token',token:'',headerName:'Authorization',description:'Submit approval metadata to a request-triggered Power Automate flow.'},
+        {id:'fl3',name:'Issue travel clearance workflow',category:'Operations',url:'',authMode:'API key',token:'',headerName:'x-api-key',description:'Push trip details to logistics and protocol flow.'}
+      ],
+      flowLog: [],
+      activity: [
+        {id:'ac1',time:'08:10',title:'Board pack updated',type:'Document',detail:'Board Affairs uploaded revised committee note.'},
+        {id:'ac2',time:'09:00',title:'Approval escalated',type:'Decision',detail:'Procurement waiver moved to awaiting input.'},
+        {id:'ac3',time:'10:30',title:'Stakeholder call confirmed',type:'Engagement',detail:'Development finance bilateral locked for Sunday.'},
+        {id:'ac4',time:'11:15',title:'Correspondence logged',type:'Correspondence',detail:'Industrial Association complaint tagged reputational risk.'}
+      ]
+    };
+
+    let state = loadState();
+    let currentModalType = 'task';
+    let activeSection = 'overview';
+
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function loadState(){
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(!saved) return clone(seedData);
+      try{
+        const parsed = JSON.parse(saved);
+        return Object.assign(clone(seedData), parsed);
+      }catch(err){
+        return clone(seedData);
+      }
+    }
+    function persist(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function resetToSeed(){
+      state = clone(seedData);
+      applyTheme();
+      persist();
+      renderAll();
+      showToast('Workspace reset to the richer demo dataset.');
+    }
+    function formatDate(dateStr){
+      if(!dateStr) return '—';
+      const d = new Date(dateStr);
+      if(Number.isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+    }
+    function formatDateTime(dateStr){
+      if(!dateStr) return '—';
+      const d = new Date(dateStr);
+      if(Number.isNaN(d.getTime())) return dateStr;
+      return d.toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    }
+    function daysUntil(dateStr){
+      const now = new Date();
+      const target = new Date(dateStr);
+      if(Number.isNaN(target.getTime())) return null;
+      const diff = Math.ceil((target.setHours(0,0,0,0) - now.setHours(0,0,0,0)) / 86400000);
+      return diff;
+    }
+    function severityClass(value){
+      const v = String(value || '').toLowerCase();
+      if(v.includes('high') || v.includes('overdue') || v.includes('critical') || v.includes('escalated')) return 'high';
+      if(v.includes('medium') || v.includes('watch') || v.includes('pending') || v.includes('review') || v.includes('await')) return 'medium';
+      if(v.includes('low') || v.includes('on track') || v.includes('ready') || v.includes('cleared') || v.includes('completed')) return 'low';
+      return 'info';
+    }
+    function hashCode(str){
+      return Array.from(str).reduce((a,c)=>((a<<5)-a)+c.charCodeAt(0),0);
+    }
+    function initials(name){
+      return String(name||'').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase() || 'NA';
+    }
+
+    function calcStats(){
+      const urgentActions = [
+        ...state.approvals.filter(a => ['High'].includes(a.priority) && a.status !== 'Approved'),
+        ...state.correspondence.filter(c => ['Awaiting acknowledgment','Drafting response'].includes(c.status)),
+        ...state.tasks.filter(t => t.priority === 'High' && t.lane !== 'Closed')
+      ];
+      const dueSoon = state.approvals.filter(a => {
+        const d = daysUntil(a.due);
+        return d !== null && d <= 2;
+      }).length + state.correspondence.filter(c => {
+        const d = daysUntil(c.sla);
+        return d !== null && d <= 2;
+      }).length;
+      const readiness = Math.max(54, Math.min(94, Math.round(
+        (state.initiatives.reduce((a,b)=>a + (Number(b.progress)||0),0) / Math.max(1,state.initiatives.length) * .34) +
+        ((state.approvals.filter(a=>a.status==='Approved' || a.status==='Ready for sign-off').length / Math.max(1,state.approvals.length)) * 30) +
+        ((state.tasks.filter(t=>t.lane==='Closed').length / Math.max(1,state.tasks.length)) * 14) +
+        (100 - (state.risks.filter(r=>r.severity==='High').length * 8))
+      )));
+      return {
+        documents: state.documents.length,
+        approvalsPending: state.approvals.filter(a => a.status !== 'Approved').length,
+        meetings: state.meetings.length,
+        activeInitiatives: state.initiatives.filter(i => i.status !== 'Completed').length,
+        urgent: urgentActions.length,
+        dueSoon,
+        readiness
+      };
+    }
+
+    function generateBrief(){
+      const stats = calcStats();
+      const urgentCorr = state.correspondence.filter(c => {
+        const d = daysUntil(c.sla);
+        return d !== null && d <= 1 && c.status !== 'Dispatched';
+      }).length;
+      const highRisks = state.risks.filter(r => r.severity === 'High').map(r => r.title);
+      const nextMeeting = [...state.meetings].sort((a,b)=>new Date(a.datetime)-new Date(b.datetime))[0];
+      return [
+        `Office posture: ${stats.readiness}% readiness with ${stats.urgent} urgent action${stats.urgent === 1 ? '' : 's'} requiring senior attention.`,
+        `${stats.approvalsPending} approval item${stats.approvalsPending === 1 ? '' : 's'} remain active, and ${stats.dueSoon} item${stats.dueSoon === 1 ? '' : 's'} fall due within the next 48 hours.`,
+        urgentCorr ? `${urgentCorr} correspondence item${urgentCorr === 1 ? '' : 's'} are at risk of SLA breach.` : `No immediate correspondence SLA breach is visible today.`,
+        highRisks.length ? `Top risk signal: ${highRisks.slice(0,2).join('; ')}.` : `No high-severity risk is currently flagged.`,
+        nextMeeting ? `Next major engagement: ${nextMeeting.title} on ${formatDateTime(nextMeeting.datetime)}.` : `No scheduled meetings are loaded.`
+      ].join(' ');
+    }
+
+    function renderAll(){
+      applyTheme();
+      renderSidebarStats();
+      renderOverview();
+      renderApprovals();
+      renderOperations();
+      renderDocuments();
+      renderCorrespondence();
+      renderInitiatives();
+      renderEngagement();
+      renderRisk();
+      renderResources();
+      renderPeople();
+      renderWorkflows();
+      renderReports();
+      renderSettingsRefs();
+      renderRightRail();
+      renderCommandResults();
+      syncSectionVisibility();
+      persist();
+    }
+
+    function applyTheme(){
+      document.body.classList.toggle('theme-light', state.theme === 'light');
+    }
+
+    function renderSidebarStats(){
+      const stats = calcStats();
+      document.getElementById('quickStatus').innerHTML = `
+        <div class="stat-tile"><div class="k">Urgent</div><div class="v">${stats.urgent}</div></div>
+        <div class="stat-tile"><div class="k">Approvals</div><div class="v">${stats.approvalsPending}</div></div>
+        <div class="stat-tile"><div class="k">Meetings</div><div class="v">${stats.meetings}</div></div>
+        <div class="stat-tile"><div class="k">Docs</div><div class="v">${stats.documents}</div></div>
+      `;
+      document.getElementById('metricsGrid').innerHTML = `
+        <div class="metric-card"><div class="label">Pending approvals</div><div class="value">${stats.approvalsPending}</div><div class="delta">${stats.dueSoon} due in 48 hrs</div></div>
+        <div class="metric-card"><div class="label">Controlled documents</div><div class="value">${stats.documents}</div><div class="delta">${state.documents.filter(d=>d.stage==='Ready for sign-off').length} ready for sign-off</div></div>
+        <div class="metric-card"><div class="label">Strategic programs</div><div class="value">${stats.activeInitiatives}</div><div class="delta">${state.initiatives.filter(i=>i.status==='On track').length} on track</div></div>
+        <div class="metric-card"><div class="label">Executive meetings</div><div class="value">${stats.meetings}</div><div class="delta">${state.trips.filter(t=>t.status==='Ready'||t.status==='Confirmed').length} movement items ready</div></div>
+      `;
+      document.getElementById('healthScore').textContent = `${stats.readiness}%`;
+      document.getElementById('healthLabel').textContent = stats.readiness >= 75 ? 'Strong control' : stats.readiness >= 65 ? 'Manage closely' : 'Needs intervention';
+      document.getElementById('briefSummary').textContent = generateBrief();
+
+      document.getElementById('priorityChips').innerHTML = state.initiatives.map(item => `
+        <span class="chip">
+          <span class="badge ${severityClass(item.status)}">${item.status}</span>
+          ${item.title}
+        </span>
+      `).join('');
+
+      document.getElementById('heroChips').innerHTML = `
+        <span class="tag">${state.flows.length} workflows</span>
+        <span class="tag">${state.correspondence.length} correspondence items</span>
+        <span class="tag">${state.risks.length} risk signals</span>
+      `;
+
+      document.getElementById('healthLegend').innerHTML = `
+        <span class="tag">Initiatives</span>
+        <span class="tag">Approvals</span>
+        <span class="tag">Tasks</span>
+        <span class="tag">Risk drag</span>
+      `;
+    }
+
+    function renderOverview(){
+      const stats = calcStats();
+      document.getElementById('briefStrip').innerHTML = `
+        <div class="micro-card"><div class="eyebrow">Priority load</div><div class="big">${stats.urgent}</div><div class="small-text">urgent escalations requiring action</div></div>
+        <div class="micro-card"><div class="eyebrow">Decision velocity</div><div class="big">${state.approvals.filter(a=>a.status==='Ready for sign-off' || a.status==='Approved').length}/${state.approvals.length}</div><div class="small-text">ready or completed approvals</div></div>
+        <div class="micro-card"><div class="eyebrow">SLA posture</div><div class="big">${state.correspondence.filter(c => (daysUntil(c.sla) ?? 99) <= 1).length}</div><div class="small-text">correspondence items due within a day</div></div>
+      `;
+      document.getElementById('executiveTimeline').innerHTML = buildTimeline([
+        ...state.meetings.map(m => ({title:m.title, meta:formatDateTime(m.datetime) + ' • ' + m.venue})),
+        ...state.approvals.map(a => ({title:a.title, meta:`${a.status} • due ${formatDate(a.due)}`})),
+        ...state.trips.map(t => ({title:t.title, meta:`${formatDate(t.date)} • ${t.location}`}))
+      ].sort((a,b)=>a.meta.localeCompare(b.meta)).slice(0,8));
+
+      document.getElementById('calendarGrid').innerHTML = createAgendaDays();
+      document.getElementById('priorityList').innerHTML = state.initiatives.map(item => `
+        <div class="list-item" data-kind="initiative" data-id="${item.id}">
+          <div style="flex:1">
+            <strong>${item.title}</strong>
+            <div class="meta">Sponsor: ${item.sponsor} • Owner: ${item.owner}</div>
+            <div class="progress" style="margin:10px 0"><span style="width:${Math.max(0,Math.min(100,Number(item.progress)||0))}%"></span></div>
+            <div class="meta">${item.milestone}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge ${severityClass(item.status)}">${item.status}</span>
+            <div class="meta" style="margin-top:8px">${item.progress}%</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('heatmap').innerHTML = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d, idx) => {
+        const intensity = [3,4,2,5,3,2,4][idx];
+        return `<div class="heat-cell"><strong>${d}</strong><span>${intensity} key pressure points</span></div>`;
+      }).join('');
+
+      document.getElementById('decisionQueue').innerHTML = state.approvals.slice(0,4).map(item => `
+        <div class="list-item" data-kind="approval" data-id="${item.id}">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.reference} • ${item.owner}</div>
+            <div class="meta">Decision: ${item.decision}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge ${severityClass(item.priority)}">${item.priority}</span>
+            <div class="meta" style="margin-top:8px">${formatDate(item.due)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('activityFeed').innerHTML = state.activity.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.type}</div>
+            <div class="meta">${item.detail}</div>
+          </div>
+          <span class="badge info">${item.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function createAgendaDays(){
+      const base = new Date('2026-03-28T08:00:00');
+      return Array.from({length:5}).map((_,i) => {
+        const d = new Date(base);
+        d.setDate(base.getDate()+i);
+        const label = d.toLocaleDateString(undefined,{weekday:'short', day:'numeric', month:'short'});
+        const dayMeetings = state.meetings.filter(m => {
+          const md = new Date(m.datetime);
+          return md.toDateString() === d.toDateString();
+        });
+        const dayTrips = state.trips.filter(t => {
+          const td = new Date(t.date);
+          return td.toDateString() === d.toDateString();
+        });
+        const content = [
+          ...dayMeetings.map(m=>`<div class="agenda-pill">${m.title}</div>`),
+          ...dayTrips.map(t=>`<div class="agenda-pill">${t.title}</div>`)
+        ].join('') || `<div class="agenda-pill">No major item loaded</div>`;
+        return `<div class="day-card"><div class="day">${label}</div>${content}</div>`;
+      }).join('');
+    }
+
+    function renderApprovals(){
+      populateSelect('approvalStatusFilter', ['all', ...new Set(state.approvals.map(a=>a.status))], true);
+      const search = document.getElementById('approvalSearch').value.trim().toLowerCase();
+      const status = document.getElementById('approvalStatusFilter').value;
+      const priority = document.getElementById('approvalPriorityFilter').value;
+      const items = state.approvals.filter(item => {
+        const hay = `${item.reference} ${item.title} ${item.owner} ${item.decision} ${item.notes}`.toLowerCase();
+        return (!search || hay.includes(search)) &&
+          (status === 'all' || item.status === status) &&
+          (priority === 'all' || item.priority === priority);
+      });
+      document.getElementById('approvalsTable').innerHTML = items.map(item => `
+        <tr class="clickable" data-kind="approval" data-id="${item.id}">
+          <td>${item.reference}</td>
+          <td><strong>${item.title}</strong><div class="small-text">${item.notes}</div></td>
+          <td>${item.owner}</td>
+          <td><span class="badge ${severityClass(item.status)}">${item.status}</span></td>
+          <td><span class="badge ${severityClass(item.priority)}">${item.priority}</span></td>
+          <td>${formatDate(item.due)}</td>
+          <td>${item.decision}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="7"><div class="empty">No approvals match the current filters.</div></td></tr>`;
+
+      document.getElementById('decisionTimeline').innerHTML = buildTimeline(state.approvals.map(item => ({
+        title:item.reference + ' • ' + item.title,
+        meta:`${item.status} • ${formatDate(item.due)}`
+      })).sort((a,b)=>a.meta.localeCompare(b.meta)));
+
+      const pipelineDefs = [
+        ['Pending review', state.approvals.filter(a=>a.status==='Pending review').length],
+        ['In review', state.approvals.filter(a=>a.status==='In review' || a.status==='Awaiting input').length],
+        ['Ready for sign-off', state.approvals.filter(a=>a.status==='Ready for sign-off').length],
+        ['Approved', state.approvals.filter(a=>a.status==='Approved').length]
+      ];
+      document.getElementById('approvalPipeline').innerHTML = pipelineDefs.map(([label,count]) => `
+        <div class="list-item">
+          <div>
+            <strong>${label}</strong>
+            <div class="meta">${count} item${count===1?'':'s'}</div>
+          </div>
+          <span class="badge ${severityClass(label)}">${count}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderOperations(){
+      const lanes = ['Incoming','In motion','Awaiting DG','Closed'];
+      document.getElementById('taskBoard').innerHTML = lanes.map(lane => `
+        <div class="kanban-col">
+          <h4>${lane}</h4>
+          ${state.tasks.filter(t=>t.lane===lane).map(item => `
+            <div class="kanban-item" data-kind="task" data-id="${item.id}">
+              <strong>${item.title}</strong>
+              <div class="meta">${item.owner} • due ${formatDate(item.due)}</div>
+              <div class="meta">${item.support}</div>
+              <div style="margin-top:10px"><span class="badge ${severityClass(item.priority)}">${item.priority}</span></div>
+            </div>
+          `).join('') || `<div class="empty">No items in this lane.</div>`}
+        </div>
+      `).join('');
+
+      document.getElementById('meetingsList').innerHTML = state.meetings.map(item => `
+        <div class="list-item" data-kind="meeting" data-id="${item.id}">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${formatDateTime(item.datetime)} • ${item.venue}</div>
+            <div class="meta">Lead: ${item.lead}</div>
+            <div class="meta">${item.notes}</div>
+          </div>
+          <button class="btn small" data-run-item="meeting:${item.id}">Prep workflow</button>
+        </div>
+      `).join('');
+
+      document.getElementById('tripsList').innerHTML = state.trips.map(item => `
+        <div class="list-item" data-kind="trip" data-id="${item.id}">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${formatDate(item.date)} • ${item.location}</div>
+            <div class="meta">${item.notes}</div>
+            <div class="meta">Logistics: ${item.logistics}</div>
+          </div>
+          <div style="text-align:right"><span class="badge ${severityClass(item.status)}">${item.status}</span></div>
+        </div>
+      `).join('');
+    }
+
+    function renderDocuments(){
+      populateSelect('documentClassFilter', ['all', ...new Set(state.documents.map(d=>d.classification))], true);
+      populateSelect('documentStageFilter', ['all', ...new Set(state.documents.map(d=>d.stage))], true);
+      const q = document.getElementById('documentSearch').value.trim().toLowerCase();
+      const classification = document.getElementById('documentClassFilter').value;
+      const stage = document.getElementById('documentStageFilter').value;
+      const items = state.documents.filter(item => {
+        const hay = `${item.reference} ${item.title} ${item.type} ${item.custodian} ${(item.tags||[]).join(' ')} ${item.notes}`.toLowerCase();
+        return (!q || hay.includes(q)) &&
+          (classification === 'all' || item.classification === classification) &&
+          (stage === 'all' || item.stage === stage);
+      });
+      document.getElementById('documentsTable').innerHTML = items.map(item => `
+        <tr class="clickable" data-kind="document" data-id="${item.id}">
+          <td>${item.reference}</td>
+          <td><strong>${item.title}</strong><div class="small-text">${item.notes}</div></td>
+          <td>${item.type}</td>
+          <td><span class="badge ${severityClass(item.classification)}">${item.classification}</span></td>
+          <td><span class="badge ${severityClass(item.stage)}">${item.stage}</span></td>
+          <td>${item.custodian}</td>
+          <td>${formatDate(item.review)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="7"><div class="empty">No documents match the current filters.</div></td></tr>`;
+
+      const stages = ['Draft','Under review','Ready for sign-off','Issued','Archived'];
+      document.getElementById('documentLifecycle').innerHTML = stages.map(stageName => {
+        const count = state.documents.filter(d=>d.stage===stageName).length;
+        const pct = Math.round((count / Math.max(1,state.documents.length)) * 100);
+        return `
+          <div class="list-item">
+            <div style="flex:1">
+              <strong>${stageName}</strong>
+              <div class="progress" style="margin-top:10px"><span style="width:${pct}%"></span></div>
+            </div>
+            <span class="badge ${severityClass(stageName)}">${count}</span>
+          </div>
+        `;
+      }).join('');
+
+      const packDefs = [
+        {title:'Board & governance pack', docs: state.documents.filter(d=>(d.tags||[]).includes('board')).length, note:'Committee papers, finance notes, decision memo and cover note'},
+        {title:'Stakeholder engagement pack', docs: state.documents.filter(d=>(d.tags||[]).includes('stakeholders')).length, note:'Relationship map, key messages, touchpoint history'},
+        {title:'Policy & media pack', docs: state.documents.filter(d=>(d.tags||[]).includes('media')).length, note:'Talking points, Q&A lines and release schedule'}
+      ];
+      document.getElementById('briefingPacks').innerHTML = packDefs.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.note}</div>
+          </div>
+          <span class="badge info">${item.docs} docs</span>
+        </div>
+      `).join('');
+    }
+
+    function renderCorrespondence(){
+      document.getElementById('correspondenceTable').innerHTML = state.correspondence.map(item => `
+        <tr class="clickable" data-kind="correspondence" data-id="${item.id}">
+          <td>${item.reference}</td>
+          <td><strong>${item.subject}</strong><div class="small-text">${item.notes}</div></td>
+          <td>${item.direction}</td>
+          <td>${item.party}</td>
+          <td>${item.owner}</td>
+          <td>${formatDate(item.sla)}</td>
+          <td><span class="badge ${severityClass(item.status)}">${item.status}</span></td>
+        </tr>
+      `).join('');
+
+      const nearing = state.correspondence.filter(item => (daysUntil(item.sla) ?? 99) <= 1 && item.status !== 'Dispatched');
+      document.getElementById('slaWatch').innerHTML = (nearing.length ? nearing : state.correspondence.slice(0,3)).map(item => `
+        <div class="list-item" data-kind="correspondence" data-id="${item.id}">
+          <div>
+            <strong>${item.subject}</strong>
+            <div class="meta">${item.reference} • ${item.owner}</div>
+            <div class="meta">Due ${formatDate(item.sla)}</div>
+          </div>
+          <span class="badge ${severityClass(item.status)}">${item.status}</span>
+        </div>
+      `).join('');
+
+      const routes = [
+        ['Protocol Desk','Invitations, VIP hosting and ceremonial engagements'],
+        ['Legal & Policy','Parliamentary, statutory and governance responses'],
+        ['Operations Desk','Service complaints, operational escalations and field issues'],
+        ['Stakeholder Relations','Investor, partner and advocacy outreach']
+      ];
+      document.getElementById('routingMatrix').innerHTML = routes.map(([a,b]) => `
+        <div class="list-item"><div><strong>${a}</strong><div class="meta">${b}</div></div></div>
+      `).join('');
+    }
+
+    function renderInitiatives(){
+      document.getElementById('initiativeCards').innerHTML = state.initiatives.map(item => `
+        <div class="list-item" data-kind="initiative" data-id="${item.id}">
+          <div style="flex:1">
+            <strong>${item.title}</strong>
+            <div class="meta">Sponsor: ${item.sponsor} • Owner: ${item.owner}</div>
+            <div class="progress" style="margin:10px 0"><span style="width:${item.progress}%"></span></div>
+            <div class="meta">Next milestone: ${item.milestone}</div>
+            <div class="meta">${item.notes}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge ${severityClass(item.status)}">${item.status}</span>
+            <div class="meta" style="margin-top:8px">${item.progress}%</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderEngagement(){
+      document.getElementById('stakeholderList').innerHTML = state.stakeholders.map(item => `
+        <div class="list-item" data-kind="stakeholder" data-id="${item.id}">
+          <div>
+            <strong>${item.name}</strong>
+            <div class="meta">${item.type} • ${item.purpose}</div>
+            <div class="meta">${item.notes}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge ${severityClass(item.importance)}">${item.importance}</span>
+            <div class="meta" style="margin-top:8px">${formatDate(item.next)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('engagementTimeline').innerHTML = buildTimeline(state.stakeholders.map(item => ({
+        title:item.name + ' • ' + item.purpose,
+        meta:`${formatDate(item.next)} • ${item.type}`
+      })).sort((a,b)=>a.meta.localeCompare(b.meta)));
+    }
+
+    function renderRisk(){
+      document.getElementById('riskList').innerHTML = state.risks.map(item => `
+        <div class="list-item" data-kind="risk" data-id="${item.id}">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.owner} • ${item.notes}</div>
+          </div>
+          <span class="badge ${severityClass(item.severity)}">${item.severity}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('issueList').innerHTML = state.issues.map(item => `
+        <div class="list-item" data-kind="issue" data-id="${item.id}">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.owner} • ${item.notes}</div>
+          </div>
+          <span class="badge ${severityClass(item.status)}">${item.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderResources(){
+      document.getElementById('budgetList').innerHTML = state.budgets.map(item => {
+        const pct = Math.round((item.used / item.amount) * 100);
+        return `
+          <div class="list-item">
+            <div style="flex:1">
+              <strong>${item.name}</strong>
+              <div class="meta">Owner: ${item.owner}</div>
+              <div class="progress" style="margin:10px 0"><span style="width:${pct}%"></span></div>
+              <div class="meta">Used ${formatCurrency(item.used)} of ${formatCurrency(item.amount)}</div>
+            </div>
+            <span class="badge ${severityClass(pct > 85 ? 'high' : pct > 65 ? 'medium' : 'low')}">${pct}%</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('procurementList').innerHTML = state.procurement.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.owner} • ETA ${formatDate(item.eta)}</div>
+            <div class="meta">${item.notes}</div>
+          </div>
+          <span class="badge ${severityClass(item.status)}">${item.status}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderPeople(){
+      document.getElementById('peopleList').innerHTML = state.people.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.name}</strong>
+            <div class="meta">${item.role}</div>
+            <div class="meta">Cover: ${item.cover}</div>
+            <div class="meta">${item.notes}</div>
+          </div>
+          <span class="badge ${severityClass(item.capacity)}">${item.capacity}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('capacityList').innerHTML = state.people.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.name}</strong>
+            <div class="meta">${item.capacity}</div>
+          </div>
+          <span class="badge info">${item.cover}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderWorkflows(){
+      const templateOptions = [
+        ['document','Route document for review/sign-off'],
+        ['correspondence','Process correspondence intake/response'],
+        ['approval','Launch approval workflow'],
+        ['meeting','Prepare meeting/agenda pack'],
+        ['trip','Issue travel and protocol clearance'],
+        ['risk','Escalate risk or issue']
+      ];
+      document.getElementById('flowTemplateSelect').innerHTML = templateOptions.map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
+      document.getElementById('flowTargetSelect').innerHTML = state.flows.map(flow => `<option value="${flow.id}">${flow.name}</option>`).join('') || `<option value="">No flow endpoints yet</option>`;
+      document.getElementById('flowList').innerHTML = state.flows.map(flow => `
+        <div class="list-item">
+          <div style="flex:1">
+            <strong>${flow.name}</strong>
+            <div class="meta">${flow.category} • ${flow.description}</div>
+            <div class="meta">${flow.url ? flow.url : 'No endpoint pasted yet'}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="badge ${severityClass(flow.authMode)}">${flow.authMode}</span>
+            <div class="filters" style="margin-top:10px;justify-content:flex-end">
+              <button class="btn small" data-edit-flow="${flow.id}">Edit</button>
+              <button class="btn small" data-flow-template="${flow.id}">Use</button>
+            </div>
+          </div>
+        </div>
+      `).join('') || `<div class="empty">No flow endpoints registered yet.</div>`;
+
+      document.getElementById('flowPatterns').innerHTML = [
+        ['Document routing', 'Trigger on registration or status change, then create approval tasks, notify document custodian and update SharePoint/Dataverse.'],
+        ['Correspondence SLA', 'Receive letter metadata, create triage item, assign owner, start deadline reminders and produce acknowledgment.'],
+        ['Meeting prep pack', 'Build agenda packet, fetch documents, notify attendees and generate checklists for protocol/security.'],
+        ['Trip readiness', 'Send itinerary, approvals, protocol needs and logistics actions into a single operational flow.'],
+        ['Risk escalation', 'Receive risk level changes, alert executives, create action owner tasks and log mitigation timestamps.']
+      ].map(([title, note]) => `<div class="list-item"><div><strong>${title}</strong><div class="meta">${note}</div></div></div>`).join('');
+
+      document.getElementById('flowLog').innerHTML = state.flowLog.length ? state.flowLog.map(entry => `
+        <pre>[${entry.at}] ${entry.action}
+Flow: ${entry.flow}
+Result: ${entry.result}
+Payload:
+${JSON.stringify(entry.payload, null, 2)}
+${entry.response ? `Response:\n${entry.response}` : ''}</pre>
+      `).join('') : 'No workflow sends have been recorded in this session.';
+    }
+
+    function renderReports(){
+      const reportPanels = [
+        {title:'Executive posture', value:`${calcStats().readiness}%`, detail:'Blended readiness score across approvals, risks, tasks and strategic initiatives.'},
+        {title:'Items requiring signature', value:String(state.approvals.filter(a=>a.status==='Ready for sign-off').length), detail:'Approvals that are effectively ready to place before the DG/CEO.'},
+        {title:'At-risk SLAs', value:String(state.correspondence.filter(c=>(daysUntil(c.sla)??99)<=1 && c.status!=='Dispatched').length), detail:'Correspondence nearing or at deadline.'},
+        {title:'Protocol load', value:String(state.trips.filter(t=>t.status!=='Planning').length), detail:'Visits, trips and hosted engagements in active preparation.'}
+      ];
+      document.getElementById('reportPanels').innerHTML = reportPanels.map(item => `
+        <div class="list-item">
+          <div>
+            <strong>${item.title}</strong>
+            <div class="meta">${item.detail}</div>
+          </div>
+          <span class="badge info">${item.value}</span>
+        </div>
+      `).join('');
+      document.getElementById('reportText').value = [
+        'DIRECTOR-GENERAL / CEO DAILY BRIEF',
+        '',
+        generateBrief(),
+        '',
+        '1. Decision items',
+        ...state.approvals.map(a => `- ${a.reference}: ${a.title} | ${a.status} | due ${formatDate(a.due)} | owner ${a.owner}`),
+        '',
+        '2. Operational focus',
+        ...state.tasks.filter(t=>t.lane!=='Closed').map(t => `- ${t.title} | ${t.lane} | ${t.priority} | due ${formatDate(t.due)}`),
+        '',
+        '3. Correspondence',
+        ...state.correspondence.map(c => `- ${c.reference}: ${c.subject} | ${c.status} | SLA ${formatDate(c.sla)}`),
+        '',
+        '4. Meetings / movement',
+        ...state.meetings.map(m => `- ${m.title} | ${formatDateTime(m.datetime)} | ${m.venue}`),
+        ...state.trips.map(t => `- ${t.title} | ${formatDate(t.date)} | ${t.location} | ${t.status}`),
+        '',
+        '5. Risks',
+        ...state.risks.map(r => `- ${r.title} | ${r.severity} | ${r.status}`)
+      ].join('\n');
+    }
+
+    function renderSettingsRefs(){}
+
+    function renderRightRail(){
+      const urgentItems = [
+        ...state.approvals.filter(a => a.priority === 'High' && a.status !== 'Approved').map(a => ({title:a.title, meta:`Approval • due ${formatDate(a.due)}`, kind:'approval', id:a.id})),
+        ...state.correspondence.filter(c => (daysUntil(c.sla) ?? 99) <= 1 && c.status !== 'Dispatched').map(c => ({title:c.subject, meta:`Correspondence • due ${formatDate(c.sla)}`, kind:'correspondence', id:c.id})),
+        ...state.tasks.filter(t => t.priority === 'High' && t.lane !== 'Closed').map(t => ({title:t.title, meta:`Directive • ${t.lane}`, kind:'task', id:t.id}))
+      ].slice(0,6);
+
+      document.getElementById('urgentCount').textContent = `${urgentItems.length} urgent`;
+      document.getElementById('actionCenter').innerHTML = urgentItems.length ? urgentItems.map(item => `
+        <div class="action-pill" data-kind="${item.kind}" data-id="${item.id}">
+          <div class="pill-left"><strong>${item.title}</strong><span>${item.meta}</span></div>
+          <span class="badge high">Now</span>
+        </div>
+      `).join('') : `<div class="empty">No urgent items are currently flagged.</div>`;
+
+      document.getElementById('peopleOrbit').innerHTML = state.people.slice(0,4).map(person => `
+        <div class="avatar" title="${person.name}">${initials(person.name)}</div>
+      `).join('') + state.stakeholders.slice(0,4).map(person => `
+        <div class="avatar" title="${person.name}" style="background:linear-gradient(135deg,var(--purple),var(--accent))">${initials(person.name)}</div>
+      `).join('');
+
+      const protocolPoints = [
+        `${state.trips.filter(t=>t.status==='Ready' || t.status==='Confirmed').length} movement items are in active preparation.`,
+        `${state.meetings.length} executive engagements are in the calendar window.`,
+        `${state.correspondence.filter(c=>c.direction==='Incoming').length} incoming external communications are logged.`
+      ];
+      document.getElementById('protocolReadiness').innerHTML = protocolPoints.map(text => `<div class="list-item"><div><strong>${text}</strong></div></div>`).join('');
+
+      document.getElementById('quickFlowLaunch').innerHTML = [
+        ['approval','Launch approval flow'],
+        ['document','Route document'],
+        ['correspondence','Start correspondence process'],
+        ['meeting','Build agenda pack']
+      ].map(([t,label]) => `<button class="btn small" style="width:100%;margin-bottom:10px" data-run-template="${t}">${label}</button>`).join('');
+    }
+
+    function buildTimeline(items){
+      if(!items.length) return `<div class="empty">No items available.</div>`;
+      return items.map(item => `<div class="timeline-item"><strong>${item.title}</strong><span>${item.meta}</span></div>`).join('');
+    }
+
+    function populateSelect(id, options, preserveAll=false){
+      const el = document.getElementById(id);
+      const current = el.value;
+      el.innerHTML = options.map(opt => {
+        const label = preserveAll && opt === 'all' ? (id.includes('Class') ? 'All classifications' : id.includes('Stage') ? 'All stages' : 'All status') : opt;
+        return `<option value="${opt}">${label}</option>`;
+      }).join('');
+      if(options.includes(current)) el.value = current;
+    }
+
+    function formatCurrency(v){
+      return new Intl.NumberFormat(undefined,{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(v);
+    }
+
+    function syncSectionVisibility(){
+      document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+      const target = document.getElementById(`section-${activeSection}`);
+      if(target) target.classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.section === activeSection));
+    }
+
+    function switchSection(section){
+      activeSection = section;
+      syncSectionVisibility();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function findRecord(kind, id){
+      const map = {
+        approval: state.approvals,
+        task: state.tasks,
+        meeting: state.meetings,
+        trip: state.trips,
+        document: state.documents,
+        correspondence: state.correspondence,
+        initiative: state.initiatives,
+        stakeholder: state.stakeholders,
+        risk: state.risks,
+        issue: state.issues
+      };
+      return (map[kind] || []).find(item => item.id === id);
+    }
+
+    function openDrawer(kind, id){
+      if(kind === 'brief'){
+        document.getElementById('drawerType').textContent = 'Daily brief';
+        document.getElementById('drawerTitle').textContent = 'Executive posture narrative';
+        document.getElementById('drawerBody').innerHTML = `
+          <div class="drawer-block">${generateBrief()}</div>
+          <div class="drawer-block">
+            <h4>Immediate actions</h4>
+            ${document.getElementById('actionCenter').innerHTML}
+          </div>
+          <div class="drawer-block">
+            <h4>Priority timeline</h4>
+            <div class="timeline">${document.getElementById('executiveTimeline').innerHTML}</div>
+          </div>
+        `;
+      } else {
+        const record = findRecord(kind, id);
+        if(!record) return;
+        const prettyKind = kind.charAt(0).toUpperCase() + kind.slice(1);
+        document.getElementById('drawerType').textContent = prettyKind;
+        document.getElementById('drawerTitle').textContent = record.title || record.subject || record.name || record.reference || 'Record';
+        const entries = Object.entries(record).filter(([k]) => k !== 'id').map(([k,v]) => {
+          const value = Array.isArray(v) ? v.join(', ') : v;
+          return `<div class="meta-line"><span class="small-text">${humanize(k)}</span><strong>${value || '—'}</strong></div>`;
+        }).join('');
+        document.getElementById('drawerBody').innerHTML = `
+          <div class="drawer-block">${record.notes || 'No extended note provided.'}</div>
+          <div class="drawer-block">${entries}</div>
+          <div class="drawer-grid">
+            <button class="btn secondary" data-run-kind="${kind}" data-run-id="${id}">Send to workflow</button>
+            <button class="btn" data-copy-title="${(record.title || record.subject || record.name || '').replace(/"/g,'&quot;')}">Copy title</button>
+          </div>
+        `;
+      }
+      document.getElementById('detailDrawer').classList.add('open');
+    }
+
+    function humanize(key){
+      return key.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase());
+    }
+
+    function closeDrawer(){
+      document.getElementById('detailDrawer').classList.remove('open');
+    }
+
+    function openModal(type){
+      currentModalType = type;
+      const defs = CONFIG.modalDefs[type];
+      if(!defs) return;
+      document.getElementById('modalTypeLabel').textContent = humanize(type);
+      document.getElementById('modalTitle').textContent = `Create ${humanize(type)}`;
+      document.getElementById('modalFields').innerHTML = defs.map(field => {
+        const cls = field.full ? 'full' : '';
+        let input = '';
+        if(field.type === 'textarea'){
+          input = `<textarea data-field="${field.key}" placeholder="${field.label}"></textarea>`;
+        } else if(field.type === 'select'){
+          input = `<select data-field="${field.key}">${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}</select>`;
+        } else {
+          input = `<input class="input" type="${field.type}" data-field="${field.key}" placeholder="${field.label}" />`;
+        }
+        return `<div class="${cls}"><label>${field.label}</label>${input}</div>`;
+      }).join('');
+      document.getElementById('recordModal').classList.add('open');
+    }
+
+    function closeModal(){
+      document.getElementById('recordModal').classList.remove('open');
+    }
+
+    function saveModalRecord(){
+      const defs = CONFIG.modalDefs[currentModalType];
+      const fields = {};
+      document.querySelectorAll('#modalFields [data-field]').forEach(el => {
+        fields[el.dataset.field] = el.value;
+      });
+      let target;
+      if(currentModalType === 'approval'){
+        target = 'approvals';
+        fields.id = 'ap' + Date.now();
+      } else if(currentModalType === 'task'){
+        target = 'tasks';
+        fields.id = 'ta' + Date.now();
+      } else if(currentModalType === 'meeting'){
+        target = 'meetings';
+        fields.id = 'me' + Date.now();
+      } else if(currentModalType === 'trip'){
+        target = 'trips';
+        fields.id = 'tr' + Date.now();
+      } else if(currentModalType === 'document'){
+        target = 'documents';
+        fields.id = 'do' + Date.now();
+        fields.tags = fields.tags ? fields.tags.split(',').map(x=>x.trim()).filter(Boolean) : [];
+      } else if(currentModalType === 'correspondence'){
+        target = 'correspondence';
+        fields.id = 'co' + Date.now();
+      } else if(currentModalType === 'initiative'){
+        target = 'initiatives';
+        fields.id = 'in' + Date.now();
+        fields.progress = Number(fields.progress || 0);
+      }
+      if(!target) return;
+      state[target].unshift(fields);
+      state.activity.unshift({
+        id:'ac' + Date.now(),
+        time:new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        title:`${humanize(currentModalType)} added`,
+        type:humanize(currentModalType),
+        detail:fields.title || fields.subject || fields.name || fields.reference || 'New record created'
+      });
+      persist();
+      renderAll();
+      closeModal();
+      showToast(`${humanize(currentModalType)} record created.`);
+    }
+
+    function openFlowModal(flowId=null){
+      const categories = ['Approvals','Correspondence','Documents','Operations','Engagement','Risk'];
+      const authModes = ['None','Bearer token','API key','Custom header'];
+      document.getElementById('flowCategoryField').innerHTML = categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+      document.getElementById('flowAuthField').innerHTML = authModes.map(a=>`<option value="${a}">${a}</option>`).join('');
+      const flow = flowId ? state.flows.find(f=>f.id===flowId) : null;
+      document.getElementById('flowNameField').value = flow?.name || '';
+      document.getElementById('flowCategoryField').value = flow?.category || 'Approvals';
+      document.getElementById('flowUrlField').value = flow?.url || '';
+      document.getElementById('flowAuthField').value = flow?.authMode || 'None';
+      document.getElementById('flowTokenField').value = flow?.token || '';
+      document.getElementById('flowHeaderField').value = flow?.headerName || 'Authorization';
+      document.getElementById('flowDescriptionField').value = flow?.description || '';
+      document.getElementById('flowModal').dataset.editId = flow?.id || '';
+      document.getElementById('flowModal').classList.add('open');
+    }
+    function closeFlowModal(){ document.getElementById('flowModal').classList.remove('open'); }
+    function saveFlow(){
+      const flow = {
+        name: document.getElementById('flowNameField').value.trim(),
+        category: document.getElementById('flowCategoryField').value,
+        url: document.getElementById('flowUrlField').value.trim(),
+        authMode: document.getElementById('flowAuthField').value,
+        token: document.getElementById('flowTokenField').value.trim(),
+        headerName: document.getElementById('flowHeaderField').value.trim() || 'Authorization',
+        description: document.getElementById('flowDescriptionField').value.trim()
+      };
+      const editId = document.getElementById('flowModal').dataset.editId;
+      if(editId){
+        const idx = state.flows.findIndex(f=>f.id===editId);
+        if(idx >= 0) state.flows[idx] = {id:editId, ...flow};
+      } else {
+        state.flows.unshift({id:'fl'+Date.now(), ...flow});
+      }
+      closeFlowModal();
+      renderAll();
+      showToast('Workflow endpoint saved.');
+    }
+
+    function buildPayload(template, specific){
+      const actor = 'Executive Office Portal';
+      if(template === 'document'){
+        const doc = specific || state.documents[0];
+        return {
+          action:'route_document',
+          actor,
+          timestamp:new Date().toISOString(),
+          record:{
+            id:doc.id, reference:doc.reference, title:doc.title, type:doc.type,
+            classification:doc.classification, stage:doc.stage, custodian:doc.custodian,
+            reviewDate:doc.review, tags:doc.tags, notes:doc.notes
+          }
+        };
+      }
+      if(template === 'correspondence'){
+        const item = specific || state.correspondence[0];
+        return {
+          action:'process_correspondence',
+          actor,
+          timestamp:new Date().toISOString(),
+          record:{
+            id:item.id, reference:item.reference, subject:item.subject, direction:item.direction,
+            party:item.party, owner:item.owner, sla:item.sla, status:item.status, notes:item.notes
+          }
+        };
+      }
+      if(template === 'approval'){
+        const item = specific || state.approvals[0];
+        return {
+          action:'launch_approval',
+          actor,
+          timestamp:new Date().toISOString(),
+          record:{
+            id:item.id, reference:item.reference, title:item.title, owner:item.owner,
+            status:item.status, priority:item.priority, due:item.due, decision:item.decision, notes:item.notes
+          }
+        };
+      }
+      if(template === 'meeting'){
+        const item = specific || state.meetings[0];
+        return {
+          action:'prepare_meeting_pack',
+          actor,
+          timestamp:new Date().toISOString(),
+          record:{
+            id:item.id, title:item.title, datetime:item.datetime, venue:item.venue,
+            lead:item.lead, attendees:item.attendees, notes:item.notes
+          }
+        };
+      }
+      if(template === 'trip'){
+        const item = specific || state.trips[0];
+        return {
+          action:'issue_trip_clearance',
+          actor,
+          timestamp:new Date().toISOString(),
+          record:{
+            id:item.id, title:item.title, date:item.date, location:item.location,
+            status:item.status, logistics:item.logistics, notes:item.notes
+          }
+        };
+      }
+      const risk = specific || state.risks[0];
+      return {
+        action:'escalate_risk',
+        actor,
+        timestamp:new Date().toISOString(),
+        record:{
+          id:risk.id, title:risk.title, severity:risk.severity,
+          owner:risk.owner, status:risk.status, notes:risk.notes
+        }
+      };
+    }
+
+    function loadTemplateIntoBuilder(template, specific, navigate=true){
+      document.getElementById('flowTemplateSelect').value = template;
+      document.getElementById('flowPayload').value = JSON.stringify(buildPayload(template, specific), null, 2);
+      document.getElementById('flowActionName').value = humanize(template) + ' workflow';
+      if(navigate) switchSection('workflows');
+    }
+
+    async function sendFlow(){
+      const flowId = document.getElementById('flowTargetSelect').value;
+      const flow = state.flows.find(f=>f.id===flowId);
+      const actionName = document.getElementById('flowActionName').value.trim() || 'Workflow send';
+      let payload;
+      try{
+        payload = JSON.parse(document.getElementById('flowPayload').value || '{}');
+      }catch(err){
+        showToast('Payload is not valid JSON.');
+        return;
+      }
+      if(!flow){
+        showToast('Select a flow endpoint first.');
+        return;
+      }
+      if(!flow.url){
+        const logEntry = {
+          at:new Date().toLocaleString(),
+          action:actionName,
+          flow:flow.name,
+          result:'Skipped - no endpoint URL configured',
+          payload,
+          response:'Paste the real Power Automate HTTP endpoint URL to enable live POST requests.'
+        };
+        state.flowLog.unshift(logEntry);
+        renderWorkflows();
+        persist();
+        showToast('Flow saved, but no live endpoint URL is configured yet.');
+        return;
+      }
+
+      const headers = {'Content-Type':'application/json'};
+      if(flow.authMode !== 'None' && flow.token){
+        const headerName = flow.headerName || 'Authorization';
+        headers[headerName] = flow.authMode === 'Bearer token' && headerName.toLowerCase() === 'authorization'
+          ? `Bearer ${flow.token}`
+          : flow.token;
+      }
+
+      let result = 'Success';
+      let responseText = '';
+      try{
+        const res = await fetch(flow.url, {
+          method:'POST',
+          headers,
+          body:JSON.stringify(payload)
+        });
+        responseText = await res.text();
+        if(!res.ok){
+          result = `HTTP ${res.status}`;
+        }
+      }catch(err){
+        result = 'Network / CORS error';
+        responseText = err.message;
+      }
+
+      state.flowLog.unshift({
+        at:new Date().toLocaleString(),
+        action:actionName,
+        flow:flow.name,
+        result,
+        payload,
+        response:responseText
+      });
+      persist();
+      renderWorkflows();
+      showToast(result === 'Success' ? 'Workflow request sent.' : `Workflow send finished with: ${result}`);
+    }
+
+    function renderCommandResults(query=''){
+      const items = [];
+      Object.entries(CONFIG.sectionTitles).forEach(([id,title]) => items.push({kind:'section', id, title, subtitle:'Jump to module'}));
+      [
+        ...state.approvals.map(x=>({kind:'approval', id:x.id, title:x.title, subtitle:x.reference})),
+        ...state.documents.map(x=>({kind:'document', id:x.id, title:x.title, subtitle:x.reference})),
+        ...state.correspondence.map(x=>({kind:'correspondence', id:x.id, title:x.subject, subtitle:x.reference})),
+        ...state.tasks.map(x=>({kind:'task', id:x.id, title:x.title, subtitle:x.owner})),
+        ...state.meetings.map(x=>({kind:'meeting', id:x.id, title:x.title, subtitle:formatDateTime(x.datetime)})),
+        ...state.trips.map(x=>({kind:'trip', id:x.id, title:x.title, subtitle:x.location})),
+        ...state.stakeholders.map(x=>({kind:'stakeholder', id:x.id, title:x.name, subtitle:x.type}))
+      ].forEach(item => items.push(item));
+
+      const filtered = items.filter(item => {
+        const hay = `${item.title} ${item.subtitle} ${item.kind}`.toLowerCase();
+        return !query || hay.includes(query.toLowerCase());
+      }).slice(0,40);
+
+      document.getElementById('commandResults').innerHTML = filtered.map((item, idx) => `
+        <div class="command-item ${idx===0?'active':''}" data-command-kind="${item.kind}" data-command-id="${item.id}">
+          <div><strong>${item.title}</strong><br><small>${item.subtitle}</small></div>
+          <small>${item.kind}</small>
+        </div>
+      `).join('') || `<div class="empty">No matching commands or records.</div>`;
+    }
+
+    function openCommand(){ document.getElementById('commandPalette').classList.add('open'); document.getElementById('commandSearch').focus(); renderCommandResults(); }
+    function closeCommand(){ document.getElementById('commandPalette').classList.remove('open'); }
+
+    function handleCommandClick(kind, id){
+      if(kind === 'section'){
+        switchSection(id);
+      } else {
+        openDrawer(kind, id);
+      }
+      closeCommand();
+    }
+
+    function exportWorkspace(){
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'dg_ceo_office_workspace.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importWorkspace(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const parsed = JSON.parse(reader.result);
+          state = Object.assign(clone(seedData), parsed);
+          persist();
+          renderAll();
+          showToast('Workspace imported successfully.');
+        }catch(err){
+          showToast('The selected file is not a valid workspace export.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showToast(message){
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    function copyText(text){
+      navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard.'));
+    }
+
+    function registerEvents(){
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));
+      document.querySelectorAll('[data-section-link]').forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.sectionLink)));
+
+      document.getElementById('themeBtn').onclick = () => { state.theme = state.theme === 'light' ? 'dark' : 'light'; renderAll(); };
+      document.getElementById('themeBtn2').onclick = () => { state.theme = state.theme === 'light' ? 'dark' : 'light'; renderAll(); };
+      document.getElementById('briefBtn').onclick = () => { switchSection('reports'); renderReports(); showToast('Daily brief regenerated from live workspace data.'); };
+      document.getElementById('quickAddBtn').onclick = () => openModal('task');
+      document.getElementById('launchFlowBtn').onclick = () => switchSection('workflows');
+      document.getElementById('commandBtn').onclick = openCommand;
+      document.getElementById('closeCommandBtn').onclick = closeCommand;
+      document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+      document.getElementById('closeModalBtn').onclick = closeModal;
+      document.getElementById('cancelModalBtn').onclick = closeModal;
+      document.getElementById('saveModalBtn').onclick = saveModalRecord;
+      document.getElementById('registerFlowBtn').onclick = () => openFlowModal();
+      document.getElementById('testFlowBtn').onclick = () => { switchSection('workflows'); loadTemplateIntoBuilder('approval'); };
+      document.getElementById('closeFlowModalBtn').onclick = closeFlowModal;
+      document.getElementById('cancelFlowModalBtn').onclick = closeFlowModal;
+      document.getElementById('saveFlowBtn').onclick = saveFlow;
+      document.getElementById('sendFlowBtn').onclick = sendFlow;
+      document.getElementById('loadTemplateBtn').onclick = () => loadTemplateIntoBuilder(document.getElementById('flowTemplateSelect').value);
+      document.getElementById('refreshReportsBtn').onclick = () => { renderReports(); showToast('Report panels refreshed.'); };
+      document.getElementById('resetDemoBtn').onclick = resetToSeed;
+      document.getElementById('resetDemoBtn2').onclick = resetToSeed;
+      document.getElementById('exportBtn').onclick = exportWorkspace;
+      document.getElementById('exportBtn2').onclick = exportWorkspace;
+      document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+      document.getElementById('importBtn2').onclick = () => document.getElementById('importFile').click();
+      document.getElementById('importFile').addEventListener('change', e => {
+        const file = e.target.files[0];
+        if(file) importWorkspace(file);
+      });
+
+      document.getElementById('approvalSearch').addEventListener('input', renderApprovals);
+      document.getElementById('approvalStatusFilter').addEventListener('change', renderApprovals);
+      document.getElementById('approvalPriorityFilter').addEventListener('change', renderApprovals);
+      document.getElementById('clearApprovalFilters').onclick = () => {
+        document.getElementById('approvalSearch').value = '';
+        document.getElementById('approvalStatusFilter').value = 'all';
+        document.getElementById('approvalPriorityFilter').value = 'all';
+        renderApprovals();
+      };
+      document.getElementById('documentSearch').addEventListener('input', renderDocuments);
+      document.getElementById('documentClassFilter').addEventListener('change', renderDocuments);
+      document.getElementById('documentStageFilter').addEventListener('change', renderDocuments);
+      document.getElementById('clearDocumentFilters').onclick = () => {
+        document.getElementById('documentSearch').value = '';
+        document.getElementById('documentClassFilter').value = 'all';
+        document.getElementById('documentStageFilter').value = 'all';
+        renderDocuments();
+      };
+
+      document.querySelectorAll('[data-open-drawer]').forEach(btn => btn.addEventListener('click', () => openDrawer(btn.dataset.openDrawer)));
+
+      document.addEventListener('click', e => {
+        const row = e.target.closest('[data-kind][data-id]');
+        if(row && !e.target.closest('button')){
+          openDrawer(row.dataset.kind, row.dataset.id);
+        }
+        const command = e.target.closest('[data-command-kind]');
+        if(command){
+          handleCommandClick(command.dataset.commandKind, command.dataset.commandId);
+        }
+        const addBtn = e.target.closest('[data-add-type]');
+        if(addBtn) openModal(addBtn.dataset.addType);
+        const tplBtn = e.target.closest('[data-run-template]');
+        if(tplBtn) loadTemplateIntoBuilder(tplBtn.dataset.runTemplate);
+        const useFlow = e.target.closest('[data-flow-template]');
+        if(useFlow){
+          document.getElementById('flowTargetSelect').value = useFlow.dataset.flowTemplate;
+          if(navigate) switchSection('workflows');
+          showToast('Flow selected in builder.');
+        }
+        const editFlow = e.target.closest('[data-edit-flow]');
+        if(editFlow) openFlowModal(editFlow.dataset.editFlow);
+        const runSpecific = e.target.closest('[data-run-item]');
+        if(runSpecific){
+          const [kind,id] = runSpecific.dataset.runItem.split(':');
+          const record = findRecord(kind,id);
+          loadTemplateIntoBuilder(kind === 'meeting' ? 'meeting' : kind, record);
+        }
+        const runFromDrawer = e.target.closest('[data-run-kind]');
+        if(runFromDrawer){
+          const kind = runFromDrawer.dataset.runKind;
+          const id = runFromDrawer.dataset.runId;
+          const record = findRecord(kind,id);
+          const template = kind === 'approval' ? 'approval' : kind === 'document' ? 'document' : kind === 'correspondence' ? 'correspondence' : kind === 'meeting' ? 'meeting' : kind === 'trip' ? 'trip' : 'risk';
+          loadTemplateIntoBuilder(template, record);
+        }
+        const copyBtn = e.target.closest('[data-copy-title]');
+        if(copyBtn) copyText(copyBtn.dataset.copyTitle);
+      });
+
+      document.getElementById('commandSearch').addEventListener('input', e => renderCommandResults(e.target.value));
+
+      document.addEventListener('keydown', e => {
+        if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
+          e.preventDefault();
+          openCommand();
+        }
+        if(e.key === 'Escape'){
+          closeCommand();
+          closeModal();
+          closeFlowModal();
+          closeDrawer();
+        }
+      });
+    }
+
+    registerEvents();
+    renderAll();
+    loadTemplateIntoBuilder('approval', null, false);
+  </script>
+</body>
+</html>

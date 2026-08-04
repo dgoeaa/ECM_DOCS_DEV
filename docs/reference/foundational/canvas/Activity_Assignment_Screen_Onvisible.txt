@@ -1,0 +1,27 @@
+
+    UpdateContext({showNotifyMessage:false,
+        selectedActionType: "Clear Entries"
+,
+
+        showEntryControls: true,
+        showPreview: false,
+    
+        showComments: false,
+        isLoading: false,
+        gblReset: true,
+    
+
+        varPatchRecord: Blank()
+,
+        cb1Active: false,
+        cb2Active: false,
+        cb3Active: false,
+        cb4Active: false,
+        cb5Active: false,
+        cb6Active: false,
+        cb7Active: false,
+        NotifyMessage: Blank(),
+        NotifyType: Blank(),showMoreCC:false
+    }
+);
+    UpdateContext({    gblReset: false})

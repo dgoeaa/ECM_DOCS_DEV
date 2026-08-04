@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NITDA DGO – Activity Management</title>
+    <style>
+        :root {
+            --nitda-primary: #05583B;
+            --nitda-secondary: #178255;
+            --nitda-accent: #8A0558;
+            --nitda-light: #F0F5F9;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --radius: 8px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a1a; overflow-x: hidden; }
+
+        /* Header & Navigation */
+        .header { background: linear-gradient(135deg, var(--nitda-primary), var(--nitda-secondary)); color: #fff; padding: 1rem; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .header-content { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav-tabs { display: flex; background: #fff; border-bottom: 2px solid var(--nitda-primary); overflow-x: auto; sticky; top: 70px; z-index: 999; }
+        .nav-item { padding: 14px 24px; border: none; background: none; font-weight: 700; cursor: pointer; color: #555; white-space: nowrap; transition: 0.3s; }
+        .nav-item.active { color: var(--nitda-primary); border-bottom: 4px solid var(--nitda-primary); background: var(--nitda-light); }
+
+        /* Main Layout */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 80vh; }
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Component: Cards */
+        .card { background: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); border-left: 6px solid var(--nitda-primary); cursor: pointer; transition: 0.2s; }
+        .card:hover { transform: scale(1.01); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .card-title { font-size: 1.05rem; font-weight: 700; color: var(--nitda-primary); }
+        .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        
+        /* Component: Filters */
+        .filter-bar { background: #fff; padding: 15px; border-radius: var(--radius); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; box-shadow: var(--shadow); }
+        .form-control { width: 100%; padding: 10px; border: 1.5px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; }
+        .form-control:focus { outline: none; border-color: var(--nitda-primary); }
+
+        /* Assignment UI */
+        .assignment-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
+        @media (max-width: 850px) { .assignment-grid { grid-template-columns: 1fr; } }
+        
+        .sidebar-box { background: #fff; border-radius: var(--radius); border: 1px solid #ddd; overflow: hidden; height: fit-content; }
+        .sidebar-header { background: #f8f9fa; padding: 12px; font-weight: 700; border-bottom: 1px solid #ddd; color: var(--nitda-accent); }
+        .sidebar-body { padding: 15px; }
+
+        .btn { padding: 12px 24px; border-radius: 6px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: var(--nitda-primary); color: #fff; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-outline { background: #fff; border: 2px solid #ddd; }
+
+        /* Notification Bar */
+        #notification { position: fixed; top: 20px; right: 20px; padding: 15px 25px; border-radius: 8px; color: #fff; font-weight: 600; z-index: 10001; display: none; box-shadow: var(--shadow); }
+
+        /* Loading Overlay */
+        #loader { position: fixed; inset: 0; background: rgba(5, 88, 59, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; z-index: 10000; display: none; }
+        .spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top: 6px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loader">
+    <div class="spinner"></div>
+    <h3 id="loaderMsg">Processing NITDA Data...</h3>
+</div>
+
+<div id="notification"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div>
+            <div style="font-size: 1.2rem; font-weight: 800; letter-spacing: 1px;">NITDA DGO ACTIVITY</div>
+            <div id="userDisplay" style="font-size: 0.75rem; opacity: 0.9; margin-top: 2px;">Connecting...</div>
+        </div>
+        <button class="btn btn-outline" style="padding: 8px 15px; font-size: 0.8rem;" onclick="App.refreshData()">🔄 Refresh</button>
+    </div>
+</header>
+
+<nav class="nav-tabs">
+    <button class="nav-item active" onclick="App.switchView('tasks', this)">TASKS</button>
+    <button class="nav-item" onclick="App.switchView('docs', this)">DOCUMENTS</button>
+    <button class="nav-item" onclick="App.switchView('assignment', this)">ASSIGNMENT</button>
+</nav>
+
+<div class="container">
+    <section id="view-tasks" class="view active">
+        <div class="filter-bar">
+            <input type="text" id="taskSearch" class="form-control" placeholder="🔍 Search Title or Assignee..." oninput="App.renderTasks()">
+            <select id="filterStatus" class="form-control" onchange="App.renderTasks()">
+                <option value="">Filter by Status</option>
+                <option value="Treated">Treated</option>
+                <option value="Not Treated">Not Treated</option>
+                <option value="Pending">Pending</option>
+            </select>
+            <select id="filterCategory" class="form-control" onchange="App.renderTasks()">
+                <option value="">Filter by Category</option>
+            </select>
+        </div>
+        <div id="taskList"></div>
+    </section>
+
+    <section id="view-docs" class="view">
+        <div class="filter-bar">
+            <input type="text" id="docSearch" class="form-control" placeholder="🔍 Search documents..." oninput="App.renderDocs()">
+        </div>
+        <div id="docList"></div>
+    </section>
+
+    <section id="view-assignment" class="view">
+        <div class="assignment-grid">
+            <aside class="sidebar-box">
+                <div class="sidebar-header">CATEGORY & ROUTING</div>
+                <div class="sidebar-body">
+                    <label style="font-size:0.8rem; font-weight:700">Category</label>
+                    <select id="asnCategory" class="form-control" onchange="App.syncSubcats()"></select>
+                    
+                    <label style="font-size:0.8rem; font-weight:700; margin-top:15px; display:block">Sub-Category</label>
+                    <select id="asnSubCategory" class="form-control"></select>
+
+                    <label style="font-size:0.8rem; font-weight:700; margin-top:15px; display:block">Primary DSU</label>
+                    <select id="asnDSU" class="form-control"></select>
+                </div>
+
+                <div class="sidebar-header">PERSONNEL</div>
+                <div class="sidebar-body">
+                    <label style="font-size:0.8rem; font-weight:700">Assigned To</label>
+                    <select id="asnUser" class="form-control"></select>
+                    
+                    <label style="font-size:0.8rem; font-weight:700; margin-top:15px; display:block">Priority</label>
+                    <select id="asnPriority" class="form-control">
+                        <option>Normal</option>
+                        <option>High</option>
+                        <option>Urgent</option>
+                    </select>
+                </div>
+            </aside>
+
+            <main style="background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:25px; border: 1px solid #ddd;">
+                <h2 id="asnItemTitle" style="margin-top:0; color:var(--nitda-primary)">Select an item to assign</h2>
+                <hr>
+                <div style="margin-top:20px">
+                    <label style="font-weight:700; display:block; margin-bottom:8px">Direction / Comments</label>
+                    <textarea id="asnComments" class="form-control" rows="10" placeholder="Enter processing instructions here..."></textarea>
+                </div>
+                <div style="margin-top:25px; display:flex; gap:12px">
+                    <button class="btn btn-primary" id="submitBtn" onclick="App.submitAsn()">SUBMIT ASSIGNMENT</button>
+                    <button class="btn btn-outline" onclick="App.switchView('tasks')">BACK TO LIST</button>
+                </div>
+            </main>
+        </div>
+    </section>
+</div>
+
+<script>
+    const CONFIG = {
+        userEmail: "dgs@nitda.gov.ng",
+        endpoints: {
+            getDocs: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+            getTasks: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4",
+            getRefData: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU",
+            submitAsn: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0"
+        }
+    };
+
+    const App = {
+        state: {
+            tasks: [],
+            docs: [],
+            categories: [],
+            users: [],
+            units: [],
+            activeItem: null
+        },
+
+        async init() {
+            document.getElementById('userDisplay').textContent = CONFIG.userEmail;
+            await this.refreshData();
+        },
+
+        showLoading(status, msg = "Syncing with NITDA Power Automate...") {
+            const loader = document.getElementById('loader');
+            document.getElementById('loaderMsg').textContent = msg;
+            loader.style.display = status ? 'flex' : 'none';
+        },
+
+        notify(text, type = "success") {
+            const n = document.getElementById('notification');
+            n.textContent = text;
+            n.style.backgroundColor = type === "success" ? "#155724" : "#721c24";
+            n.style.display = "block";
+            setTimeout(() => n.style.display = "none", 4000);
+        },
+
+        async refreshData() {
+            this.showLoading(true);
+            try {
+                const [tasksRes, docsRes, refRes] = await Promise.all([
+                    fetch(CONFIG.endpoints.getTasks, { method: 'POST', body: JSON.stringify({ userEmail: CONFIG.userEmail }), headers: {'Content-Type': 'application/json'} }),
+                    fetch(CONFIG.endpoints.getDocs, { method: 'POST', body: JSON.stringify({ action: "docsfetch" }), headers: {'Content-Type': 'application/json'} }),
+                    fetch(CONFIG.endpoints.getRefData, { method: 'POST', body: JSON.stringify({}), headers: {'Content-Type': 'application/json'} })
+                ]);
+
+                const tasksData = await tasksRes.json();
+                const docsData = await docsRes.json();
+                const refData = await refRes.json();
+
+                this.state.tasks = tasksData.tasks || [];
+                this.state.docs = docsData.docs || [];
+                this.state.categories = refData.categories || [];
+                this.state.users = refData.users || [];
+                this.state.units = refData.departments || [];
+
+                this.populateDropdowns();
+                this.renderTasks();
+                this.renderDocs();
+            } catch (err) {
+                this.notify("Sync Failed. Please check internet connection.", "error");
+            } finally {
+                this.showLoading(false);
+            }
+        },
+
+        populateDropdowns() {
+            const catHtml = '<option value="">Select Category</option>' + this.state.categories.map(c => `<option value="${c.Category}">${c.Category}</option>`).join('');
+            document.getElementById('filterCategory').innerHTML = catHtml;
+            document.getElementById('asnCategory').innerHTML = catHtml;
+            
+            document.getElementById('asnUser').innerHTML = this.state.users.map(u => `<option value="${u.Email || u}">${u.DisplayName || u}</option>`).join('');
+            document.getElementById('asnDSU').innerHTML = this.state.units.map(d => `<option value="${d.Unit || d}">${d.Unit || d}</option>`).join('');
+        },
+
+        syncSubcats() {
+            const catVal = document.getElementById('asnCategory').value;
+            const sub = this.state.categories.filter(c => c.Category === catVal);
+            document.getElementById('asnSubCategory').innerHTML = sub.map(s => `<option value="${s.Subcategory}">${s.Subcategory}</option>`).join('');
+        },
+
+        renderTasks() {
+            const query = document.getElementById('taskSearch').value.toLowerCase();
+            const status = document.getElementById('filterStatus').value;
+            const cat = document.getElementById('filterCategory').value;
+
+            const filtered = this.state.tasks.filter(t => {
+                return (t.Title?.toLowerCase().includes(query)) &&
+                       (!status || t.Status === status) &&
+                       (!cat || t.Category === cat);
+            }).sort((a,b) => new Date(b.Created) - new Date(a.Created));
+
+            document.getElementById('taskList').innerHTML = filtered.map(t => `
+                <div class="card" onclick="App.prepAssignment('${t.id || t.ID}', 'task')">
+                    <div class="card-header">
+                        <span class="card-title">${t.Title || 'Untitled Task'}</span>
+                        <span class="status-pill" style="background:${t.Status==='Treated'?'#d4edda':'#fff3cd'}">${t.Status || 'New'}</span>
+                    </div>
+                    <div style="margin-top:10px; font-size:0.85rem; color:#666">
+                        <strong>ID:</strong> ${t.id || t.ID} | <strong>Assigned To:</strong> ${t.AssignedTo || 'Unassigned'}
+                    </div>
+                </div>
+            `).join('');
+        },
+
+        renderDocs() {
+            const query = document.getElementById('docSearch').value.toLowerCase();
+            const filtered = this.state.docs.filter(d => d.Title?.toLowerCase().includes(query));
+
+            document.getElementById('docList').innerHTML = filtered.map(d => `
+                <div class="card" onclick="App.prepAssignment('${d.ID}', 'doc')">
+                    <div class="card-header">
+                        <span class="card-title">${d.Title}</span>
+                        <span class="status-pill" style="background:#e3f2fd">Document</span>
+                    </div>
+                    <div style="margin-top:8px; font-size:0.85rem">Reference: ${d.RefID || 'N/A'}</div>
+                </div>
+            `).join('');
+        },
+
+        prepAssignment(id, type) {
+            const item = type === 'task' ? this.state.tasks.find(x => (x.id || x.ID) == id) : this.state.docs.find(x => x.ID == id);
+            this.state.activeItem = item;
+            document.getElementById('asnItemTitle').textContent = `Assigning: ${item.Title}`;
+            this.switchView('assignment');
+        },
+
+        switchView(viewId, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            if(btn) {
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        },
+
+        async submitAsn() {
+            if (!this.state.activeItem) return this.notify("No item selected", "error");
+            
+            const payload = {
+                action: "createTask",
+                originalId: this.state.activeItem.id || this.state.activeItem.ID,
+                title: this.state.activeItem.Title,
+                category: document.getElementById('asnCategory').value,
+                subCategory: document.getElementById('asnSubCategory').value,
+                assignedTo: document.getElementById('asnUser').value,
+                dsu: document.getElementById('asnDSU').value,
+                priority: document.getElementById('asnPriority').value,
+                comments: document.getElementById('asnComments').value,
+                initiator: CONFIG.userEmail
+            };
+
+            this.showLoading(true, "Transmitting Assignment to Power Automate...");
+            try {
+                const res = await fetch(CONFIG.endpoints.submitAsn, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    this.notify("Assignment Successfully Created");
+                    this.switchView('tasks');
+                    await this.refreshData();
+                } else {
+                    throw new Error("Flow Error");
+                }
+            } catch (err) {
+                this.notify("Submission failed. Check Power Automate logs.", "error");
+            } finally {
+                this.showLoading(false);
+            }
+        }
+    };
+
+    window.onload = () => App.init();
+</script>
+
+</body>
+</html>

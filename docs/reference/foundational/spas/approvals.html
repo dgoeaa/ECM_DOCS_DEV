@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DGO Digital Ops - Approvals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .nitda-gradient { background: linear-gradient(135deg, #05583B 0%, #00A69D 100%); }
+        .approval-card.active { border-left: 4px solid #05583B; background-color: #F0FDFA; }
+        .scroller::-webkit-scrollbar { width: 6px; }
+        .scroller::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        
+        /* Signature Pad Simulation */
+        .sig-pad {
+            border-bottom: 2px solid #333;
+            font-family: 'Brush Script MT', cursive;
+            font-size: 1.5rem;
+            color: #000080; /* Navy Blue Ink */
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- GLOBAL NAV -->
+    <nav class="nitda-gradient text-white shadow-md sticky top-0 z-50 shrink-0">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-14 items-center">
+                <div class="flex items-center space-x-4 md:space-x-8">
+                    <span class="font-bold text-lg tracking-wider">NITDA DGO</span>
+                    <div class="hidden md:flex space-x-1">
+                        <a href="index.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">📑 Registry</a>
+                        <a href="approvals.html" class="px-3 py-1.5 rounded-md text-sm font-bold bg-white/20">✅ Approvals</a>
+                        <a href="assignments.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">✍️ Assignments</a>
+                        <a href="registry_movement.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">📂 Files</a>
+                    </div>
+                </div>
+                <div class="text-xs bg-white/20 px-2 py-1 rounded shadow-sm">DG Office</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <!-- LEFT: APPROVAL LIST -->
+        <div id="pane-list" class="w-full md:w-[380px] bg-white border-r flex flex-col z-10">
+            <div class="p-3 border-b bg-gray-50 flex justify-between items-center shrink-0">
+                <h2 class="font-bold text-[#05583B]">Pending Actions (4)</h2>
+                <div class="flex gap-1">
+                    <button class="text-xs bg-white border px-2 py-1 rounded hover:bg-gray-100">Filter</button>
+                    <button class="text-xs bg-white border px-2 py-1 rounded hover:bg-gray-100">↻</button>
+                </div>
+            </div>
+            
+            <div id="approval-list" class="flex-1 overflow-y-auto scroller">
+                <!-- Mock Item 1 -->
+                <div class="approval-item p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectItem('AP-101')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="bg-purple-100 text-purple-800 text-[10px] px-2 rounded font-bold">MEMO</span>
+                        <span class="text-[10px] text-gray-400">Today, 09:00</span>
+                    </div>
+                    <div class="text-sm font-bold text-gray-800 mb-1 leading-snug">Approval for Q1 Cybersecurity Training Budget</div>
+                    <div class="text-[11px] text-gray-500 flex items-center gap-1">
+                        <span class="font-semibold text-gray-600">From:</span> Director, CS
+                    </div>
+                </div>
+
+                <!-- Mock Item 2 -->
+                <div class="approval-item p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors" onclick="selectItem('AP-102')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] px-2 rounded font-bold">LEAVE</span>
+                        <span class="text-[10px] text-gray-400">Yesterday</span>
+                    </div>
+                    <div class="text-sm font-bold text-gray-800 mb-1 leading-snug">Annual Leave Request (10 Days)</div>
+                    <div class="text-[11px] text-gray-500 flex items-center gap-1">
+                        <span class="font-semibold text-gray-600">From:</span> Head, HR
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: REVIEW PANE -->
+        <div id="pane-detail" class="hidden md:flex flex-1 bg-gray-100 flex-col relative z-0">
+            <!-- Mobile Back -->
+            <div class="md:hidden p-2 bg-[#05583B] text-white flex items-center cursor-pointer" onclick="toggleMobilePane()">
+                <span class="mr-2">← Back</span> <span class="font-bold text-sm">Approvals</span>
+            </div>
+
+            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p>Select a request to review</p>
+            </div>
+
+            <div id="content-state" class="hidden flex-col h-full">
+                <!-- Header -->
+                <div class="bg-white border-b px-6 py-4 flex justify-between items-start shadow-sm shrink-0">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="det-id" class="text-xs font-bold bg-gray-200 px-2 py-0.5 rounded text-gray-600">AP-101</span>
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-800">Pending Review</span>
+                        </div>
+                        <h2 id="det-title" class="text-xl font-bold text-[#05583B] leading-tight">Approval for Q1 Cybersecurity Training Budget</h2>
+                        <p id="det-meta" class="text-sm text-gray-500 mt-1">Submitted by <strong>Dr. Dimka (Director CS)</strong> on 04 Jan 2026</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="approve()" class="bg-[#05583B] text-white px-5 py-2 rounded shadow hover:bg-green-800 text-sm font-bold flex items-center gap-2 transition transform hover:scale-105">
+                            <span>✓</span> Approve
+                        </button>
+                        <button onclick="reject()" class="bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded shadow-sm hover:bg-red-100 text-sm font-bold flex items-center gap-2 transition">
+                            <span>✕</span> Reject
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    
+                    <!-- Justification Card -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-3 border-b pb-2">Executive Summary</h3>
+                        <p class="text-sm leading-relaxed text-gray-700 text-justify">
+                            This memo seeks the DG's approval for the sum of <strong>N4,500,000.00</strong> to conduct specialized cybersecurity awareness training for 50 staff members. The training aligns with Strategic Pillar 4 (Digital Literacy & Skills).
+                            <br><br>
+                            Breakdown attached. Funds are available under Budget Head 2026/CS/TRN/001.
+                        </p>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-3">Supporting Documents</h3>
+                        <div class="flex gap-3">
+                            <div class="flex items-center gap-2 p-2 border rounded bg-gray-50 hover:bg-gray-100 cursor-pointer">
+                                <span class="text-red-500 text-xl">📄</span>
+                                <div class="text-xs">
+                                    <div class="font-bold">Budget_Breakdown.pdf</div>
+                                    <div class="text-gray-400">240 KB</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 p-2 border rounded bg-gray-50 hover:bg-gray-100 cursor-pointer">
+                                <span class="text-blue-500 text-xl">📝</span>
+                                <div class="text-xs">
+                                    <div class="font-bold">Vendor_Proposals.docx</div>
+                                    <div class="text-gray-400">1.2 MB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approval Section -->
+                    <div class="bg-[#F0FDFA] p-6 rounded-lg border border-[#00A69D] shadow-inner">
+                        <h3 class="text-sm font-bold text-[#05583B] uppercase mb-2">DG's Minute / Comment</h3>
+                        <textarea id="dg-comment" class="w-full bg-white border border-gray-300 rounded p-3 text-sm focus:ring-2 focus:ring-[#05583B] outline-none" rows="3" placeholder="Add comments, directives, or conditions for approval..."></textarea>
+                        
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="digital-sig" class="w-4 h-4 text-[#05583B] rounded focus:ring-[#05583B]">
+                                <label for="digital-sig" class="text-xs font-bold text-gray-700">Append Digital Signature</label>
+                            </div>
+                            <div class="text-right opacity-50" id="sig-preview-box">
+                                <div class="sig-pad w-32">K.I.A</div>
+                                <div class="text-[10px] font-bold text-gray-500 uppercase">Kashifu Inuwa Abdullahi</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ---
+        
+        function selectItem(id) {
+            // Highlight
+            document.querySelectorAll('.approval-item').forEach(el => el.classList.remove('active', 'border-l-4', 'border-[#05583B]', 'bg-[#F0FDFA]'));
+            event.currentTarget.classList.add('active', 'border-l-4', 'border-[#05583B]', 'bg-[#F0FDFA]');
+
+            // Show Content
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('content-state').classList.remove('hidden');
+            document.getElementById('content-state').classList.add('flex');
+            
+            // On Mobile
+            if(window.innerWidth < 768) {
+                document.getElementById('pane-list').classList.add('hidden');
+                document.getElementById('pane-detail').classList.remove('hidden');
+                document.getElementById('pane-detail').classList.add('flex');
+            }
+        }
+
+        function toggleMobilePane() {
+            document.getElementById('pane-list').classList.remove('hidden');
+            document.getElementById('pane-detail').classList.add('hidden');
+            document.getElementById('pane-detail').classList.remove('flex');
+        }
+
+        async function approve() {
+            if(!confirm("Confirm Approval? This action is irreversible.")) return;
+            
+            const btn = event.currentTarget;
+            btn.innerHTML = "Processing...";
+            btn.disabled = true;
+
+            const payload = {
+                Action: "Approve",
+                RefID: document.getElementById('det-id').innerText,
+                Comment: document.getElementById('dg-comment').value,
+                Signed: document.getElementById('digital-sig').checked
+            };
+
+            // Using Create Task Flow URL as placeholder for Approval Action
+            const URL = "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0";
+
+            try {
+                // await fetch(URL, { method: 'POST', body: JSON.stringify(payload) }); // Actual call
+                await new Promise(r => setTimeout(r, 1000)); // Sim delay
+                
+                alert("Request Approved Successfully!");
+                location.reload(); // Refresh list
+            } catch(e) {
+                alert("Error processing approval.");
+                btn.innerHTML = "✓ Approve";
+                btn.disabled = false;
+            }
+        }
+
+        async function reject() {
+            const reason = prompt("Please provide a reason for rejection:");
+            if(!reason) return;
+
+            // Similar logic to Approve but with Action: "Reject"
+            alert("Request Rejected. Notification sent to initiator.");
+            location.reload();
+        }
+    </script>
+</body>
+</html>
+```
+
+### **Integration Step**
+To make this module accessible, add the following link to the `<nav>` section of **all other HTML files** (`index.html`, `assignments.html`, etc.):
+
+```html
+<a href="approvals.html" class="px-3 py-1.5 rounded-md text-sm font-bold bg-white/20">✅ Approvals</a>

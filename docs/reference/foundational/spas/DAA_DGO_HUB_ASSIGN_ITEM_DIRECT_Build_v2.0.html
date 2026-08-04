@@ -1,0 +1,1170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- NITDA EMBED ALIGNMENT OVERRIDES -->
+<style id="nitda-embed-overrides">9
+  /* Hides native chrome when in shell */
+  html[data-nitda-embed="1"] body { background: var(--bg, #F0F4F2); }
+  html[data-nitda-embed="1"] .sidebar,
+  html[data-nitda-embed="1"] .top-bar,
+  html[data-nitda-embed="1"] .mobile-overlay,
+  html[data-nitda-embed="1"] .theme-selector,
+  html[data-nitda-embed="1"] #screen-landing { display: none !important; }
+  html[data-nitda-embed="1"] .main-content { margin: 0 !important; }
+  html[data-nitda-embed="1"] .screen-area { padding: 0 !important; }
+</style>
+
+<!-- NITDA MODULE ADAPTER v5.0 & GLOBAL INTERCEPTOR -->
+<script>
+/* -------------------------------------------------------------------------
+   1. NITDA Module Adapter v5.0
+   ------------------------------------------------------------------------- */
+(function(){
+  if (window === window.parent) return; // Exit if Standalone
+  document.documentElement.setAttribute('data-nitda-embed','1');
+  var _o = window.location.origin || '*';
+  var _p = {}; var _topics = {}; var _unmount = []; var _cmds = {};
+
+  function _send(t, p, id){ var msgId = id || Math.random().toString(36).slice(2,9); window.parent.postMessage({source:'NITDA_MODULE',type:t,payload:p||{},id:msgId}, _o); return msgId; }
+  function _req(t, p, opts){ opts = opts || {}; return new Promise(function(resolve){ var id = Math.random().toString(36).slice(2,9); _p[id] = resolve; _send(t, p, id); setTimeout(function(){ if (_p[id]) { resolve(null); delete _p[id]; } }, opts.timeout || 35000); }); }
+
+  window.addEventListener('message', function(e){
+    if (!e.data || e.data.source !== 'NITDA_SHELL') return;
+    var t = e.data.type, p = e.data.payload, r = e.data.replyId;
+    if (r && _p[r]) { _p[r](p); delete _p[r]; return; }
+    if (t === 'THEME_CHANGE') document.documentElement.dataset.theme = p.theme;
+    if (t === 'TOKEN_MAP') Object.keys(p).forEach(function(k){ document.documentElement.style.setProperty(k, p[k]); });
+    if (t === 'CONFIG_PUSH') window._NITDA_CFG = p;
+    if (t === 'PUB_DATA' && _topics[p.topic]) _topics[p.topic].forEach(function(cb){ try{cb(p.data, p.from);}catch(e){} });
+    if (t === 'WILL_UNLOAD') _unmount.splice(0).forEach(function(cb){ try{cb();}catch(e){} });
+  });
+
+  window.NITDA = {
+    ready: function(){ _send('MODULE_READY', {title: document.title}); },
+    onUnmount: function(cb){ if (typeof cb === 'function') _unmount.push(cb); },
+    toast: function(msg, type, title){ _send('TOAST', {msg:msg, type:type||'inf', title:title}); },
+    callFlow: function(endpointId, body, opts){ return _req('PA_CALL', {endpointId:endpointId, body:body||{}, opts:opts||{}}, {timeout:(opts&&opts.timeout)||35000}); },
+    validate: function(schemaId, data){ return _req('VALIDATE', {schemaId:schemaId, data:data}); },
+    publish: function(topic, data){ _send('PUB_PUBLISH', {topic:topic, data:data}); },
+    log: function(msg){ _send('AUDIT', {msg:msg}); },
+    getUser: function(){ return _req('GET_USER', {}); }
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ window.NITDA.ready(); });
+  else window.NITDA.ready();
+})();
+
+/* -------------------------------------------------------------------------
+   2. GLOBAL INTERCEPTOR (MONKEY PATCH)
+   Securely routes your existing app's functions through the Master Shell
+   without requiring you to rewrite your components.
+   ------------------------------------------------------------------------- */
+(function() {
+  const IN_SHELL = (window !== window.parent);
+  if (!IN_SHELL) return;
+
+  const originalFetch = window.fetch;
+  window.fetch = async function(...args) {
+      const url = typeof args[0] === 'string' ? args[0] : (args[0] ? args[0].url : '');
+
+      if (url.includes('powerautomate/automations/direct')) {
+          let endpointId = 'E05'; // default mutation
+          let schemaId = '';
+
+          if (url.includes('ff455c68e9ac493e858fb984bcfd01fb')) { endpointId = 'E01'; schemaId = 'S02_get-references-lookup-schema'; }
+          else if (url.includes('818ec4053f1e4f0b87845114241d8b74')) { endpointId = 'E02'; schemaId = 'S01_get-docs-flow-trigger-schema'; }
+          else if (url.includes('37642ba3597f4cf58288cc71b5e6b519')) { endpointId = 'E03'; schemaId = 'S04_get-tasks-flow-schema'; }
+          else if (url.includes('3931e2ff995242b6b2c920c8b2209797')) { endpointId = 'E04'; schemaId = 'S03_get-emails-flow-trigged-schema'; }
+
+          let bodyObj = {};
+          if (args[1] && args[1].body) {
+              try { bodyObj = JSON.parse(args[1].body); } catch(e) {}
+          }
+
+          let v = await window.NITDA.validate(schemaId, bodyObj);
+          if (v && v.valid === false) {
+              window.NITDA.toast('Invalid request payload', 'err');
+              return new Response(JSON.stringify({ error: 'Validation failed' }), { status: 400 });
+          }
+
+          window.NITDA.log(`[${endpointId}] Fetch intercepted & routed via Shell`);
+          let res = await window.NITDA.callFlow(endpointId, bodyObj);
+
+          if (res && res.ok) {
+              if (endpointId === 'E05') window.NITDA.publish('data:updated', { source: 'digital-ops-hub-lookup' });
+              return new Response(JSON.stringify(res.data || {}), { status: 200, headers: {'Content-Type': 'application/json'} });
+          } else {
+              return new Response(JSON.stringify({ error: res ? res.error : 'Unknown error' }), { status: 500 });
+          }
+      }
+
+      return originalFetch.apply(this, args);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+          const originalToast = window.toast || window.showToast;
+          if (originalToast) {
+              window.toast = window.showToast = function(msg, type, title) {
+                  if (window.NITDA && window.NITDA.toast) {
+                      let t = type === 'success' ? 'ok' : (type === 'error' ? 'err' : 'inf');
+                      window.NITDA.toast(msg, t, title);
+                  } else {
+                      originalToast(msg, type, title);
+                  }
+              };
+          }
+
+          if (window.NITDA && window.NITDA.getUser) {
+              window.NITDA.getUser().then(u => {
+                  if (u && u.user && u.user.email) {
+                      let landing = document.getElementById('screen-landing');
+                      if (landing) landing.style.display = 'none';
+                      if (typeof state !== 'undefined') state.userEmail = u.user.email;
+                      if (typeof initApp === 'function') initApp(u.user.email);
+                  }
+              }).catch(e => console.log('Identity bypass failed', e));
+          }
+      }, 1000);
+  });
+})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NITDA Digital Operations Hub - Lookup Variant</title>
+<style>
+/* ============================================================
+   NITDA DIGITAL OPS HUB — COMPLETE CSS SYSTEM (VARIANT)
+   ============================================================ */
+:root {
+  --brand-primary:           var(--p,    #008751);
+  --brand-secondary:         var(--s,    #00A69D);
+  --brand-tertiary:          var(--p-d,  #373435);
+  --neutral-primary:         var(--tx,   #2D3748);
+  --neutral-secondary:       var(--tx2,  #6B7280);
+  --neutral-tertiary:        var(--bdr,  #D1D5DB);
+  --neutral-light:           var(--bdr-l,#E5E7EB);
+  --neutral-lighter:         var(--bdr-xl,#F3F4F6);
+  --bg-primary:              var(--sur,  #FFFFFF);
+  --bg-secondary:            var(--sur2, #F3F4F6);
+  --fg-primary:              var(--tx,   #2D3748);
+  --fg-secondary:            var(--p-l,  #05583B);
+  --error:                   var(--err,  #A92323);
+  --warning:                 var(--warn, #E05606);
+  --success:                 var(--ok,   #107C10);
+  --input-fill:              var(--sur3, #E6F7F9);
+  --accent-blue:             var(--acc,  #0557D8);
+  --accent-gold:             #FFCC00;
+  --sidebar-width:           var(--sb-w, 280px);
+  --sidebar-collapsed-width: var(--sb-w-col, 68px);
+  --header-height:           var(--tb-h, 56px);
+  --radius:                  var(--r-sm, 6px);
+  --shadow:                  var(--sh-sm, 0 2px 8px rgba(0,0,0,0.08));
+  --shadow-md:               var(--sh-md, 0 4px 16px rgba(0,0,0,0.12));
+  --transition:              var(--tb,  0.2s ease);
+}
+[data-theme="dark"] {
+  --brand-primary: #00A69D; --brand-secondary: #008751; --neutral-primary: #E5E7EB;
+  --neutral-secondary: #9CA3AF; --neutral-tertiary: #4B5563; --neutral-light: #374151;
+  --neutral-lighter: #1F2937; --bg-primary: #121212; --bg-secondary: #1E1E1E;
+  --fg-primary: #E5E7EB; --fg-secondary: #00A69D; --error: #FF6B6B;
+  --warning: #E0A500; --success: #4ADE80; --input-fill: #2C2C2C;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; color: var(--fg-primary); background: var(--bg-primary); overflow: hidden; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+a { color: var(--brand-primary); text-decoration: none; }
+
+#app { display: flex; height: 100vh; overflow: hidden; position: relative; }
+
+/* SIDEBAR */
+.sidebar { width: var(--sidebar-width); min-width: var(--sidebar-width); background: var(--bg-primary); border-right: 1px solid var(--neutral-light); display: flex; flex-direction: column; transition: width var(--transition), min-width var(--transition); box-shadow: var(--shadow); z-index: 200; overflow: hidden; }
+.sidebar.collapsed { width: var(--sidebar-collapsed-width); min-width: var(--sidebar-collapsed-width); }
+.sidebar-header { background: var(--brand-primary); padding: 10px 12px; display: flex; align-items: center; gap: 10px; min-height: var(--header-height); flex-shrink: 0; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.sidebar-logo svg { flex-shrink: 0; }
+.sidebar-title { color: #fff; font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; opacity: 1; transition: opacity var(--transition); }
+.sidebar.collapsed .sidebar-title { opacity: 0; width: 0; }
+.sidebar-toggle { background: transparent; border: none; color: #fff; padding: 4px; border-radius: var(--radius); display: flex; align-items: center; flex-shrink: 0; }
+.sidebar-toggle:hover { background: rgba(255,255,255,0.2); }
+.sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px; }
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: var(--neutral-tertiary); border-radius: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius); cursor: pointer; color: var(--fg-secondary); transition: background var(--transition), color var(--transition); margin-bottom: 2px; white-space: nowrap; text-decoration: none; font-size: 13px; font-weight: 500; position: relative; border: 1px solid transparent; }
+.nav-item:hover { background: rgba(0,135,81,0.1); background: color-mix(in srgb, var(--brand-primary) 10%, transparent); }
+.nav-item.active { background: var(--brand-primary); color: #fff; font-weight: 600; }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent-gold); border-radius: 2px 0 0 2px; }
+.nav-item svg { flex-shrink: 0; }
+.nav-item .nav-label { opacity: 1; transition: opacity var(--transition); overflow: hidden; text-overflow: ellipsis; }
+.sidebar.collapsed .nav-label { opacity: 0; width: 0; }
+
+.main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-secondary); min-width: 0; }
+.top-bar { background: var(--bg-primary); border-bottom: 1px solid var(--neutral-light); padding: 8px 20px; display: flex; align-items: center; gap: 12px; min-height: var(--header-height); flex-shrink: 0; }
+.top-bar-title { font-size: 16px; font-weight: 600; color: var(--fg-primary); flex: 1; }
+.top-bar-actions { display: flex; align-items: center; gap: 8px; }
+.screen-area { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0; display: flex; flex-direction: column; }
+.screen-area::-webkit-scrollbar { width: 6px; }
+.screen-area::-webkit-scrollbar-thumb { background: var(--neutral-tertiary); border-radius: 3px; }
+
+.screen { display: none; height: 100%; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* LANDING SCREEN */
+#screen-landing { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #000000 0%, #008751 60%, rgba(0,166,157,0.5) 100%); min-height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; }
+.landing-inner { text-align: center; color: #fff; padding: 40px; max-width: 400px; }
+.landing-logo-ring { width: 100px; height: 100px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; border: 3px solid rgba(255,255,255,0.4); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); } 50% { box-shadow: 0 0 0 16px rgba(255,255,255,0); } }
+.landing-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+.landing-subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 28px; }
+.identity-form { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+.identity-input { width: 100%; padding: 10px 14px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: #fff; font-size: 13px; margin-bottom: 8px; outline: none; }
+.preset-btn { padding: 8px 12px; border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.3); background: transparent; color: #fff; font-size: 12px; text-align: left; transition: background var(--transition); display: block; margin-bottom: 6px; width: 100%; }
+.preset-btn:hover { background: rgba(255,255,255,0.2); }
+.launch-btn { width: 100%; padding: 12px; background: var(--accent-gold); color: #000; border: none; border-radius: var(--radius); font-weight: 700; font-size: 14px; transition: background var(--transition); margin-top: 8px; }
+
+/* LOOKUP VARIANT UI */
+.lookup-wrapper { display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; background: var(--bg-secondary); padding: 20px; }
+.lookup-box { width: 100%; max-width: 480px; padding: 32px; background: var(--bg-primary); border-radius: var(--radius); box-shadow: var(--shadow-md); border: 1px solid var(--neutral-light); text-align: center; }
+.lookup-box h2 { font-size: 18px; margin-bottom: 24px; color: var(--fg-primary); }
+.lookup-box .form-group { text-align: left; margin-bottom: 16px; }
+
+/* Detail Panel for Full Width */
+.detail-panel { background: var(--bg-primary); display: flex; flex-direction: column; overflow: hidden; }
+.detail-header { padding: 12px 16px; border-bottom: 1px solid var(--neutral-light); display: flex; align-items: center; gap: 8px; }
+.detail-body { flex: 1; padding: 16px; }
+.detail-section { margin-bottom: 16px; }
+.detail-section-title { font-size: 11px; font-weight: 700; color: var(--neutral-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.detail-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+.detail-label { color: var(--neutral-secondary); width: 140px; min-width: 140px; font-weight: 500; }
+.detail-value { color: var(--fg-primary); flex: 1; word-break: break-all; }
+
+/* General Components */
+.card { background: var(--bg-primary); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; border: 1px solid var(--neutral-light); margin-bottom: 16px;}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--fg-primary); }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 500; border: 1px solid transparent; cursor: pointer; transition: all var(--transition); white-space: nowrap; text-decoration: none; }
+.btn-primary { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); }
+.btn-primary:hover { background: #006b40; border-color: #006b40; }
+.btn-secondary { background: var(--neutral-lighter); color: var(--fg-primary); border-color: var(--neutral-tertiary); }
+.btn-destructive { background: var(--error); color: #fff; border-color: var(--error); }
+.btn-teal { background: var(--brand-secondary); color: #fff; border-color: var(--brand-secondary); }
+.btn-warning { background: var(--warning); color: #fff; border-color: var(--warning); }
+.btn-info { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+.btn-note { background: #fffde7; color: var(--neutral-primary); border-color: var(--accent-gold); }
+.btn-ghost { background: transparent; color: var(--brand-primary); border-color: var(--brand-primary); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-icon { padding: 7px; }
+
+.action-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px; background: var(--bg-primary); border-bottom: 1px solid var(--neutral-light); flex-wrap: wrap; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-error { background: #fee2e2; color: #991b1b; }
+.badge-warning { background: #fef9c3; color: #854d0e; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.badge-neutral { background: var(--neutral-lighter); color: var(--neutral-secondary); }
+.badge-primary { background: rgba(0,135,81,0.15); color: var(--brand-primary); }
+
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--neutral-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+.form-control { width: 100%; padding: 8px 12px; border: 1px solid var(--neutral-tertiary); border-radius: var(--radius); font-size: 12px; background: var(--input-fill); color: var(--fg-primary); outline: none; transition: border-color var(--transition); }
+.form-control:focus { border-color: var(--brand-primary); }
+select.form-control { cursor: pointer; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+.notify-banner { padding: 8px 16px; font-size: 12px; display: flex; align-items: center; gap: 8px; border-radius: var(--radius); margin: 8px 16px; border: 1px solid; display: none; }
+.notify-banner.show { display: flex; }
+.notify-banner.success { background: #f0fdf4; color: #166534; border-color: #86efac; }
+.notify-banner.error { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
+.notify-banner.info { background: #eff6ff; color: #1e40af; border-color: #93c5fd; }
+.notify-banner.warning { background: #fffbeb; color: #92400e; border-color: #fcd34d; }
+
+.loading-overlay { position: fixed; inset: 0; background: rgba(0,135,81,0.85); display: none; align-items: center; justify-content: center; z-index: 11000; flex-direction: column; gap: 12px; color: #fff; font-weight: 600; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid var(--brand-primary); color: var(--brand-primary); background: transparent; transition: all var(--transition); }
+.chip.selected { background: var(--brand-primary); color: #fff; }
+
+.tab-bar { display: flex; border-bottom: 2px solid var(--neutral-light); padding: 0 16px; background: var(--bg-primary); flex-shrink: 0; }
+.tab { padding: 10px 16px; font-size: 12px; font-weight: 500; color: var(--neutral-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all var(--transition); }
+.tab.active { color: var(--brand-primary); border-bottom-color: var(--brand-primary); font-weight: 600; }
+
+.toggle-label { display: flex; padding: 10px 14px; background: rgba(0,135,81,0.1); border: 1px solid rgba(0,135,81,0.3); border-radius: var(--radius); cursor: pointer; font-size: 12px; font-weight: 600; color: var(--brand-primary); margin-bottom: 4px; white-space: pre-line; text-align: left; width: 100%;}
+.toggle-label.placeholder { font-weight: 400; color: var(--neutral-secondary); }
+.collapsible-content { display: none; background: var(--input-fill); border-radius: var(--radius); overflow: hidden; margin-bottom: 8px; }
+.collapsible-content.open { display: block; }
+
+.preview-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.preview-table td { padding: 7px 10px; border: 1px solid var(--neutral-light); }
+.preview-table td:first-child { font-weight: 600; color: var(--neutral-secondary); background: var(--neutral-lighter); width: 140px; }
+.preview-table .highlight { background: #dff0d8; color: #155724; }
+
+.email-html-body { font-size: 12px; line-height: 1.6; overflow-wrap: break-word; }
+.email-frame { background: var(--bg-primary); border: 1px solid var(--neutral-light); border-radius: var(--radius); overflow: hidden; }
+
+.user-select, .user-option { cursor: pointer; font-size: 12px; padding: 7px 12px;}
+.user-option:hover { background: rgba(0,135,81,0.1); }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.show { display: flex; }
+.modal-box { background: var(--bg-primary); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 20px; min-width: 320px; max-width: 500px; width: 100%; max-height: 86vh; overflow-y: auto; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--neutral-light); }
+.modal-title { font-size: 14px; font-weight: 700; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--neutral-light); }
+
+.theme-selector { padding: 5px 8px; border: 1px solid rgba(255,255,255,0.4); border-radius: var(--radius); background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; cursor: pointer; }
+.theme-selector option { background: var(--bg-primary); color: var(--fg-primary); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { background: var(--brand-primary); color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; white-space: nowrap; }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid var(--neutral-light); color: var(--fg-primary); }
+
+:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+.fade-in { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Sidebar footer */
+.sidebar-footer { padding: 8px; border-top: 1px solid var(--neutral-light); flex-shrink: 0; }
+.user-info { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: var(--radius); cursor: pointer; position: relative;}
+.user-avatar { width: 32px; height: 32px; background: var(--brand-primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: var(--neutral-secondary); }
+.user-menu { position: absolute; bottom: calc(100% + 4px); left: 8px; right: 8px; background: var(--bg-primary); border: 1px solid var(--neutral-light); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 4px; display: none; z-index: 250; }
+.user-menu.show { display: block; }
+.user-menu button { width: 100%; text-align: left; background: transparent; border: none; padding: 8px 10px; border-radius: var(--radius); font-size: 12px; color: var(--fg-primary); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.user-menu button:hover { background: var(--neutral-lighter); }
+.user-menu button.danger { color: var(--error); }
+</style>
+</head>
+<body>
+
+<!-- LANDING SCREEN -->
+<div id="screen-landing">
+  <div class="landing-inner">
+    <div class="landing-logo-ring">
+      <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+        <ellipse cx="12" cy="6" rx="8" ry="3"/>
+        <path d="M4 6v6c0 1.657 3.582 3 8 3s8-1.343 8-3V6"/>
+        <path d="M4 12v6c0 1.657 3.582 3 8 3s8-1.343 8-3v-6"/>
+      </svg>
+    </div>
+    <div class="landing-title">NITDA Digital Ops Hub</div>
+    <div class="landing-subtitle">Single-Item Lookup & Action Variant</div>
+    <div class="identity-form">
+      <div class="identity-preset-btns">
+        <button class="preset-btn" onclick="setIdentity('dgsregistry@nitda.gov.ng','Admin / Registry')">👤 DGS Registry <span style="opacity:0.6;float:right">Admin</span></button>
+        <button class="preset-btn" onclick="setIdentity('dg@nitda.gov.ng','Director General/CEO')">🏛️ DG/CEO <span style="opacity:0.6;float:right">DGCEO</span></button>
+      </div>
+      <input type="email" class="identity-input" id="email-input" placeholder="Enter your email address..." />
+      <input type="text" class="identity-input" id="name-input" placeholder="Your full name..." style="margin-top:6px;" />
+      <button class="launch-btn" onclick="startApp()">🚀 Access System</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;">
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="global-loader">
+    <div class="spinner"></div>
+    <div id="global-loader-msg">Loading...</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span class="sidebar-title">Digital Ops</span>
+      </div>
+    </div>
+    <div class="sidebar-header" style="background:var(--bg-primary); border-bottom: 1px solid var(--neutral-light); padding:8px 12px; min-height:auto; flex-shrink:0;">
+      <select class="theme-selector" id="theme-selector" onchange="applyTheme(this.value)" style="flex:1; background:var(--input-fill); color:var(--fg-primary); border-color:var(--neutral-tertiary);">
+        <option value="default">🎨 Default</option>
+        <option value="dark">🌙 Dark</option>
+        <option value="corporate">🏢 Corporate</option>
+      </select>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- Populated by JS -->
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info" id="user-info-btn" role="button" tabindex="0" onclick="toggleUserMenu()">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div style="flex:1;min-width:0;">
+          <div class="user-name" id="sidebar-username">Unknown User</div>
+          <div class="user-role" id="sidebar-role">Staff</div>
+        </div>
+        <div class="user-menu" id="user-menu">
+          <button type="button" class="danger" onclick="event.stopPropagation(); signOut()">↪ Sign out / Switch user</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="top-bar">
+      <div class="top-bar-title" id="screen-title">Direct Lookup & Action</div>
+      <div class="top-bar-actions">
+        <button class="btn btn-secondary btn-sm" onclick="fetchLookups(false, true)">🔄 Reload Dictionaries</button>
+      </div>
+    </div>
+
+    <div class="screen-area">
+      <!-- ======================== LOOKUP SCREEN ======================== -->
+      <div class="screen active" id="screen-lookup">
+        
+        <!-- Search UI Wrapper -->
+        <div class="lookup-wrapper" id="lookup-wrapper">
+          <div class="lookup-box fade-in">
+            <h2>🔍 System Record Lookup</h2>
+            <div class="form-group">
+              <label class="form-label" style="text-align:left;">Item Type</label>
+              <select id="lookup-type" class="form-control" style="font-size:14px; padding:10px;">
+                <option value="doc">📄 Document / Activity</option>
+                <option value="task">✅ Task</option>
+                <option value="email">📧 Email</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="text-align:left;">Identifier</label>
+              <input type="text" id="lookup-id" class="form-control" placeholder="Enter ID or Title keyword..." style="font-size:14px; padding:10px;" onkeydown="if(event.key === 'Enter') executeLookup();">
+            </div>
+            <div class="notify-banner" id="lookup-notify" style="margin: 0 0 16px 0; border-radius:4px;"></div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; padding:12px; font-size:14px;" onclick="executeLookup()">Fetch Item</button>
+          </div>
+        </div>
+
+        <!-- Detail / Result Area -->
+        <div id="lookup-result-area" style="display:none; flex:1; flex-direction:column; overflow:hidden; background:var(--bg-secondary);">
+          
+          <!-- Generic Document/Task Container -->
+          <div id="generic-detail-container" style="display:none; padding:20px; overflow-y:auto; flex:1;"></div>
+
+          <!-- Email Detail Area (Preserving original structure) -->
+          <div id="email-detail-area" style="display:none; flex:1; padding:20px; overflow-y:auto;">
+            <div class="action-bar" style="margin-bottom:12px; border-radius:var(--radius);">
+              <button class="btn btn-secondary btn-sm" onclick="resetLookup()">← Back to Search</button>
+              <span style="font-size:14px; font-weight:bold; margin-left:8px;">📧 Email Detail</span>
+            </div>
+            <div class="card" id="email-detail-header-card" style="margin-bottom:12px;">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                <div style="flex:1;">
+                  <div style="font-size:15px; font-weight:700; color:var(--fg-primary); margin-bottom:8px;" id="email-detail-subject"></div>
+                  <div style="font-size:12px; color:var(--neutral-secondary); display:flex; flex-wrap:wrap; gap:10px;">
+                    <span>📤 <span id="email-detail-from"></span></span>
+                    <span>📅 <span id="email-detail-date"></span></span>
+                    <span id="email-detail-attachments" style="display:none;">📎 Has Attachments</span>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;">
+                  <button class="btn btn-primary btn-sm" onclick="openEmailToTask()">➕ Create Task</button>
+                </div>
+              </div>
+            </div>
+            <div class="card email-frame">
+              <div id="email-detail-body" class="email-html-body" style="padding:12px;"></div>
+            </div>
+          </div>
+
+          <!-- Email-to-Task Form (Preserving original structure) -->
+          <div id="email-to-task-form" style="display:none; flex:1; padding:20px; overflow-y:auto;" class="fade-in">
+            <div class="action-bar" style="margin-bottom:12px; border-radius:var(--radius); justify-content:space-between;">
+              <span style="font-size:14px;font-weight:700;">➕ Create Task from Email</span>
+              <button class="btn btn-secondary btn-sm" onclick="closeEmailToTask()">✕ Cancel</button>
+            </div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+              <div style="flex:1; min-width:260px;">
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control" id="etask-title" maxlength="255"></div>
+                <div class="form-group"><label class="form-label">Category</label><select class="form-control" id="etask-category" onchange="onETaskCategoryChange()"><option value="">Select...</option></select></div>
+                <div class="form-group"><label class="form-label">Sub-Category</label><select class="form-control" id="etask-subcategory" onchange="applyETaskCategoryCascade()"><option value="">Select...</option></select></div>
+                <div class="form-group"><label class="form-label">Assign To</label>
+                  <input type="text" class="form-control" id="etask-assignee" oninput="filterEmailTaskUsers()">
+                  <div id="etask-user-suggestions" style="max-height:120px;overflow-y:auto;border:1px solid var(--neutral-tertiary);border-top:none;display:none; background:var(--input-fill);"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Priority</label><select class="form-control" id="etask-priority"><option>P3 (Normal)</option><option>P1 (High)</option><option>P2 (Medium)</option><option>P4 (Low)</option></select></div>
+                <div class="form-group"><label class="form-label">Co-Assignee</label>
+                  <input type="text" class="form-control" id="etask-coassignee" oninput="filterEmailTaskCoAssignee()">
+                  <div id="etask-coassignee-suggestions" style="max-height:100px;overflow-y:auto;border:1px solid var(--neutral-tertiary);border-top:none;display:none; background:var(--input-fill);"></div>
+                </div>
+                <div class="form-group"><label class="form-label">CC Recipients</label>
+                  <input type="text" class="form-control" id="etask-cc" oninput="filterEmailTaskCC()">
+                  <div id="etask-cc-suggestions" style="max-height:100px;overflow-y:auto;border:1px solid var(--neutral-tertiary);border-top:none;display:none; background:var(--input-fill);"></div>
+                  <div id="etask-cc-tags" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Action Required</label><select class="form-control" id="etask-action-req"><option value="">Not Set</option><option>Review</option><option>Approval</option><option>Information</option></select></div>
+                <div class="form-group"><label class="form-label">Comments</label><textarea class="form-control" id="etask-comments" rows="3"></textarea></div>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                  <button class="btn btn-primary" onclick="previewEmailTask()">👁️ Preview Task</button>
+                  <button class="btn btn-secondary" onclick="closeEmailToTask()">Cancel</button>
+                </div>
+                <div class="notify-banner" id="etask-notify" style="margin-top:8px;"></div>
+              </div>
+              <div style="flex:1; min-width:240px;">
+                <div class="card email-frame">
+                  <div style="font-size:11px;font-weight:600;color:var(--neutral-secondary);margin-bottom:8px;">Email Reference:</div>
+                  <div style="font-size:12px;font-weight:600;" id="etask-email-subject-preview"></div>
+                  <div style="font-size:11px;color:var(--neutral-secondary);margin-top:4px;" id="etask-email-from-preview"></div>
+                  <div style="font-size:11px;margin-top:8px;padding:8px;background:var(--neutral-lighter);border-radius:4px;color:var(--fg-primary);line-height:1.5;max-height:120px;overflow-y:auto;" id="etask-body-preview"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="email-empty-state" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- ======================== ASSIGNMENT SCREEN (Preserved exact parity) ======================== -->
+      <div class="screen" id="screen-assign">
+        <div class="action-bar" id="assign-action-bar"></div>
+        <div class="notify-banner" id="assign-notify"></div>
+        <div style="flex:1; display:flex; overflow:hidden;" id="assign-body">
+          <div id="assign-entry" style="flex:1; overflow-y:auto; padding:16px; display:flex; gap:16px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:280px; max-width:420px; display:flex; flex-direction:column; gap:8px;">
+              <div id="assign-activity-banner" style="background:color-mix(in srgb, var(--brand-primary) 10%, var(--bg-primary)); border:1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent); border-radius:var(--radius); padding:10px 14px; font-size:12px; display:none;">
+                <div style="font-weight:600;color:var(--brand-primary);margin-bottom:4px;">Selected Activity:</div>
+                <div id="assign-activity-title" style="color:var(--fg-primary);"></div>
+                <div id="assign-activity-id" style="color:var(--neutral-secondary);font-size:11px;margin-top:3px;"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Assignment Type</label><div class="chip-group" id="assign-type-chips"><button class="chip selected" data-val="newassignment" onclick="setAssignType('newassignment',this)">New Assignment</button><button class="chip" data-val="reassignment" onclick="setAssignType('reassignment',this)">Re-Assignment</button></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="cat-toggle-label" onclick="toggleCatDropdown()">📂 Click to choose a Category</button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="cat-clear-btn" onclick="clearField('category')" style="display:none;">✕</button></div><div class="collapsible-content" id="cat-dropdown"><input type="text" class="form-control" id="cat-search" placeholder="Search..." oninput="filterCatDropdown()"><div id="cat-list" style="max-height:200px; overflow-y:auto;"></div></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="assignee-toggle-label" onclick="toggleAssigneeDropdown()">👤 Click to select Assignee</button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="assignee-clear-btn" onclick="clearField('assignee')" style="display:none;">✕</button></div><div class="collapsible-content" id="assignee-dropdown"><div class="tab-bar" style="padding:0;"><div class="tab active" onclick="switchAssigneeTab('dept',this)">By Department</div><div class="tab" onclick="switchAssigneeTab('user',this)">By User</div></div><input type="text" class="form-control" id="assignee-search" placeholder="Search..." oninput="filterAssigneeList()"><div id="assignee-list" style="max-height:180px; overflow-y:auto;"></div></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="coassignee-toggle-label" onclick="toggleCoAssigneeDropdown()">👥 Click to select Co-Assignee</button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="coassignee-clear-btn" onclick="clearField('coassignee')" style="display:none;">✕</button></div><div class="collapsible-content" id="coassignee-dropdown"><div class="tab-bar" style="padding:0;"><div class="tab active" onclick="switchCoAssigneeTab('dept',this)">By Department</div><div class="tab" onclick="switchCoAssigneeTab('user',this)">By User</div></div><input type="text" class="form-control" id="coassignee-search" placeholder="Search..." oninput="filterCoAssigneeList()"><div id="coassignee-list" style="max-height:180px; overflow-y:auto;"></div></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="cc-toggle-label" onclick="toggleCCDropdown()">📋 Click to choose CC</button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="cc-clear-btn" onclick="clearField('cc')" style="display:none;">✕</button></div><div class="collapsible-content" id="cc-dropdown"><div class="tab-bar" style="padding:0;"><div class="tab active" onclick="switchCCTab('dept',this)">By Department</div><div class="tab" onclick="switchCCTab('user',this)">By User</div></div><input type="text" class="form-control" id="cc-search" placeholder="Search..." oninput="filterCCList()"><div id="cc-list" style="max-height:180px; overflow-y:auto;"></div></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="priority-toggle-label" onclick="togglePriorityDropdown()">⭐ Priority: <span id="priority-display">P3 (Normal)</span></button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="priority-clear-btn" onclick="clearField('priority')" style="display:none;">✕</button></div><div class="collapsible-content" id="priority-dropdown" style="padding:8px;"><div class="chip-group" id="priority-chips"><button class="chip" onclick="setPriority('P1 (High)',this)">🔴 P1 (High)</button><button class="chip" onclick="setPriority('P2 (Medium)',this)">🟡 P2 (Medium)</button><button class="chip selected" onclick="setPriority('P3 (Normal)',this)">🟢 P3 (Normal)</button><button class="chip" onclick="setPriority('P4 (Low)',this)">⚪ P4 (Low)</button></div></div></div>
+              <div class="form-group"><div style="display:flex;gap:4px;"><button type="button" class="toggle-label placeholder" id="action-req-label" onclick="toggleActionReqDropdown()">🎯 Action Required: <span id="action-req-display">Not Set</span></button><button type="button" class="btn btn-icon btn-ghost btn-sm" id="action-req-clear-btn" onclick="clearField('actionreq')" style="display:none;">✕</button></div><div class="collapsible-content" id="action-req-dropdown" style="padding:8px;"><div class="chip-group"><button class="chip" onclick="setActionReq('Review',this)">Review</button><button class="chip" onclick="setActionReq('Approval',this)">Approval</button><button class="chip" onclick="setActionReq('Information',this)">Information</button></div></div></div>
+            </div>
+            <div style="flex:1; min-width:260px;">
+              <div class="card"><div class="card-header"><span class="card-title">📋 Summary</span></div><table class="preview-table" id="assign-summary-table"><tr><td>Activity</td><td id="sum-title">—</td></tr><tr><td>Category</td><td id="sum-category">—</td></tr><tr><td>Sub-Cat</td><td id="sum-subcategory">—</td></tr><tr><td>Assigned</td><td id="sum-assignee" class="highlight">—</td></tr><tr><td>Primary DSU</td><td id="sum-dsu">—</td></tr><tr><td>Co-Assigned</td><td id="sum-coassignee">—</td></tr><tr><td>CC To</td><td id="sum-cc">—</td></tr><tr><td>Priority</td><td id="sum-priority">P3 (Normal)</td></tr></table></div>
+            </div>
+          </div>
+          <div id="assign-comments" style="flex:1;overflow-y:auto;padding:16px;display:none;"><div class="card"><div class="card-header"><span class="card-title">💬 Add Comments</span></div><textarea class="form-control" id="comments-textarea" rows="8"></textarea></div></div>
+          <div id="assign-preview" style="flex:1;overflow-y:auto;padding:16px;display:none;"><div class="card"><div class="card-header"><span class="card-title">📋 Preview</span></div><div id="preview-content"></div></div><div class="card" style="margin-top:12px;"><div class="card-header"><span class="card-title">📧 Email Preview</span></div><div id="email-preview-content" style="font-size:11px; border:1px solid var(--neutral-light); border-radius:var(--radius); overflow:hidden;"></div></div></div>
+        </div>
+      </div>
+
+      <!-- ======================== TELEMETRY SCREEN ======================== -->
+      <div class="screen" id="screen-telemetry">
+        <div style="padding: 20px;">
+          <div class="card"><div class="card-header"><span class="card-title">📊 Session Telemetry</span></div><div id="telemetry-log" style="font-size:11px;font-family:monospace;max-height:400px;overflow-y:auto;background:var(--bg-secondary);padding:12px;border-radius:var(--radius);color:var(--fg-primary);"></div><div style="margin-top:8px;"><button class="btn btn-destructive btn-sm" onclick="clearTelemetry()">🗑️ Clear Log</button></div></div>
+          <div class="card"><div class="card-header"><span class="card-title">🔧 Preserved Endpoints</span></div><table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Method</th></tr></thead><tbody id="endpoint-table"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== MODALS (Parity Enforced) ======================== -->
+<div class="modal-overlay" id="modal-flag-doc">
+  <div class="modal-box">
+    <div class="modal-header"><span class="modal-title" id="modal-flag-title">⚑ Flag Action</span><button class="btn btn-icon btn-ghost btn-sm" onclick="closeFlagModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Document</label><div style="font-size:12px;font-weight:500;padding:7px 12px;background:var(--neutral-lighter);border-radius:var(--radius);" id="modal-flag-doc-title">—</div></div>
+    <div class="form-group"><label class="form-label">Flag Type</label><div style="font-size:12px;font-weight:600;padding:7px 12px;background:var(--input-fill);border-radius:var(--radius);" id="modal-flag-type-display">—</div></div>
+    <div class="form-group"><label class="form-label">Comments</label><textarea class="form-control" id="modal-flag-comments" rows="4"></textarea></div>
+    <div class="notify-banner" id="modal-flag-notify"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeFlagModal()">Cancel</button><button class="btn btn-primary" id="modal-flag-submit-btn" onclick="submitFlagAction()">✅ Submit Flag</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-task-update">
+  <div class="modal-box">
+    <div class="modal-header"><span class="modal-title">✏️ Update Task</span><button class="btn btn-icon btn-ghost btn-sm" onclick="closeTaskUpdateModal()">✕</button></div>
+    <div class="form-group"><label class="form-label">Task</label><div style="font-size:12px;padding:7px 12px;background:var(--neutral-lighter);" id="modal-task-update-title">—</div></div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+      <div class="form-group"><label class="form-label">Progress</label><select class="form-control" id="modal-task-progress"><option value="">— Select —</option><option>Not started</option><option>In progress</option><option>Completed</option><option>Deferred</option></select></div>
+      <div class="form-group"><label class="form-label">Priority</label><select class="form-control" id="modal-task-priority"><option>P3 (Normal)</option><option>P1 (High)</option><option>P2 (Medium)</option><option>P4 (Low)</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">Comments</label><textarea class="form-control" id="modal-task-comments" rows="4"></textarea></div>
+    <div class="notify-banner" id="modal-task-update-notify"></div>
+    <div id="modal-task-update-before-after" style="font-size:11px;background:var(--neutral-lighter);padding:6px;display:none;"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeTaskUpdateModal()">Cancel</button><button class="btn btn-primary" onclick="submitTaskUpdate()">📤 Submit Update</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-etask-preview">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header"><span class="modal-title">👁️ Review Email Task</span><button class="btn btn-icon btn-ghost btn-sm" onclick="closeEmailTaskPreview()">✕</button></div>
+    <table class="preview-table">
+      <tr><td>Title</td><td id="ep-title">—</td></tr><tr><td>Category</td><td id="ep-category">—</td></tr><tr class="highlight"><td>Assigned To</td><td id="ep-assignee">—</td></tr><tr><td>Co-Assignee</td><td id="ep-coassignee">—</td></tr><tr><td>CC To</td><td id="ep-cc">—</td></tr><tr><td>Priority</td><td id="ep-priority">—</td></tr><tr><td>Email</td><td id="ep-email-subject">—</td></tr>
+    </table>
+    <div class="notify-banner" id="modal-etask-preview-notify" style="margin-top:8px;"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEmailTaskPreview()">✏️ Edit</button><button class="btn btn-primary" id="etask-confirm-submit-btn" onclick="submitEmailTask()">📤 Confirm &amp; Submit</button></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SINGLE-ITEM LOOKUP LOGIC & PRESERVED MODULES
+   ============================================================ */
+'use strict';
+
+// EXACT PARITY: ENDPOINTS
+const ENDPOINTS = {
+  E01: { name: 'Fetch_References_and_Lookups_Data', purpose: 'Fetch references + lookup datasets', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU' },
+  E02: { name: 'Get Docs', purpose: 'Retrieve documents', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5de1fc934e2944bb9cf9d9a0f9bd38e3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6K5y3evBmSRe7UaY8a0nlqcxKYMBfEXyVxeQaDjhe70' },
+  E03: { name: 'fetch tasks', purpose: 'Fetch tasks list/data', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4' },
+  E04: { name: 'get emails', purpose: 'Retrieve emails', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U' },
+  E05: { name: 'Deployed Create task', purpose: 'Create a task / perform action', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ' },
+  E08: { name: 'Flag Document Action', purpose: 'Flag document', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ' },
+  E10: { name: 'Update Task', purpose: 'Update task progress', method: 'POST', url: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ' }
+};
+
+// EXACT PARITY: AppState (Cleaned for Single Item Variant)
+const AppState = {
+  currentUser: { email: '', name: '', role: 'Staff' },
+  users: [], categories: [], departments: [],
+  selectedDoc: null, selectedTask: null, selectedEmail: null,
+  currentScreen: 'lookup',
+  assignment: { type: 'newassignment', sourceDoc: null, selectedCategory: '', selectedCategoryCode: '', selectedSubCategory: '', selectedSubCategoryCode: '', selectedPrimaryDSU: '', selectedAssignedTo: '', selectedAssignedToTitle: '', selectedSupportAssignedTo: '', selectedSupportAssignedToTitle: '', selectedSupportDSU: '', selectedCopyTo: '', selectedTimeline: '', selectedPriority: 'P3 (Normal)', selectedActionRequired: '', selectedComments: '', mode: 'entry' },
+  assigneeTab: 'dept',
+  emailTaskState: { selectedEmail: null, assignee: '', assigneeName: '', assigneeDSU: '' },
+  telemetry: [], _pendingFlagAction: null, _fetching: {}
+};
+
+const NAV_CONFIG = [
+  { id: 'lookup', label: 'Lookup & Action', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>` },
+  { id: 'telemetry', label: 'Telemetry Log', icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m18 9-5 5-4-4-3 3"/></svg>` }
+];
+
+function setIdentity(email, name) { document.getElementById('email-input').value = email; document.getElementById('name-input').value = name; }
+function startApp() {
+  const email = (document.getElementById('email-input').value || '').trim().toLowerCase();
+  const name = document.getElementById('name-input').value.trim() || email.split('@')[0];
+  if (!email) return alert('Enter email.');
+  AppState.currentUser = { email, name, role: email.includes('dg') ? 'Admin' : 'Staff' };
+  bootApp();
+}
+
+function bootApp() {
+  document.getElementById('screen-landing').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  
+  const navHTML = NAV_CONFIG.map(item => `<div class="nav-item" id="nav-${item.id}" onclick="navigateTo('${item.id}')">${item.icon}<span class="nav-label">${item.label}</span></div>`).join('');
+  document.getElementById('sidebar-nav').innerHTML = navHTML;
+  document.getElementById('sidebar-username').textContent = AppState.currentUser.name || AppState.currentUser.email;
+  document.getElementById('user-avatar').textContent = (AppState.currentUser.name || '?')[0].toUpperCase();
+  
+  populateEndpointTable();
+  navigateTo('lookup');
+  fetchLookups(false, true);
+}
+
+function applyTheme(t) { document.documentElement.setAttribute('data-theme', t === 'default' ? '' : t); }
+function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('show'); }
+function signOut() { location.reload(); }
+
+function navigateTo(id) {
+  // Intecept returns from Assignment
+  if (id === 'docs' || id === 'tasks' || id === 'emails' || id === 'home') id = 'lookup';
+  
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`screen-${id}`).classList.add('active');
+  const navEl = document.getElementById(`nav-${id}`);
+  if(navEl) navEl.classList.add('active');
+  
+  document.getElementById('screen-title').textContent = id === 'lookup' ? 'Direct Lookup & Action' : 'Telemetry & Settings';
+  AppState.currentScreen = id;
+  if(id === 'assign') initAssignScreen();
+  if(id === 'telemetry') renderTelemetryLog();
+}
+
+// EXACT PARITY: Helpers
+function showLoader(msg='Loading...') { document.getElementById('global-loader').classList.add('show'); document.getElementById('global-loader-msg').textContent = msg; }
+function hideLoader() { document.getElementById('global-loader').classList.remove('show'); }
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+function escAttr(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
+function safeFormatDate(d, t=false) { if(!d)return'—'; const x=new Date(d); return isNaN(x)?'—':(t?x.toLocaleString():x.toLocaleDateString()); }
+function isSafeUrl(u) { return typeof u==='string' && (u.toLowerCase().startsWith('http://') || u.toLowerCase().startsWith('https://')); }
+function normalizePriority(p){ if(!p)return''; const l=String(p).toLowerCase().trim(); if(l==='high'||l.startsWith('p1'))return'High'; if(l==='medium'||l.startsWith('p2'))return'Medium'; if(l==='low'||l.startsWith('p4'))return'Low'; return'Normal'; }
+function showNotify(id, msg, type='info') { const el=document.getElementById(id); if(!el)return; el.textContent=msg; el.className=`notify-banner ${type} show`; if(type!=='error') setTimeout(()=>el.classList.remove('show'),5000); }
+
+// EXACT PARITY: Telemetry
+function logTelemetry(action, msg, status='Success', dur=0) {
+  AppState.telemetry.push({ts:new Date().toISOString(), action, msg, status, dur});
+  if(AppState.telemetry.length>500) AppState.telemetry.shift();
+  if(AppState.currentScreen==='telemetry') renderTelemetryLog();
+}
+function renderTelemetryLog() {
+  const log = document.getElementById('telemetry-log'); if(!log) return;
+  log.innerHTML = AppState.telemetry.map(e => `<div style="margin-bottom:4px;border-left:3px solid ${e.status==='Error'?'var(--error)':'var(--success)'};padding-left:6px;"><span style="color:var(--neutral-secondary)">${e.ts.split('T')[1].split('.')[0]}</span> <strong>[${e.status}]</strong> ${e.action}: ${e.msg}</div>`).join('');
+  log.scrollTop = log.scrollHeight;
+}
+function clearTelemetry() { AppState.telemetry=[]; renderTelemetryLog(); }
+function populateEndpointTable() { document.getElementById('endpoint-table').innerHTML = Object.entries(ENDPOINTS).map(([k,v])=>`<tr><td>${k}</td><td>${v.name}</td><td>${v.method}</td></tr>`).join(''); }
+
+// EXACT PARITY: PA API Engine
+async function callAPI(epKey, payload, msg='Loading...', sup=false, tMs=30000) {
+  const ep = ENDPOINTS[epKey]; if(!ep) throw new Error('Unknown ep');
+  if(AppState._fetching[epKey]) throw new Error('In flight');
+  AppState._fetching[epKey]=true; if(!sup) showLoader(msg);
+  const cid = Date.now().toString(36)+Math.random().toString(36).slice(2);
+  const ctrl = new AbortController(); const tid = setTimeout(()=>ctrl.abort(), tMs);
+  try {
+    const res = await fetch(ep.url, { method: ep.method, headers:{'Content-Type':'application/json'}, body:JSON.stringify({...payload, correlationId:cid}), signal:ctrl.signal });
+    clearTimeout(tid);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const txt = await res.text(); let d; try{ d=JSON.parse(txt); }catch{ d=txt; }
+    logTelemetry(ep.name, 'Success', 'Success'); return d;
+  } catch(e) {
+    logTelemetry(ep.name, e.message, 'Error'); throw e;
+  } finally { AppState._fetching[epKey]=false; if(!sup) hideLoader(); }
+}
+function parseResponse(raw) { let d=raw; if(typeof d==='string') try{d=JSON.parse(d);}catch{} if(typeof d==='string'&&d.startsWith('"')) try{d=JSON.parse(d);}catch{} return d; }
+
+// EXACT PARITY: Subsidiary Action Dispatcher
+async function executeSubsidiaryAction(actionName, entityId, entityTitle, contextPayload = {}, loaderMsg = '') {
+  const basePayload = {
+    action: actionName, operation: contextPayload.operation || 'update', mode: contextPayload.mode || 'single', source: 'DGO_FAST_Track_WEB_OPS',
+    userEmail: AppState.currentUser.email, method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent },
+    AssignmentType: actionName, Selected: { ID: entityId, RefIDD: String(entityId), Title: entityTitle },
+    payload: { selection: { single: { ID: entityId, RefIDD: String(entityId), Title: entityTitle }, items: [] }, assignment: { type: actionName }, ...contextPayload.payload }
+  };
+  const { operation, mode, payload: _p, ...topLevelContext } = contextPayload;
+  Object.assign(basePayload, topLevelContext);
+  return await callAPI('E05', basePayload, loaderMsg || `Executing ${actionName}...`);
+}
+
+// EXACT PARITY: Lookups E01
+async function fetchLookups(sup=false, force=false) {
+  if(AppState.categories.length && !force) return;
+  try {
+    const raw = await callAPI('E01', {action:'lookups',operation:'read',mode:'read',source:'DGO_FAST_Track_WEB_OPS',userEmail:AppState.currentUser.email,method:'POST',device:{id:'standalone-html'}}, 'Loading references...', sup);
+    const d = parseResponse(raw); const inner = d?.data || d;
+    if(inner?.users) AppState.users = inner.users;
+    if(inner?.categories) AppState.categories = inner.categories;
+    if(inner?.departments) AppState.departments = inner.departments;
+    const cats = [...new Set(AppState.categories.map(c=>c.Category).filter(Boolean))].sort().map(c=>`<option>${escHtml(c)}</option>`);
+    const catEl = document.getElementById('etask-category'); if(catEl) catEl.innerHTML = '<option value="">Select...</option>' + cats.join('');
+  } catch(e) { logTelemetry('Lookups', e.message, 'Error'); }
+}
+
+/* ============================================================
+   SINGLE-ITEM LOOKUP ENGINE (The Core Variant Logic)
+   ============================================================ */
+async function executeLookup() {
+  const type = document.getElementById('lookup-type').value;
+  const q = document.getElementById('lookup-id').value.trim();
+  if(!q) return showNotify('lookup-notify', '❌ Please enter an ID or Reference Number.', 'error');
+
+  const notifyEl = document.getElementById('lookup-notify');
+  notifyEl.className = 'notify-banner'; notifyEl.textContent = '';
+  
+  const payloadBase = { operation: 'read', mode: 'read', source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email, method: 'POST', device: { id: 'standalone-html', platform: navigator.platform, ua: navigator.userAgent }, top: 50, skip: 0 };
+  let filterStr = !isNaN(q) ? `ID eq ${q}` : `substringof('${q.replace(/'/g, "''")}', Title)`;
+
+  try {
+    if(type === 'doc') {
+      const raw = await callAPI('E02', { ...payloadBase, action: 'getDocs', odataFilter: filterStr }, 'Locating Document...');
+      const d = parseResponse(raw); const items = Array.isArray(d?.data) ? d.data : (d?.data?.docs || []);
+      const doc = items.find(x => String(x.ID) === q || (x.Title||'').includes(q) || (x.Reference_ID||'').includes(q)) || items[0];
+      if(!doc) throw new Error(`Document "${q}" not found.`);
+      AppState.selectedDoc = doc;
+      renderDocFullView(doc);
+    } else if(type === 'task') {
+      const raw = await callAPI('E03', { ...payloadBase, action: 'getTasks', odataFilter: filterStr }, 'Locating Task...');
+      const d = parseResponse(raw); const items = Array.isArray(d?.data) ? d.data : (d?.data?.tasks || []);
+      const task = items.find(t => String(t.ID) === q || String(t.RefIDD) === q || String(t.Reference_ID) === q || (t.Title||'').includes(q)) || items[0];
+      if(!task) throw new Error(`Task "${q}" not found.`);
+      AppState.selectedTask = task;
+      renderTaskFullView(task);
+    } else if(type === 'email') {
+      const raw = await callAPI('E04', { ...payloadBase, action: 'emailsfetch', folderPath: 'inbox', fetchOnlyUnread: false }, 'Locating Email...');
+      const d = parseResponse(raw); const items = Array.isArray(d?.data) ? d.data : (d?.data?.emails || []);
+      const em = items.find(e => String(e.id) === q || (e.subject||'').includes(q)) || items[0];
+      if(!em) throw new Error(`Email matching "${q}" not found.`);
+      AppState.selectedEmail = em;
+      renderEmailFullView(em);
+    }
+  } catch(e) {
+    showNotify('lookup-notify', `❌ ${e.message}`, 'error');
+  }
+}
+
+function resetLookup() {
+  document.getElementById('lookup-result-area').style.display = 'none';
+  document.getElementById('lookup-wrapper').style.display = 'flex';
+  AppState.selectedDoc = AppState.selectedTask = AppState.selectedEmail = null;
+  document.getElementById('lookup-id').value = '';
+}
+
+// Detail Renderers for Lookup Mode
+function renderDocFullView(doc) {
+  document.getElementById('lookup-wrapper').style.display = 'none';
+  const area = document.getElementById('lookup-result-area'); area.style.display = 'flex';
+  document.getElementById('email-detail-area').style.display = 'none'; document.getElementById('email-to-task-form').style.display = 'none';
+  
+  const gen = document.getElementById('generic-detail-container'); gen.style.display = 'block';
+  const badge = (doc.AssignedTo && doc.AssignedTo !== 'N/A') ? `<span class="badge badge-success">${doc.AssignmentStatus || 'Assigned'}</span>` : `<span class="badge badge-warning">Not Assigned</span>`;
+  
+  gen.innerHTML = `
+    <div class="action-bar" style="border-radius: var(--radius); margin-bottom:12px; justify-content:space-between;">
+      <div><button class="btn btn-secondary btn-sm" onclick="resetLookup()">← Back to Search</button> <span style="font-size:14px;font-weight:bold;margin-left:8px;">📄 Document Detail</span></div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-primary btn-sm" onclick="openAssignmentFromDoc()">➕ Assign</button>
+        <button class="btn btn-warning btn-sm" onclick="flagDocAction('dg')">⚑ DG Attention</button>
+        <button class="btn btn-teal btn-sm" onclick="flagDocAction('followup')">📌 Follow-Up</button>
+        <button class="btn btn-info btn-sm" onclick="flagDocAction('int')">INT</button>
+        <button class="btn btn-secondary btn-sm" onclick="flagDocAction('unc')">UNC</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="detail-section">
+        <div class="detail-section-title">Document Information</div>
+        <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value" style="font-weight:bold;">${doc.ID}</span></div>
+        <div class="detail-row"><span class="detail-label">Title</span><span class="detail-value">${escHtml(doc.Title || '—')}</span></div>
+        <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">${safeFormatDate(doc.Created, true)}</span></div>
+        ${doc.AttachmentLink && isSafeUrl(doc.AttachmentLink) ? `<div class="detail-row"><span class="detail-label">Attachment</span><span class="detail-value"><a href="${escAttr(doc.AttachmentLink)}" target="_blank" class="btn btn-ghost btn-sm">📎 Open Document</a></span></div>` : ''}
+      </div>
+      <div class="detail-section" style="border-top:1px solid var(--neutral-light); padding-top:16px;">
+        <div class="detail-section-title">Assignment Status</div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${badge}</span></div>
+        <div class="detail-row"><span class="detail-label">Assigned To</span><span class="detail-value">${escHtml(doc.AssignedTo || 'Not Assigned')}</span></div>
+        <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value">${escHtml(doc.Category || '—')}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderTaskFullView(task) {
+  document.getElementById('lookup-wrapper').style.display = 'none';
+  const area = document.getElementById('lookup-result-area'); area.style.display = 'flex';
+  document.getElementById('email-detail-area').style.display = 'none'; document.getElementById('email-to-task-form').style.display = 'none';
+  
+  const gen = document.getElementById('generic-detail-container'); gen.style.display = 'block';
+  const pBadge = task.Progress === 'Completed' ? 'badge-success' : task.Progress === 'In progress' ? 'badge-info' : 'badge-neutral';
+  
+  gen.innerHTML = `
+    <div class="action-bar" style="border-radius: var(--radius); margin-bottom:12px; justify-content:space-between;">
+      <div><button class="btn btn-secondary btn-sm" onclick="resetLookup()">← Back to Search</button> <span style="font-size:14px;font-weight:bold;margin-left:8px;">✅ Task Detail</span></div>
+      <button class="btn btn-primary btn-sm" onclick="openTaskUpdateModal()">✏️ Update Progress</button>
+    </div>
+    <div class="card">
+      <div class="detail-section">
+        <div class="detail-section-title">Task Information</div>
+        <div class="detail-row"><span class="detail-label">ID</span><span class="detail-value" style="font-weight:bold;">${task.ID}</span></div>
+        <div class="detail-row"><span class="detail-label">Reference ID</span><span class="detail-value">${escHtml(task.Reference_ID || task.RefIDD || '—')}</span></div>
+        <div class="detail-row"><span class="detail-label">Title</span><span class="detail-value">${escHtml(task.Title || '—')}</span></div>
+        <div class="detail-row"><span class="detail-label">Priority</span><span class="detail-value"><span class="badge badge-primary">${escHtml(task.Priority || '—')}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Progress</span><span class="detail-value"><span class="badge ${pBadge}">${task.Progress || 'Not started'}</span></span></div>
+        <div class="detail-row"><span class="detail-label">Assigned To</span><span class="detail-value">${escHtml(task.AssignedTo || '—')}</span></div>
+        <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">${safeFormatDate(task.DueDate, false)}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderEmailFullView(email) {
+  document.getElementById('lookup-wrapper').style.display = 'none';
+  const area = document.getElementById('lookup-result-area'); area.style.display = 'flex';
+  document.getElementById('generic-detail-container').style.display = 'none'; document.getElementById('email-to-task-form').style.display = 'none';
+  const eArea = document.getElementById('email-detail-area'); eArea.style.display = 'block';
+  
+  document.getElementById('email-detail-subject').textContent = email.subject || '(No Subject)';
+  document.getElementById('email-detail-from').textContent = (email.fromName || email.fromAddress) || '—';
+  document.getElementById('email-detail-date').textContent = safeFormatDate(email.receivedDateTime, true);
+  document.getElementById('email-detail-attachments').style.display = email.hasAttachments ? 'inline' : 'none';
+  document.getElementById('email-detail-body').innerHTML = `<pre style="white-space:pre-wrap;font-family:inherit;">${escHtml(email.bodyPreview || '')}</pre>`;
+}
+
+/* ============================================================
+   EXACT PARITY: ASSIGNMENT LOGIC (E05)
+   ============================================================ */
+function openAssignmentFromDoc() {
+  const doc = AppState.selectedDoc; if (!doc) return;
+  resetAssignmentForm(); AppState.assignment.sourceDoc = doc;
+  const isReassign = doc.AssignmentStatus === 'Assigned' || doc.AssignmentStatus === 'Processed' || (doc.AssignedTo && doc.AssignedTo !== 'N/A');
+  AppState.assignment.type = isReassign ? 'reassignment' : 'newassignment';
+  document.querySelectorAll('#assign-type-chips .chip').forEach(c => c.classList.toggle('selected', c.dataset.val === AppState.assignment.type));
+  navigateTo('assign');
+  document.getElementById('assign-activity-banner').style.display = 'block';
+  document.getElementById('assign-activity-title').textContent = doc.Title;
+  document.getElementById('assign-activity-id').textContent = `ID: ${doc.ID}`;
+  updateAssignSummary();
+}
+
+function initAssignScreen() {
+  renderAssignActionBar('entry');
+  document.getElementById('assign-entry').style.display = 'flex'; document.getElementById('assign-comments').style.display = 'none'; document.getElementById('assign-preview').style.display = 'none';
+  AppState.assignment.mode = 'entry';
+  populateCatList(); filterAssigneeList(); filterCoAssigneeList(); filterCCList();
+}
+
+function renderAssignActionBar(mode) {
+  const bar = document.getElementById('assign-action-bar');
+  if(mode === 'entry') bar.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="navigateTo('lookup')">❌ Cancel</button><button class="btn btn-note btn-sm" onclick="openAssignComments()">💬 Comments</button><button class="btn btn-primary btn-sm" onclick="previewAssignment()">👁️ Preview</button>`;
+  else if(mode === 'comments') bar.innerHTML = `<button class="btn btn-teal btn-sm" onclick="saveComments()">💾 Save</button><button class="btn btn-destructive btn-sm" onclick="cancelComments()">❌ Cancel</button>`;
+  else if(mode === 'preview') bar.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="editAssignEntries()">✏️ Edit</button><button class="btn btn-primary btn-sm" id="btn-submit-assignment" onclick="submitAssignment()">📤 Submit</button>`;
+}
+
+function setAssignType(type, btn) { AppState.assignment.type = type; document.querySelectorAll('#assign-type-chips .chip').forEach(c => c.classList.remove('selected')); btn.classList.add('selected'); }
+
+function populateCatList() {
+  const list = document.getElementById('cat-list'); if (!AppState.categories.length) return list.innerHTML = '⚠️ N/A';
+  list.innerHTML = AppState.categories.map((c, i) => `<div class="user-option" onclick="selectCategory(${i})"><strong>${escHtml(c.Category)}</strong> — ${escHtml(c.Subcategory)}</div>`).join('');
+}
+function filterCatDropdown() { const q = document.getElementById('cat-search').value.toLowerCase(); document.querySelectorAll('#cat-list .user-option').forEach(el => el.style.display = !q || el.textContent.toLowerCase().includes(q) ? 'block' : 'none'); }
+function toggleCatDropdown() { closeAllDropdowns(); document.getElementById('cat-dropdown').classList.toggle('open'); }
+
+function selectCategory(idx) {
+  const cat = AppState.categories[idx]; if (!cat) return;
+  const a = AppState.assignment;
+  a.selectedCategory = cat.Category; a.selectedCategoryCode = cat['Category Code'] || '';
+  a.selectedSubCategory = cat.Subcategory || ''; a.selectedSubCategoryCode = cat['SubCategory Code'] || '';
+  a.selectedPrimaryDSU = cat['Default Primary Responsible'] || ''; a.selectedSupportDSU = cat['Default Supporting Department/Unit'] || '';
+  if (cat.Priority) a.selectedPriority = cat.Priority;
+  const dept = AppState.departments.find(d => d.DSU_KEY === a.selectedPrimaryDSU);
+  if (dept) { a.selectedAssignedTo = dept.DSU_HeadEmail || dept.DSU_HeadPersonalEmail || ''; a.selectedAssignedToTitle = dept.DSU_HeadTitle || ''; }
+  const ccl = [cat.INFORMDSU1, cat.INFORMDSU2, cat.INFORMDSU3].filter(Boolean).map(k => AppState.departments.find(d => d.DSU_KEY === k)?.DSU_HeadPersonalEmail || '').filter(Boolean);
+  a.selectedCopyTo = ccl.join(';');
+  document.getElementById('cat-toggle-label').textContent = `📂 ${cat.Category} — ${cat.Subcategory}`; document.getElementById('cat-toggle-label').classList.remove('placeholder');
+  document.getElementById('assignee-toggle-label').textContent = a.selectedAssignedTo ? `👤 AssignedTo:\n  ${a.selectedPrimaryDSU}` : '👤 Click to select';
+  document.getElementById('priority-display').textContent = a.selectedPriority;
+  document.getElementById('cat-clear-btn').style.display='inline-flex'; document.getElementById('cat-dropdown').classList.remove('open');
+  updateAssignSummary();
+}
+
+function switchAssigneeTab(tab, el) { AppState.assigneeTab = tab; document.querySelectorAll('#assignee-dropdown .tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); filterAssigneeList(); }
+function toggleAssigneeDropdown() { closeAllDropdowns(); document.getElementById('assignee-dropdown').classList.toggle('open'); filterAssigneeList(); }
+function filterAssigneeList() {
+  const q = document.getElementById('assignee-search').value.toLowerCase(); const list = document.getElementById('assignee-list');
+  if(AppState.assigneeTab==='dept') list.innerHTML = AppState.departments.filter(d=>!q||(d.Title||'').toLowerCase().includes(q)).map(d=>`<div class="user-option" onclick="selectAssignee('${d.DSU_HeadPersonalEmail||''}','${d.DSU_HeadTitle||''}','${d.DSU_KEY||''}')">${escHtml(d.Title)}</div>`).join('');
+  else list.innerHTML = AppState.users.filter(u=>!q||(u.name||'').toLowerCase().includes(q)).slice(0,20).map(u=>`<div class="user-option" onclick="selectAssigneeUser('${u.email}','${u.name}','${u.department||''}')">${escHtml(u.name)}</div>`).join('');
+}
+function selectAssignee(e,t,d) { const a=AppState.assignment; a.selectedAssignedTo=e; a.selectedAssignedToTitle=t; a.selectedPrimaryDSU=d; document.getElementById('assignee-toggle-label').textContent=`👤 ${d} (${t})`; document.getElementById('assignee-toggle-label').classList.remove('placeholder'); document.getElementById('assignee-dropdown').classList.remove('open'); updateAssignSummary(); }
+function selectAssigneeUser(e,n,d) { const a=AppState.assignment; a.selectedAssignedTo=e; a.selectedAssignedToTitle=n; if(d)a.selectedPrimaryDSU=d; document.getElementById('assignee-toggle-label').textContent=`👤 ${e}`; document.getElementById('assignee-toggle-label').classList.remove('placeholder'); document.getElementById('assignee-dropdown').classList.remove('open'); updateAssignSummary(); }
+
+let coAssigneeTab='dept';
+function switchCoAssigneeTab(t,el){ coAssigneeTab=t; document.querySelectorAll('#coassignee-dropdown .tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); filterCoAssigneeList(); }
+function toggleCoAssigneeDropdown() { closeAllDropdowns(); document.getElementById('coassignee-dropdown').classList.toggle('open'); filterCoAssigneeList(); }
+function filterCoAssigneeList() {
+  const q = document.getElementById('coassignee-search').value.toLowerCase(); const list = document.getElementById('coassignee-list');
+  if(coAssigneeTab==='dept') list.innerHTML = AppState.departments.filter(d=>!q||(d.Title||'').toLowerCase().includes(q)).map(d=>`<div class="user-option" onclick="selectCoAssignee('${d.DSU_HeadPersonalEmail||''}','${d.DSU_HeadTitle||''}','${d.DSU_KEY||''}')">${escHtml(d.Title)}</div>`).join('');
+  else list.innerHTML = AppState.users.filter(u=>!q||(u.name||'').toLowerCase().includes(q)).slice(0,20).map(u=>`<div class="user-option" onclick="selectCoAssignee('${u.email}','${u.name}','')">${escHtml(u.name)}</div>`).join('');
+}
+function selectCoAssignee(e,t,d) { const a=AppState.assignment; a.selectedSupportAssignedTo=e; a.selectedSupportAssignedToTitle=t; a.selectedSupportDSU=d; document.getElementById('coassignee-toggle-label').textContent=`👥 ${d||e}`; document.getElementById('coassignee-toggle-label').classList.remove('placeholder'); document.getElementById('coassignee-dropdown').classList.remove('open'); updateAssignSummary(); }
+
+let ccTab='dept';
+function switchCCTab(t,el){ ccTab=t; document.querySelectorAll('#cc-dropdown .tab').forEach(x=>x.classList.remove('active')); el.classList.add('active'); filterCCList(); }
+function toggleCCDropdown() { closeAllDropdowns(); document.getElementById('cc-dropdown').classList.toggle('open'); filterCCList(); }
+function filterCCList() {
+  const q = document.getElementById('cc-search').value.toLowerCase(); const list = document.getElementById('cc-list');
+  const render = (val, lbl) => { const s=(AppState.assignment.selectedCopyTo||'').split(';').includes(val); return `<div class="user-option ${s?'selected':''}" onclick="toggleCCItem('${val}')">${s?'✓ ':''}${escHtml(lbl)}</div>`; };
+  if(ccTab==='dept') list.innerHTML = AppState.departments.filter(d=>!q||(d.Title||'').toLowerCase().includes(q)).map(d=>render(d.DSU_HeadPersonalEmail||d.DSU_HeadEmail||'', d.Title)).join('');
+  else list.innerHTML = AppState.users.filter(u=>!q||(u.name||'').toLowerCase().includes(q)).slice(0,20).map(u=>render(u.email, u.name)).join('');
+}
+function toggleCCItem(email) {
+  if(!email)return; const p = (AppState.assignment.selectedCopyTo||'').split(';').filter(Boolean);
+  const idx = p.indexOf(email); if(idx>=0) p.splice(idx,1); else p.push(email);
+  AppState.assignment.selectedCopyTo = p.join(';');
+  const l=document.getElementById('cc-toggle-label'); if(p.length){l.textContent=`📋 ${p.join('; ').slice(0,50)}`; l.classList.remove('placeholder');} else {l.textContent='📋 Click to choose'; l.classList.add('placeholder');}
+  filterCCList(); updateAssignSummary();
+}
+
+function togglePriorityDropdown(){ closeAllDropdowns(); document.getElementById('priority-dropdown').classList.toggle('open'); }
+function setPriority(v,b) { AppState.assignment.selectedPriority=v; document.getElementById('priority-display').textContent=v; document.querySelectorAll('#priority-chips .chip').forEach(c=>c.classList.remove('selected')); if(b)b.classList.add('selected'); document.getElementById('priority-dropdown').classList.remove('open'); updateAssignSummary(); }
+function toggleActionReqDropdown(){ closeAllDropdowns(); document.getElementById('action-req-dropdown').classList.toggle('open'); }
+function setActionReq(v,b){ AppState.assignment.selectedActionRequired=v; document.getElementById('action-req-display').textContent=v; document.querySelectorAll('#action-req-dropdown .chip').forEach(c=>c.classList.remove('selected')); if(b)b.classList.add('selected'); document.getElementById('action-req-dropdown').classList.remove('open'); }
+
+function closeAllDropdowns() { document.querySelectorAll('.collapsible-content').forEach(d=>d.classList.remove('open')); }
+function updateAssignSummary() {
+  const a=AppState.assignment; const setC=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v||'—';};
+  setC('sum-title', a.sourceDoc?.Title); setC('sum-category', a.selectedCategory); setC('sum-subcategory', a.selectedSubCategory); setC('sum-assignee', a.selectedAssignedTo); setC('sum-dsu', a.selectedPrimaryDSU); setC('sum-coassignee', a.selectedSupportAssignedTo); setC('sum-cc', a.selectedCopyTo); setC('sum-priority', a.selectedPriority);
+}
+
+function clearField(f) { const a=AppState.assignment; if(f==='category'){a.selectedCategory=a.selectedCategoryCode=a.selectedSubCategory=a.selectedSubCategoryCode=''; a.selectedPrimaryDSU=a.selectedAssignedTo=''; document.getElementById('cat-toggle-label').textContent='📂 Click to choose';} updateAssignSummary(); }
+function openAssignComments(){ AppState.assignment.mode='comments'; renderAssignActionBar('comments'); document.getElementById('assign-entry').style.display='none'; document.getElementById('assign-comments').style.display='block'; }
+function saveComments(){ AppState.assignment.selectedComments=document.getElementById('comments-textarea').value.trim(); AppState.assignment.mode='entry'; renderAssignActionBar('entry'); document.getElementById('assign-entry').style.display='flex'; document.getElementById('assign-comments').style.display='none'; }
+function cancelComments(){ AppState.assignment.mode='entry'; renderAssignActionBar('entry'); document.getElementById('assign-entry').style.display='flex'; document.getElementById('assign-comments').style.display='none'; }
+function editAssignEntries(){ AppState.assignment.mode='entry'; renderAssignActionBar('entry'); document.getElementById('assign-entry').style.display='flex'; document.getElementById('assign-preview').style.display='none'; }
+
+function resetAssignmentForm() {
+  Object.assign(AppState.assignment, { type: 'newassignment', sourceDoc: null, selectedCategory: '', selectedCategoryCode: '', selectedSubCategory: '', selectedSubCategoryCode: '', selectedPrimaryDSU: '', selectedAssignedTo: '', selectedAssignedToTitle: '', selectedSupportAssignedTo: '', selectedSupportAssignedToTitle: '', selectedSupportDSU: '', selectedCopyTo: '', selectedPriority: 'P3 (Normal)', selectedActionRequired: '', selectedComments: '', mode: 'entry' });
+  ['cat','assignee','coassignee','cc'].forEach(x=>{ const el=document.getElementById(`${x}-toggle-label`); if(el){el.textContent=`Click to set`;el.classList.add('placeholder');} });
+  closeAllDropdowns(); updateAssignSummary(); renderAssignActionBar('entry');
+}
+
+function previewAssignment() {
+  const a = AppState.assignment;
+  if(!a.selectedCategory || !a.selectedAssignedTo) return showNotify('assign-notify', '❌ Category and Assignee required.', 'error');
+  const t = new Date().toISOString().split('T')[0]; const t2 = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const ref = `${t.replace(/-/g,'')}-${a.sourceDoc.ID}-${a.selectedCategoryCode}-`;
+  document.getElementById('preview-content').innerHTML = `<table class="preview-table"><tr><td>Title</td><td>${escHtml(a.sourceDoc.Title)}</td></tr><tr><td>Category</td><td>${escHtml(a.selectedCategory)}</td></tr><tr class="highlight"><td>Assigned</td><td>${escHtml(a.selectedAssignedTo)}</td></tr><tr><td>Pre-Ref ID</td><td>${ref}</td></tr></table>`;
+  AppState.assignment.previewRefId = ref; AppState.assignment.mode = 'preview'; renderAssignActionBar('preview');
+  document.getElementById('assign-entry').style.display='none'; document.getElementById('assign-preview').style.display='block';
+}
+
+async function submitAssignment() {
+  const a = AppState.assignment; const doc = a.sourceDoc; const t = new Date().toISOString().split('T')[0]; const t2 = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  const payload = {
+    action: 'singleassignment', operation: 'create', mode: 'single', source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email, method: 'POST', device: { id: 'standalone-html' }, AssignmentType: a.type,
+    NewActivityTask: { StartDate: t, ActivityID: doc?.ID||'', Title: doc?.Title||'', Status: 'New', Category: a.selectedCategory, CategoryCode: a.selectedCategoryCode, SubCategory: a.selectedSubCategory, SubCategoryCode: a.selectedSubCategoryCode, PrimaryDSU: a.selectedPrimaryDSU, AssignedTo: a.selectedAssignedTo, AssignedToTitle: a.selectedAssignedToTitle, AssignedDSU: a.selectedPrimaryDSU, supportingAssignedTo: a.selectedSupportAssignedTo, SupportAssignedTo: a.selectedSupportAssignedTo, SupportDSU: a.selectedSupportDSU, Priority: a.selectedPriority, PreReferenceID: a.previewRefId, Comments: a.selectedComments, ActionRequired: a.selectedActionRequired||'', CreatedBy: AppState.currentUser.email, Categorization: a.selectedCategory+'-'+a.selectedSubCategory },
+    Selected: { ID: doc?.ID||'', RefIDD: String(doc?.ID||''), Title: doc?.Title||'' },
+    payload: { task: { StartDate: t, ActivityID: doc?.ID, Title: doc?.Title, Category: a.selectedCategory, AssignedTo: a.selectedAssignedTo }, selection: { single: { ID: doc?.ID, RefIDD: String(doc?.ID||''), Title: doc?.Title }, items: [] }, assignment: { type: a.type } }
+  };
+  try {
+    document.getElementById('btn-submit-assignment').disabled = true; showNotify('assign-notify', '⏳ Submitting...', 'info');
+    const raw = await callAPI('E05', payload, 'Creating assignment...'); const data = parseResponse(raw);
+    showNotify('assign-notify', `✅ Assignment created!`, 'success');
+    if(doc) { doc.AssignedTo = a.selectedAssignedTo; doc.AssignmentStatus = 'Assigned'; renderDocFullView(doc); } // Update view in place
+    setTimeout(() => { resetAssignmentForm(); navigateTo('lookup'); }, 2000);
+  } catch(e) { document.getElementById('btn-submit-assignment').disabled = false; showNotify('assign-notify', `❌ ${e.message}`, 'error'); }
+}
+
+/* ============================================================
+   EXACT PARITY: MODAL ACTIONS
+   ============================================================ */
+// --- FLAG DOCUMENT ---
+function flagDocAction(action) {
+  const m = { dg: { l:'⚑ For DG Attention', t:'DGAttention' }, followup: { l:'📌 Follow-Up', t:'FollowUp' }, int: { l:'INT — Internal Routing', t:'INT' }, unc: { l:'UNC — Urgent/No Comment', t:'UNC' } };
+  if(!AppState.selectedDoc || !m[action]) return;
+  AppState._pendingFlagAction = action;
+  document.getElementById('modal-flag-title').textContent = m[action].l;
+  document.getElementById('modal-flag-doc-title').textContent = AppState.selectedDoc.Title || '—';
+  document.getElementById('modal-flag-type-display').textContent = m[action].l;
+  document.getElementById('modal-flag-comments').value = '';
+  document.getElementById('modal-flag-submit-btn').disabled = false;
+  trapFocus('modal-flag-doc'); document.getElementById('modal-flag-doc').classList.add('show');
+}
+function closeFlagModal() { document.getElementById('modal-flag-doc').classList.remove('show'); releaseFocus('modal-flag-doc'); AppState._pendingFlagAction = null; }
+async function submitFlagAction() {
+  const act = AppState._pendingFlagAction; const doc = AppState.selectedDoc; if(!act || !doc) return;
+  const t = { dg:'DGAttention', followup:'FollowUp', int:'INT', unc:'UNC' }[act];
+  document.getElementById('modal-flag-submit-btn').disabled = true;
+  try {
+    await executeSubsidiaryAction('flagDocument', doc.ID, doc.Title, {
+      FlagAction: { DocumentID: doc.ID, DocumentTitle: doc.Title, FlagType: t, Comments: document.getElementById('modal-flag-comments').value, FlaggedBy: AppState.currentUser.email, Timestamp: new Date().toISOString() },
+      payload: { flag: { DocumentID: doc.ID, FlagType: t, Comments: document.getElementById('modal-flag-comments').value, FlaggedBy: AppState.currentUser.email } }
+    }, 'Submitting flag...');
+    showNotify('modal-flag-notify', `✅ Flag submitted successfully.`, 'success');
+    setTimeout(() => closeFlagModal(), 1500);
+  } catch(e) { document.getElementById('modal-flag-submit-btn').disabled = false; showNotify('modal-flag-notify', `❌ ${e.message}`, 'error'); }
+}
+
+// --- TASK UPDATE ---
+function openTaskUpdateModal() {
+  const task = AppState.selectedTask; if(!task) return;
+  document.getElementById('modal-task-update-title').textContent = task.Title || '—';
+  document.getElementById('modal-task-progress').value = task.Progress || '';
+  document.getElementById('modal-task-priority').value = task.Priority || 'P3 (Normal)';
+  trapFocus('modal-task-update'); document.getElementById('modal-task-update').classList.add('show');
+}
+function closeTaskUpdateModal() { document.getElementById('modal-task-update').classList.remove('show'); releaseFocus('modal-task-update'); }
+async function submitTaskUpdate() {
+  const t = AppState.selectedTask; if(!t) return;
+  const p = document.getElementById('modal-task-progress').value; const pri = document.getElementById('modal-task-priority').value;
+  try {
+    await executeSubsidiaryAction('updateTask', t.ID, t.Title, {
+      TaskUpdate: { TaskID: t.ID, TaskTitle: t.Title, ReferenceID: t.Reference_ID||t.RefIDD||'', Progress: p, Priority: pri, Comments: document.getElementById('modal-task-comments').value, UpdatedBy: AppState.currentUser.email, UpdatedAt: new Date().toISOString() },
+      payload: { task: { TaskID: t.ID, Progress: p, Priority: pri, Comments: document.getElementById('modal-task-comments').value } }
+    });
+    t.Progress = p; t.Priority = pri; renderTaskFullView(t); // Update local view
+    showNotify('modal-task-update-notify', `✅ Update successful.`, 'success');
+    setTimeout(() => closeTaskUpdateModal(), 1500);
+  } catch(e) { showNotify('modal-task-update-notify', `❌ ${e.message}`, 'error'); }
+}
+
+// --- EMAIL TO TASK ---
+const _etaskCCTags = new Set();
+function openEmailToTask() {
+  const em = AppState.selectedEmail; if(!em) return;
+  document.getElementById('etask-title').value = `[Email] ${em.subject||''}`;
+  document.getElementById('etask-email-subject-preview').textContent = em.subject||'—';
+  document.getElementById('etask-email-from-preview').textContent = em.fromName||em.fromAddress||'—';
+  document.getElementById('etask-body-preview').textContent = em.bodyPreview||'';
+  document.getElementById('email-detail-area').style.display='none'; document.getElementById('email-to-task-form').style.display='block';
+}
+function closeEmailToTask() { document.getElementById('email-to-task-form').style.display='none'; document.getElementById('email-detail-area').style.display='block'; }
+function onETaskCategoryChange() {
+  const cat = document.getElementById('etask-category').value; const subEl = document.getElementById('etask-subcategory');
+  const subs = AppState.categories.filter(c=>c.Category===cat).map(c=>c.Subcategory).filter(Boolean);
+  subEl.innerHTML = '<option value="">Select...</option>' + subs.map(s=>`<option>${escHtml(s)}</option>`).join('');
+  if(subs.length===1) subEl.value = subs[0]; applyETaskCategoryCascade();
+}
+function applyETaskCategoryCascade() {
+  const c = document.getElementById('etask-category').value; const s = document.getElementById('etask-subcategory').value; if(!c) return;
+  const cr = AppState.categories.find(x => x.Category === c && (!s || x.Subcategory === s)) || AppState.categories.find(x => x.Category === c); if(!cr) return;
+  const aEl = document.getElementById('etask-assignee');
+  if(aEl && !aEl.value.trim() && cr['Default Primary Responsible']) { const d = AppState.departments.find(x=>x.DSU_KEY===cr['Default Primary Responsible']); if(d) aEl.value = d.DSU_HeadEmail||d.DSU_HeadPersonalEmail||''; }
+}
+function filterEmailTaskUsers() {
+  const q = document.getElementById('etask-assignee').value.toLowerCase(); const s = document.getElementById('etask-user-suggestions');
+  if(q.length<2) return s.style.display='none';
+  s.innerHTML = AppState.users.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)).slice(0,8).map(u=>`<div class="user-option" onclick="document.getElementById('etask-assignee').value='${u.email}';document.getElementById('etask-user-suggestions').style.display='none'">${escHtml(u.name)}</div>`).join('');
+  s.style.display='block';
+}
+function filterEmailTaskCoAssignee() {
+  const q = document.getElementById('etask-coassignee').value.toLowerCase(); const s = document.getElementById('etask-coassignee-suggestions');
+  if(q.length<2) return s.style.display='none';
+  s.innerHTML = AppState.users.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)).slice(0,8).map(u=>`<div class="user-option" onclick="document.getElementById('etask-coassignee').value='${u.email}';document.getElementById('etask-coassignee-suggestions').style.display='none'">${escHtml(u.name)}</div>`).join('');
+  s.style.display='block';
+}
+function filterEmailTaskCC() {
+  const q = document.getElementById('etask-cc').value.toLowerCase(); const s = document.getElementById('etask-cc-suggestions');
+  if(q.length<2) return s.style.display='none';
+  s.innerHTML = AppState.users.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)).slice(0,8).map(u=>`<div class="user-option" onclick="_etaskCCTags.add('${u.email}');document.getElementById('etask-cc').value='';document.getElementById('etask-cc-suggestions').style.display='none';renderETaskCCTags()">${escHtml(u.name)}</div>`).join('');
+  s.style.display='block';
+}
+function renderETaskCCTags() { document.getElementById('etask-cc-tags').innerHTML = [..._etaskCCTags].map(e=>`<span class="badge badge-neutral">${e} <span style="cursor:pointer" onclick="_etaskCCTags.delete('${e}');renderETaskCCTags()">✕</span></span>`).join(''); }
+
+function previewEmailTask() {
+  if(!document.getElementById('etask-title').value || !document.getElementById('etask-assignee').value) return showNotify('etask-notify', '❌ Title and Assignee required.', 'error');
+  const set = (id,v)=>document.getElementById(id).textContent=v||'—';
+  set('ep-title', document.getElementById('etask-title').value); set('ep-category', document.getElementById('etask-category').value);
+  set('ep-assignee', document.getElementById('etask-assignee').value); set('ep-coassignee', document.getElementById('etask-coassignee').value);
+  set('ep-cc', [..._etaskCCTags].join('; ')); set('ep-priority', document.getElementById('etask-priority').value);
+  trapFocus('modal-etask-preview'); document.getElementById('modal-etask-preview').classList.add('show');
+}
+function closeEmailTaskPreview() { document.getElementById('modal-etask-preview').classList.remove('show'); releaseFocus('modal-etask-preview'); }
+
+async function submitEmailTask() {
+  const em = AppState.selectedEmail; const title = document.getElementById('etask-title').value;
+  const t = new Date().toISOString().split('T')[0];
+  const payload = {
+    action: 'emailtotaskassignment', operation: 'createTaskFromEmail', mode: 'single', source: 'DGO_FAST_Track_WEB_OPS', userEmail: AppState.currentUser.email, method: 'POST', device: { id: 'standalone-html' },
+    payload: {
+      email: { id: em.id, subject: em.subject, receivedDateTime: em.receivedDateTime, fromAddress: { address: em.fromAddress, name: em.fromName }, bodyPreview: em.bodyPreview },
+      task: { StartDate: t, ActivityID: em.id, Title: title, Category: document.getElementById('etask-category').value, AssignedTo: document.getElementById('etask-assignee').value, Priority: document.getElementById('etask-priority').value, CopyTo: [..._etaskCCTags].join(';'), CreatedBy: AppState.currentUser.email },
+      selection: { single: { ID: em.id, RefIDD: '', Title: em.subject }, items: [] }, assignment: { type: 'emailtask' }
+    }
+  };
+  try {
+    document.getElementById('etask-confirm-submit-btn').disabled = true;
+    await callAPI('E05', payload, 'Creating task...');
+    showNotify('modal-etask-preview-notify', `✅ Task created.`, 'success');
+    _etaskCCTags.clear(); renderETaskCCTags(); setTimeout(() => { closeEmailTaskPreview(); closeEmailToTask(); }, 1500);
+  } catch(e) { document.getElementById('etask-confirm-submit-btn').disabled = false; showNotify('modal-etask-preview-notify', `❌ ${e.message}`, 'error'); }
+}
+
+// EXACT PARITY: Focus Traps
+const _focusTrapHandlers = {};
+function trapFocus(id) {
+  const m = document.getElementById(id); if(!m) return;
+  const f = m.querySelectorAll('button, input, select, textarea');
+  const h = (e) => { if(e.key==='Escape') { m.classList.remove('show'); releaseFocus(id); } };
+  releaseFocus(id); m.addEventListener('keydown', h); _focusTrapHandlers[id] = { handler: h };
+}
+function releaseFocus(id) { const m = document.getElementById(id); if(m && _focusTrapHandlers[id]) m.removeEventListener('keydown', _focusTrapHandlers[id].handler); delete _focusTrapHandlers[id]; }
+
+// Dropdown click outside handler
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.collapsible-content.open') && !e.target.closest('.toggle-label')) closeAllDropdowns();
+  if (!e.target.closest('#user-info-btn')) document.getElementById('user-menu')?.classList.remove('show');
+  if (!e.target.closest('#etask-assignee') && !e.target.closest('#etask-user-suggestions')) document.getElementById('etask-user-suggestions')?.style.setProperty('display','none');
+});
+
+console.log('NITDA Ops Lookup Variant Ready.');
+</script>
+</body>
+</html>
+

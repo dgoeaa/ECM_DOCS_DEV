@@ -1,0 +1,606 @@
+Review and advise:  getDocs
+POST{
+    "type": "object",
+    "properties": {
+        "action": {a
+            "type": "string"
+        },
+        "userEmail": {
+            "type": "string"
+        },
+        "assigner": {
+            "type": "object",
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "newAssignee": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "tasksData": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "originalId": {
+                        "type": "integer"
+                    },
+                    "originalTitle": {
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "string"
+                    },
+                    "dueDate": {
+                        "type": "string"
+                    },
+                    "classification": {
+                        "type": "string"
+                    },
+                    "subjectPrefix": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "originalId",
+                    "originalTitle",
+                    "priority",
+                    "dueDate",
+                    "classification",
+                    "subjectPrefix"
+                ]
+            }
+        },
+        "taskData": {
+            "type": "object",
+            "properties": {
+                "Title": {
+                    "type": "string"
+                },
+                "Classification": {
+                    "type": "string"
+                },
+                "Priority": {
+                    "type": "object",
+                    "properties": {
+                        "Value": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "DueDate": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "Progress": {
+                    "type": "object",
+                    "properties": {
+                        "Value": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}{
+  "docs": @{body('Select')},
+  "users": @{body('Select')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50getEmailsPOST{
+  "emails": @{outputs('Compose_JSON_Select_Output')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d78b1940f4447b8b31b49657fe9c19c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MYsqxloN75MRDlRkQM_R6sFekhu6KKXMXacPjdkppPQgetTasksPOST{
+  "tasks": @{body('Select_Get_items')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4createTaskPOST{
+    "type": "object",
+    "properties": {
+        "CategoryId": {
+            "type": "string"
+        },
+        "Category": {
+            "type": "string"
+        },
+        "Subcategory": {
+            "type": "string"
+        },
+        "CategoryCode": {
+            "type": "string"
+        },
+        "SubCategoryCode": {
+            "type": "string"
+        },
+        "DSU_KEY": {
+            "type": "string"
+        },
+        "AssignedTo_DSU_KEY": {
+            "type": "string"
+        },
+        "CoAssignedTo_DSU_KEY": {
+            "type": "string"
+        },
+        "CcTo": {
+            "type": "string"
+        },
+        "Priority": {
+            "type": "string"
+        },
+        "Notes": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        },
+        "DocumentId": {
+            "type": "string"
+        },
+        "DocumentTitle": {
+            "type": "string"
+        },
+        "securityToken": {}
+    }
+}{
+  "Status": "Task Created"
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/cae7796c721b47bc9aa95159eeb16081/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ddGxQ6LUJmIWOl_DdpJ5iIqmpvu1IUKgFKcjpaG69L4getAllDataPOST{
+    "userEmail": "string"
+}{
+  "tasks": @{body('Select_Tasks')},
+  "docs": @{body('Select_Correspondences')},
+  "emails": @{body('Select_Email')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/31e02518075940d2bcfa9bdb0e9b0b8d/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NKHalikCUYBa3x4aFXqv-DdUnWpLZnHjt94q0RsIKTosubsidiaryActionsPOST{
+    "type": "object",
+    "properties": {
+        "AssignmentType": {
+            "type": "string"
+        },
+        "NewActivityTask": {
+            "type": "object",
+            "properties": {
+                "StartDate": {
+                    "type": "string"
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ]
+                },
+                "Title": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "AssignedTo": {
+                    "type": "string"
+                },
+                "AssignedDSU": {
+                    "type": "string"
+                },
+                "supportingAssignedTo": {
+                    "type": "string"
+                },
+                "CopyTo": {
+                    "type": "string"
+                },
+                "Priority": {
+                    "type": "string"
+                },
+                "Comments": {
+                    "type": "string"
+                }
+            }
+        },
+        "Selected": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ]
+                },
+                "RefIDD": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}{
+  "status": "success"
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85c556f10b8244ba9d839a2ebe240b91/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8ikbMhXrOn_L4QRUBF94wiq2swh7GlNVY_GZ5BD5jK0getAllReferenceData (users,departments, categoryPOST{
+  "users": @{body('Select_Users')},
+  "categories": @{body('Select_Categories')},
+  "departments": @{body('Select_Departments')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPUCreate TaskPOST{
+    "type": "object",
+    "properties": {
+        "CategoryId": {
+            "type": "string"
+        },
+        "Category": {
+            "type": "string"
+        },
+        "Subcategory": {
+            "type": "string"
+        },
+        "CategoryCode": {
+            "type": "string"
+        },
+        "SubCategoryCode": {
+            "type": "string"
+        },
+        "DSU_KEY": {
+            "type": "string"
+        },
+        "AssignedTo_DSU_KEY": {
+            "type": "string"
+        },
+        "CoAssignedTo_DSU_KEY": {
+            "type": "string"
+        },
+        "CcTo": {
+            "type": "string"
+        },
+        "Priority": {
+            "type": "string"
+        },
+        "Notes": {
+            "type": "string"
+        },
+        "Timestamp": {
+            "type": "string"
+        },
+        "DocumentId": {
+            "type": "string"
+        },
+        "DocumentTitle": {
+            "type": "string"
+        },
+        "securityToken": {}
+    }
+}{
+  "Status": "Task Created"
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/cae7796c721b47bc9aa95159eeb16081/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ddGxQ6LUJmIWOl_DdpJ5iIqmpvu1IUKgFKcjpaG69L4Send EmailPOST{
+    "type": "object",
+    "properties": {
+        "itemID": {
+            "type": "string",
+            "description": "Unique identifier for the item or email"
+        },
+        "to": {
+            "type": "string",
+            "description": "Primary recipient email address"
+        },
+        "cc": {
+            "type": "string",
+            "description": "CC recipient email address(es), comma-separated"
+        },
+        "bcc": {
+            "type": "string",
+            "description": "BCC recipient email address(es), comma-separated"
+        },
+        "subject": {
+            "type": "string",
+            "description": "Email subject line"
+        },
+        "body": {
+            "type": "string",
+            "description": "Email body content"
+        },
+        "isHtml": {
+            "type": "boolean",
+            "description": "True if body is HTML, false if plain text"
+        },
+        "attachments": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "contentBytes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "contentBytes"
+                ]
+            },
+            "description": "List of attachments with name and base64 content"
+        },
+        "taskId": {
+            "type": "string"
+        },
+        "status": {
+            "type": "string"
+        },
+        "importance": {
+            "type": "string",
+            "enum": [
+                "Low",
+                "Normal",
+                "High"
+            ],
+            "description": "Sets the importance level of the email"
+        }
+    },
+    "required": [
+        "itemID",
+        "to",
+        "subject",
+        "body"
+    ]
+}{
+  "status": "success",
+  "message": "Email sent successfully",
+  "itemID": "@{triggerBody()?['itemID']}",
+  "to": "@{triggerBody()?['to']}",
+  "cc": "@{triggerBody()?['cc']}",
+  "bcc": "@{triggerBody()?['bcc']}",
+  "subject": "@{triggerBody()?['subject']}",
+  "importance": "@{triggerBody()?['importance']}",
+  "iAttachmentsCount": ""
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2e37b6310842410eb15c4561f2b0c1eb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=JWa3c_EuUTSNguAGK05GF3arABlaeKANnoFn5tCV4qQGet EmailsPOST{
+    "type": "object",
+    "properties": {
+        "folderPath": {
+            "type": "string"
+        },
+        "top": {
+            "type": "integer"
+        },
+        "skip": {
+            "type": "integer"
+        },
+        "fetchOnlyUnread": {
+            "type": "boolean"
+        }
+    }
+}{
+  "emails": @{outputs('Compose_HTTP_Request_URL_2')},
+  "nextBatchAvailable": true
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0UGet Emails AttachmentsPOST{
+    "type": "object",
+    "properties": {
+        "emailId": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "emailId"
+    ]
+}{
+    "attachments": @{json(string(variables('varAttachments')))}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/20e6340941ce4b1bbb87b43c9102a777/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=aoDNRVjvGpUWGq2zB7H5JG10xQTEFhFLt1PTxmpCX6YEmail AI AssistPOST{
+    "type": "object",
+    "properties": {
+        "emailId": {
+            "type": "string"
+        }
+    }
+}<div style="margin-bottom:10px; padding:12px; background:#edf2f7; border-radius:8px; border:1px solid #dce5dd; border-left:6px solid #4a5568;">
+    <div style="font-weight:600; color:#1a202c; margin-bottom:4px;">📝 Summary</div>
+    <div style="color:#2d3748;">@{body('Parse_JSON')?['Summary']}</div>
+  </div>
+ 
+  <div style="margin-bottom:10px; padding:12px; background:#fef2f2; border-radius:8px; border:1px solid #dce53e; border-left:6px solid #e53e3e;">
+    <div style="font-weight:600; color:#1a202c; margin-bottom:4px;">⚠️ Action Required</div>
+    <div style="color:#c53030; font-weight:500;">@{body('Parse_JSON')?['ActionRequired']}</div>
+  </div>
+ 
+  <div style="margin-bottom:10px; padding:12px; background:#f0fdf4; border-radius:8px; border:1px solid #dce5dd; border-left:6px solid #38a169;">
+    <div style="font-weight:600; color:#1a202c; margin-bottom:4px;">✅ Recommended Action</div>
+    <div style="color:#2f855a; font-weight:500;">@{body('Parse_JSON')?['RecommendedAction']}</div>
+  </div>
+ 
+  <div style="margin-bottom:10px; padding:12px; background:#f0f7f4; border-radius:8px; border:1px solid #dce5dd; border-left:6px solid #2f855a;">
+    <div style="font-weight:600; color:#1a202c; margin-bottom:4px;">🏢 Department</div>
+    <div style="color:#2d3748;">@{body('Parse_JSON')?['Department']}</div>
+  </div>
+ 
+  <div style="margin-bottom:10px; padding:12px; background:#e8f4fd; border-radius:8px; border:1px solid #dce5dd; border-left:6px solid #007bff;">
+    <div style="font-weight:600; color:#1a202c; margin-bottom:4px;">📎 Attachments</div>
+    <div style="color:#2d3748;">
+      @{variables('varAttachmentsHTML')}
+    </div>
+  </div>
+</div>https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7ee91bdefd3c449889d680c722a99d05/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ryoyoE2DqgyDQIJIgfh_AYTcQqG1euZaSqv_kYi8B9sEmail to task processingPOST{
+    "type": "object",
+    "properties": {
+        "emailId": {
+            "type": "string"
+        }
+    }
+}{
+  "summary": "@{body('Parse_JSON')?['Summary']}.",
+  "actionRequired": ".@{body('Parse_JSON')?['ActionRequired']}",
+  "recommendedAction": "@{body('Parse_JSON')?['RecommendedAction']}",
+  "suggestedCategoryCode": "@{body('Parse_JSON')?['Department']}",
+  "suggestedPriority": "@{body('Parse_JSON')?['Priority']}",
+  "suggestedAssigneeEmail": ""
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fe794e0139784ac694768e5a716e0be7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=lD76CTAMr77WcIpmZCx7Xqv10-6hybEB6ieFewDOt2kWeb AI ChatPOST{
+    "type": "object",
+    "properties": {
+        "message": {
+            "type": "string"
+        },
+        "context": {
+            "type": "object",
+            "properties": {
+                "subject": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}{
+  "reply": @{outputs('Compose_AI_Response')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a13c8b577bd44f8787c50d095ea3faf9/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=gtXPGBgn00fpw7ORkWQvzaNNQ8qwSHUahBodUv7AyX8Reference Data (users,departments,categories)POST{
+    "type": "object",
+    "properties": {
+        "users": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "department",
+                    "jobTitle"
+                ]
+            }
+        },
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ID": {
+                        "type": "integer"
+                    },
+                    "Title": {
+                        "type": "string"
+                    },
+                    "DSU_KEY": {
+                        "type": "string"
+                    },
+                    "Category": {
+                        "type": "string"
+                    },
+                    "Subcategory": {
+                        "type": "string"
+                    },
+                    "Category Code": {
+                        "type": "string"
+                    },
+                    "SubCategory Code": {
+                        "type": "string"
+                    },
+                    "Default Primary Responsible": {
+                        "type": "string"
+                    },
+                    "Default Supporting Department/Unit": {
+                        "type": "string"
+                    },
+                    "DSU_Head Personal_Email": {
+                        "type": "string"
+                    },
+                    "DSU_HeadTitle": {
+                        "type": "string"
+                    },
+                    "INFORMDSU1": {
+                        "type": "string"
+                    },
+                    "INFORMDSU2": {
+                        "type": "string"
+                    },
+                    "INFORMDSU3": {
+                        "type": "string"
+                    },
+                    "Timeline": {
+                        "type": "string"
+                    },
+                    "Priority": {
+                        "type": "string"
+                    },
+                    "Permissions": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "ID",
+                    "Title",
+                    "DSU_KEY",
+                    "Category",
+                    "Subcategory",
+                    "Category Code",
+                    "SubCategory Code",
+                    "Default Primary Responsible",
+                    "Default Supporting Department/Unit",
+                    "DSU_Head Personal_Email",
+                    "DSU_HeadTitle",
+                    "INFORMDSU1",
+                    "INFORMDSU2",
+                    "INFORMDSU3",
+                    "Timeline",
+                    "Priority",
+                    "Permissions"
+                ]
+            }
+        },
+        "departments": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "ID": {
+                        "type": "string"
+                    },
+                    "Title": {
+                        "type": "string"
+                    },
+                    "DSU_KEY": {
+                        "type": "string"
+                    },
+                    "DSU_Email": {
+                        "type": "string"
+                    },
+                    "DSU_HeadEmail": {
+                        "type": "string"
+                    },
+                    "DSU_HeadTitle": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "ID",
+                    "Title",
+                    "DSU_KEY",
+                    "DSU_Email",
+                    "DSU_HeadEmail",
+                    "DSU_HeadTitle"
+                ]
+            }
+        }
+    }
+}{
+  "users": @{body('Select_Users')},
+  "categories": @{body('Select_Categories')},
+  "departments": @{body('Select_Departments')}
+}https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU

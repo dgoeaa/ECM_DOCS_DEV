@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://internal/spa-manifest.schema.json",
+  "title": "SPA Inventory Manifest",
+  "description": "Phase 1 inventory of a single-file HTML SPA. Strict: no extra fields permitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "spa_id",
+    "source_filename",
+    "purpose",
+    "offerings",
+    "views",
+    "js_utilities",
+    "dom_contract",
+    "event_handling",
+    "global_scope",
+    "state_management",
+    "design_tokens",
+    "assets",
+    "external_libraries",
+    "power_automate_flows",
+    "behaviors",
+    "accessibility",
+    "localization",
+    "risks_and_quirks",
+    "extraction_meta"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.1" },
+    "spa_id": { "type": "string", "pattern": "^spa-[0-9]{2,}$" },
+    "source_filename": { "type": "string", "minLength": 1 },
+    "title": { "type": ["string", "null"] },
+    "purpose": { "type": "string", "minLength": 1 },
+
+    "offerings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description", "entry_point"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string" },
+          "entry_point": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "views": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "type", "trigger"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "trigger": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "js_utilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "signature", "purpose", "approx_lines"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "signature": { "type": "string" },
+          "purpose": { "type": "string" },
+          "approx_lines": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+
+    "dom_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["element_ids", "css_classes", "inline_styles_present", "notes"],
+      "properties": {
+        "element_ids": { "type": "array", "items": { "type": "string" } },
+        "css_classes": { "type": "array", "items": { "type": "string" } },
+        "inline_styles_present": { "type": "boolean" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "event_handling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inline_handlers", "listener_bound", "global_listeners", "notes"],
+      "properties": {
+        "inline_handlers": { "type": "array", "items": { "type": "string" } },
+        "listener_bound": { "type": "array", "items": { "type": "string" } },
+        "global_listeners": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "global_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["global_functions", "global_variables", "notes"],
+      "properties": {
+        "global_functions": { "type": "array", "items": { "type": "string" } },
+        "global_variables": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "state_management": { "type": "string", "minLength": 1 },
+
+    "design_tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["framework", "colors", "fonts", "spacing_or_layout_notes"],
+      "properties": {
+        "framework": { "type": ["string", "null"] },
+        "colors": { "type": "array", "items": { "type": "string" } },
+        "fonts": { "type": "array", "items": { "type": "string" } },
+        "spacing_or_layout_notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "delivery", "ref", "approx_size"],
+        "properties": {
+          "type": { "type": "string" },
+          "delivery": {
+            "type": "string",
+            "enum": ["inline-base64", "external-url", "data-uri-svg", "inline-svg"]
+          },
+          "ref": { "type": "string" },
+          "approx_size": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "external_libraries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "source"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "version": { "type": ["string", "null"] },
+          "source": { "type": "string" }
+        }
+      }
+    },
+
+    "power_automate_flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name", "method", "endpoint_base", "has_sas_token", "auth_scheme",
+          "custom_headers", "trigger", "request_shape", "response_shape",
+          "depends_on", "polling_interval_ms", "timeout_ms", "error_handling"
+        ],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+          },
+          "endpoint_base": { "type": "string" },
+          "has_sas_token": { "type": "boolean" },
+          "auth_scheme": { "type": ["string", "null"] },
+          "custom_headers": { "type": "array", "items": { "type": "string" } },
+          "trigger": { "type": "string" },
+          "request_shape": { "type": "string" },
+          "response_shape": { "type": "string" },
+          "depends_on": {
+            "anyOf": [
+              { "type": "null" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "polling_interval_ms": { "type": ["integer", "null"], "minimum": 0 },
+          "timeout_ms": { "type": ["integer", "null"], "minimum": 0 },
+          "error_handling": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "behaviors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loading_states", "error_states", "polling_present", "timers_present", "notes"],
+      "properties": {
+        "loading_states": { "type": "boolean" },
+        "error_states": { "type": "boolean" },
+        "polling_present": { "type": "boolean" },
+        "timers_present": { "type": "boolean" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aria_present", "keyboard_nav", "notes"],
+      "properties": {
+        "aria_present": { "type": "boolean" },
+        "keyboard_nav": { "type": "boolean" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "localization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["i18n_present", "languages", "notes"],
+      "properties": {
+        "i18n_present": { "type": "boolean" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+
+    "risks_and_quirks": { "type": "array", "items": { "type": "string" } },
+
+    "extraction_meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["complete", "unparseable_sections", "source_lines_approx"],
+      "properties": {
+        "complete": { "type": "boolean" },
+        "unparseable_sections": { "type": "array", "items": { "type": "string" } },
+        "source_lines_approx": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    }
+  }
+}

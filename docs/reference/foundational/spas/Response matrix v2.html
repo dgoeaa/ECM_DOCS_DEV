@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NITDA Response Matrix | Enterprise Governance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --nitda-green: #05583B;
+            --nitda-teal: #00A69D;
+            --nitda-gold: #c9a227;
+            --paper-bg: #fffdf0;
+        }
+
+        .nitda-gradient { background: linear-gradient(135deg, var(--nitda-green) 0%, var(--nitda-teal) 100%); }
+        
+        .minute-sheet {
+            background-color: var(--paper-bg);
+            border-left: 8px solid #d1d5db;
+            font-family: 'Courier New', Courier, monospace;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .minute-entry {
+            border-bottom: 1px dashed #ccc;
+            padding: 20px;
+            position: relative;
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .red-ink { color: #b91c1c; font-weight: bold; } 
+        .blue-ink { color: #1e3a8a; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-completed { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+        .status-overdue { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .sla-bar { height: 4px; border-radius: 2px; background: #e5e7eb; overflow: hidden; }
+        .sla-progress { height: 100%; transition: width 0.5s ease; }
+
+        #notification { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(-120%); }
+        #notification.show { transform: translateY(0); }
+
+        .registry-stamp {
+            border: 3px double #b91c1c;
+            color: #b91c1c;
+            padding: 5px 10px;
+            display: inline-block;
+            transform: rotate(-15deg);
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 12px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+        
+        /* Loading Shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        /* RBAC & Telemetry Classes */
+        .role-DGCEO .ea-only, .role-DGCEO .registry-only { display: none !important; }
+        .role-EA .dg-only, .role-EA .registry-only { display: none !important; }
+        .role-Registry .dg-only, .role-Registry .ea-only { display: none !important; }
+        #telemetryCanvas { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; width: 100%; height: 100px; margin-top: 10px; }
+    </style>
+</head>
+<body class="bg-[#f0f2f5] text-gray-900 font-sans">
+
+    <!-- Header -->
+    <header class="nitda-gradient text-white p-4 shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="bg-white p-1.5 rounded-lg shadow-inner">
+                    <img src="https://nitda.gov.ng/wp-content/uploads/2021/01/NITDA-Logo.png" alt="NITDA" class="h-8">
+                </div>
+                <div>
+                    <h1 class="text-lg font-black leading-none uppercase tracking-tighter">Response Matrix</h1>
+                    <p class="text-[10px] opacity-70 font-bold uppercase tracking-widest mt-1">Enterprise Registry & Decision Hub</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="syncData()" class="bg-white/10 hover:bg-white/20 border border-white/30 px-4 py-2 rounded-lg text-xs font-bold uppercase transition flex items-center gap-2">
+                    <span id="sync-icon">⟳</span> Full Matrix Sync
+                </button>
+                <div id="user-avatar" onclick="promptUserEmail()" class="w-10 h-10 rounded-full bg-white/10 border-2 border-white/50 flex items-center justify-center font-black cursor-pointer hover:bg-white/20 transition">
+                    U
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="fixed top-24 right-6 z-[1000] hidden px-6 py-4 rounded-xl shadow-2xl border-l-8 text-white font-bold backdrop-blur-md"></div>
+
+    <main class="max-w-7xl mx-auto p-4 lg:p-8">
+        
+        <!-- Metrics Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                <p class="text-xs font-bold text-gray-400 uppercase">Total Items</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stat-total">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 border-l-4 border-l-red-500">
+                <p class="text-xs font-bold text-gray-400 uppercase">Overdue</p>
+                <h3 class="text-2xl font-black text-red-600" id="stat-overdue">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 border-l-4 border-l-yellow-500">
+                <p class="text-xs font-bold text-gray-400 uppercase">Awaiting Action</p>
+                <h3 class="text-2xl font-black text-yellow-600" id="stat-pending">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 border-l-4 border-l-green-500">
+                <p class="text-xs font-bold text-gray-400 uppercase">Completed</p>
+                <h3 class="text-2xl font-black text-green-600" id="stat-completed">0</h3>
+            </div>
+        </div>
+
+        <!-- Telemetry & Granular Controls -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-4">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest">System Telemetry & Controls</h3>
+                <div class="flex gap-4">
+                    <label class="text-[10px] font-bold uppercase"><input type="checkbox" id="ctrlUnread" checked class="mr-1">Unread Emails</label>
+                    <select id="ctrlFolder" class="text-[10px] border rounded px-2"><option value="Inbox">Inbox</option><option value="Archive">Archive</option></select>
+                    <input type="number" id="ctrlTop" value="50" class="text-[10px] border rounded px-2 w-16" title="Top N">
+                </div>
+            </div>
+            <canvas id="telemetryCanvas"></canvas>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 flex flex-wrap gap-6 items-end">
+            <div class="flex-1 min-w-[300px]">
+                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Global Matrix Search</label>
+                <div class="relative">
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Search Ref ID, Task Title, Assigned Officer..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 outline-none transition font-medium">
+                </div>
+            </div>
+            <div class="w-64">
+                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Classification</label>
+                <select id="categoryFilter" onchange="applyFilters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-teal-500 font-bold text-gray-700">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="w-64">
+                <label class="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Status</label>
+                <select id="statusFilter" onchange="applyFilters()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-teal-500 font-bold text-gray-700">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending/Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Matrix Table -->
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50/50 border-b border-gray-100">
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Trace ID</th>
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Execution Node (Task)</th>
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Executor</th>
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">SLA Health</th>
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Governance</th>
+                            <th class="p-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixTableBody" class="divide-y divide-gray-50">
+                        <tr><td colspan="6" class="p-20 text-center text-gray-400 font-bold uppercase tracking-widest">Click "Sync" to load movement records...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Acknowledgment Modal -->
+    <div id="ackModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[2000] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 border border-gray-200">
+            <h3 class="font-black text-lg text-teal-800 mb-2 uppercase">Acknowledge Task</h3>
+            <label class="block text-xs font-bold text-gray-500 mb-1">Execution Notes</label>
+            <textarea id="ackNotes" class="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none mb-4" rows="3" placeholder="Enter acknowledgment notes..."></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeAckModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold text-xs uppercase">Cancel</button>
+                <button onclick="submitAck()" class="px-4 py-2 bg-teal-600 text-white rounded-lg font-bold text-xs uppercase shadow-lg">Confirm Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Matrix Trace Modal -->
+    <div id="matrixModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[1000] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-6xl h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-white/20">
+            <div class="p-6 border-b flex justify-between items-center nitda-gradient text-white">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl">📋</div>
+                    <div>
+                        <h2 class="text-xl font-black uppercase tracking-tight" id="modalTitle">File Matrix Trace</h2>
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest" id="modalRef">REF: ---</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/20 text-2xl transition">&times;</button>
+            </div>
+            
+            <div class="flex-1 overflow-hidden flex flex-col lg:flex-row">
+                <!-- Sidebar: Lineage & Routing -->
+                <div class="w-full lg:w-80 p-8 bg-gray-50 border-r overflow-y-auto">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase mb-6 tracking-widest">Governed Lineage</h3>
+                    
+                    <div id="metadataContainer" class="space-y-4"></div>
+
+                    <div class="mt-6 p-4 bg-gray-100 rounded-xl border border-gray-200">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">AI Classification</span>
+                            <span class="bg-teal-100 text-teal-800 text-[9px] px-2 rounded-full font-bold">Auto-Generated</span>
+                        </div>
+                        <p class="text-[11px] font-bold text-gray-700">Category: <span class="text-teal-700">Executive Priority</span></p>
+                        <p class="text-[11px] font-bold text-gray-700 mt-1">Action: <span class="text-teal-700">Requires DG Approval</span></p>
+                    </div>
+
+                    <div class="mt-6 dg-only flex flex-col gap-2">
+                        <label class="block text-xs font-black text-gray-700 uppercase mb-1 tracking-widest">Executive Decision</label>
+                        <div class="flex gap-2">
+                            <button class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-green-700">Accept</button>
+                            <button class="flex-1 bg-red-600 text-white py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-red-700">Decline</button>
+                        </div>
+                        <button class="w-full bg-yellow-500 text-white py-2 rounded-lg font-bold text-xs uppercase shadow hover:bg-yellow-600 mt-1">Delegate to EA</button>
+                    </div>
+
+                    <div class="mt-8 pt-8 border-t border-gray-200 registry-only">
+                        <label class="block text-xs font-black text-gray-700 uppercase mb-3 tracking-widest">Digital Forwarding</label>
+                        <select id="forwardDSU" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-xs font-bold mb-3 outline-none focus:ring-2 focus:ring-teal-500">
+                            <option value="">Select Target DSU...</option>
+                        </select>
+                        <textarea id="internalNote" class="w-full bg-white border border-gray-200 rounded-xl p-4 text-xs font-medium h-24 mb-4 focus:ring-2 focus:ring-teal-500 outline-none" placeholder="Enter routing instruction for the minute sheet..."></textarea>
+                        <button onclick="submitMinute()" class="w-full nitda-gradient text-white font-black py-4 rounded-xl shadow-lg hover:shadow-teal-500/20 transition active:scale-95">
+                            FORWARD FILE
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main: The Minute Sheet -->
+                <div class="flex-1 p-8 overflow-y-auto bg-[#e5e7eb]/30">
+                    <div class="minute-sheet min-h-full p-10 rounded-xl shadow-inner border border-gray-200">
+                        <div class="text-center mb-10 pb-6 border-b-4 border-double border-gray-300">
+                            <img src="https://nitda.gov.ng/wp-content/uploads/2021/01/NITDA-Logo.png" alt="NITDA" class="h-10 mx-auto mb-4 opacity-40 grayscale">
+                            <h2 class="font-black text-xl uppercase tracking-tighter text-gray-800">Minute Sheet & Movement Record</h2>
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mt-1">Director General's Office (DGO)</p>
+                        </div>
+                        <div id="minuteEntries" class="space-y-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            flows: {
+                docs: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50',
+                tasks: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4',
+                emails: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U',
+                lookups: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU'
+            }
+        };
+
+        const state = {
+            userEmail: 'dgsregistry@nitda.gov.ng',
+            matrix: [],
+            lookupData: { departments: [], users: [] },
+            activeItem: null,
+            telemetry: []
+        };
+
+        function detectDeviceType() {
+            const w = window.innerWidth, h = window.innerHeight;
+            if (w <= 768) return 'mobile';
+            if (w <= 1024) return 'tablet';
+            return 'desktop';
+        }
+
+        function sanitizeHtml(html) {
+            if (!html) return '';
+            let s = String(html).replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '');
+            s = s.replace(/\son\w+\s*=\s*(["']).*?\1/gi, '');
+            return s.replace(/(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, '$1=#');
+        }
+
+        function renderTelemetry() {
+            const canvas = document.getElementById('telemetryCanvas');
+            if (!canvas || state.telemetry.length === 0) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const barWidth = Math.max(10, canvas.width / state.telemetry.length - 2);
+            const maxVal = Math.max(...state.telemetry);
+            state.telemetry.forEach((val, i) => {
+                const h = (val / (maxVal || 1)) * (canvas.height - 10);
+                ctx.fillStyle = '#00A69D';
+                ctx.fillRect(i * (barWidth + 2), canvas.height - h, barWidth, h);
+            });
+        }
+
+        window.onload = () => {
+            updateUserAvatar();
+            // syncData() will be triggered by the user or can be called here.
+        };
+
+        // Resilient Fetch with Exponential Backoff
+        async function fetchResilient(url, payload, retries = 5, delay = 1000) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (err) {
+                if (retries > 0) {
+                    await new Promise(r => setTimeout(r, delay));
+                    return fetchResilient(url, payload, retries - 1, delay * 2);
+                }
+                throw err;
+            }
+        }
+
+        async function syncData() {
+            notify("Syncing Intelligence Matrix...", "info");
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+            
+            const tStart = performance.now();
+            try {
+                const device = { id: detectDeviceType() };
+                const commonPayload = { userEmail: state.userEmail, operation: 'read', device: device, source: 'http' };
+                
+                const emailTop = document.getElementById('ctrlTop') ? Number(document.getElementById('ctrlTop').value) : 50;
+                const emailFolder = document.getElementById('ctrlFolder') ? document.getElementById('ctrlFolder').value : 'Inbox';
+                const emailUnread = document.getElementById('ctrlUnread') ? document.getElementById('ctrlUnread').checked : false;
+
+                const [docsRes, tasksRes, emailsRes, lookupsRes] = await Promise.all([
+                    fetchResilient(CONFIG.flows.docs, { ...commonPayload, action: 'getDocs' }),
+                    fetchResilient(CONFIG.flows.tasks, { ...commonPayload, action: 'fetch_tasks' }),
+                    fetchResilient(CONFIG.flows.emails, { ...commonPayload, action: 'emailsfetch', top: emailTop, skip: 0, folderPath: emailFolder, fetchOnlyUnread: emailUnread }),
+                    fetchResilient(CONFIG.flows.lookups, { ...commonPayload, action: 'fetchReferencesAndLookups' })
+                ]);
+
+                state.lookupData = { 
+                    departments: lookupsRes?.data?.departments || lookupsRes?.departments || [],
+                    users: lookupsRes?.data?.users || lookupsRes?.users || []
+                };
+
+                const rawDocs = docsRes.data?.docs || docsRes.docs || [];
+                const rawEmails = emailsRes.data?.emails || emailsRes.emails || [];
+                const rawTasks = tasksRes.data?.tasks || tasksRes.tasks || [];
+
+                state.matrix = rawTasks.map(task => {
+                    const refKey = String(task.RefIDD || task.Reference_ID || '');
+                    const parentDoc = rawDocs.find(d => String(d.ID) === refKey);
+                    
+                    // Trace related emails using Reference Key OR Task Title
+                    const relatedEmails = rawEmails.filter(e => 
+                        (e.subject && e.subject.includes(refKey)) || 
+                        (e.bodyPreview && e.bodyPreview.includes(task.Title)) ||
+                        (task.Reference_ID && e.subject && e.subject.includes(task.Reference_ID))
+                    );
+
+                    let status = task.Progress || task.Status || 'Pending';
+                    const start = task.StartDate ? new Date(task.StartDate) : new Date(task.Created || Date.now());
+                    const due = task.DueDate ? new Date(task.DueDate) : null;
+                    const now = new Date();
+                    
+                    let slaPercent = 0;
+                    if (due) {
+                        const total = due - start;
+                        const elapsed = now - start;
+                        slaPercent = Math.min(100, Math.max(0, (elapsed / (total || 1)) * 100));
+                        if (status !== 'Treated' && status !== 'Completed' && now > due) status = 'Overdue';
+                    }
+
+                    return { ...task, parentDoc, relatedEmails, derivedStatus: status, slaPercent };
+                });
+
+                updateStats();
+                populateFilters();
+                applyFilters();
+                
+                const duration = performance.now() - tStart;
+                state.telemetry.push(duration);
+                if(state.telemetry.length > 20) state.telemetry.shift();
+                renderTelemetry();
+                
+                notify("Matrix Analytics Ready", "success");
+            } catch (err) {
+                console.error(err);
+                notify("Sync Engine Error", "error");
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('animate-spin');
+            }
+        }
+
+        function updateStats() {
+            const elTotal = document.getElementById('stat-total');
+            const elOverdue = document.getElementById('stat-overdue');
+            const elPending = document.getElementById('stat-pending');
+            const elCompleted = document.getElementById('stat-completed');
+
+            if (elTotal) elTotal.innerText = state.matrix.length;
+            if (elOverdue) elOverdue.innerText = state.matrix.filter(m => m.derivedStatus === 'Overdue').length;
+            if (elPending) elPending.innerText = state.matrix.filter(m => ['pending', 'active', 'not started', 'assigned'].some(s => m.derivedStatus.toLowerCase().includes(s))).length;
+            if (elCompleted) elCompleted.innerText = state.matrix.filter(m => m.derivedStatus.toLowerCase().includes('treated') || m.derivedStatus.toLowerCase().includes('completed')).length;
+        }
+
+        function populateFilters() {
+            const catFilter = document.getElementById('categoryFilter');
+            const forwardDSU = document.getElementById('forwardDSU');
+            
+            if (catFilter) {
+                const cats = [...new Set(state.matrix.map(m => m.Classification).filter(Boolean))].sort();
+                catFilter.innerHTML = '<option value="">All Categories</option>' + 
+                    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+
+            if (forwardDSU) {
+                forwardDSU.innerHTML = '<option value="">Select Target DSU...</option>' + 
+                    state.lookupData.departments.map(d => `<option value="${d.DSU_KEY}">${d.Title} (${d.DSU_KEY})</option>`).join('');
+            }
+        }
+
+        function applyFilters() {
+            const elSearch = document.getElementById('searchInput');
+            const elCat = document.getElementById('categoryFilter');
+            const elStatus = document.getElementById('statusFilter');
+
+            // Safe value extraction
+            const query = elSearch ? elSearch.value.toLowerCase() : '';
+            const cat = elCat ? elCat.value : '';
+            const status = elStatus ? elStatus.value : '';
+
+            const filtered = state.matrix.filter(m => {
+                const matchesSearch = !query || 
+                    (m.Title || '').toLowerCase().includes(query) || 
+                    (m.Reference_ID || '').toLowerCase().includes(query) ||
+                    (m.AssignedTo || '').toLowerCase().includes(query);
+                
+                const matchesCat = !cat || m.Classification === cat;
+                
+                let matchesStatus = !status;
+                if (status === 'pending') {
+                    matchesStatus = ['pending', 'active', 'assigned', 'not started'].some(s => m.derivedStatus.toLowerCase().includes(s));
+                } else if (status === 'completed') {
+                    matchesStatus = m.derivedStatus.toLowerCase().includes('treated') || m.derivedStatus.toLowerCase().includes('completed');
+                } else if (status === 'overdue') {
+                    matchesStatus = m.derivedStatus.toLowerCase() === 'overdue';
+                }
+
+                return matchesSearch && matchesCat && matchesStatus;
+            });
+
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('matrixTableBody');
+            if (!tbody) return;
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-20 text-center text-gray-400 uppercase font-black tracking-widest opacity-40">No Matching Trace Nodes</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => {
+                const s = item.derivedStatus.toLowerCase();
+                const statusClass = s === 'overdue' ? 'status-overdue' : 
+                                    (s.includes('treated') || s.includes('completed')) ? 'status-completed' : 'status-pending';
+                
+                const slaColor = s === 'overdue' ? 'bg-red-500' : (item.slaPercent > 80 ? 'bg-yellow-500' : 'bg-green-500');
+
+                return `
+                <tr class="hover:bg-gray-50/80 transition-all cursor-pointer group" onclick="openMatrixModal(${item.ID})">
+                    <td class="p-5 font-mono text-[11px] font-black text-teal-800">${item.Reference_ID || item.ID}</td>
+                    <td class="p-5">
+                        <div class="font-black text-gray-800 uppercase text-xs tracking-tight">${item.Title}</div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="bg-gray-100 text-[9px] font-black px-2 py-0.5 rounded uppercase text-gray-500">${item.Classification || 'Standard'}</span>
+                        </div>
+                    </td>
+                    <td class="p-5">
+                        <div class="text-[11px] font-black text-gray-700">${item.AssignedTo || 'N/A'}</div>
+                        <div class="text-[9px] font-bold text-gray-400 mt-0.5">${item.GDSUROUT || 'DGO HQ'}</div>
+                    </td>
+                    <td class="p-5 min-w-[150px]">
+                        <div class="flex justify-between text-[9px] font-black uppercase text-gray-400 mb-1.5">
+                            <span>Health</span>
+                            <span>${Math.round(item.slaPercent)}%</span>
+                        </div>
+                        <div class="sla-bar">
+                            <div class="sla-progress ${slaColor}" style="width: ${item.slaPercent}%"></div>
+                        </div>
+                    </td>
+                    <td class="p-5 text-center">
+                        <span class="status-badge ${statusClass}">${item.derivedStatus}</span>
+                    </td>
+                    <td class="p-5 text-right">
+                        <button onclick="openAckModal(${item.ID})" class="mb-1 bg-yellow-500 text-white text-[9px] font-black px-4 py-2 rounded-xl hover:bg-yellow-600 transition uppercase shadow w-full">Acknowledge</button>
+                        <button class="bg-gray-900 text-white text-[9px] font-black px-4 py-2 rounded-xl group-hover:bg-teal-600 transition uppercase shadow w-full">Trace</button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function openMatrixModal(id) {
+            const item = state.matrix.find(m => m.ID === id);
+            if (!item) return;
+            state.activeItem = item;
+
+            const elTitle = document.getElementById('modalTitle');
+            const elRef = document.getElementById('modalRef');
+            if (elTitle) elTitle.innerText = item.Title;
+            if (elRef) elRef.innerText = `TRACE REF: ${item.Reference_ID || item.ID}`;
+            
+            const meta = document.getElementById('metadataContainer');
+            if (meta) {
+                meta.innerHTML = `
+                    <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Primary Node</p>
+                        <p class="text-xs font-black text-teal-800">${item.GDSUROUT || 'DGO'}</p>
+                        <p class="text-[10px] font-bold text-gray-500 mt-1">${item.AssignedTo}</p>
+                    </div>
+                    ${item.parentDoc ? `
+                        <div class="bg-teal-50 p-5 rounded-2xl border border-teal-100 shadow-sm">
+                            <p class="text-[9px] font-black text-teal-600 uppercase tracking-widest mb-2">Ancestor Link</p>
+                            <p class="text-xs font-black text-gray-800">${item.parentDoc.title || item.parentDoc.Title}</p>
+                            <a href="${item.parentDoc.link || item.parentDoc.AttachmentLink}" target="_blank" class="inline-block mt-3 text-[10px] font-black text-teal-700 underline uppercase">SharePoint Artifact ↗</a>
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            const minuteContainer = document.getElementById('minuteEntries');
+            if (minuteContainer) {
+                let entries = [];
+                if (item.parentDoc) {
+                    entries.push({ t: `Registry Receipt: Document [${item.parentDoc.id || item.parentDoc.ID}] registered into system context.`, by: 'Registry', d: item.parentDoc.Created, s: 'blue-ink', stamp: true });
+                }
+                
+                entries.push({ t: `Minute 1: Task node initialized for ${item.AssignedTo}. Instruction: ${item.Description || 'Execute as per NITDA operational standards.'}`, by: 'Workflow Engine', d: item.Created || Date.now(), s: item.Priority === 'Urgent' ? 'red-ink' : 'blue-ink' });
+                
+                item.relatedEmails.forEach(e => {
+                    const safePreview = sanitizeHtml(e.bodyPreview || 'No preview available.');
+                    entries.push({ t: `Matrix Sibling (Email): [${e.subject}] captured. From: ${e.fromAddress || e.from || 'External'}. Summary: ${safePreview}`, by: 'Email Gateway', d: e.receivedDateTime || e.received, s: 'blue-ink' });
+                });
+
+                minuteContainer.innerHTML = entries.map((e, idx) => `
+                    <div class="minute-entry">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[9px] font-black bg-gray-200 px-3 py-1 rounded-full uppercase tracking-tighter">Minute ${idx + 1}</span>
+                            <span class="text-[9px] font-bold text-gray-400">${new Date(e.d).toLocaleString()}</span>
+                        </div>
+                        <p class="${e.style} text-sm leading-relaxed">${e.t}</p>
+                        ${e.stamp ? '<div class="mt-4"><span class="registry-stamp font-black uppercase">Received: DGO Registry</span></div>' : ''}
+                        <div class="mt-4 text-[10px] font-black text-right border-t pt-2 border-gray-100 opacity-60">
+                            // Digitally Signed: ${e.by}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const modal = document.getElementById('matrixModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        async function submitMinute() {
+            const elNote = document.getElementById('internalNote');
+            const elTarget = document.getElementById('forwardDSU');
+            
+            const note = elNote ? elNote.value : '';
+            const target = elTarget ? elTarget.value : '';
+            
+            if (!note || !target) return notify("Complete routing fields.", "error");
+
+            notify("Executing Forwarding Logic...", "info");
+            // Placeholder for actual save flow call
+            await new Promise(r => setTimeout(r, 1500));
+            
+            notify("Movement Logged Successfully", "success");
+            if (elNote) elNote.value = '';
+            closeModal();
+            syncData();
+        }
+
+        function openAckModal(id) {
+            event.stopPropagation();
+            const item = state.matrix.find(m => m.ID === id);
+            if (!item) return;
+            state.activeItem = item;
+            document.getElementById('ackNotes').value = '';
+            document.getElementById('ackModal').classList.remove('hidden');
+        }
+
+        function closeAckModal() {
+            document.getElementById('ackModal').classList.add('hidden');
+        }
+
+        function submitAck() {
+            if (!state.activeItem) return;
+            notify("Processing Acknowledgment...", "info");
+            setTimeout(() => {
+                state.activeItem.derivedStatus = "Acknowledged";
+                applyFilters();
+                closeAckModal();
+                notify("Task Acknowledged Locally", "success");
+            }, 500);
+        }
+
+        function closeModal() { 
+            const modal = document.getElementById('matrixModal');
+            if (modal) modal.classList.add('hidden'); 
+        }
+
+        function notify(msg, type) {
+            const n = document.getElementById('notification');
+            if (!n) return;
+            const colors = { info: 'bg-teal-600 border-teal-300', success: 'bg-green-600 border-green-300', error: 'bg-red-600 border-red-300' };
+            n.className = `fixed top-24 right-6 z-[1000] px-6 py-4 rounded-xl shadow-2xl border-l-8 text-white font-bold backdrop-blur-md show ${colors[type]}`;
+            n.innerText = msg;
+            n.classList.remove('hidden');
+            setTimeout(() => { n.classList.remove('show'); setTimeout(() => n.classList.add('hidden'), 300); }, 4000);
+        }
+
+        function promptUserEmail() {
+            const e = prompt("Context Email:", state.userEmail);
+            if (e) { state.userEmail = e; updateUserAvatar(); syncData(); }
+        }
+
+        function updateUserAvatar() { 
+            const avatar = document.getElementById('user-avatar');
+            if (avatar) avatar.innerText = state.userEmail.charAt(0).toUpperCase(); 
+            
+            // Apply CSS RBAC
+            const email = state.userEmail.toLowerCase();
+            document.body.className = 'bg-[#f0f2f5] text-gray-900 font-sans ';
+            if (email === 'dg@nitda.gov.ng') document.body.className += 'role-DGCEO';
+            else if (email === 'ea@nitda.gov.ng') document.body.className += 'role-EA';
+            else document.body.className += 'role-Registry';
+        }
+    </script>
+</body>
+</html>

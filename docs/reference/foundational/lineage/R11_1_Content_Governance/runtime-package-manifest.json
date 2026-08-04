@@ -1,0 +1,31 @@
+{
+  "name": "DGO Digital Operations R11.1 Content Governance",
+  "packageFolder": "DGO_Digital_Operations_R11_1_Content_Governance",
+  "archiveName": "DGO_Digital_Operations_R11_1_Content_Governance.zip",
+  "version": "11.1.3-viewport-containment",
+  "modules": [
+    "home",
+    "activities",
+    "correspondence",
+    "response-tracking",
+    "orchestrator",
+    "single-assignment",
+    "bulk-assignment",
+    "fasttrack",
+    "approvals",
+    "acknowledgment",
+    "dispatch",
+    "registry",
+    "comments",
+    "reports",
+    "statistics",
+    "executive",
+    "assistant",
+    "lookup",
+    "operator-hud",
+    "settings",
+    "diagnostics",
+    "user-admin"
+  ],
+  "files": 45
+}

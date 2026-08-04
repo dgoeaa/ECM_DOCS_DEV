@@ -1,0 +1,377 @@
+- Gallery_DGOAssignments_Desktop_2:
+    Control: Gallery@2.15.0
+    Variant: Vertical
+    Properties:
+      BorderStyle: =BorderStyle.None
+      Fill: =AppTheme.PrimaryBackground
+      Height: =Parent.Height
+      Items: |-
+        =
+
+
+        SortByColumns(
+            Filter(
+                'DGO DIGITAL OPS',
+
+                // Status-based filter
+                (
+                    galDGOAssignmentsFIlter_3.Selected.Value = "All" ||
+                    (
+                        galDGOAssignmentsFIlter_3.Selected.Value = "Treated" &&
+                        (Status.Value = "Treated" || Status.Value = "Processed")
+                    ) ||
+                    (
+                        galDGOAssignmentsFIlter_3.Selected.Value = "Not Treated" &&
+                        (AssignmentStatus.Value = "Pending" || Status.Value = "")
+                    )
+                ),
+
+                // Assigned To filter
+                (
+                    IsEmpty(cbAssignedToFilter_2.SelectedItems) ||
+                    IsBlank(cbAssignedToFilter_2.Selected) ||
+                    AssignedTo = cbAssignedToFilter_2.Selected.Mail
+                ),
+
+                // Status filter dropdown
+                (
+                    IsBlank(dpStatusFilter.Selected.Value) ||
+                    Status.Value = dpStatusFilter.Selected.Value
+                ),
+
+                // Assignment Status filter dropdown
+                (
+                    IsBlank(dpAssignmentStatusFilter.Selected.Value) ||
+                    AssignmentStatus.Value = dpAssignmentStatusFilter.Selected.Value
+                ),
+
+                // Date range filters
+                (
+                    IsBlank(DatePicker4_2.SelectedDate) ||
+                    Created >= DatePicker4_2.SelectedDate
+                ),
+                (
+                    IsBlank(DatePicker2_2.SelectedDate) ||
+                    Created <= DatePicker2_2.SelectedDate
+                ),
+
+                // Search filter
+                (
+                    IsBlank(txtActivitySearch_4.Text) ||
+                    StartsWith(Title, txtActivitySearch_4.Text)
+                )
+            ),
+            "Created", // Make sure this matches the internal name of your column
+            SortOrder.Descending
+        )
+      LayoutMaxHeight: =
+      LayoutMaxWidth: =
+      OnSelect: =UpdateContext({DGOselected:ThisItem})
+      TemplatePadding: =AppSpacing.S
+      TemplateSize: =If(App.Height < 800, 150, 120)
+      Width: =Parent.Width
+    Children:
+      - Stripe_Priority_2:
+          Control: Rectangle@2.3.0
+          Properties:
+            Fill: =If(And(ThisItem.AssignmentStatus.Value<>"Assigned", ThisItem.Status.Value<>"Treated"), AppTheme.Error, AppTheme.Success)
+            Height: =150
+            Width: =6
+      - Container_DesktopTemplate_10:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            BorderColor: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.NeutralTertiary)
+            BorderThickness: =1
+            Fill: =If(ThisItem.IsSelected, ColorFade(AppTheme.BrandPrimary, 90%), AppTheme.SecondaryBackground)
+            Height: =Parent.TemplateHeight * 0.98
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Horizontal
+            LayoutGap: =AppSpacing.M
+            PaddingBottom: =10
+            PaddingLeft: =AppSpacing.M
+            PaddingRight: =AppSpacing.M
+            PaddingTop: =10
+            RadiusBottomLeft: =AppSpacing.Radius
+            RadiusBottomRight: =AppSpacing.Radius
+            RadiusTopLeft: =AppSpacing.Radius
+            RadiusTopRight: =AppSpacing.Radius
+            Width: =Parent.TemplateWidth
+            Y: =3
+          Children:
+            - Container_DesktopTemplate_11:
+                Control: GroupContainer@1.4.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =AppTheme.SecondaryBackground
+                  Height: =Parent.Height * 0.98
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutGap: =AppSpacing.M
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =Parent.Width*60%
+                  PaddingBottom: =5
+                  PaddingLeft: =AppSpacing.M
+                  PaddingRight: =AppSpacing.M
+                  PaddingTop: =5
+                  RadiusBottomLeft: =AppSpacing.Radius
+                  RadiusBottomRight: =AppSpacing.Radius
+                  RadiusTopLeft: =AppSpacing.Radius
+                  RadiusTopRight: =AppSpacing.Radius
+                Children:
+                  - lbl_Title_Desktop_7:
+                      Control: Label@2.5.1
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Color: =AppTheme.BrandPrimary
+                        FillPortions: =1
+                        Font: =LookUp(TextStyles, Name="Heading3").Font
+                        FontWeight: =FontWeight.Semibold
+                        Height: =Parent.Height * 0.75
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Size: =LookUp(TextStyles, Name="Body").Size*90%
+                        Text: =ThisItem.Title
+                        VerticalAlign: =VerticalAlign.Top
+                  - Container_Meta_Desktop_3:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        Height: =Parent.Height * 0.25
+                        LayoutAlignItems: =LayoutAlignItems.Center
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutGap: =AppSpacing.M
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =30
+                        Width: =Parent.Width
+                      Children:
+                        - ClosePDF_1:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              Align: =Align.Left
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderStyle: =BorderStyle.None
+                              Color: =AppTheme.PrimaryForeground
+                              Fill: =AppTheme.BrandPrimary
+                              Height: =28
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              OnSelect: =Launch(ThisItem.AttachmentLink)
+                              RadiusBottomLeft: =AppSpacing.Radius
+                              RadiusBottomRight: =AppSpacing.Radius
+                              RadiusTopLeft: =AppSpacing.Radius
+                              RadiusTopRight: =AppSpacing.Radius
+                              Size: =8
+                              Text: ="View PDF"
+                              Width: =80
+                        - lbl_Created_Desktop_7:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Color: =AppTheme.NeutralPrimary
+                              Font: =LookUp(TextStyles, Name="Body").Font
+                              FontWeight: =FontWeight.Semibold
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              Size: =LookUp(TextStyles, Name="Body").Size
+                              Text: =Text(ThisItem.Created, "dd-mm-yyyy")
+                        - Meta_Category_9:
+                            Control: Label@2.5.1
+                            Properties:
+                              Color: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.NeutralSecondary)
+                              Font: =LookUp(TextStyles, Name="Caption").Font
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              Size: =LookUp(TextStyles, Name="Caption").Size
+                              Text: =Coalesce(ThisItem.Category, "Uncategorized")
+                              Visible: =App.Width > 700
+                        - lbl_Status_Desktop_7:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              Color: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.Warning)
+                              Font: =LookUp(TextStyles, Name="Body").Font
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              Size: =LookUp(TextStyles, Name="Body").Size
+                              Text: =ThisItem.Status.Value
+                              Visible: =Parent.Width > 800
+                        - lbl_AssignedTo_Desktop_7:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              Color: =AppTheme.NeutralSecondary
+                              Font: =LookUp(TextStyles, Name="Caption").Font
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              Size: =LookUp(TextStyles, Name="Caption").Size
+                              Text: =ThisItem.AssignedTo
+                              Visible: =Parent.Width > 750 && Or(ThisItem.AssignmentStatus.Value="Assigned", ThisItem.Status.Value="Treated")
+            - galactionbuttons_3:
+                Control: Gallery@2.15.0
+                Variant: Vertical
+                Properties:
+                  Height: =Parent.Height * 0.9
+                  Items: |-
+                    =With(
+                    { _isError: And(ThisItem.AssignmentStatus.Value <> "Assigned", ThisItem.Status.Value <> "Treated") },
+                    If(
+                    _isError,
+                    // 🟥 Untreated / Unassigned — 8 buttons
+                    Table(
+                    { Label:"Assign", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.Add, ActionType:"Assign" },
+
+                    { Label:"NYSC", Color:AppTheme.White, Fill:ColorValue("#1A202C"), BorderColor:ColorFade(ColorValue("#1A202C"), -20%), IconType:Icon.People, ActionType:"NYSC" },
+                    { Label:"SIWES", Color:AppTheme.White, Fill:ColorValue("#1A202C"), BorderColor:ColorFade(ColorValue("#1A202C"), -20%), IconType:Icon.Waypoint, ActionType:"SIWES" },
+                    { Label:"Archive", Color:AppTheme.White, Fill:ColorValue("#E05606"), BorderColor:ColorFade(ColorValue("#E05606"), -20%), IconType:Icon.ListScrollWatchlist, ActionType:"Archive" },
+                    { Label:"PDF", Color:ColorValue("#007B5E"), Fill:Color.Transparent, BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.DocumentPDF, ActionType:"PDF" },
+                    { Label:"View", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.OptionsList, ActionType:"Options" }
+                    ),
+                    // 🟩 Treated / Assigned — 5 buttons
+                    Table(
+
+                    { Label:"ReAssign", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.Add, ActionType:"ReAssign" },
+                    { Label:"PDF", Color:ColorValue("#007B5E"), Fill:Color.Transparent, BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.DocumentPDF, ActionType:"PDF" },
+                    { Label:"View", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.OptionsList, ActionType:"Options" }
+                    )
+                    )
+                    )
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =150
+                  OnSelect: |-
+                    =
+
+
+                    UpdateContext({DGOselected:Gallery_DGOAssignments_Desktop_2.Selected});
+
+                          // ENHANCEMENT: Removed redundant 'Navigate' call.
+                          // The Switch now handles ALL actions cleanly.
+                          Switch(
+                              ThisItem.ActionType,
+
+                              // --- Navigation Actions ---
+                              "Assign",
+                              Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                              "ReAssign",
+                              Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                              "NewAssign",
+                              Navigate(EAA_Terminal, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                              "ReNewAssign",
+                              Navigate(EAA_Terminal, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                              // --- BUG FIX ---
+                              // 'NewAssign1' has been corrected to 'NewAssign2' to match the 'Items' property.
+                              "NewAssign2",
+                              Navigate(EmailClient_Screen, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                              "ReNewAssign2",
+                              Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                              // --- Robust UI State Actions ---
+                              // ENHANCEMENT: Each action now resets all other UI states
+                              // to prevent overlapping popups or panes.
+                              "NYSC",
+                              UpdateContext({
+                                  showConfirmSNYSC: true,
+                                  showGallery: false,
+                                  showDetails: false,
+                                  showAttachments: false,
+                                  showConfirmSIWES: false,
+                                  showConfirmArchive: false
+                              }),
+
+                              "SIWES",
+                              UpdateContext({
+                                  showConfirmSNYSC: false,
+                                  showGallery: false,
+                                  showDetails: false,
+                                  showAttachments: false,
+                                  showConfirmSIWES: true,
+                                  showConfirmArchive: false
+                              }),
+
+                              "Archive",
+                              UpdateContext({
+                                  showConfirmSNYSC: false,
+                                  showGallery: false,
+                                  showDetails: false,
+                                  showAttachments: false,
+                                  showConfirmSIWES: false,
+                                  showConfirmArchive: true
+                              }),
+
+                              "PDF",
+                              UpdateContext({
+                                  showConfirmSNYSC: false,
+                                  showGallery: false,
+                                  showDetails: false,
+                                  showAttachments: true,
+                                  showConfirmSIWES: false,
+                                  showConfirmArchive: false
+                              }),
+
+                              "Options",
+                              UpdateContext({
+                                  showConfirmSNYSC: false,
+                                  showGallery: false,
+                                  showDetails: true,
+                                  showAttachments: false,
+                                  showConfirmSIWES: false,
+                                  showConfirmArchive: false
+                              })
+                          )
+                  TemplateSize: =40
+                  Width: =Min(Parent.Width * 0.35, 250)
+                  WrapCount: =Switch(CurrentScreenSize,"Smail",2,"Medium",3,"Large",1)
+                Children:
+                  - btnTag_36:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ThisItem.BorderColor
+                        Color: =ThisItem.Color
+                        Fill: =ThisItem.Fill
+                        FocusedBorderColor: =AppTheme_Default.BrandSecondary
+                        FocusedBorderThickness: =AppSpacing.FocusBorder
+                        Font: =AppStyles.font
+                        Height: =Parent.TemplateHeight * 0.9
+                        HoverBorderColor: =ColorFade(Self.BorderColor, 10%)
+                        HoverFill: =ColorFade(Self.Fill, -20%)
+                        OnSelect: =Select(Parent)
+                        PressedBorderColor: =ColorFade(Self.Fill, -10%)
+                        PressedColor: =Self.Fill
+                        PressedFill: =Self.Color
+                        RadiusBottomLeft: =AppSpacing.Radius
+                        RadiusBottomRight: =AppSpacing.Radius
+                        RadiusTopLeft: =AppSpacing.Radius
+                        RadiusTopRight: =AppSpacing.Radius
+                        Size: =LookUp(TextStyles, Name = "Label").Size
+                        Text: =ThisItem.Label
+                        Width: |-
+                          =Min(
+                              Parent.TemplateWidth - (AppSpacing.S * 2),
+                              Switch(
+                                  CurrentScreenSize,
+                                  "Small", 140,
+                                  "Medium", 130,
+                                  "Large", 120,
+                                  "ExtraLarge", 110,
+                                  120))
+                        X: =(Parent.TemplateWidth - Self.Width) / 2
+                        Y: =3

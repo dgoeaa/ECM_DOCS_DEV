@@ -1,0 +1,169 @@
+{
+  "name": "Acknowledge_Task_HTTP",
+  "type": "Microsoft.Logic/workflows",
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "SharedSecret": {
+        "type": "string"
+      },
+      "SupportLink": {
+        "type": "string"
+      },
+      "SharePointSite": {
+        "type": "string"
+      },
+      "SharePointList": {
+        "type": "string"
+      }
+    },
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "method": "GET",
+          "queries": {
+            "rid": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "string"
+            },
+            "ts": {
+              "type": "string"
+            },
+            "sig": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "ExpectedSig": {
+        "type": "Compose",
+        "inputs": "@base64(hmac(parameters('SharedSecret'), concat(triggerOutputs()?['queries']?['rid'],'|',toLower(triggerOutputs()?['queries']?['uid']),'|',triggerOutputs()?['queries']?['ts']), 'SHA256'))"
+      },
+      "NowSecs": {
+        "type": "Compose",
+        "inputs": "@string(div(ticks(utcNow()),10000000))"
+      },
+      "WindowCheck": {
+        "type": "If",
+        "expression": "@lessOrEquals(sub(int(outputs('NowSecs')), int(triggerOutputs()?['queries']?['ts'])), 172800)",
+        "actions": {
+          "SigCheck": {
+            "type": "If",
+            "expression": "@equals(triggerOutputs()?['queries']?['sig'], outputs('ExpectedSig'))",
+            "actions": {
+              "GetItem": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "path": "/sharepoint/getitem",
+                  "body": {
+                    "site": "@parameters('SharePointSite')",
+                    "list": "@parameters('SharePointList')",
+                    "id": "@int(triggerOutputs()?['queries']?['rid'])"
+                  }
+                }
+              },
+              "AssignedCheck": {
+                "type": "If",
+                "expression": "@equals(toLower(body('GetItem')?['AssignedTo']), toLower(triggerOutputs()?['queries']?['uid']))",
+                "actions": {
+                  "AlreadyCheck": {
+                    "type": "If",
+                    "expression": "@equals(body('GetItem')?['AssignedToAcknowledgementStatus']?['Value'],'Acknowledged')",
+                    "actions": {
+                      "StatusAlready": {
+                        "type": "Compose",
+                        "inputs": "already"
+                      }
+                    },
+                    "else": {
+                      "UpdateItem": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                          "path": "/sharepoint/updateitem",
+                          "body": {
+                            "site": "@parameters('SharePointSite')",
+                            "list": "@parameters('SharePointList')",
+                            "id": "@int(triggerOutputs()?['queries']?['rid'])",
+                            "fields": {
+                              "Acknowledged_x0020_Time": "@utcNow()",
+                              "AcknowledgedBy": "@toLower(triggerOutputs()?['queries']?['uid'])",
+                              "AssignedToAcknowledgementStatus": {
+                                "Value": "Acknowledged"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "StatusNew": {
+                        "type": "Compose",
+                        "inputs": "new"
+                      }
+                    }
+                  },
+                  "RespondSuccess": {
+                    "type": "Response",
+                    "kind": "Http",
+                    "inputs": {
+                      "statusCode": 200,
+                      "headers": {
+                        "Content-Type": "text/html; charset=utf-8"
+                      },
+                      "body": "(use templates/confirmation_page.html with tokens)"
+                    }
+                  }
+                },
+                "else": {
+                  "Respond403": {
+                    "type": "Response",
+                    "kind": "Http",
+                    "inputs": {
+                      "statusCode": 403,
+                      "headers": {
+                        "Content-Type": "text/html; charset=utf-8"
+                      },
+                      "body": "(use templates/error_page.html with Variant='alt', Status='Not allowed', Message='You are not the assigned person.')"
+                    }
+                  }
+                }
+              }
+            },
+            "else": {
+              "Respond401": {
+                "type": "Response",
+                "kind": "Http",
+                "inputs": {
+                  "statusCode": 401,
+                  "headers": {
+                    "Content-Type": "text/html; charset=utf-8"
+                  },
+                  "body": "(use templates/error_page.html with Variant='', Status='Invalid link', Message='Signature verification failed.')"
+                }
+              }
+            }
+          }
+        },
+        "else": {
+          "Respond410": {
+            "type": "Response",
+            "kind": "Http",
+            "inputs": {
+              "statusCode": 410,
+              "headers": {
+                "Content-Type": "text/html; charset=utf-8"
+              },
+              "body": "(use templates/error_page.html with Variant='alt', Status='Expired link', Message='This acknowledgement link has expired.')"
+            }
+          }
+        }
+      }
+    },
+    "outputs": {}
+  }
+}

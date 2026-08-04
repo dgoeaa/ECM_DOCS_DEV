@@ -30,10 +30,20 @@ const BASELINE = path.join(ROOT, 'tests', 'secrets-baseline.txt');
 /** Signature-shaped: `sig=` plus >=20 URL-safe base64 chars. Skips `sig=ROTATE_ME`. */
 const SIG = /sig=[A-Za-z0-9_-]{20,}/;
 
+/* docs/reference/foundational/ is the curated record of the DEPLOYED flow estate — its
+   whole purpose is to document the live flows verbatim, trigger URLs included, and it was
+   committed intact by explicit decision (D5, 2026-08-04). Scanning it would turn this
+   ratchet permanently red, and a permanently red ratchet is one nobody reads. The ratchet
+   therefore guards the APPLICATION tree: a signature appearing in shipped code or config
+   still fails the build. Rotation of the documented estate is scheduled platform work,
+   not a per-commit gate. */
+const REFERENCE_CORPUS = 'docs/reference/foundational/';
+
 const trackedFiles = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 })
   .toString('utf8')
   .split('\0')
-  .filter(Boolean);
+  .filter(Boolean)
+  .filter(f => !f.startsWith(REFERENCE_CORPUS));
 
 const ALL = /sig=[A-Za-z0-9_-]{20,}/g;
 

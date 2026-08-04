@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="DGO Assignment Intelligence Dashboard — live registry feed via Master Shell"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="color-scheme" content="light dark"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:;"/>
+<title>Assignment Intelligence Dashboard</title>
+<style>
+/* ═════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — sync'd to NITDA Master Shell via TOKEN_MAP push.
+   Local fallbacks ensure the module renders gracefully in standalone
+   preview mode (e.g. opened in a new tab from the topbar).
+   ═════════════════════════════════════════════════════════════════ */
+:root {
+  --p:#023F2D; --p-l:#035C42; --p-d:#011F16; --p-xl:#E8F5F0;
+  --s:#008B8B; --s-l:#00A9A9; --s-d:#006B6B;
+  --acc:#0056B3; --acc-l:#1a73e8;
+  --ok:#1A9E3C; --ok-l:#d4edda;
+  --warn:#D97706; --warn-l:#fff3cd;
+  --err:#DC3545; --err-l:#f8d7da;
+  --inf:#0891b2; --inf-l:#CCEEFF;
+  --bg:#F0F4F2; --sur:#FFFFFF; --sur2:#EEF3F0; --sur3:#E2EDE8;
+  --bdr:#C8D8D2; --bdr-l:#DDE9E4;
+  --tx:#0A1812; --tx2:#2E4A3C; --txm:#6B8E7F; --tx-inv:#FFFFFF;
+
+  --r-xs:3px; --r-sm:5px; --r-md:8px; --r-lg:12px; --r-xl:18px; --r-f:9999px;
+  --font:'Segoe UI',system-ui,Verdana,Arial,sans-serif;
+  --mono:'Cascadia Code','Consolas','Courier New',monospace;
+  --fxs:10.5px; --fsm:12.5px; --fb:14px; --fmd:15px; --flg:17px; --fxl:20px; --f2xl:24px;
+
+  --sh-xs:0 1px 3px rgba(2,63,45,.07);
+  --sh-sm:0 2px 6px rgba(2,63,45,.09);
+  --sh-md:0 4px 16px rgba(2,63,45,.12);
+  --sh-lg:0 8px 36px rgba(2,63,45,.16);
+
+  --tf:.12s ease; --tb:.2s ease; --ts:.32s cubic-bezier(.4,0,.2,1);
+}
+[data-theme="dark"] {
+  --bg:#09130F; --sur:#101C15; --sur2:#162218; --sur3:#1C2C21;
+  --bdr:#1E3328; --bdr-l:#162018;
+  --tx:#CCE5D7; --tx2:#6FA38D; --txm:#3D6B57;
+  --p-xl:#101C15;
+  --sh-sm:0 2px 6px rgba(0,0,0,.4); --sh-md:0 4px 16px rgba(0,0,0,.5);
+  --sh-lg:0 8px 36px rgba(0,0,0,.6);
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family:var(--font); font-size:var(--fb); color:var(--tx);
+  background:var(--bg); -webkit-font-smoothing:antialiased;
+}
+button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input, select, textarea { font-family:inherit; }
+:focus-visible { outline:2px solid var(--s); outline-offset:2px; border-radius:2px; }
+*{ scrollbar-width:thin; scrollbar-color:var(--bdr) transparent; }
+*::-webkit-scrollbar{ width:6px; height:6px; }
+*::-webkit-scrollbar-thumb{ background:var(--bdr); border-radius:var(--r-f); }
+
+/* ═════════════════════════ LAYOUT SHELL ═════════════════════════ */
+.aid-app {
+  display:flex; flex-direction:column; height:100vh; width:100vw;
+  background:var(--bg); overflow:hidden;
+}
+
+/* ═════════════════════════ HEADER ═════════════════════════ */
+.aid-hdr {
+  flex-shrink:0; background:var(--sur); border-bottom:1px solid var(--bdr-l);
+  padding:1rem 1.4rem .85rem; box-shadow:var(--sh-xs);
+  display:flex; flex-direction:column; gap:.55rem;
+}
+.aid-bc {
+  display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;
+  font-size:var(--fsm); color:var(--txm);
+}
+.aid-bc-org { font-weight:700; color:var(--p); letter-spacing:.04em; text-transform:uppercase; font-size:var(--fxs); }
+.aid-bc-sep { color:var(--txm); opacity:.55; }
+.aid-bc-cat { color:var(--tx2); font-weight:500; }
+.aid-hdr-row {
+  display:flex; align-items:center; gap:1rem; flex-wrap:wrap;
+}
+.aid-title {
+  font-size:var(--f2xl); font-weight:800; color:var(--p);
+  letter-spacing:-.01em; flex:1; min-width:0; line-height:1.2;
+}
+[data-theme="dark"] .aid-title { color:var(--s-l); }
+.aid-actions {
+  display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;
+}
+.aid-btn {
+  padding:.55rem 1.05rem; border-radius:var(--r-md);
+  font-size:var(--fsm); font-weight:700; letter-spacing:.01em;
+  display:inline-flex; align-items:center; gap:.45rem;
+  transition:background var(--tf), transform var(--tb), box-shadow var(--tb), opacity var(--tf);
+  white-space:nowrap;
+}
+.aid-btn:disabled { opacity:.45; cursor:not-allowed; transform:none!important; }
+.aid-btn svg { width:14px; height:14px; fill:currentColor; }
+.aid-btn-p { background:var(--p); color:#fff; box-shadow:var(--sh-xs); }
+.aid-btn-p:hover:not(:disabled) { background:var(--p-l); transform:translateY(-1px); box-shadow:var(--sh-sm); }
+.aid-btn-s { background:var(--s); color:#fff; box-shadow:var(--sh-xs); }
+.aid-btn-s:hover:not(:disabled) { background:var(--s-l); transform:translateY(-1px); box-shadow:var(--sh-sm); }
+.aid-btn-g { background:var(--sur2); color:var(--tx2); border:1px solid var(--bdr); }
+.aid-btn-g:hover:not(:disabled) { background:var(--sur3); }
+
+/* ═════════════════════════ FILTER TABS ═════════════════════════ */
+.aid-tabs {
+  flex-shrink:0; background:var(--sur); border-bottom:1px solid var(--bdr-l);
+  padding:.4rem .9rem; display:flex; gap:.25rem; overflow-x:auto;
+  scrollbar-width:none;
+}
+.aid-tabs::-webkit-scrollbar { display:none; }
+.aid-tab {
+  padding:.5rem .9rem; font-size:var(--fsm); font-weight:600;
+  color:var(--txm); border-radius:var(--r-md); white-space:nowrap;
+  display:inline-flex; align-items:center; gap:.4rem; flex-shrink:0;
+  transition:background var(--tf), color var(--tf);
+  border:1px solid transparent;
+}
+.aid-tab:hover { background:var(--sur2); color:var(--tx2); }
+.aid-tab.active {
+  background:var(--p-xl); color:var(--p); border-color:var(--bdr);
+  font-weight:700;
+}
+[data-theme="dark"] .aid-tab.active { color:var(--s-l); }
+.aid-tab-cnt {
+  font-size:9.5px; font-weight:800; padding:1px 6px;
+  border-radius:var(--r-f); background:var(--bdr); color:var(--tx2);
+  min-width:18px; text-align:center;
+}
+.aid-tab.active .aid-tab-cnt { background:var(--p); color:#fff; }
+[data-theme="dark"] .aid-tab.active .aid-tab-cnt { background:var(--s); }
+
+/* ═════════════════════════ KPI STRIP ═════════════════════════ */
+.aid-kpis {
+  flex-shrink:0; padding:1rem 1.4rem .25rem;
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+  gap:.85rem;
+}
+.aid-kpi {
+  background:var(--sur); border:1px solid var(--bdr-l);
+  border-radius:var(--r-lg); padding:.85rem 1rem;
+  box-shadow:var(--sh-xs); position:relative; overflow:hidden;
+  transition:transform var(--tb), box-shadow var(--tb);
+}
+.aid-kpi::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--kpi-clr, var(--s));
+}
+.aid-kpi:hover { transform:translateY(-2px); box-shadow:var(--sh-sm); }
+.aid-kpi-lbl {
+  font-size:9.5px; font-weight:700; color:var(--txm);
+  text-transform:uppercase; letter-spacing:.1em; margin-bottom:.35rem;
+}
+.aid-kpi-val {
+  font-size:var(--f2xl); font-weight:800; color:var(--tx);
+  line-height:1; font-variant-numeric:tabular-nums;
+}
+.aid-kpi-sub {
+  font-size:var(--fxs); color:var(--txm); margin-top:.25rem;
+}
+.aid-kpi[data-kpi="overdue"] { --kpi-clr:var(--err); }
+.aid-kpi[data-kpi="active"]  { --kpi-clr:var(--warn); }
+.aid-kpi[data-kpi="closed"]  { --kpi-clr:var(--ok); }
+.aid-kpi[data-kpi="total"]   { --kpi-clr:var(--acc); }
+.aid-kpi[data-kpi="overdue"] .aid-kpi-val[data-pulse="1"] { color:var(--err); animation:aid-pulse 1.6s ease infinite; }
+
+/* ═════════════════════════ TABLE PANEL ═════════════════════════ */
+.aid-panel {
+  flex:1; min-height:0; margin:.85rem 1.4rem 0;
+  background:var(--sur); border:1px solid var(--bdr-l);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:var(--sh-xs);
+}
+.aid-panel-hdr {
+  flex-shrink:0; padding:.85rem 1.1rem; border-bottom:1px solid var(--bdr-l);
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  flex-wrap:wrap; background:var(--sur2);
+}
+.aid-panel-hdr-l h2 {
+  font-size:var(--flg); font-weight:700; color:var(--tx);
+  margin:0; letter-spacing:-.01em;
+}
+.aid-panel-hdr-l p {
+  font-size:var(--fsm); color:var(--txm); margin-top:.18rem;
+}
+.aid-sync-status {
+  display:flex; align-items:center; gap:.5rem;
+  font-size:var(--fsm); color:var(--tx2); font-weight:500;
+}
+.aid-sync-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--txm);
+  flex-shrink:0;
+}
+.aid-sync-dot.live   { background:var(--ok);   box-shadow:0 0 0 0 rgba(26,158,60,.5); animation:aid-pulse-ring 2s infinite; }
+.aid-sync-dot.warn   { background:var(--warn); animation:aid-blink .9s infinite; }
+.aid-sync-dot.err    { background:var(--err); }
+.aid-sync-rec { color:var(--tx); font-weight:700; font-variant-numeric:tabular-nums; }
+
+/* ═════════════════════════ TABLE ═════════════════════════ */
+.aid-tbl-wrap { flex:1; min-height:0; overflow:auto; position:relative; }
+.aid-tbl {
+  width:100%; border-collapse:separate; border-spacing:0;
+  font-size:var(--fsm); table-layout:auto;
+}
+.aid-tbl thead th {
+  position:sticky; top:0; background:var(--sur3); z-index:2;
+  text-align:left; font-weight:700; color:var(--p);
+  padding:.65rem .85rem; border-bottom:2px solid var(--bdr);
+  font-size:var(--fxs); text-transform:uppercase; letter-spacing:.07em;
+  white-space:nowrap;
+}
+[data-theme="dark"] .aid-tbl thead th { color:var(--s-l); }
+.aid-tbl thead th.sortable { cursor:pointer; user-select:none; }
+.aid-tbl thead th.sortable:hover { background:var(--p-xl); }
+.aid-tbl thead th .sort-ind { display:inline-block; margin-left:.3rem; opacity:.55; font-size:8px; }
+.aid-tbl thead th.sorted-asc  .sort-ind::before { content:'▲'; opacity:1; }
+.aid-tbl thead th.sorted-desc .sort-ind::before { content:'▼'; opacity:1; }
+.aid-tbl tbody td {
+  padding:.6rem .85rem; border-bottom:1px solid var(--bdr-l);
+  color:var(--tx); vertical-align:middle;
+}
+.aid-tbl tbody tr { transition:background var(--tf); }
+.aid-tbl tbody tr:hover { background:var(--p-xl); }
+.aid-tbl tbody tr.is-overdue td:first-child { box-shadow:inset 3px 0 0 var(--err); }
+.aid-tbl tbody tr.is-urgent td:first-child  { box-shadow:inset 3px 0 0 var(--warn); }
+
+.aid-ref { display:flex; flex-direction:column; gap:2px; }
+.aid-ref-id  { font-family:var(--mono); font-size:11px; color:var(--tx); font-weight:700; }
+.aid-ref-pri {
+  display:inline-flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700;
+  padding:1px 6px; border-radius:var(--r-f);
+  text-transform:uppercase; letter-spacing:.08em; width:fit-content;
+}
+.aid-pri-high { background:var(--err-l); color:var(--err); }
+.aid-pri-med  { background:var(--warn-l); color:var(--warn); }
+.aid-pri-low  { background:var(--inf-l); color:var(--inf); }
+.aid-pri-na   { background:var(--bdr); color:var(--txm); }
+[data-theme="dark"] .aid-pri-high { background:rgba(220,53,69,.18); }
+[data-theme="dark"] .aid-pri-med  { background:rgba(217,119,6,.18); }
+[data-theme="dark"] .aid-pri-low  { background:rgba(8,145,178,.22); }
+
+.aid-subj {
+  max-width:380px; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; font-weight:500;
+}
+
+.aid-status {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:var(--r-f);
+  font-size:9.5px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.07em; white-space:nowrap;
+}
+.aid-status::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:currentColor; flex-shrink:0;
+}
+.aid-st-pending  { background:var(--warn-l); color:var(--warn); }
+.aid-st-progress { background:var(--inf-l); color:var(--inf); }
+.aid-st-complete { background:var(--ok-l); color:var(--ok); }
+.aid-st-overdue  { background:var(--err-l); color:var(--err); }
+.aid-st-ontrack  { background:var(--p-xl); color:var(--p); }
+[data-theme="dark"] .aid-st-pending  { background:rgba(217,119,6,.18); }
+[data-theme="dark"] .aid-st-progress { background:rgba(8,145,178,.18); }
+[data-theme="dark"] .aid-st-complete { background:rgba(26,158,60,.18); }
+[data-theme="dark"] .aid-st-overdue  { background:rgba(220,53,69,.18); }
+[data-theme="dark"] .aid-st-ontrack  { background:rgba(0,139,139,.18); color:var(--s-l); }
+
+.aid-officer {
+  display:flex; align-items:center; gap:.5rem; min-width:0;
+}
+.aid-officer-av {
+  width:26px; height:26px; border-radius:50%;
+  background:linear-gradient(135deg, var(--p), var(--s));
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:800; flex-shrink:0;
+  text-transform:uppercase;
+}
+.aid-officer-em {
+  font-size:11px; color:var(--tx2); overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;
+}
+.aid-officer-unassigned { color:var(--txm); font-style:italic; font-size:11px; }
+
+.aid-due { font-variant-numeric:tabular-nums; font-size:11.5px; }
+.aid-due-rel { font-size:10px; color:var(--txm); display:block; margin-top:1px; }
+.aid-due.overdue { color:var(--err); font-weight:700; }
+.aid-due.today   { color:var(--warn); font-weight:700; }
+.aid-due.soon    { color:var(--warn-d, var(--warn)); }
+
+.aid-dsu {
+  display:inline-block; padding:2px 8px; border-radius:var(--r-sm);
+  background:var(--sur3); color:var(--tx2);
+  font-family:var(--mono); font-size:10.5px; font-weight:700;
+  letter-spacing:.04em;
+}
+.aid-cat-sub {
+  display:block; font-size:10px; color:var(--txm); margin-top:2px;
+  max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.aid-empty {
+  text-align:center; padding:3.5rem 1.5rem; color:var(--txm);
+  font-size:var(--fmd);
+}
+.aid-empty-ico {
+  font-size:3rem; margin-bottom:.65rem; opacity:.45; display:block;
+}
+.aid-empty-ttl {
+  font-size:var(--flg); color:var(--tx2); font-weight:700; margin-bottom:.4rem;
+}
+.aid-empty-msg { font-size:var(--fsm); color:var(--txm); max-width:420px; margin:0 auto; line-height:1.55; }
+
+.aid-loading-row td {
+  padding:0!important; height:38px;
+  background:linear-gradient(90deg, var(--sur2) 0%, var(--sur3) 50%, var(--sur2) 100%);
+  background-size:200% 100%; animation:aid-shimmer 1.4s linear infinite;
+  border-bottom:1px solid var(--bdr-l);
+}
+
+/* ═════════════════════════ FOOTER ═════════════════════════ */
+.aid-foot {
+  flex-shrink:0; padding:.65rem 1.4rem; background:var(--sur);
+  border-top:1px solid var(--bdr-l); font-size:var(--fxs); color:var(--txm);
+  text-align:center; letter-spacing:.04em;
+}
+
+/* ═════════════════════════ ANIMATIONS ═════════════════════════ */
+@keyframes aid-pulse-ring {
+  0%   { box-shadow:0 0 0 0 rgba(26,158,60,.55); }
+  70%  { box-shadow:0 0 0 7px rgba(26,158,60,0); }
+  100% { box-shadow:0 0 0 0 rgba(26,158,60,0); }
+}
+@keyframes aid-pulse { 0%,100%{ opacity:1; } 50%{ opacity:.55; } }
+@keyframes aid-blink { 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+@keyframes aid-shimmer { to { background-position:-200% 0; } }
+@keyframes aid-fadeIn { from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+.aid-fade-in { animation:aid-fadeIn .28s cubic-bezier(.4,0,.2,1) both; }
+
+/* ═════════════════════════ LOCAL FALLBACK MODAL ═════════════════════════
+   Used only when running standalone (outside the Master Shell).
+   When inside the shell, NITDA.confirm() / NITDA.alert() are used.
+   ═════════════════════════════════════════════════════════════════════ */
+#aid-fb-modal {
+  display:none; position:fixed; inset:0; z-index:9000;
+  align-items:center; justify-content:center; padding:1rem;
+  background:rgba(0,0,0,.55);
+}
+#aid-fb-modal.open { display:flex; }
+.aid-fb-box {
+  background:var(--sur); border-radius:var(--r-xl);
+  padding:1.4rem 1.4rem 1.1rem; width:100%; max-width:420px;
+  box-shadow:var(--sh-lg);
+}
+.aid-fb-h { font-size:var(--flg); font-weight:800; color:var(--tx); margin-bottom:.5rem; }
+.aid-fb-b { font-size:var(--fsm); color:var(--tx2); line-height:1.6; margin-bottom:1.1rem; }
+.aid-fb-f { display:flex; gap:.5rem; justify-content:flex-end; }
+
+/* ═════════════════════════ RESPONSIVE ═════════════════════════ */
+@media (max-width: 900px) {
+  .aid-hdr { padding:.75rem 1rem .65rem; }
+  .aid-title { font-size:var(--fxl); }
+  .aid-kpis { padding:.75rem 1rem .15rem; gap:.5rem; }
+  .aid-kpi { padding:.65rem .8rem; }
+  .aid-kpi-val { font-size:var(--fxl); }
+  .aid-panel { margin:.55rem 1rem 0; }
+  .aid-subj { max-width:200px; }
+}
+@media (max-width: 600px) {
+  .aid-hdr-row { flex-direction:column; align-items:flex-start; gap:.6rem; }
+  .aid-actions { width:100%; }
+  .aid-actions .aid-btn { flex:1; justify-content:center; }
+  .aid-tbl thead th, .aid-tbl tbody td { padding:.5rem .55rem; }
+  .aid-tbl thead th:nth-child(6), .aid-tbl tbody td:nth-child(6) { display:none; }
+  .aid-foot { padding:.5rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="aid-app" role="application" aria-label="Assignment Intelligence Dashboard">
+
+  <!-- ═══════════════════ HEADER ═══════════════════ -->
+  <header class="aid-hdr" role="banner">
+    <div class="aid-bc" aria-label="Breadcrumbs">
+      <span class="aid-bc-org">DGO Digital Ops</span>
+      <span class="aid-bc-sep">›</span>
+      <span class="aid-bc-cat">Stats &amp; Reports Dashboard</span>
+      <span class="aid-bc-sep">›</span>
+      <span class="aid-bc-cat">DGO Analytics</span>
+    </div>
+    <div class="aid-hdr-row">
+      <h1 class="aid-title">Assignment Intelligence Dashboard</h1>
+      <div class="aid-actions">
+        <button id="btn-sync" class="aid-btn aid-btn-p" type="button" aria-label="Sync registry">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span id="btn-sync-lbl">Sync Registry</span>
+        </button>
+        <button id="btn-report" class="aid-btn aid-btn-s" type="button" aria-label="Generate report">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          Generate Report
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════ FILTER TABS ═══════════════════ -->
+  <nav class="aid-tabs" role="tablist" aria-label="Assignment filters">
+    <button class="aid-tab active" role="tab" aria-selected="true"  data-filter="all"       type="button">All Assignments <span class="aid-tab-cnt" data-cnt="all">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="pending"   type="button">Pending Ack    <span class="aid-tab-cnt" data-cnt="pending">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="overdue"   type="button">Overdue        <span class="aid-tab-cnt" data-cnt="overdue">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="urgent"    type="button">Urgent Priority<span class="aid-tab-cnt" data-cnt="urgent">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="completed" type="button">Completed      <span class="aid-tab-cnt" data-cnt="completed">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="ontrack"   type="button">On Track       <span class="aid-tab-cnt" data-cnt="ontrack">0</span></button>
+    <button class="aid-tab"        role="tab" aria-selected="false" data-filter="mine"      type="button">My Assignments <span class="aid-tab-cnt" data-cnt="mine">0</span></button>
+  </nav>
+
+  <!-- ═══════════════════ KPI STRIP ═══════════════════ -->
+  <section class="aid-kpis" aria-label="Key performance indicators">
+    <div class="aid-kpi" data-kpi="total"   role="status">
+      <div class="aid-kpi-lbl">Total Pool</div>
+      <div class="aid-kpi-val" id="kpi-total">0</div>
+      <div class="aid-kpi-sub">All registered records</div>
+    </div>
+    <div class="aid-kpi" data-kpi="active"  role="status">
+      <div class="aid-kpi-lbl">Active / Pending</div>
+      <div class="aid-kpi-val" id="kpi-active">0</div>
+      <div class="aid-kpi-sub">Awaiting action</div>
+    </div>
+    <div class="aid-kpi" data-kpi="overdue" role="status">
+      <div class="aid-kpi-lbl">Overdue Alerts</div>
+      <div class="aid-kpi-val" id="kpi-overdue" data-pulse="0">0</div>
+      <div class="aid-kpi-sub">Past due-date</div>
+    </div>
+    <div class="aid-kpi" data-kpi="closed"  role="status">
+      <div class="aid-kpi-lbl">Closed Tasks</div>
+      <div class="aid-kpi-val" id="kpi-closed">0</div>
+      <div class="aid-kpi-sub">Completed records</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ DATA PANEL ═══════════════════ -->
+  <section class="aid-panel" aria-label="Assignment registry">
+    <div class="aid-panel-hdr">
+      <div class="aid-panel-hdr-l">
+        <h2>Assignment Details</h2>
+        <p>Live feed from DGO Registry</p>
+      </div>
+      <div class="aid-sync-status" role="status" aria-live="polite">
+        <span class="aid-sync-dot" id="sync-dot" aria-hidden="true"></span>
+        <span id="sync-label">Idle</span>
+        <span>·</span>
+        <span class="aid-sync-rec" id="sync-rec">0</span>
+        <span>Records</span>
+      </div>
+    </div>
+    <div class="aid-tbl-wrap">
+      <table class="aid-tbl" role="grid">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="ref"     scope="col">Ref &amp; Priority <span class="sort-ind"></span></th>
+            <th class="sortable" data-sort="subject" scope="col">Assignment Subject <span class="sort-ind"></span></th>
+            <th class="sortable" data-sort="status"  scope="col">Current Status     <span class="sort-ind"></span></th>
+            <th class="sortable" data-sort="officer" scope="col">Assigned Officer   <span class="sort-ind"></span></th>
+            <th class="sortable" data-sort="due"     scope="col">Due Date           <span class="sort-ind"></span></th>
+            <th class="sortable" data-sort="dsu"     scope="col">DSU / Category     <span class="sort-ind"></span></th>
+          </tr>
+        </thead>
+        <tbody id="aid-tbody">
+          <tr><td colspan="6" class="aid-empty">
+            <span class="aid-empty-ico" aria-hidden="true">📋</span>
+            <div class="aid-empty-ttl">Registry is empty</div>
+            <div class="aid-empty-msg">Synchronize to load data from the live DGO Registry.</div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="aid-foot" role="contentinfo">
+    &copy; 2026 DGO Digital Operations &middot; NITDA Digital Governance System
+  </footer>
+</div>
+
+<!-- Standalone-only fallback modal (preserves legacy "Authorization Required" UX
+     when the module is opened outside the shell). When inside the shell we route
+     through NITDA.confirm() / NITDA.alert() instead. -->
+<div id="aid-fb-modal" role="dialog" aria-modal="true" aria-labelledby="aid-fb-h">
+  <div class="aid-fb-box">
+    <div id="aid-fb-h" class="aid-fb-h">Authorization Required</div>
+    <div id="aid-fb-b" class="aid-fb-b">Confirm execution of the requested operation to proceed.</div>
+    <div class="aid-fb-f">
+      <button class="aid-btn aid-btn-g" id="aid-fb-cancel" type="button">Cancel</button>
+      <button class="aid-btn aid-btn-p" id="aid-fb-ok"     type="button">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ════════════════════════════════════════════════════════════════════
+   §1  NITDA MODULE ADAPTER  v5.0
+   --------------------------------------------------------------------
+   Verbatim adapter from MasterShellBuildv3_1_0 ADAPTER_SNIPPET.
+   Self-contained. Auto-fires NITDA.ready() on DOMContentLoaded.
+   No external deps, no CDN, postMessage transport only.
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+  if (window === window.parent) return; /* skip when loaded standalone */
+  var _o = window.location.origin || '*';
+  var _p = {};   /* pending RPC by id */
+  var _topics = {};   /* topic → [cb] */
+  var _unmount = [];
+  var _cmds = {};
+
+  function _send(t, p, id, timeout){
+    var msgId = id || Math.random().toString(36).slice(2,9);
+    window.parent.postMessage({source:'NITDA_MODULE',type:t,payload:p||{},id:msgId}, _o);
+    return msgId;
+  }
+
+  function _req(t, p, opts){
+    opts = opts || {};
+    return new Promise(function(resolve){
+      var id = Math.random().toString(36).slice(2,9);
+      _p[id] = resolve;
+      _send(t, p, id);
+      setTimeout(function(){ if (_p[id]) { resolve(null); delete _p[id]; } }, opts.timeout || 5000);
+    });
+  }
+
+  window.addEventListener('message', function(e){
+    if (!e.data || e.data.source !== 'NITDA_SHELL') return;
+    var t = e.data.type, p = e.data.payload, r = e.data.replyId;
+    if (r && _p[r]) { _p[r](p); delete _p[r]; return; }
+    if (t === 'THEME_CHANGE') document.documentElement.dataset.theme = p.theme;
+    if (t === 'TOKEN_MAP') Object.keys(p).forEach(function(k){ document.documentElement.style.setProperty(k, p[k]); });
+    if (t === 'CONFIG_PUSH') window._NITDA_CFG = p;
+    if (t === 'BROADCAST') document.dispatchEvent(new CustomEvent('nitda:broadcast', {detail:p}));
+    if (t === 'PUB_DATA' && _topics[p.topic]) _topics[p.topic].forEach(function(cb){ try{cb(p.data, p.from);}catch(e){} });
+    if (t === 'COMMAND_INVOKED' && _cmds[p.key]) try{ _cmds[p.key](); }catch(e){}
+    if (t === 'WILL_UNLOAD') {
+      _unmount.forEach(function(cb){ try{cb();}catch(e){} });
+      _send('UNLOAD_ACK', {});
+    }
+    if (t === 'TAB_FOCUS') document.dispatchEvent(new CustomEvent('nitda:focus'));
+    if (t === 'DEEP_LINK') document.dispatchEvent(new CustomEvent('nitda:deeplink', {detail:p}));
+    if (t === 'SESSION_INFO') document.dispatchEvent(new CustomEvent('nitda:session', {detail:p}));
+    document.dispatchEvent(new CustomEvent('nitda:' + t.toLowerCase(), {detail:p}));
+  });
+
+  window.NITDA = {
+    /* lifecycle */
+    ready: function(){ _send('MODULE_READY', {title: document.title}); },
+    onUnmount: function(cb){ _unmount.push(cb); },
+
+    /* shell UI */
+    toast: function(m, t, ti){ _send('TOAST', {msg:m, type:t||'inf', title:ti}); },
+    notify: function(text, type, link){ _send('NOTIFY', {text:text, type:type||'info', link:link||null}); },
+    confirm: function(msg, title, danger){ return _req('CONFIRM', {message:msg, title:title, danger:danger}); },
+    alert: function(msg, title){ return _req('ALERT', {message:msg, title:title}); },
+    setBreadcrumb: function(text){ _send('SET_BREADCRUMB', {text:text}); },
+    setBadge: function(text, kind){ _send('SET_BADGE', {text:text, kind:kind}); },
+    fullscreen: function(){ _send('REQUEST_FULLSCREEN', {}); },
+    openPanel: function(id){ _send('OPEN_PANEL', {id:id}); },
+
+    /* navigation */
+    navigate: function(id){ _send('NAVIGATE', {moduleId:id}); },
+    home: function(){ _send('NAVIGATE', {moduleId:null}); },
+
+    /* shared resources */
+    getConfig: function(){ return _req('GET_CONFIG', {}); },
+    getTheme: function(){ return _req('GET_THEME', {}); },
+    getTokenMap: function(){ return _req('GET_TOKEN_MAP', {}); },
+    getSession: function(){ return _req('GET_SESSION', {}); },
+    getUser: function(){ return _req('GET_USER', {}); },
+    getRegistry: function(){ return _req('GET_REGISTRY', {}); },
+    getReferences: function(){ return _req('GET_REFERENCES', {}); },
+    getSchema: function(id){ return _req('GET_SCHEMA', {id:id}); },
+    getSchemaList: function(){ return _req('GET_SCHEMA_LIST', {}); },
+    validate: function(schemaId, data){ return _req('VALIDATE', {schemaId:schemaId, data:data}); },
+    sanitize: function(html){ return _req('SANITIZE', {html:html}); },
+    getIcon: function(name){ return _req('GET_ICON', {name:name}); },
+
+    /* shared cache (session) */
+    getCache: function(k){ return _req('GET_CACHE', {key:k}); },
+    setCache: function(k, d, ttl){ _send('SET_CACHE', {key:k, data:d, ttl:ttl}); },
+    delCache: function(k){ _send('DEL_CACHE', {key:k}); },
+
+    /* per-module persistent storage */
+    storage: {
+      set: function(k, v){ return _req('STORAGE_SET', {key:k, value:v}); },
+      get: function(k){ return _req('STORAGE_GET', {key:k}); },
+      del: function(k){ return _req('STORAGE_DEL', {key:k}); },
+      list: function(){ return _req('STORAGE_LIST', {}); }
+    },
+
+    /* unified flow caller (cache + retry + dedupe) */
+    callFlow: function(endpointId, body, opts){ return _req('CALL_FLOW', {endpointId:endpointId, body:body, options:opts||{}}, {timeout:(opts&&opts.timeout)||35000}); },
+
+    /* audit */
+    log: function(msg){ _send('AUDIT', {msg:msg}); },
+
+    /* cross-module pub/sub */
+    publish: function(topic, data){ _send('PUB_PUBLISH', {topic:topic, data:data}); },
+    subscribe: function(topic, cb){
+      if (!_topics[topic]) { _topics[topic] = []; _send('PUB_SUBSCRIBE', {topic:topic}); }
+      _topics[topic].push(cb);
+      return function unsub(){
+        _topics[topic] = (_topics[topic]||[]).filter(function(f){return f!==cb;});
+        if (!_topics[topic].length) { delete _topics[topic]; _send('PUB_UNSUBSCRIBE', {topic:topic}); }
+      };
+    },
+    broadcast: function(data){ _send('BROADCAST', {data:data}); },
+
+    /* register a custom command in the shell command palette */
+    registerCommand: function(key, label, opts){
+      _cmds[key] = (opts && opts.handler) || function(){};
+      _send('REGISTER_COMMAND', {key:key, label:label, hint:(opts&&opts.hint)||'', group:(opts&&opts.group)||''});
+    },
+    unregisterCommand: function(key){ delete _cmds[key]; _send('UNREGISTER_COMMAND', {key:key}); }
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ window.NITDA.ready(); });
+  else window.NITDA.ready();
+})();
+
+/* ════════════════════════════════════════════════════════════════════
+   §2  MODULE LOGIC — Assignment Intelligence Dashboard
+   --------------------------------------------------------------------
+   All flow I/O routed through window.NITDA.callFlow (E03 fetch tasks,
+   E01 references). All confirmations through NITDA.confirm. All toasts
+   through NITDA.toast. Filter prefs via NITDA.storage. Cross-module
+   reactivity via NITDA.subscribe('assignments:updated').
+   ════════════════════════════════════════════════════════════════════ */
+(function(){
+
+  /* ───────── helpers ───────── */
+  var $  = function(id){ return document.getElementById(id); };
+  var QA = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var IN_SHELL = (window !== window.parent);
+  var NITDA = window.NITDA || null;
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function audit(msg) { try { NITDA && NITDA.log && NITDA.log('[Assignment-Intel] ' + msg); } catch(e){} if (!IN_SHELL) console.log('[AID]', msg); }
+  function toast(msg, type, title) { if (NITDA && NITDA.toast) NITDA.toast(msg, type||'inf', title||''); else console.log('[TOAST:'+type+']', title||'', msg); }
+  function notify(text, type, link) { if (NITDA && NITDA.notify) NITDA.notify(text, type||'info', link||null); }
+
+  /* Dual-path confirmation: shell-modal preferred, local fallback for standalone */
+  function confirmAction(message, title, danger) {
+    if (IN_SHELL && NITDA && NITDA.confirm) return NITDA.confirm(message, title, !!danger);
+    return new Promise(function(resolve) {
+      var bg = $('aid-fb-modal'), h = $('aid-fb-h'), b = $('aid-fb-b'),
+          ok = $('aid-fb-ok'),    cn = $('aid-fb-cancel');
+      h.textContent = title || 'Authorization Required';
+      b.textContent = message || 'Confirm execution of the requested operation to proceed.';
+      bg.classList.add('open');
+      function done(v){ bg.classList.remove('open'); ok.onclick=null; cn.onclick=null; document.removeEventListener('keydown', kd); resolve(v); }
+      function kd(e){ if (e.key==='Escape') done(false); }
+      ok.onclick = function(){ done(true); };
+      cn.onclick = function(){ done(false); };
+      document.addEventListener('keydown', kd);
+      setTimeout(function(){ ok.focus(); }, 50);
+    });
+  }
+
+  /* ───────── module state ───────── */
+  var STATE = {
+    rows:        [],          /* normalised assignments */
+    raw:         null,        /* last raw flow response */
+    references:  null,        /* shell-shared lookups */
+    filter:      'all',
+    sort:        { key:'due', dir:'asc' },
+    syncing:     false,
+    lastSync:    0,
+    autoTimer:   null,
+    userEmail:   null
+  };
+
+  var STATUS_KEYS = {
+    PENDING:   ['not started','pending','draft','awaiting','awaiting acknowledgement','awaiting ack'],
+    PROGRESS:  ['in progress','progress','active','ongoing','assigned'],
+    COMPLETE:  ['completed','complete','closed','done','resolved'],
+    OVERDUE:   ['overdue','late','breached'],
+    ONTRACK:   ['on track','on-track','green']
+  };
+
+  /* ───────── normalisation ───────── */
+  function normaliseRow(r) {
+    if (!r || typeof r !== 'object') return null;
+    var assigned = r.AssignedTo || r.Assigned || r.assignedTo || r.assigned || '';
+    if (typeof assigned === 'string' && /^no\s/i.test(assigned)) assigned = '';
+    var due  = r.DueDate || r.dueDate || r.TaskDueDate || r.taskDueDate || null;
+    var prog = (r.Progress || r.Status || r.status || 'Not started').toString();
+    var pri  = (r.Priority || r.priority || 'N/A').toString();
+    var dsu  = r.GDSUROUT || r.AssignedDSU || r.PrimaryDSU || r.dsu || '';
+    var cat  = r.Classification || r.Category || r.category || '';
+    var cls  = classifyStatus(prog, due, pri);
+    return {
+      id:        r.ID || r.id || r.Reference_ID || r.RefIDD || (Math.random().toString(36).slice(2,9)),
+      ref:       r.RefIDD || r.refIDD || (r.Reference_ID ? String(r.Reference_ID).split('-').slice(1,2).join('') : ''),
+      refFull:   r.Reference_ID || r.referenceId || '',
+      title:     extractSubject(r.Title || r.title || r.Description || ''),
+      titleFull: r.Title || r.title || '',
+      priority:  pri,
+      progress:  prog,
+      created:   r.Created || r.created || r.StartDate || null,
+      due:       due,
+      assignee:  assigned,
+      dsu:       dsu,
+      category:  cat,
+      cls:       cls,
+      raw:       r
+    };
+  }
+
+  /* Subject extraction: title shape is "<refIdd> -<date> -<SUBJECT>.PDF" */
+  function extractSubject(t) {
+    if (!t) return '';
+    var s = String(t);
+    var m = s.match(/-\s*\d{4}-\d{2}-\d{2}\s*-(.+?)(?:\.[A-Za-z0-9]{2,5})?$/);
+    if (m && m[1]) return m[1].trim();
+    return s.replace(/\.[A-Za-z0-9]{2,5}$/,'').trim();
+  }
+
+  function classifyStatus(progress, due, priority) {
+    var pl  = String(progress||'').toLowerCase().trim();
+    var pri = String(priority||'').toLowerCase().trim();
+    var nowMs = Date.now();
+    var dueMs = due ? new Date(due).getTime() : 0;
+    var isComplete = STATUS_KEYS.COMPLETE.indexOf(pl) > -1;
+    var overdue = !!(dueMs && dueMs < nowMs && !isComplete);
+
+    if (isComplete) return 'complete';
+    if (overdue) return 'overdue';
+    if (STATUS_KEYS.PROGRESS.indexOf(pl) > -1) return 'progress';
+    if (STATUS_KEYS.ONTRACK.indexOf(pl)  > -1) return 'ontrack';
+    if (pri === 'high' || pri === 'urgent') return 'urgent-pending';
+    return 'pending';
+  }
+
+  function isOverdue(row) {
+    if (!row.due) return false;
+    if (row.cls === 'complete') return false;
+    return new Date(row.due).getTime() < Date.now();
+  }
+  function isUrgent(row) {
+    var p = String(row.priority||'').toLowerCase();
+    return (p === 'high' || p === 'urgent') && row.cls !== 'complete';
+  }
+
+  /* ───────── status badge mapping ───────── */
+  function statusBadge(row) {
+    var cls = row.cls;
+    var map = {
+      pending:        ['aid-st-pending',  'Pending Ack'],
+      'urgent-pending':['aid-st-pending', 'Urgent · Pending'],
+      progress:       ['aid-st-progress', 'In Progress'],
+      complete:       ['aid-st-complete', 'Completed'],
+      overdue:        ['aid-st-overdue',  'Overdue'],
+      ontrack:        ['aid-st-ontrack',  'On Track']
+    };
+    var entry = map[cls] || map.pending;
+    return '<span class="aid-status ' + entry[0] + '">' + esc(entry[1]) + '</span>';
+  }
+
+  function priorityBadge(p) {
+    var pl = String(p||'').toLowerCase();
+    if (pl === 'high' || pl === 'urgent') return '<span class="aid-ref-pri aid-pri-high">High</span>';
+    if (pl === 'medium' || pl === 'med')  return '<span class="aid-ref-pri aid-pri-med">Med</span>';
+    if (pl === 'low')                     return '<span class="aid-ref-pri aid-pri-low">Low</span>';
+    return '<span class="aid-ref-pri aid-pri-na">'+ esc(p || 'N/A') +'</span>';
+  }
+
+  function officerCell(em) {
+    if (!em) return '<span class="aid-officer-unassigned">— Unassigned —</span>';
+    var s = String(em).trim();
+    var initials = s.replace(/@.*/,'').replace(/[^A-Za-z0-9]+/g,' ').trim().split(/\s+/).slice(0,2).map(function(p){return p[0]||'';}).join('').toUpperCase() || '?';
+    return '<div class="aid-officer">' +
+           '<div class="aid-officer-av" aria-hidden="true">' + esc(initials) + '</div>' +
+           '<div class="aid-officer-em" title="'+ esc(s) +'">' + esc(s.toLowerCase()) + '</div>' +
+           '</div>';
+  }
+
+  function dueCell(due) {
+    if (!due) return '<span class="aid-due" style="color:var(--txm)">—</span>';
+    var d = new Date(due), now = new Date();
+    if (isNaN(d.getTime())) return '<span class="aid-due" style="color:var(--txm)">—</span>';
+    var days = Math.floor((d - now) / 86400e3);
+    var lbl = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    var rel, cls = '';
+    if (days < 0)        { rel = Math.abs(days) + 'd overdue'; cls = 'overdue'; }
+    else if (days === 0) { rel = 'today';                       cls = 'today'; }
+    else if (days <= 2)  { rel = 'in ' + days + 'd';            cls = 'soon'; }
+    else                 { rel = 'in ' + days + 'd'; }
+    return '<span class="aid-due ' + cls + '">' + esc(lbl) + '<span class="aid-due-rel">' + esc(rel) + '</span></span>';
+  }
+
+  function dsuCell(row) {
+    var d = row.dsu ? '<span class="aid-dsu">' + esc(row.dsu) + '</span>' : '<span class="aid-dsu" style="opacity:.5">—</span>';
+    var c = row.category ? '<span class="aid-cat-sub" title="' + esc(row.category) + '">' + esc(row.category) + '</span>' : '';
+    return d + c;
+  }
+
+  /* ───────── filtering & sorting ───────── */
+  function applyFilter(rows) {
+    var f = STATE.filter;
+    var me = (STATE.userEmail || '').toLowerCase();
+    return rows.filter(function(r){
+      if (f === 'all')       return true;
+      if (f === 'pending')   return r.cls === 'pending' || r.cls === 'urgent-pending';
+      if (f === 'overdue')   return isOverdue(r);
+      if (f === 'urgent')    return isUrgent(r);
+      if (f === 'completed') return r.cls === 'complete';
+      if (f === 'ontrack')   return r.cls === 'ontrack' || (r.cls === 'progress' && !isOverdue(r));
+      if (f === 'mine')      return me && r.assignee && r.assignee.toLowerCase() === me;
+      return true;
+    });
+  }
+
+  function applySort(rows) {
+    var k = STATE.sort.key, dir = STATE.sort.dir === 'desc' ? -1 : 1;
+    return rows.slice().sort(function(a,b){
+      var va, vb;
+      switch (k) {
+        case 'ref':     va = a.ref || a.id; vb = b.ref || b.id; break;
+        case 'subject': va = a.title; vb = b.title; break;
+        case 'status':  va = a.cls; vb = b.cls; break;
+        case 'officer': va = a.assignee; vb = b.assignee; break;
+        case 'dsu':     va = (a.dsu||'') + (a.category||''); vb = (b.dsu||'') + (b.category||''); break;
+        case 'due':
+        default:        va = a.due ? new Date(a.due).getTime() : 8.64e15;
+                        vb = b.due ? new Date(b.due).getTime() : 8.64e15;
+      }
+      if (va == null) va = '';
+      if (vb == null) vb = '';
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return -1 * dir;
+      if (va > vb) return  1 * dir;
+      return 0;
+    });
+  }
+
+  /* ───────── render ───────── */
+  function render() {
+    var rows  = applySort(applyFilter(STATE.rows));
+    var tbody = $('aid-tbody');
+
+    if (!STATE.rows.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="6" class="aid-empty">' +
+          '<span class="aid-empty-ico" aria-hidden="true">📋</span>' +
+          '<div class="aid-empty-ttl">Registry is empty</div>' +
+          '<div class="aid-empty-msg">Synchronize to load data from the live DGO Registry.</div>' +
+        '</td></tr>';
+    } else if (!rows.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="6" class="aid-empty">' +
+          '<span class="aid-empty-ico" aria-hidden="true">🔎</span>' +
+          '<div class="aid-empty-ttl">No matching records</div>' +
+          '<div class="aid-empty-msg">No records match the current filter. Try a different tab or sync the registry.</div>' +
+        '</td></tr>';
+    } else {
+      var html = '';
+      rows.forEach(function(r){
+        var trCls = '';
+        if (isOverdue(r)) trCls = 'is-overdue';
+        else if (isUrgent(r)) trCls = 'is-urgent';
+        html += '<tr class="' + trCls + '" data-id="' + esc(r.id) + '">' +
+          '<td><div class="aid-ref">' +
+              '<span class="aid-ref-id">' + esc(r.refFull || r.ref || r.id) + '</span>' +
+              priorityBadge(r.priority) +
+          '</div></td>' +
+          '<td><div class="aid-subj" title="' + esc(r.titleFull) + '">' + esc(r.title || '—') + '</div></td>' +
+          '<td>' + statusBadge(r) + '</td>' +
+          '<td>' + officerCell(r.assignee) + '</td>' +
+          '<td>' + dueCell(r.due) + '</td>' +
+          '<td>' + dsuCell(r) + '</td>' +
+        '</tr>';
+      });
+      tbody.innerHTML = html;
+      tbody.classList.remove('aid-fade-in'); void tbody.offsetWidth; tbody.classList.add('aid-fade-in');
+    }
+
+    /* row click → publish selection (cross-module signal) */
+    QA('#aid-tbody tr[data-id]').forEach(function(tr){
+      tr.style.cursor = 'pointer';
+      tr.addEventListener('click', function(){
+        var id = tr.dataset.id;
+        var row = STATE.rows.filter(function(x){ return String(x.id) === String(id); })[0];
+        if (!row) return;
+        if (NITDA && NITDA.publish) NITDA.publish('assignments:selected', { id:row.id, ref:row.refFull, title:row.titleFull });
+        audit('Row selected: ' + (row.refFull || row.id));
+      });
+    });
+  }
+
+  function updateKpis() {
+    var total    = STATE.rows.length;
+    var closed   = 0, active = 0, overdue = 0;
+    STATE.rows.forEach(function(r){
+      if (r.cls === 'complete') closed++;
+      else { active++; if (isOverdue(r)) overdue++; }
+    });
+    $('kpi-total').textContent   = total;
+    $('kpi-active').textContent  = active;
+    $('kpi-overdue').textContent = overdue;
+    $('kpi-closed').textContent  = closed;
+    $('kpi-overdue').setAttribute('data-pulse', overdue > 0 ? '1' : '0');
+  }
+
+  function updateTabCounts() {
+    var counts = { all:0, pending:0, overdue:0, urgent:0, completed:0, ontrack:0, mine:0 };
+    var me = (STATE.userEmail || '').toLowerCase();
+    STATE.rows.forEach(function(r){
+      counts.all++;
+      if (r.cls === 'pending' || r.cls === 'urgent-pending') counts.pending++;
+      if (isOverdue(r)) counts.overdue++;
+      if (isUrgent(r))  counts.urgent++;
+      if (r.cls === 'complete') counts.completed++;
+      if (r.cls === 'ontrack' || (r.cls === 'progress' && !isOverdue(r))) counts.ontrack++;
+      if (me && r.assignee && r.assignee.toLowerCase() === me) counts.mine++;
+    });
+    Object.keys(counts).forEach(function(k){
+      QA('[data-cnt="'+k+'"]').forEach(function(el){ el.textContent = counts[k]; });
+    });
+  }
+
+  function updateSyncIndicator(state) {
+    var dot = $('sync-dot'), lbl = $('sync-label'), rec = $('sync-rec');
+    rec.textContent = STATE.rows.length;
+    dot.className = 'aid-sync-dot ' + (state || '');
+    lbl.textContent = ({
+      live:  'Live',
+      warn:  'Syncing…',
+      err:   'Sync failed',
+      '':    STATE.lastSync ? ('Updated ' + relTime(STATE.lastSync)) : 'Idle'
+    })[state || ''] || 'Idle';
+  }
+
+  function relTime(ts) {
+    var d = Date.now() - ts;
+    if (d < 60e3)   return 'just now';
+    if (d < 3600e3) return Math.floor(d/60e3)  + 'm ago';
+    if (d < 86400e3)return Math.floor(d/3600e3)+ 'h ago';
+    return new Date(ts).toLocaleDateString();
+  }
+
+  /* ───────── flow integration (E03 fetch tasks) ───────── */
+  function buildFetchPayload() {
+    return {
+      action:    'getTasks',
+      operation: 'read',
+      mode:      'read',
+      source:    'DGO_FAST_Track_WEB_OPS',
+      userEmail: STATE.userEmail || 'dgs@nitda.gov.ng',
+      method:    'GET',
+      client:    { app:'AssignmentIntel', version:'1.0.0', submittedAt:new Date().toISOString() }
+    };
+  }
+
+  function extractTasks(resp) {
+    if (!resp) return [];
+    /* Flow caller wraps fetch result as { ok, data, fromCache? } */
+    var d = resp.data != null ? resp.data : resp;
+    if (typeof d === 'string') { try { d = JSON.parse(d); } catch(e){ return []; } }
+    if (d && d.data) d = d.data;
+    if (Array.isArray(d)) return d;
+    if (d && Array.isArray(d.tasks)) return d.tasks;
+    if (d && Array.isArray(d.items)) return d.items;
+    if (d && d.results && Array.isArray(d.results)) return d.results;
+    return [];
+  }
+
+  function loadShellReferences() {
+    if (!NITDA || !NITDA.getReferences) return Promise.resolve(null);
+    return NITDA.getReferences().then(function(res){
+      if (res && res.data) {
+        STATE.references = res.data;
+        audit('References loaded from shell cache');
+      }
+      return STATE.references;
+    }).catch(function(){ return null; });
+  }
+
+  function syncRegistry(opts) {
+    opts = opts || {};
+    if (STATE.syncing) { toast('Sync already in progress.', 'warn', 'Registry'); return Promise.resolve(false); }
+    STATE.syncing = true;
+    updateSyncIndicator('warn');
+    $('btn-sync').disabled = true;
+    $('btn-sync-lbl').textContent = 'Syncing…';
+    audit('Sync registry start (force=' + (opts.force?'1':'0') + ')');
+
+    var promise;
+    if (NITDA && NITDA.callFlow) {
+      promise = NITDA.callFlow('E03', buildFetchPayload(), {
+        cacheKey: opts.force ? null : 'tasks:registry:dgo',
+        cacheTtl: 5 * 60 * 1000,
+        retry:    1,
+        timeout:  30000
+      });
+    } else {
+      /* Standalone preview: surface a synthetic "no shell" response */
+      promise = Promise.resolve({ ok:false, error:'Master Shell not detected. Direct PA calls are not permitted from this module.' });
+    }
+
+    return promise.then(function(res){
+      if (!res || !res.ok) {
+        var msg = (res && res.error) || 'Failed to fetch registry data.';
+        STATE.syncing = false;
+        updateSyncIndicator('err');
+        toast(msg, 'err', 'Sync failed');
+        notify('Registry sync failed: ' + msg, 'error');
+        audit('Sync failed: ' + msg);
+        $('btn-sync').disabled = false;
+        $('btn-sync-lbl').textContent = 'Sync Registry';
+        return false;
+      }
+
+      var tasks = extractTasks(res);
+      STATE.raw  = res;
+      STATE.rows = tasks.map(normaliseRow).filter(Boolean);
+      STATE.lastSync = Date.now();
+      STATE.syncing  = false;
+
+      updateKpis();
+      updateTabCounts();
+      render();
+      updateSyncIndicator('live');
+
+      var label = res.fromCache ? 'Loaded from cache' : 'Operation Successful';
+      toast(label + ' — ' + STATE.rows.length + ' record' + (STATE.rows.length===1?'':'s') + '.', 'ok', 'Registry');
+
+      /* Sidebar live-badge so other tabs see the registry is current */
+      if (NITDA && NITDA.setBadge) NITDA.setBadge(String(STATE.rows.length), 'live');
+
+      /* Cross-module event */
+      if (NITDA && NITDA.publish) {
+        NITDA.publish('assignments:updated', {
+          count:   STATE.rows.length,
+          ts:      STATE.lastSync,
+          overdue: STATE.rows.filter(isOverdue).length
+        });
+      }
+
+      audit('Sync OK · ' + STATE.rows.length + ' rows · cache=' + (res.fromCache?'1':'0'));
+      $('btn-sync').disabled = false;
+      $('btn-sync-lbl').textContent = 'Sync Registry';
+
+      /* idle state after a few seconds (so the operator can see "Live" first) */
+      setTimeout(function(){ if (!STATE.syncing) updateSyncIndicator(''); }, 3500);
+      return true;
+    }).catch(function(err){
+      STATE.syncing = false;
+      updateSyncIndicator('err');
+      toast(err && err.message || 'Unknown error during sync.', 'err', 'Sync failed');
+      audit('Sync exception: ' + (err && err.message));
+      $('btn-sync').disabled = false;
+      $('btn-sync-lbl').textContent = 'Sync Registry';
+      return false;
+    });
+  }
+
+  /* ───────── Generate Report ───────── */
+  function generateReport() {
+    var visible = applySort(applyFilter(STATE.rows));
+    if (!visible.length) {
+      toast('No records to include. Sync or change filter.', 'warn', 'Report');
+      return;
+    }
+    var report = {
+      generatedAt: new Date().toISOString(),
+      generatedBy: STATE.userEmail || 'unknown',
+      filter:      STATE.filter,
+      sort:        STATE.sort,
+      counts:      {
+        total:    STATE.rows.length,
+        visible:  visible.length,
+        overdue:  STATE.rows.filter(isOverdue).length,
+        urgent:   STATE.rows.filter(isUrgent).length,
+        complete: STATE.rows.filter(function(r){ return r.cls === 'complete'; }).length
+      },
+      records: visible.map(function(r){
+        return {
+          id:        r.id,
+          ref:       r.refFull || r.ref,
+          subject:   r.title,
+          status:    r.cls,
+          progress:  r.progress,
+          priority:  r.priority,
+          assignee:  r.assignee || null,
+          dsu:       r.dsu || null,
+          category:  r.category || null,
+          due:       r.due || null,
+          overdue:   isOverdue(r),
+          created:   r.created || null
+        };
+      })
+    };
+
+    try {
+      var blob = new Blob([JSON.stringify(report, null, 2)], { type:'application/json' });
+      var url  = URL.createObjectURL(blob);
+      var a    = Object.assign(document.createElement('a'), {
+        href: url,
+        download: 'dgo-assignment-report-' + Date.now() + '.json'
+      });
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+      toast('Report generated · ' + visible.length + ' records exported.', 'ok', 'Operation Successful');
+      notify('Assignment report generated (' + visible.length + ' records).', 'success');
+      audit('Report generated · filter=' + STATE.filter + ' · n=' + visible.length);
+    } catch (e) {
+      toast('Could not export report: ' + (e.message||'unknown'), 'err', 'Report');
+      audit('Report export failed: ' + e.message);
+    }
+  }
+
+  /* ───────── filter & sort UI wiring ───────── */
+  function setFilter(f, persist) {
+    STATE.filter = f;
+    QA('.aid-tab').forEach(function(b){
+      var on = b.dataset.filter === f;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    render();
+    if (persist !== false && NITDA && NITDA.storage) NITDA.storage.set('filter', f);
+    audit('Filter → ' + f);
+  }
+
+  function setSort(key) {
+    if (STATE.sort.key === key) {
+      STATE.sort.dir = STATE.sort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      STATE.sort = { key:key, dir:'asc' };
+    }
+    QA('.aid-tbl thead th.sortable').forEach(function(th){
+      th.classList.remove('sorted-asc','sorted-desc');
+      if (th.dataset.sort === STATE.sort.key) th.classList.add('sorted-' + STATE.sort.dir);
+    });
+    render();
+    if (NITDA && NITDA.storage) NITDA.storage.set('sort', STATE.sort);
+    audit('Sort → ' + key + ':' + STATE.sort.dir);
+  }
+
+  function bindUI() {
+    /* Filter tabs */
+    QA('.aid-tab').forEach(function(b){
+      b.addEventListener('click', function(){ setFilter(b.dataset.filter); });
+      b.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFilter(b.dataset.filter); }
+      });
+    });
+
+    /* Sort headers */
+    QA('.aid-tbl thead th.sortable').forEach(function(th){
+      th.addEventListener('click', function(){ setSort(th.dataset.sort); });
+    });
+
+    /* Sync — Authorization Required gate */
+    $('btn-sync').addEventListener('click', function(){
+      confirmAction(
+        'Confirm execution of the requested operation to proceed.',
+        'Authorization Required',
+        false
+      ).then(function(ok){
+        if (!ok) { audit('Sync cancelled by user'); return; }
+        syncRegistry({ force:true });
+      });
+    });
+
+    /* Generate Report — Authorization Required gate */
+    $('btn-report').addEventListener('click', function(){
+      confirmAction(
+        'Confirm execution of the requested operation to proceed.',
+        'Authorization Required',
+        false
+      ).then(function(ok){
+        if (!ok) { audit('Report cancelled by user'); return; }
+        generateReport();
+      });
+    });
+  }
+
+  /* ───────── shell event hooks ───────── */
+  function bindShellEvents() {
+    /* Re-sync silently when this tab regains focus inside the shell */
+    document.addEventListener('nitda:focus', function(){
+      if (!STATE.lastSync) return; /* skip first focus before initial sync */
+      var staleMs = Date.now() - STATE.lastSync;
+      if (staleMs > 60e3) { audit('Tab focus → silent refresh'); syncRegistry({ force:false }); }
+    });
+
+    /* React to other modules creating assignments */
+    if (NITDA && NITDA.subscribe) {
+      NITDA.subscribe('assignments:created', function(data){
+        audit('External create event from sibling module · refreshing');
+        toast('A new assignment was created. Refreshing registry…', 'inf', 'Live update');
+        syncRegistry({ force:true });
+      });
+      NITDA.subscribe('assignments:bulk:committed', function(data){
+        audit('Bulk-commit event received · refreshing');
+        toast('Bulk assignment committed. Refreshing…', 'inf', 'Live update');
+        syncRegistry({ force:true });
+      });
+    }
+
+    /* Global broadcast (e.g. shell-wide refresh signal) */
+    document.addEventListener('nitda:broadcast', function(e){
+      var d = e.detail;
+      if (d && d.event === 'force-refresh') syncRegistry({ force:true });
+    });
+
+    /* DATA_READY (shell finished prewarming references) */
+    document.addEventListener('nitda:data_ready', function(e){
+      var d = e.detail;
+      if (d && d.dataset === 'references') loadShellReferences().then(function(){ updateTabCounts(); });
+    });
+
+    /* Cleanup when shell evicts the iframe */
+    if (NITDA && NITDA.onUnmount) NITDA.onUnmount(function(){
+      if (STATE.autoTimer) { clearInterval(STATE.autoTimer); STATE.autoTimer = null; }
+      audit('Module unmount · timers cleared');
+    });
+  }
+
+  /* Custom command palette entries */
+  function registerCommands() {
+    if (!NITDA || !NITDA.registerCommand) return;
+    NITDA.registerCommand('sync',   'Sync Registry',   { hint:'F5', group:'Assignment Intelligence', handler: function(){ syncRegistry({ force:true }); } });
+    NITDA.registerCommand('report', 'Generate Report', { hint:'',   group:'Assignment Intelligence', handler: generateReport });
+    NITDA.registerCommand('clear',  'Clear Cached Filter', { group:'Assignment Intelligence', handler: function(){
+      if (NITDA.storage) NITDA.storage.del('filter');
+      setFilter('all', false);
+      toast('Filter reset to "All Assignments".', 'inf');
+    } });
+  }
+
+  /* ───────── init ───────── */
+  function loadPersistedPrefs() {
+    if (!NITDA || !NITDA.storage) return Promise.resolve();
+    return Promise.all([NITDA.storage.get('filter'), NITDA.storage.get('sort')]).then(function(arr){
+      var fRes = arr[0], sRes = arr[1];
+      if (fRes && fRes.ok && fRes.value) STATE.filter = fRes.value;
+      if (sRes && sRes.ok && sRes.value) STATE.sort   = sRes.value;
+      /* sync DOM */
+      QA('.aid-tab').forEach(function(b){
+        var on = b.dataset.filter === STATE.filter;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      QA('.aid-tbl thead th.sortable').forEach(function(th){
+        th.classList.remove('sorted-asc','sorted-desc');
+        if (th.dataset.sort === STATE.sort.key) th.classList.add('sorted-' + STATE.sort.dir);
+      });
+    }).catch(function(){});
+  }
+
+  function loadUserContext() {
+    if (!NITDA || !NITDA.getUser) return Promise.resolve();
+    return NITDA.getUser().then(function(u){
+      if (u && u.user && u.user.email) STATE.userEmail = u.user.email;
+    }).catch(function(){});
+  }
+
+  function init() {
+    audit('Module init · v1.0.0 · in-shell=' + (IN_SHELL?'1':'0'));
+    bindUI();
+    bindShellEvents();
+    registerCommands();
+
+    /* Mark default sort indicator on first paint */
+    QA('.aid-tbl thead th.sortable').forEach(function(th){
+      if (th.dataset.sort === STATE.sort.key) th.classList.add('sorted-' + STATE.sort.dir);
+    });
+
+    Promise.all([
+      loadPersistedPrefs(),
+      loadUserContext(),
+      loadShellReferences()
+    ]).then(function(){
+      updateKpis();
+      updateTabCounts();
+      updateSyncIndicator('');
+      /* First sync uses cache when available (fast paint) */
+      if (IN_SHELL) syncRegistry({ force:false });
+      else updateSyncIndicator('');
+      /* Auto-refresh every 5 min while loaded */
+      STATE.autoTimer = setInterval(function(){
+        if (document.hidden) return;
+        if (Date.now() - STATE.lastSync > 5*60e3) syncRegistry({ force:false });
+      }, 60e3);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+})();
+</script>
+</body>
+</html>

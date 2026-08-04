@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DGO Digital Ops - File Movement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .nitda-gradient { background: linear-gradient(135deg, #05583B 0%, #00A69D 100%); }
+        /* Traditional Minute Sheet Styling */
+        .minute-sheet {
+            background-color: #fffdf0; /* Paper color */
+            border-left: 4px solid #d1d5db; /* Margin line */
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .minute-entry {
+            border-bottom: 1px dashed #ccc;
+            padding: 10px;
+            position: relative;
+        }
+        .minute-entry:last-child { border-bottom: none; }
+        .red-ink { color: #b91c1c; font-weight: bold; } /* For urgent minutes */
+        .blue-ink { color: #1e3a8a; } /* Standard minutes */
+        
+        /* Timeline Step */
+        .step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; }
+        .step-line { width: 2px; background-color: #e5e7eb; flex: 1; margin-left: 11px; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- GLOBAL NAV -->
+    <nav class="nitda-gradient text-white shadow-md sticky top-0 z-50 shrink-0">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-14 items-center">
+                <div class="flex items-center space-x-4 md:space-x-8">
+                    <span class="font-bold text-lg tracking-wider">NITDA DGO</span>
+                    <div class="hidden md:flex space-x-1">
+                        <a href="index.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">📑 Registry</a>
+                        <a href="registry_movement.html" class="px-3 py-1.5 rounded-md text-sm font-bold bg-white/20">📂 File Movement</a>
+                        <a href="assignments.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">✍️ Assignments</a>
+                        <a href="tasks.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">✅ Tracker</a>
+                        <a href="stats.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">📊 Analytics</a>
+                    </div>
+                </div>
+                <div class="text-xs bg-white/20 px-2 py-1 rounded shadow-sm">DG Office</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex overflow-hidden relative">
+        
+        <!-- LEFT: FILE LIST (Registry Log) -->
+        <div class="w-full md:w-[350px] bg-white border-r flex flex-col z-10">
+            <div class="p-3 border-b bg-gray-50 flex justify-between items-center shrink-0">
+                <h2 class="font-bold text-[#05583B]">Incoming Correspondence</h2>
+                <button class="text-xs bg-white border px-2 py-1 rounded hover:bg-gray-100">↻ Sync</button>
+            </div>
+            <!-- Tabs -->
+            <div class="flex text-xs font-bold border-b">
+                <button class="flex-1 py-2 text-[#05583B] border-b-2 border-[#05583B] bg-green-50">Incoming</button>
+                <button class="flex-1 py-2 text-gray-500 hover:bg-gray-50">Outgoing</button>
+                <button class="flex-1 py-2 text-gray-500 hover:bg-gray-50">Pending</button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-2 space-y-2">
+                <!-- File Item -->
+                <div class="p-3 border border-gray-200 rounded hover:bg-green-50 cursor-pointer transition-colors" onclick="openFile('F001')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="bg-red-100 text-red-800 text-[10px] px-2 rounded font-bold">URGENT</span>
+                        <span class="text-[10px] text-gray-400">10:42 AM</span>
+                    </div>
+                    <div class="text-xs font-bold text-gray-700 mb-1">RE: BUDGET APPROVAL REQUEST</div>
+                    <div class="text-[10px] text-gray-500">From: Ministry of Comm. & Digital Economy</div>
+                    <div class="mt-2 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-gray-300 text-[9px] flex items-center justify-center font-bold">DG</div>
+                        <span class="text-[10px] text-gray-400">Currently with DG</span>
+                    </div>
+                </div>
+
+                <div class="p-3 border border-gray-200 rounded hover:bg-green-50 cursor-pointer transition-colors" onclick="openFile('F002')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] px-2 rounded font-bold">NORMAL</span>
+                        <span class="text-[10px] text-gray-400">Yesterday</span>
+                    </div>
+                    <div class="text-xs font-bold text-gray-700 mb-1">INVITATION: CYBERSEC CONF 2026</div>
+                    <div class="text-[10px] text-gray-500">From: CSEAN</div>
+                    <div class="mt-2 flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-gray-300 text-[9px] flex items-center justify-center font-bold">SA</div>
+                        <span class="text-[10px] text-gray-400">Minuted to SA (Tech)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: MINUTE SHEET (The "File") -->
+        <div id="file-view" class="hidden md:flex flex-1 bg-gray-200 flex-col relative z-0 p-4 overflow-hidden">
+            
+            <div class="bg-white rounded shadow-lg flex flex-col h-full overflow-hidden border border-gray-300">
+                <!-- File Header -->
+                <div class="bg-gray-50 p-4 border-b flex justify-between items-start">
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase font-bold tracking-wide">File No: NITDA/DGO/GEN/2026/042</div>
+                        <h1 class="text-lg font-bold text-[#05583B] mt-1">RE: BUDGET APPROVAL REQUEST FOR Q1</h1>
+                        <div class="text-xs text-gray-600 mt-1">Received: 04 Jan 2026 • Volume 1 • Page 42</div>
+                    </div>
+                    <button class="bg-[#05583B] text-white px-3 py-1.5 rounded text-xs font-bold shadow hover:bg-green-800">
+                        View Attachment (PDF)
+                    </button>
+                </div>
+
+                <!-- Minute Sheet Area -->
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- The Minutes -->
+                    <div class="flex-1 minute-sheet overflow-y-auto p-6 relative">
+                        <!-- Watermark -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Coat_of_arms_of_Nigeria.svg/1200px-Coat_of_arms_of_Nigeria.svg.png" class="w-64">
+                        </div>
+
+                        <!-- Minute 1 -->
+                        <div class="minute-entry">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-xs font-bold underline">Minute 1</span>
+                                <span class="text-[10px] text-gray-500">04/01/26 09:00</span>
+                            </div>
+                            <p class="text-sm blue-ink mb-2">
+                                SA (Tech), <br>
+                                Please review the attached budget proposal against our strategic roadmap. Advice immediately.
+                            </p>
+                            <div class="text-right">
+                                <div class="font-bold font-script text-lg transform -rotate-3 text-[#05583B]">K.I.A</div>
+                                <div class="text-xs font-bold uppercase">DG/CEO</div>
+                            </div>
+                        </div>
+
+                        <!-- Minute 2 -->
+                        <div class="minute-entry">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-xs font-bold underline">Minute 2</span>
+                                <span class="text-[10px] text-gray-500">04/01/26 11:30</span>
+                            </div>
+                            <p class="text-sm red-ink mb-2">
+                                DG, <br>
+                                Reviewed. The proposal aligns with Pillar 3. However, Line Item 4 seems inflated. I suggest we route to Finance for vetting before approval.
+                            </p>
+                            <div class="text-right">
+                                <div class="font-bold font-script text-lg transform -rotate-2 text-blue-800">Dr. A.O.</div>
+                                <div class="text-xs font-bold uppercase">SA (Tech)</div>
+                            </div>
+                        </div>
+
+                        <!-- New Minute Input -->
+                        <div class="mt-6 border-t-2 border-dashed border-gray-300 pt-4">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Add Minute / Instruction</label>
+                            <textarea id="new-minute" class="w-full bg-white border border-gray-300 rounded p-2 text-sm font-mono h-24 focus:ring-2 focus:ring-[#05583B] focus:outline-none" placeholder="Type your minute here..."></textarea>
+                            
+                            <div class="flex gap-2 mt-2 items-center">
+                                <label class="text-xs font-bold">Route To:</label>
+                                <select class="border rounded p-1 text-xs bg-white">
+                                    <option>Head (Finance)</option>
+                                    <option>Head (Admin)</option>
+                                    <option>Director (C&S)</option>
+                                </select>
+                                <label class="text-xs font-bold ml-2">Priority:</label>
+                                <select class="border rounded p-1 text-xs bg-white text-red-600 font-bold">
+                                    <option>Immediate</option>
+                                    <option>Normal</option>
+                                </select>
+                                <button onclick="addMinute()" class="ml-auto bg-[#00A69D] text-white px-4 py-1.5 rounded text-xs font-bold shadow hover:bg-teal-700">
+                                    Send File ➔
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Movement History (Right Sidebar) -->
+                    <div class="w-48 bg-gray-50 border-l p-4 overflow-y-auto hidden lg:block">
+                        <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4">Movement Log</h3>
+                        
+                        <div class="flex flex-col h-full">
+                            <!-- Step -->
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex flex-col items-center">
+                                    <div class="step-circle bg-green-600">✓</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-gray-700">Registry</div>
+                                    <div class="text-[10px] text-gray-400">04 Jan, 08:30</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Step -->
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex flex-col items-center">
+                                    <div class="step-circle bg-green-600">✓</div>
+                                    <div class="step-line"></div>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-gray-700">DG Office</div>
+                                    <div class="text-[10px] text-gray-400">04 Jan, 09:00</div>
+                                </div>
+                            </div>
+
+                            <!-- Step -->
+                            <div class="flex gap-2 mb-4">
+                                <div class="flex flex-col items-center">
+                                    <div class="step-circle bg-blue-500">●</div>
+                                    <div class="step-line h-full"></div>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-gray-700">SA (Tech)</div>
+                                    <div class="text-[10px] text-gray-400">04 Jan, 11:30</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty State for Mobile/Initial -->
+        <div id="empty-state" class="hidden md:flex absolute inset-0 md:static md:w-full md:flex-1 bg-gray-100 flex-col items-center justify-center z-20">
+            <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <p class="text-gray-400 text-sm">Select a file from the Registry to view Minutes</p>
+        </div>
+
+    </div>
+
+    <script>
+        function openFile(id) {
+            // In a real app, this would fetch the minute history JSON
+            const empty = document.getElementById('empty-state');
+            const view = document.getElementById('file-view');
+            const list = document.querySelector('.w-full.md\\:w-\\[350px\\]'); // Select left pane
+
+            if(window.innerWidth < 768) {
+                // Mobile Toggle
+                list.style.display = 'none';
+                view.classList.remove('hidden');
+                view.classList.add('flex');
+            } else {
+                empty.classList.add('hidden');
+                empty.classList.remove('flex');
+                view.classList.remove('hidden');
+                view.classList.add('flex');
+            }
+        }
+
+        function addMinute() {
+            const text = document.getElementById('new-minute').value;
+            if(!text) return alert("Please write a minute.");
+            
+            alert("File forwarded successfully!");
+            // Here you would POST to the flow to update the 'Minutes' table
+            document.getElementById('new-minute').value = "";
+        }
+    </script>
+</body>
+</html>
+
+Integration Instructions
+ * Deploy: Upload registry_movement.html to your server/storage alongside the other files.
+ * Update Navigation: I have already updated the navigation bar in registry_movement.html to include the new link. You must now update the <nav> block in all other files (index.html, assignments.html, etc.) to include this new link so users can access it.
+New Nav Link to Add:
+<a href="registry_movement.html" class="px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition">📂 File Movement</a>
+

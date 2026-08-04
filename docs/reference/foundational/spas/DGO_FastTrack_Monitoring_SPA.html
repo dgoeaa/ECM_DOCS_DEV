@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DGO Digital Ops — Fast Track Web Ops</title>
+<style>
+    :root {
+      --brand-primary: #05583B;
+      --brand-secondary: #00A69D;
+      --brand-accent: #FFB400;
+      --error: #DC2626;
+      --success: #16A34A;
+      --warning: #D97706;
+      --neutral-primary: #1F2937;
+      --neutral-secondary: #6B7280;
+      --neutral-light: #E5E7EB;
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F9FAFB;
+      --text-input-fill: #F3F4F6;
+      --radius: 6px;
+      --spacing-xs: 4px;
+      --spacing-s: 8px;
+      --spacing-m: 16px;
+      --spacing-l: 24px;
+      --font-main: Verdana, 'Segoe UI', Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+    body { background: var(--bg-primary); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+    /* Background gradient (HtmlBackground) */
+    .app-bg {
+      background: linear-gradient(45deg, #000000 0%, #00814D 45%, rgba(0,129,77,0.55) 100%);
+      position: fixed; inset: 0; z-index: -1;
+    }
+
+    /* Loading overlay */
+    #loading-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.35);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+    }
+
+    /* Error banner */
+    #error-banner {
+      background: var(--error);
+      color: white; padding: 12px 20px;
+      display: none; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600;
+      z-index: 101;
+    }
+
+    /* Success toast */
+    #success-toast {
+      position: fixed; top: 16px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--success); color: white;
+      padding: 10px 20px; border-radius: 8px;
+      display: none; align-items: center; gap: 8px;
+      font-weight: 600; font-size: 11px;
+      z-index: 9998; max-width: 420px; width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Header */
+    #app-header {
+      background: var(--brand-primary);
+      color: white; height: 56px;
+      display: flex; align-items: center;
+      padding: 0 12px; gap: 10px;
+      position: relative; z-index: 100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    /* Action ribbon */
+    #action-ribbon {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid rgba(0,166,157,0.5);
+      height: 48px; display: flex;
+      align-items: stretch; overflow-x: auto;
+      overflow-y: hidden; flex-shrink: 0;
+    }
+    .ribbon-btn {
+      flex: 1; min-width: 100px; max-width: 160px;
+      border: none; background: white;
+      color: var(--brand-primary);
+      display: flex; flex-direction: column;
+      align-items: flex-start; justify-content: center;
+      padding: 4px 8px; cursor: pointer;
+      border-right: 1px solid var(--neutral-light);
+      transition: background 0.15s, color 0.15s;
+    }
+    .ribbon-btn:hover { background: var(--brand-secondary); color: white; }
+    .ribbon-btn.active { background: var(--brand-primary); color: white; }
+    .ribbon-btn .btn-label { font-size: 9px; font-weight: 600; }
+    .ribbon-btn .btn-count { font-size: 8px; color: var(--neutral-secondary); align-self: flex-end; }
+    .ribbon-btn:hover .btn-count { color: #E5E7EB; }
+    .ribbon-btn.active .btn-count { color: var(--success); font-weight: 600; }
+    .ribbon-btn.active:hover .btn-count { color: white; }
+
+    /* Filter bar */
+    #filter-bar {
+      background: white; padding: 6px 16px;
+      display: flex; align-items: center;
+      gap: 8px; border-bottom: 1px solid var(--neutral-light);
+      flex-wrap: wrap; flex-shrink: 0;
+    }
+    #filter-bar input, #filter-bar select {
+      border: 1px solid var(--neutral-light);
+      border-radius: var(--radius);
+      padding: 5px 8px; font-size: 10px;
+      background: var(--text-input-fill);
+      outline: none; height: 32px;
+    }
+    #filter-bar input:focus, #filter-bar select:focus {
+      border-color: var(--brand-secondary);
+    }
+
+    /* Main body */
+    #main-body {
+      display: flex; flex: 1;
+      overflow: hidden;
+      background: var(--bg-primary);
+    }
+    #col-a {
+      width: 45%; background: white;
+      border-right: 1px solid var(--neutral-light);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    #col-b {
+      flex: 1; background: white;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex; border-bottom: 1px solid var(--neutral-light); flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 8px 4px; font-size: 10px; font-weight: 600;
+      border: none; background: none; cursor: pointer; color: var(--neutral-secondary);
+      border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--brand-secondary); }
+    .tab-btn.active {
+      color: var(--brand-primary);
+      border-bottom-color: var(--brand-primary);
+      background: #F0FDF4;
+    }
+
+    /* Galleries */
+    .gallery-container { flex: 1; overflow-y: auto; will-change: scroll-position; }
+    .gallery-item {
+      padding: 8px 10px; border-bottom: 1px solid var(--neutral-light);
+      cursor: pointer; transition: background 0.1s; min-height: 64px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .gallery-item:hover { background: #F0FDF4; }
+    .gallery-item.selected { background: rgba(5,88,59,0.15); border-left: 3px solid var(--brand-primary); }
+    .gallery-item .item-title { font-weight: 600; font-size: 10px; color: var(--neutral-primary); margin-bottom: 4px; line-height: 1.3;}
+    .gallery-item .item-meta { font-size: 9px; color: var(--neutral-secondary); }
+    .gallery-item .item-meta-line { display: flex; justify-content: space-between; margin-top: 2px; }
+
+    /* Matrix Item (Response Track) */
+    .matrix-item { min-height: 150px; justify-content: flex-start; padding: 12px; }
+    .matrix-item .matrix-title { color: var(--brand-primary); font-weight: bold; font-size: 11px; margin-bottom: 6px; }
+    .matrix-meta { font-size: 9px; color: var(--neutral-secondary); text-decoration: underline; margin-bottom: 4px; }
+    
+    /* Email card */
+    .email-card {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 10px; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin: 8px; background: #E6F7F9;
+      cursor: pointer; transition: background 0.1s, box-shadow 0.1s;
+      border: 1px solid transparent;
+    }
+    .email-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+    .email-card.selected { background: white; border-color: var(--brand-secondary); }
+    .email-card h3 { color: #05583B; font-size: 1.05rem; margin: 0 0 4px 0; line-height: 1.3; }
+    .email-card p { font-size: 0.88rem; color: #555; margin: 0 0 6px 0; }
+    .email-card .email-body-preview { border-top: 1px solid #ddd; margin-top: 6px; padding-top: 6px; font-size: 0.9rem; color: #333; line-height: 1.4; }
+
+    /* Task card */
+    .task-card {
+      display: flex; border: 1px solid var(--neutral-light);
+      border-radius: var(--radius); margin: 8px;
+      overflow: hidden; min-height: 110px; background: var(--bg-secondary);
+    }
+    .task-card.not-started { background: #FAFAFA; border-color: var(--brand-primary); }
+    .task-priority-bar { width: 8px; flex-shrink: 0; }
+    .task-content { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .task-title { font-weight: 600; font-size: 11px; color: var(--neutral-primary); }
+    .task-desc { font-size: 10px; color: var(--neutral-secondary); max-height: 44px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .task-sender { font-size: 9px; color: var(--neutral-secondary); margin-top: auto; }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 4px; font-size: 10px;
+      font-weight: 600; color: white;
+    }
+
+    /* Empty States */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 120px; padding: 20px; text-align: center;
+    }
+    .empty-state h4 { font-size: 14px; color: var(--neutral-secondary); margin-bottom: 4px; }
+    .empty-state p { font-size: 10px; color: var(--neutral-secondary); }
+
+    /* Telemetry */
+    #telemetry-panel { padding: 12px 16px; background: #F5F5F5; border-top: 1px solid var(--neutral-light); flex-shrink: 0; max-height: 300px; overflow-y: auto; }
+    .telemetry-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 12px; }
+    .telemetry-table th, .telemetry-table td {
+      padding: 6px 8px; border: 1px solid #ddd; text-align: left; background: white;
+    }
+    .telemetry-table th { background: #e5e7eb; font-weight: 600; position: sticky; top: 0; }
+    .telemetry-status-success { color: #16A34A; font-weight: 600; }
+    .telemetry-status-error { color: #DC2626; font-weight: 600; }
+    .telemetry-status-warning { color: #D97706; font-weight: 600; }
+
+    
+    .telemetry-status-started { color: #2563EB; font-weight: 600; }
+/* Chart bars */
+    .chart-bar-container { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; }
+    .chart-row { display: flex; align-items: center; gap: 8px; }
+    .chart-label { font-size: 9px; width: 180px; flex-shrink: 0; color: var(--neutral-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chart-bar { height: 14px; border-radius: 2px; min-width: 2px; transition: width 0.3s ease-out; }
+    .chart-val { font-size: 9px; color: var(--neutral-secondary); font-weight: bold; }
+
+    /* Side nav drawer */
+    #side-nav {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: min(75vw, 280px); background: var(--brand-primary);
+      z-index: 9000; padding: 16px; display: flex; flex-direction: column; gap: 8px;
+      transform: translateX(-100%); transition: transform 0.25s ease;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+    }
+    #side-nav.open { transform: translateX(0); }
+    #side-nav .nav-btn {
+      background: rgba(255,255,255,0.05); color: white;
+      border: 1px solid transparent; padding: 12px 14px; border-radius: var(--radius);
+      font-size: 13px; text-align: left; cursor: pointer;
+      transition: background 0.1s, border-color 0.1s; display: flex; align-items: center; gap: 10px;
+    }
+    #side-nav .nav-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+
+    /* Spinner */
+    .spinner {
+      width: 64px; height: 64px;
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Email Prompt Modal */
+    #email-prompt-modal {
+      position: fixed; inset: 0; z-index: 99999;
+      background: rgba(0,0,0,0.8);
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-box {
+      background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #col-a { width: 100%; border-right: none; }
+      #col-b { display: none; width: 100%; }
+      #col-a.hide-mobile { display: none !important; }
+      #col-b.show-mobile { display: flex !important; }
+      #app-header { height: 48px; }
+      #filter-bar input, #filter-bar select { flex: 1 1 45%; }
+      .matrix-item { min-height: 120px; }
+      .telemetry-table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-bg"></div>
+<!-- INITIAL EMAIL PROMPT -->
+<div id="email-prompt-modal">
+<div class="modal-box">
+<h3 style="color:var(--brand-primary);margin-bottom:8px;font-size:16px;">Welcome to DGO Digital Ops</h3>
+<p style="font-size:12px;color:var(--neutral-secondary);margin-bottom:16px;">Please enter your NITDA email address to personalize your experience and set your role.</p>
+<input id="init-email-input" placeholder="e.g. user@nitda.gov.ng" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:4px;margin-bottom:16px;font-size:14px;" type="email"/>
+<button onclick="saveUserEmail()" style="width:100%;padding:10px;background:var(--brand-primary);color:white;border:none;border-radius:4px;cursor:pointer;font-weight:bold;">Continue</button>
+</div>
+</div>
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+<div class="spinner"></div>
+<span id="loading-text" style="color:white;font-weight:600;font-size:12px;">Loading, please wait...</span>
+</div>
+<!-- ERROR BANNER -->
+<div id="error-banner">
+<span style="font-size:16px;">⚠️</span>
+<span id="error-message">Failed to load data. Please refresh or contact support.</span>
+<button onclick="clearError()" style="margin-left:auto;background:none;border:none;color:white;cursor:pointer;font-size:16px;">✕</button>
+</div>
+<!-- SUCCESS TOAST -->
+<div id="success-toast">
+<span style="font-size:14px;background:white;color:var(--success);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">✓</span>
+<span>Saved successfully!</span>
+</div>
+<!-- SIDE NAV DRAWER -->
+<div id="side-nav">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.2);padding-bottom:12px;">
+<span style="color:white;font-weight:600;font-size:14px;">Navigation</span>
+<button id="close-nav-btn" onclick="toggleMenu(false)" style="background:none;border:none;color:white;font-size:18px;cursor:pointer;">✕</button>
+</div>
+<div style="color:rgba(255,255,255,0.7);font-size:10px;margin-bottom:8px;">Logged in as: <br/><span id="nav-user-email" style="color:white;font-weight:bold;"></span></div>
+<div id="nav-items-container" style="display:flex;flex-direction:column;gap:6px;overflow-y:auto;"></div>
+</div>
+<div id="side-nav-overlay" onclick="toggleMenu(false)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:8999;"></div>
+<!-- APP HEADER -->
+<div id="app-header">
+<button id="hamburger-btn" style="background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:0 4px;">☰</button><button id="hamburger-filter-btn" style="background:none;border:none;color:white;font-size:20px;cursor:pointer;padding:0 4px;">⛭</button>
+<span style="flex:1;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Unified Dashboard — DGO Digital Ops</span>
+<span id="header-user-info" style="font-size:10px;color:rgba(255,255,255,0.9);display:none;margin-right:10px;"></span>
+<button id="docs-count-btn" style="background:var(--brand-secondary);color:white;border:none;padding:4px 10px;border-radius:var(--radius);font-size:10px;cursor:pointer;font-weight:bold;white-space:nowrap;">
+      Docs — <span id="docs-count">0</span>
+</button>
+<div style="font-weight:bold;font-size:14px;color:white;margin-left:8px;letter-spacing:1px;background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;">NITDA DGO</div>
+<span id="header-datetime" style="font-size:10px;color:rgba(255,255,255,0.7);margin-left:8px;white-space:nowrap;display:none;"></span>
+</div>
+<!-- ACTION RIBBON -->
+<div id="action-ribbon"></div>
+<!-- FILTER BAR -->
+<div id="filter-bar">
+<input id="global-search" placeholder="Search across all lists..." style="flex:2;min-width:180px;" type="text"/>
+<select id="category-filter" style="flex:1;min-width:120px;">
+<option value="All">All Categories</option>
+</select>
+<select id="priority-filter" style="flex:1;min-width:100px;">
+<option value="All">All Priorities</option>
+<option value="High">High</option>
+<option value="Medium">Medium</option>
+<option value="Low">Low</option>
+</select>
+</div>
+<!-- MAIN BODY -->
+<div id="main-body">
+<!-- LEFT COLUMN -->
+<div id="col-a">
+<div class="tab-bar">
+<button class="tab-btn active" data-tab="matched" onclick="switchTab('matched')">📎 Matched Docs (<span id="count-matched">0</span>)</button>
+<button class="tab-btn" data-tab="pairs" onclick="switchTab('pairs')">🔗 Doc-Email Pairs (<span id="count-pairs">0</span>)</button>
+<button class="tab-btn" data-tab="matrix" onclick="switchTab('matrix')">📊 Response Matrix</button>
+</div>
+<div class="gallery-container" id="col-a-content"></div>
+</div>
+<!-- RIGHT COLUMN -->
+<div id="col-b">
+<!-- Standard Detail Header -->
+<div id="doc-header" style="background:rgba(5,88,59,0.08);padding:10px 12px;display:none;align-items:center;gap:10px;border-bottom:1px solid var(--neutral-light);min-height:52px;">
+<button id="back-to-list-btn" onclick="clearSelection()" style="background:none;border:none;color:var(--brand-primary);font-size:24px;cursor:pointer;line-height:1;padding:0 8px;">‹</button>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+<span id="doc-title" style="font-weight:600;font-size:12px;color:var(--neutral-primary);"></span>
+<div id="doc-meta" style="font-size:9px;color:var(--neutral-secondary);"></div>
+</div>
+<span class="status-badge" id="doc-status-badge"></span>
+</div>
+<!-- Email search (only for matched docs or matrix) -->
+<div id="email-search-bar" style="padding:8px 12px;display:none;background:white;border-bottom:1px solid #f0f0f0;">
+<input id="email-search" placeholder="Search emails (subject/body)" style="width:100%;border:1px solid var(--brand-secondary);border-radius:var(--radius);padding:8px;font-size:10px;background:var(--text-input-fill);outline:none;" type="text"/>
+</div>
+<!-- Sub-Tabs for Matrix mode -->
+<div class="tab-bar" id="matrix-sub-tabs" style="display:none;background:#FAFAFA;">
+<button class="tab-btn active" id="tab-matrix-emails" onclick="switchMatrixTab('emails')">📧 Matching Emails</button>
+<button class="tab-btn" id="tab-matrix-tasks" onclick="switchMatrixTab('tasks')">✅ Related Tasks</button>
+</div>
+<!-- Scrollable content area for details -->
+<div class="gallery-container" id="detail-content-area" style="background:var(--bg-secondary);position:relative;">
+<div id="matching-emails-gallery" style="display:none;padding-bottom:16px;"></div>
+<div id="related-tasks-gallery" style="display:none;padding:8px;"></div>
+<!-- Empty detail state -->
+<div class="empty-state" id="detail-empty-state">
+<h4>No Item Selected</h4>
+<p>Select an item from the list to view details.</p>
+</div>
+</div>
+<!-- Email detail pane (Mobile or overlay mode) -->
+<div id="email-detail-panel" style="display:none;position:absolute;inset:0;background:white;z-index:50;flex-direction:column;">
+<div style="background:rgba(5,88,59,0.08);padding:10px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--neutral-light);">
+<button id="close-email-btn" onclick="closeEmailDetail()" style="background:none;border:none;color:var(--brand-primary);font-size:24px;cursor:pointer;line-height:1;padding:0 8px;">‹</button>
+<div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+<span id="email-detail-subject" style="font-weight:600;font-size:12px;color:var(--brand-primary);"></span>
+<span id="email-detail-meta" style="font-size:10px;color:var(--neutral-secondary);"></span>
+</div>
+</div>
+<div id="email-detail-body" style="flex:1;overflow-y:auto;padding:12px;font-size:13px;background:white;"></div>
+</div>
+</div>
+</div>
+<!-- TELEMETRY PANEL -->
+<div id="telemetry-panel" style="display:none;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<div style="font-weight:600;font-size:12px;color:var(--brand-primary);">Action Telemetry &amp; Performance</div>
+<button onclick="toggleTelemetry()" style="background:none;border:none;color:var(--neutral-secondary);cursor:pointer;font-size:16px;">✕</button>
+</div>
+<div id="telemetry-no-data" style="font-size:10px;color:var(--neutral-secondary);">No telemetry yet. Run an action to populate metrics.</div>
+<div id="telemetry-content" style="display:none;">
+<table class="telemetry-table">
+<thead>
+<tr><th>Timestamp</th><th>Action</th><th>Step</th><th>Status</th><th>Duration</th><th>Message</th></tr>
+</thead>
+<tbody id="telemetry-tbody"></tbody>
+</table>
+<div id="telemetry-chart" style="margin-top:12px;"></div>
+<div style="display:flex;gap:16px;font-size:9px;color:#2D3748;margin-top:8px;"><div><span style="display:inline-block;width:12px;height:12px;background:var(--brand-primary);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Duration (ms)</div><div><span style="display:inline-block;width:12px;height:12px;background:var(--brand-secondary);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Runs</div></div>
+</div>
+</div>
+<script>
+    // ==========================================
+    // 1. CONSTANTS & ENDPOINTS
+    // ==========================================
+    const FLOWS = {
+      GET_DOCS: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50',
+      GET_TASKS: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4',
+      GET_EMAILS: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U',
+      GET_REFERENCES: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU'
+    };
+
+    // ==========================================
+    // 2. GLOBAL STATE
+    // ==========================================
+    const state = {
+      varActiveView: 1, 
+      activeTab: 'matched',      // 'matched', 'pairs', 'matrix'
+      activeMatrixTab: 'emails', // 'emails', 'tasks'
+      varFlyoutOpen: false,
+      varIsCompact: false,
+      userEmail: '',
+      varSelectedItem: null,     // matrix selection
+
+      varActionStart: null,
+      varActionName: '',
+      varActionEnd: null,
+      varActionDuration: 0,
+      varActionDuration_s: 0,
+
+      colDocsTracking: [],
+      colTasksTracking: [],
+      colEmailsTracking: [],
+      colMatchedDocs: [],
+      colDocEmailPairs: [],
+      colDocTaskEmailMatrix: [],
+      colActionTelemetry: [],
+      colCategoriesInfo: [],
+      colUsers: [],
+      colDepartments: [],
+
+      colActions: [
+        { Label: 'Reload All', ActionKey: 'ReloadAll', Icon: '🔄', Tooltip: 'Reload all data' },
+        { Label: 'Docs', ActionKey: 'Docs', Icon: '📄', Tooltip: 'Fetch documents' },
+        { Label: 'Tasks', ActionKey: 'Tasks', Icon: '✅', Tooltip: 'Fetch tasks' },
+        { Label: 'Emails', ActionKey: 'Emails', Icon: '📧', Tooltip: 'Fetch emails' },
+        { Label: 'Dashboard', ActionKey: 'Dashboard', Icon: '🔗', Tooltip: 'Recalculate matches' },
+        { Label: 'References', ActionKey: 'References', Icon: '📚', Tooltip: 'Fetch lookup data' },
+      ],
+
+      varDocCount: 0,
+      varTaskCount: 0,
+      varEmailsCount: 0,
+      varEmailPairsCount: 0,
+      varMatchedCount: 0,
+      gblLastRunDuration: 0,
+      gblLastRunCount: 0,
+
+      locIsLoading: false,
+      locDataError: false,
+      locShowSuccess: false,
+      locShowMenu: false,
+      locShowTelemetry: false,
+      locShowFilters: true,
+
+      locSelectedDoc: null,      // For matched tab
+      locSelectedEmail: null,    // Expanded email
+      locSelectedTask: null,
+
+      filterCategory: 'All',
+      filterPriority: 'All',
+      searchGlobal: '',
+      searchEmail: '',
+
+      gblSelect: '', gblExpand: '', gblFilter: '',
+      gblStartTime: null, gblEndTime: null,
+
+      _toastTimer: null
+    };
+
+    // ==========================================
+    // 3. UTILITIES
+    // ==========================================
+    function safeDateParse(val) {
+      if (!val) return null;
+      try {
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? null : d;
+      } catch { return null; }
+    }
+
+    function formatDateTime(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return '';
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mmm = months[d.getMonth()];
+      const yyyy = d.getFullYear();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const min = String(d.getMinutes()).padStart(2,'0');
+      return `${dd}-${mmm}-${yyyy} ${hh}:${min}`;
+    }
+
+    function formatDateShort(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return '';
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${String(d.getDate()).padStart(2,'0')}-${months[d.getMonth()]}-${d.getFullYear()}`;
+    }
+
+    function formatNow() { return formatDateTime(new Date()); }
+    function msDiff(start) { return new Date() - start; }
+    
+    function escapeHtml(unsafe) {
+      return String(unsafe||'').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // ==========================================
+    // 4. DATA PARSERS
+    // ==========================================
+    function parseDocs(rawDocs) {
+      return (rawDocs || []).map(item => ({
+        ID: Number(item.ID) || 0,
+        Title: item.Title || '',
+        Description: item.Description || false,
+        Category: item.Category || '',
+        RefID_Text: item.RefIDD || '',
+        AssignedTo: item.AssignedTo || '',
+        Status: item.Status || '',
+        AssignmentStatus: item.AssignmentStatus || '',
+        StartDate: safeDateParse(item.Created),
+        Modified: safeDateParse(item.Modified),
+        Created: safeDateParse(item.Created),
+        AuthorName: item.Author?.Title || '',
+        AuthorEmail: item.Author?.EMail || '',
+        EditorName: item.Editor?.Title || '',
+        EditorEmail: item.Editor?.EMail || '',
+        AttachmentLink: item.AttachmentLink || '',
+        CC: item.CC_x0027_dTo || '',
+        RoutedTo: item.Routed_x0020_To || '',
+        Assigned: item.Assigned || '',
+      }));
+    }
+
+    function parseTasks(rawTasks) {
+      return (rawTasks || []).map(item => ({
+        ID: Number(item.ID) || 0,
+        Title: item.Title || '',
+        Description: item.Description || false,
+        Status: item.Progress || '',
+        Priority: item.Priority || '',
+        StartDate: safeDateParse(item.StartDate),
+        DueDate: safeDateParse(item.DueDate),
+        AssignedTo: item.AssignedTo || '',
+        AuthorName: item.AuthorTitle || '',
+        EditorEmail: item.EditorEmail || '',
+        RefIDTitle: item.RefIDD || '',
+        GDBLookUpTitle: Array.isArray(item.GBDLookUp) && item.GBDLookUp.length > 0 ? item.GBDLookUp[0]?.Title || '' : '',
+        RoutedToDSU: item.GDSUROUT || '',
+        Classification: item.Classification || '',
+        Reference_ID: item.Reference_ID || '',
+        Assigned: item.Assigned || '',
+        Created: safeDateParse(item.Created),
+      }));
+    }
+
+    function parseEmails(rawEmails) {
+      return (rawEmails || []).map(item => ({
+        id: item.id || '',
+        Subject: item.subject || '',
+        Body: item.bodyContent || item.body?.content || '',
+        BodyPreview: item.bodyPreview || '',
+        Importance: item.importance || '',
+        DateTimeReceived: safeDateParse(item.receivedDateTime),
+        From: item.fromAddress || item.from?.emailAddress?.address || '',
+        FromName: item.fromName || item.from?.emailAddress?.name || '',
+        To: Array.isArray(item.toRecipients) ? item.toRecipients.map(r => r.emailAddress?.address).join('; ') : '',
+        Cc: Array.isArray(item.ccRecipients) ? item.ccRecipients.map(r => r.emailAddress?.address).join('; ') : '',
+        Bcc: Array.isArray(item.bccRecipients) ? item.bccRecipients.map(r => r.emailAddress?.address).join('; ') : '',
+        internetMessageId: item.internetMessageId || '',
+        conversationId: item.conversationId || '',
+        HasAttachments: Boolean(item.hasAttachments),
+        Attachments: item.attachments || [],
+        WebLink: item.webLink || '',
+      }));
+    }
+
+    // ==========================================
+    // 5. COMPUTATION FUNCTIONS
+    // ==========================================
+    function computeDashboard() {
+      state.colMatchedDocs = [];
+      state.colDocEmailPairs = [];
+
+      state.colDocsTracking.forEach(doc => {
+        if (!doc.Title) return;
+        const matchedEmails = state.colEmailsTracking.filter(email => {
+          const titleLower = doc.Title.toLowerCase();
+          const subjectLower = (email.Subject || '').toLowerCase();
+          const bodyLower = (email.Body || '').toLowerCase();
+          return subjectLower.includes(titleLower) || bodyLower.includes(titleLower);
+        });
+
+        if (matchedEmails.length > 0) {
+          state.colMatchedDocs.push({
+            ID: doc.ID,
+            Created: doc.StartDate || doc.Created,
+            Title: doc.Title,
+            Category: doc.Category,
+            AssignmentStatus: doc.AssignmentStatus,
+            Status: doc.Status,
+            AssignedTo: doc.AssignedTo,
+            AttachmentLink: doc.AttachmentLink || '',
+            CC: doc.CC || '',
+            MatchingEmails: matchedEmails,
+          });
+
+          matchedEmails.forEach(email => {
+            state.colDocEmailPairs.push({
+              DocID: doc.ID,
+              DocTitle: doc.Title,
+              DocCategory: doc.Category,
+              DocStatus: doc.Status,
+              EmailSubject: email.Subject,
+              EmailBody: email.Body,
+              EmailFrom: email.From,
+              EmailReceived: email.DateTimeReceived,
+              HasAttachments: email.HasAttachments,
+              Importance: email.Importance
+            });
+          });
+        }
+      });
+
+      state.varMatchedCount = state.colMatchedDocs.length;
+      state.varEmailPairsCount = state.colDocEmailPairs.length;
+    }
+
+    function buildDocTaskEmailMatrix() {
+      state.colDocTaskEmailMatrix = state.colDocsTracking.map(doc => {
+        const relatedTasks = state.colTasksTracking.filter(t => String(t.RefIDTitle) === String(doc.ID));
+        const relatedEmails = state.colEmailsTracking.filter(email => {
+          if (!doc.Title) return false;
+          const tl = doc.Title.toLowerCase();
+          return (email.Subject||'').toLowerCase().includes(tl) || (email.Body||'').toLowerCase().includes(tl);
+        });
+        return { ...doc, Tasks: relatedTasks, Responses: relatedEmails };
+      });
+    }
+
+    // ==========================================
+    // 6. FILTER, SEARCH & UI HELPERS
+    // ==========================================
+    function globalSearchFilter(collection, searchText) {
+      if (!searchText) return collection;
+      const q = searchText.toLowerCase();
+      return collection.filter(item => Object.values(item).some(v => String(v||'').toLowerCase().includes(q)));
+    }
+
+    function filterByCategory(docs, category) {
+      if (!category || category === 'All') return docs;
+      return docs.filter(d => (d.Category||'') === category);
+    }
+
+    function filterByPriority(tasks, priority) {
+      if (!priority || priority === 'All') return tasks;
+      return tasks.filter(t => (t.Priority||'') === priority);
+    }
+
+    function searchEmails(emails, searchText) {
+      if (!searchText) return emails;
+      const q = searchText.toLowerCase();
+      return emails.filter(e => (e.Subject||'').toLowerCase().includes(q) || (e.Body||'').toLowerCase().includes(q));
+    }
+
+    function sortEmailsDesc(emails) {
+      return [...emails].sort((a, b) => {
+        const da = a.DateTimeReceived ? new Date(a.DateTimeReceived).getTime() : 0;
+        const db = b.DateTimeReceived ? new Date(b.DateTimeReceived).getTime() : 0;
+        return db - da;
+      });
+    }
+
+    function getStatusColor(status) {
+      switch ((status || '').toLowerCase()) {
+        case 'treated': case 'completed': return 'var(--success)';
+        case 'in progress': case 'not started': case 'pending': return 'var(--warning)';
+        case 'assigned': return '#2563EB';
+        case 'not assigned': return 'var(--neutral-secondary)';
+        case 'processed': return '#7C3AED';
+        default: return 'var(--error)';
+      }
+    }
+
+    function getPriorityColor(priority) {
+      switch ((priority || '').toLowerCase()) {
+        case 'high': return 'var(--error)';
+        case 'medium': return 'var(--warning)';
+        case 'low': return 'var(--success)';
+        default: return 'var(--neutral-secondary)';
+      }
+    }
+
+    function isOverdue(dateValue) {
+      if (!dateValue) return false;
+      return new Date(dateValue) < new Date();
+    }
+
+    function emailHighIndicator(importance) {
+      return String(importance||'').toLowerCase() === 'high' ? 'HIGH🔴 ' : '';
+    }
+
+    // ==========================================
+    // 7. TELEMETRY LOGIC
+    // ==========================================
+    function logTelemetry(ts, action, step, status, duration_ms, message) {
+      state.colActionTelemetry.push({
+        Timestamp: ts, Action: action, Step: step,
+        Status: status, Duration_ms: duration_ms, Message: message
+      });
+    }
+
+    // ==========================================
+    // 8. ACTION EXECUTION
+    // ==========================================
+    async function executeAction(actionKey, actionLabel) {
+      const varActionStart = new Date();
+      state.varActionName = actionLabel;
+      state.locIsLoading = true;
+      state.locDataError = false;
+      state.colActionTelemetry = [];
+      updateLoadingStatus(`Running ${actionLabel}...`);
+      
+      logTelemetry(varActionStart, actionLabel, 'Action_Start', 'Started', 0, '');
+      let varStepStart;
+
+      try {
+        // --- DASHBOARD ---
+        if (actionKey === 'Dashboard' || actionKey === 'ReloadAll') {
+          varStepStart = new Date();
+          try {
+            computeDashboard();
+            logTelemetry(new Date(), actionLabel, 'Dashboard_Recalculate', 'Success', msDiff(varStepStart), `Matched: ${state.colMatchedDocs.length}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'Dashboard_Recalculate', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        // --- DOCS ---
+        if (actionKey === 'Docs' || actionKey === 'ReloadAll') {
+          varStepStart = new Date();
+          updateLoadingStatus('Fetching Documents...');
+          try {
+            const res = await fetch(FLOWS.GET_DOCS, {
+              method: 'POST', headers: { 'Content-Type': 'applicationjson' },
+              body: JSON.stringify({ action: 'getDocs', operation: 'read', mode: 'read', source: 'DGO_FAST_Track_WEB_OPS', userEmail: state.userEmail, odataFilter: '' })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            state.colDocsTracking = parseDocs(data?.data?.docs);
+            state.varDocCount = state.colDocsTracking.length;
+            logTelemetry(new Date(), actionLabel, 'Docs_Fetch_Parse', 'Success', msDiff(varStepStart), `Rows: ${state.varDocCount}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'Docs_Fetch_Parse', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        // --- TASKS ---
+        if (actionKey === 'Tasks' || actionKey === 'ReloadAll') {
+          varStepStart = new Date();
+          updateLoadingStatus('Fetching Tasks...');
+          state.gblStartTime = new Date();
+          try {
+            const res = await fetch(FLOWS.GET_TASKS, {
+              method: 'POST', headers: { 'Content-Type': 'applicationjson' },
+              body: JSON.stringify({ action: 'getTasks', operation: 'read', mode: 'read', source: 'DGO_FAST_Track_WEB_OPS', userEmail: state.userEmail, odataFilter: '' })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            state.colTasksTracking = parseTasks(data?.data?.tasks);
+            state.varTaskCount = state.colTasksTracking.length;
+            state.gblEndTime = new Date();
+            state.gblLastRunDuration = (state.gblEndTime - state.gblStartTime) / 1000;
+            logTelemetry(new Date(), actionLabel, 'Tasks_Fetch_Parse', 'Success', msDiff(varStepStart), `Rows: ${state.varTaskCount}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'Tasks_Fetch_Parse', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        // --- EMAILS ---
+        if (actionKey === 'Emails' || actionKey === 'ReloadAll') {
+          varStepStart = new Date();
+          updateLoadingStatus('Fetching Emails...');
+          try {
+            const res = await fetch(FLOWS.GET_EMAILS, {
+              method: 'POST', headers: { 'Content-Type': 'applicationjson' },
+              body: JSON.stringify({ action: 'emailsfetch', operation: 'read', mode: 'read', source: 'DGO_FAST_Track_WEB_OPS', folderPath: 'Inbox', top: 50, skip: 0, fetchOnlyUnread: false })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            state.colEmailsTracking = parseEmails(data?.data?.emails);
+            state.varEmailsCount = state.colEmailsTracking.length;
+            logTelemetry(new Date(), actionLabel, 'Emails_Fetch_Parse', 'Success', msDiff(varStepStart), `Rows: ${state.varEmailsCount}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'Emails_Fetch_Parse', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        // --- REFERENCES ---
+        if (actionKey === 'References') {
+          varStepStart = new Date();
+          updateLoadingStatus('Fetching References...');
+          try {
+            const res = await fetch(FLOWS.GET_REFERENCES, {
+              method: 'POST', headers: { 'Content-Type': 'applicationjson' },
+              body: JSON.stringify({ action: 'lookups', operation: 'read', mode: 'read', source: 'DGO_FAST_Track_WEB_OPS', userEmail: state.userEmail })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            state.colCategoriesInfo = data?.data?.categories || [];
+            state.colUsers = data?.data?.users || [];
+            state.colDepartments = data?.data?.departments || [];
+            populateCategoryDropdown();
+            logTelemetry(new Date(), actionLabel, 'References_Fetch', 'Success', msDiff(varStepStart), `Cats: ${state.colCategoriesInfo.length}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'References_Fetch', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        // --- RELOAD ALL MATRIX ---
+        if (actionKey === 'ReloadAll') {
+          varStepStart = new Date();
+          try {
+            computeDashboard();
+            buildDocTaskEmailMatrix();
+            logTelemetry(new Date(), actionLabel, 'ReloadAll_Recalculate', 'Success', msDiff(varStepStart), `Matched: ${state.colMatchedDocs.length}`);
+          } catch (e) {
+            state.locDataError = true;
+            logTelemetry(new Date(), actionLabel, 'ReloadAll_Recalculate', 'Error', msDiff(varStepStart), e.message);
+          }
+        }
+
+        if (!['Dashboard','Docs','Tasks','Emails','ReloadAll','References'].includes(actionKey)) {
+          logTelemetry(new Date(), actionLabel, 'Action_Not_Implemented', 'Warning', 0, `Key: ${actionKey}`);
+        }
+
+        if (!state.locDataError && ['Docs','Tasks','Emails','ReloadAll'].includes(actionKey)) {
+          showSuccessToast();
+        }
+
+      } finally {
+        state.varActionDuration = new Date() - varActionStart;
+        logTelemetry(new Date(), actionLabel, 'Action_End', state.locDataError ? 'Error' : 'Success', state.varActionDuration, 'Total execution time');
+        state.locIsLoading = false;
+        state.locShowTelemetry = true;
+        render(); 
+      }
+    }
+
+    // ==========================================
+    // 9. NAVIGATION LOGIC
+    // ==========================================
+    function getNavItemsForUser(userEmail) {
+      const email = (userEmail || '').toLowerCase();
+      const allItems = [
+        { name: 'Home', view: 'home', icon: '🏠', color: '#05583B' },
+        { name: 'E-mails', view: 'emails', icon: '📧', color: '#373435' },
+        { name: 'Activities', view: 'activities', icon: '📋', color: '#00A69D' },
+        { name: 'Task', view: 'tasks', icon: '✅', color: '#05583B' },
+        { name: 'Bulk Tagging', view: 'bulktagging', icon: '🏷️', color: '#373435' },
+        { name: 'Support', view: 'support', icon: '❓', color: '#00A69D' },
+        { name: 'Maintenance', view: 'maintenance', icon: '🔧', color: '#373435' },
+        { name: 'Settings', view: 'settings', icon: '⚙️', color: '#05583B' },
+      ];
+      let allowed = [];
+      if (email === 'dgsregistry@nitda.gov.ng') allowed = allItems.map(i=>i.view);
+      else if (email === 'dgs@nitda.gov.ng') allowed = ['home','emails','activities','tasks','support','maintenance'];
+      else if (email === 'dg@nitda.gov.ng') allowed = ['home','emails','activities','tasks','support'];
+      else allowed = ['home','emails','tasks','support'];
+      
+      return [allItems[0], ...allItems.filter(i=>allowed.includes(i.view) && i.view!=='home').sort((a,b)=>a.name.localeCompare(b.name))];
+    }
+
+    // ==========================================
+    // 10. RENDER ENGINE
+    // ==========================================
+    function render() {
+      updateOverlays();
+      renderHeader();
+      renderFilterBar();
+      renderActionRibbon();
+      renderColA();
+      renderColB();
+      renderTelemetry();
+      renderSideNav();
+      renderMobileLayout();
+      attachEventListeners();
+    }
+
+    function renderHeader() {
+      const dc = document.getElementById('docs-count');
+      if (dc) dc.textContent = String(state.colDocsTracking.length);
+      const dt = document.getElementById('header-datetime');
+      if (dt) {
+        dt.textContent = formatNow();
+        dt.style.display = state.varIsCompact ? 'none' : 'block';
+      }
+    }
+
+    function renderFilterBar() {
+      const fb = document.getElementById('filter-bar');
+      if (!fb) return;
+      if (!state.varIsCompact) {
+        fb.style.display = 'flex';
+        return;
+      }
+      fb.style.display = state.locShowFilters ? 'flex' : 'none';
+    }
+
+    function updateOverlays() {
+      document.getElementById('loading-overlay').style.display = state.locIsLoading ? 'flex' : 'none';
+      document.getElementById('error-banner').style.display = state.locDataError ? 'flex' : 'none';
+      const toast = document.getElementById('success-toast');
+      if (state.locShowSuccess) {
+        toast.style.display = 'flex';
+        if (state._toastTimer) clearTimeout(state._toastTimer);
+        state._toastTimer = setTimeout(() => { state.locShowSuccess = false; toast.style.display = 'none'; state._toastTimer = null; }, 3000);
+      } else {
+        toast.style.display = 'none';
+      }
+    }
+
+    function updateLoadingStatus(msg) {
+      const el = document.getElementById('loading-text');
+      if(el) el.textContent = msg;
+    }
+    
+    function showSuccessToast() {
+      state.locShowSuccess = true;
+      updateOverlays();
+    }
+    
+    function clearError() { state.locDataError = false; render(); }
+
+    function renderActionRibbon() {
+      const countsMap = {
+        'Docs': state.colDocsTracking.length,
+        'Tasks': state.colTasksTracking.length,
+        'Emails': state.colEmailsTracking.length,
+        'Dashboard': state.colMatchedDocs.length
+      };
+
+      const html = state.colActions.map(item => `
+        <button class="ribbon-btn" title="${item.Tooltip}" onclick="executeAction('${item.ActionKey}', '${item.Label}')">
+          <div style="font-size:16px;margin-bottom:4px;">${item.Icon}</div>
+          <div style="display:flex;justify-content:space-between;width:100%;align-items:flex-end;">
+            <span class="btn-label">${item.Label}</span>
+            <span class="btn-count">${countsMap[item.ActionKey] !== undefined ? countsMap[item.ActionKey] : ''}</span>
+          </div>
+        </button>
+      `).join('');
+      document.getElementById('action-ribbon').innerHTML = html;
+    }
+
+    function renderColA() {
+      const container = document.getElementById('col-a-content');
+      let html = '';
+      
+      document.getElementById('count-matched').textContent = state.colMatchedDocs.length;
+      document.getElementById('count-pairs').textContent = state.colDocEmailPairs.length;
+
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.dataset.tab === state.activeTab) b.classList.add('active');
+      });
+
+      if (state.activeTab === 'matched') {
+        let data = filterByCategory(state.colMatchedDocs, state.filterCategory);
+        data = globalSearchFilter(data, state.searchGlobal);
+        
+        if (data.length === 0) {
+          html = `<div class="empty-state"><h4>No matched documents</h4><p>Click 'Dashboard' in the ribbon to build matches.</p></div>`;
+        } else {
+          html = data.map(doc => `
+            <div class="gallery-item ${state.locSelectedDoc?.ID === doc.ID ? 'selected' : ''}" onclick="selectDoc(${doc.ID}, 'matched')">
+              <div class="item-title">${escapeHtml(doc.Title)}</div>
+              <div class="item-meta-line">
+                <span class="item-meta">Category: ${escapeHtml(doc.Category || '—')}</span>
+                <span class="status-badge" style="background:${getStatusColor(doc.Status)};font-size:8px;">${doc.Status||'—'}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      } 
+      else if (state.activeTab === 'pairs') {
+        let data = globalSearchFilter(state.colDocEmailPairs, state.searchGlobal);
+        if (data.length === 0) {
+          html = `<div class="empty-state"><h4>No Doc-Email Pairs</h4><p>Run Dashboard to build pairs.</p></div>`;
+        } else {
+          html = data.map(pair => `
+            <div class="gallery-item">
+              <div class="item-title">${escapeHtml(pair.DocTitle)}</div>
+              <div class="item-meta">Cat: ${escapeHtml(pair.DocCategory)} • Status: ${pair.DocStatus}</div>
+              <div style="font-size:10px;color:var(--brand-primary);margin-top:4px;">↳ ${emailHighIndicator(pair.Importance)}${pair.HasAttachments ? '📎 ' : ''}${escapeHtml(pair.EmailSubject)}</div>
+            </div>
+          `).join('');
+        }
+      }
+      else if (state.activeTab === 'matrix') {
+        let data = globalSearchFilter(state.colDocTaskEmailMatrix, state.searchGlobal);
+        if (data.length === 0) {
+          html = `<div class="empty-state"><h4>No Response Matrix Data</h4><p>Reload all data to generate matrix.</p></div>`;
+        } else {
+          html = data.map(item => `
+            <div class="gallery-item matrix-item ${state.varSelectedItem?.ID === item.ID ? 'selected' : ''}" onclick="selectDoc(${item.ID}, 'matrix')">
+              <div class="matrix-title">${escapeHtml(item.Title)}</div>
+              <div class="matrix-meta">Assigned To: ${escapeHtml(item.AssignedTo || 'Unassigned')}</div>
+              <div class="matrix-meta">Category: ${escapeHtml(item.Category || '—')}</div>
+              <div class="matrix-meta" style="color:${isOverdue(item.Created) ? 'var(--error)' : 'var(--neutral-primary)'}">Created: ${formatDateShort(item.Created)}</div>
+              <div class="matrix-meta">Status: <span style="color:${getStatusColor(item.Status)};font-weight:bold;">${item.Status||'Unknown'}</span></div>
+            </div>
+          `).join('');
+        }
+      }
+      container.innerHTML = html;
+    }
+
+    function renderColB() {
+      const header = document.getElementById('doc-header');
+      const searchBar = document.getElementById('email-search-bar');
+      const emptyState = document.getElementById('detail-empty-state');
+      const emailGallery = document.getElementById('matching-emails-gallery');
+      const taskGallery = document.getElementById('related-tasks-gallery');
+      const matrixTabs = document.getElementById('matrix-sub-tabs');
+
+      // Hide all content areas first
+      emailGallery.style.display = 'none';
+      taskGallery.style.display = 'none';
+      matrixTabs.style.display = 'none';
+
+      let activeItem = state.activeTab === 'matched' ? state.locSelectedDoc : (state.activeTab === 'matrix' ? state.varSelectedItem : null);
+
+      if (!activeItem || state.activeTab === 'pairs') {
+        header.style.display = 'none';
+        searchBar.style.display = 'none';
+        emptyState.style.display = 'flex';
+        return;
+      }
+
+      // Populate Header
+      header.style.display = 'flex';
+      emptyState.style.display = 'none';
+      document.getElementById('doc-title').textContent = activeItem.Title || 'Untitled Document';
+      
+      let metaHtml = `ID: ${activeItem.ID} | Category: ${escapeHtml(activeItem.Category||'—')}`;
+      if (activeItem.AttachmentLink) metaHtml += ` | <a href="${activeItem.AttachmentLink}" target="_blank" style="color:var(--brand-secondary);">📎 View Document</a>`;
+      if (activeItem.CC) {
+        const ccs = activeItem.CC.split(';').filter(Boolean).map(c=>`<span style="background:#e0e0e0;padding:2px 4px;border-radius:2px;font-size:8px;">${c}</span>`).join(' ');
+        metaHtml += ` | CC: ${ccs}`;
+      }
+      document.getElementById('doc-meta').innerHTML = metaHtml;
+
+      const badge = document.getElementById('doc-status-badge');
+      badge.style.display = 'inline-block';
+      badge.textContent = activeItem.Status || '—';
+      badge.style.background = getStatusColor(activeItem.Status);
+
+      // Render Content based on mode
+      if (state.activeTab === 'matched') {
+        searchBar.style.display = 'block';
+        emailGallery.style.display = 'block';
+        const emails = searchEmails(sortEmailsDesc(activeItem.MatchingEmails || []), state.searchEmail);
+        emailGallery.innerHTML = renderEmailCards(emails);
+      } 
+      else if (state.activeTab === 'matrix') {
+        searchBar.style.display = 'block';
+        matrixTabs.style.display = 'flex';
+        
+        document.getElementById('tab-matrix-emails').classList.toggle('active', state.activeMatrixTab === 'emails');
+        document.getElementById('tab-matrix-tasks').classList.toggle('active', state.activeMatrixTab === 'tasks');
+
+        if (state.activeMatrixTab === 'emails') {
+          emailGallery.style.display = 'block';
+          const emails = searchEmails(sortEmailsDesc(activeItem.Responses || []), state.searchEmail);
+          emailGallery.innerHTML = renderEmailCards(emails);
+        } else {
+          taskGallery.style.display = 'block';
+          const tasks = filterByPriority(activeItem.Tasks || [], state.filterPriority);
+          if(tasks.length === 0) {
+             taskGallery.innerHTML = `<div class="empty-state"><h4>No Tasks</h4><p>No related tasks found for this document.</p></div>`;
+          } else {
+             taskGallery.innerHTML = tasks.map(t => `
+              <div class="task-card ${t.Status?.toLowerCase().startsWith('not started') ? 'not-started' : ''}">
+                <div class="task-priority-bar" style="background:${getPriorityColor(t.Priority)}"></div>
+                <div class="task-content">
+                  <div class="task-title">${escapeHtml(t.Title || 'No Subject')}</div>
+                  <div class="task-desc">${escapeHtml(t.Description || '')}</div>
+                  <div class="task-sender">From: ${escapeHtml(t.AssignedTo || 'Unknown')} | Routed: ${escapeHtml(t.RoutedToDSU || '—')} <br> Ref: <b>${escapeHtml(t.Reference_ID)}</b></div>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      }
+    }
+
+    function renderEmailCards(emails) {
+      if (emails.length === 0) return `<div class="empty-state"><h4>No Emails</h4><p>No matching emails found.</p></div>`;
+      return emails.map(e => `
+        <div class="email-card" onclick="openEmailDetail('${e.id}')">
+          <h3>${emailHighIndicator(e.Importance)}${e.HasAttachments?'📎 ':''}${escapeHtml(e.Subject || 'No Subject')}</h3>
+          <p><strong>From:</strong> ${escapeHtml(e.From || e.FromName)} &nbsp;|&nbsp; <strong>Date:</strong> ${formatDateTime(e.DateTimeReceived)}</p>
+          <div class="email-body-preview">${escapeHtml((e.BodyPreview || '').slice(0,100))}...</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTelemetry() {
+      const panel = document.getElementById('telemetry-panel');
+      const cont = document.getElementById('telemetry-content');
+      const nodata = document.getElementById('telemetry-no-data');
+      
+      if (!state.locShowTelemetry) { panel.style.display = 'none'; return; }
+      panel.style.display = 'block';
+
+      if (state.colActionTelemetry.length === 0) {
+        cont.style.display = 'none'; nodata.style.display = 'block'; return;
+      }
+      
+      cont.style.display = 'block'; nodata.style.display = 'none';
+      const tbody = document.getElementById('telemetry-tbody');
+      tbody.innerHTML = state.colActionTelemetry.map(t => `
+        <tr>
+          <td>${formatDateTime(t.Timestamp)}</td>
+          <td>${t.Action}</td>
+          <td>${t.Step}</td>
+          <td class="telemetry-status-${(t.Status||'').toLowerCase()}">${t.Status}</td>
+          <td>${t.Duration_ms}</td>
+          <td>${escapeHtml(t.Message)}</td>
+        </tr>
+      `).join('');
+
+      // Render Chart (aggregate by Step)
+      const agg = {};
+      state.colActionTelemetry.forEach(r => {
+        const k = r.Step || 'Unknown';
+        if (!agg[k]) agg[k] = { Step: k, Duration_ms: 0, Runs: 0 };
+        agg[k].Duration_ms += Number(r.Duration_ms || 0);
+        agg[k].Runs += 1;
+      });
+      const rows = Object.values(agg);
+      const maxDur = Math.max(...rows.map(d => d.Duration_ms || 0), 1);
+      const maxRuns = Math.max(...rows.map(d => d.Runs || 0), 1);
+
+      const bars = rows.map(d => {
+        const durPct = ((d.Duration_ms || 0) / maxDur) * 100;
+        const runPct = ((d.Runs || 0) / maxRuns) * 100;
+        return `
+          <div class="chart-row">
+            <div class="chart-label" title="${d.Step}">${d.Step}</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="chart-bar" style="width:${durPct}%;max-width:80%;background:var(--brand-primary);"></div>
+                <span class="chart-val">${d.Duration_ms}ms</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="chart-bar" style="width:${runPct}%;max-width:80%;background:var(--brand-secondary);height:10px;"></div>
+                <span class="chart-val">${d.Runs} run(s)</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('telemetry-chart').innerHTML = `<div class="chart-bar-container">${bars}</div>`;
+    }
+
+    function renderSideNav() {
+      const items = getNavItemsForUser(state.userEmail);
+      document.getElementById('nav-user-email').textContent = state.userEmail || 'Guest (Please set email)';
+      const html = items.map(i => `
+        <button class="nav-btn" onclick="toggleMenu(false)">
+          <span style="font-size:16px;">${i.icon}</span> ${i.name}
+        </button>
+      `).join('');
+      document.getElementById('nav-items-container').innerHTML = html;
+    }
+
+    function renderMobileLayout() {
+      if (!state.varIsCompact) {
+        document.getElementById('col-a').classList.remove('hide-mobile');
+        document.getElementById('col-b').classList.remove('show-mobile');
+        document.getElementById('back-to-list-btn').style.display = 'none';
+        return;
+      }
+      
+      const hasSelection = (state.activeTab === 'matched' && state.locSelectedDoc) || (state.activeTab === 'matrix' && state.varSelectedItem);
+      
+      if (hasSelection) {
+        document.getElementById('col-a').classList.add('hide-mobile');
+        document.getElementById('col-b').classList.add('show-mobile');
+        document.getElementById('back-to-list-btn').style.display = 'block';
+      } else {
+        document.getElementById('col-a').classList.remove('hide-mobile');
+        document.getElementById('col-b').classList.remove('show-mobile');
+      }
+    }
+
+    // ==========================================
+    // 11. INTERACTION HANDLERS
+    // ==========================================
+    function switchTab(tab) {
+      state.activeTab = tab;
+      clearSelection();
+      render();
+    }
+    
+    function switchMatrixTab(subtab) {
+      state.activeMatrixTab = subtab;
+      renderColB();
+    }
+
+    function selectDoc(id, type) {
+      if (type === 'matched') {
+        state.locSelectedDoc = state.colMatchedDocs.find(d => d.ID === id);
+      } else if (type === 'matrix') {
+        state.varSelectedItem = state.colDocTaskEmailMatrix.find(d => d.ID === id);
+      }
+      render();
+    }
+
+    function clearSelection() {
+      state.locSelectedDoc = null;
+      state.varSelectedItem = null;
+      state.searchEmail = '';
+      const emailSearchInput = document.getElementById('email-search');
+      if(emailSearchInput) emailSearchInput.value = '';
+      closeEmailDetail();
+      render();
+    }
+
+    function openEmailDetail(emailId) {
+      const activeItem = state.activeTab === 'matched' ? state.locSelectedDoc : state.varSelectedItem;
+      if (!activeItem) return;
+      const list = state.activeTab === 'matched' ? (activeItem.MatchingEmails||[]) : (activeItem.Responses||[]);
+      const email = list.find(e => e.id === emailId);
+      if(!email) return;
+      
+      state.locSelectedEmail = email;
+      const panel = document.getElementById('email-detail-panel');
+      document.getElementById('email-detail-subject').textContent = email.Subject || 'No Subject';
+      document.getElementById('email-detail-meta').textContent = `From: ${email.From} | Date: ${formatDateTime(email.DateTimeReceived)}`;
+      
+      // Sandbox HTML rendering
+      const iframeSrc = escapeHtml(email.Body);
+      document.getElementById('email-detail-body').innerHTML = `<iframe sandbox="allow-same-origin" style="width:100%;height:100%;border:none;min-height:400px;" srcdoc="${iframeSrc}"></iframe>`;
+      
+      panel.style.display = 'flex';
+    }
+
+    function closeEmailDetail() {
+      state.locSelectedEmail = null;
+      document.getElementById('email-detail-panel').style.display = 'none';
+      document.getElementById('email-detail-body').innerHTML = '';
+    }
+
+    function toggleMenu(force) {
+      state.locShowMenu = force !== undefined ? force : !state.locShowMenu;
+      document.getElementById('side-nav').classList.toggle('open', state.locShowMenu);
+      document.getElementById('side-nav-overlay').style.display = state.locShowMenu ? 'block' : 'none';
+    }
+
+    function toggleTelemetry() {
+      state.locShowTelemetry = !state.locShowTelemetry;
+      renderTelemetry();
+    }
+
+    function toggleFilters(force) {
+      state.locShowFilters = force !== undefined ? force : !state.locShowFilters;
+      renderFilterBar();
+    }
+
+    function saveUserEmail() {
+      const val = document.getElementById('init-email-input').value.trim();
+      if(val) {
+        state.userEmail = val;
+        localStorage.setItem('dgo_user_email', val);
+        document.getElementById('email-prompt-modal').style.display = 'none';
+        document.getElementById('header-user-info').textContent = val;
+        document.getElementById('header-user-info').style.display = 'block';
+        renderSideNav();
+      }
+    }
+
+    // ==========================================
+    // 12. INITIALIZATION & EVENTS
+    // ==========================================
+    function debounce(fn, ms) {
+      let t;
+      return function(...args) { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), ms); };
+    }
+
+    function populateCategoryDropdown() {
+      const el = document.getElementById('category-filter');
+      if(!el) return;
+      const cats = ['All', ...new Set(state.colCategoriesInfo.map(c => c.Category).filter(Boolean))];
+      el.innerHTML = cats.map(c => `<option value="${escapeHtml(c)}" ${c === state.filterCategory ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('');
+    }
+
+    function attachEventListeners() {
+      const bind = (id, evt, handler) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const key = `bound_${evt}`;
+        if (el.dataset[key] === '1') return;
+        el.addEventListener(evt, handler);
+        el.dataset[key] = '1';
+      };
+
+      bind('hamburger-btn', 'click', () => toggleMenu());
+      bind('hamburger-filter-btn', 'click', () => toggleFilters());
+      bind('close-nav-btn', 'click', () => toggleMenu(false));
+      bind('docs-count-btn', 'click', () => executeAction('Docs', 'Docs'));
+
+      const gSearch = document.getElementById('global-search');
+      if (gSearch && !gSearch.dataset.bound_input) {
+        gSearch.addEventListener('input', debounce(e => { state.searchGlobal = e.target.value; renderColA(); }, 300));
+        gSearch.dataset.bound_input = '1';
+      }
+
+      const eSearch = document.getElementById('email-search');
+      if (eSearch && !eSearch.dataset.bound_input) {
+        eSearch.addEventListener('input', debounce(e => { state.searchEmail = e.target.value; renderColB(); }, 300));
+        eSearch.dataset.bound_input = '1';
+      }
+
+      const cat = document.getElementById('category-filter');
+      if (cat && !cat.dataset.bound_change) {
+        cat.addEventListener('change', e => { state.filterCategory = e.target.value; renderColA(); });
+        cat.dataset.bound_change = '1';
+      }
+
+      const pri = document.getElementById('priority-filter');
+      if (pri && !pri.dataset.bound_change) {
+        pri.addEventListener('change', e => { state.filterPriority = e.target.value; renderColB(); });
+        pri.dataset.bound_change = '1';
+      }
+
+      const closeEmail = document.getElementById('close-email-btn');
+      if (closeEmail && !closeEmail.dataset.bound_click) {
+        closeEmail.addEventListener('click', () => closeEmailDetail());
+        closeEmail.dataset.bound_click = '1';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Identity Check
+      const savedEmail = localStorage.getItem('dgo_user_email') || '';
+      if (savedEmail) {
+        state.userEmail = savedEmail;
+        document.getElementById('header-user-info').textContent = savedEmail;
+        document.getElementById('header-user-info').style.display = 'block';
+      } else {
+        document.getElementById('email-prompt-modal').style.display = 'flex';
+      }
+
+      state.varIsCompact = window.innerWidth < 768;
+      state.locShowFilters = !state.varIsCompact;
+      render();
+
+      // Timer
+      setInterval(() => {
+        state.varDocCount = state.colDocsTracking.length;
+        state.varTaskCount = state.colTasksTracking.length;
+        state.varEmailsCount = state.colEmailsTracking.length;
+        state.varEmailPairsCount = state.colDocEmailPairs.length;
+        state.varMatchedCount = state.colMatchedDocs.length;
+        renderHeader();
+      }, 5000);
+
+      window.addEventListener('resize', () => {
+        state.varIsCompact = window.innerWidth < 768;
+        if (!state.varIsCompact) state.locShowFilters = true;
+        render();
+      });
+    });
+  </script>
+</body>
+</html>

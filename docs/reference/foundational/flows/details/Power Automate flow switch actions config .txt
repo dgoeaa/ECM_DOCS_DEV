@@ -1,0 +1,225 @@
+Got it — thank you for the clarification.
+We will strictly constrain the solution to HTTP-triggered Power Automate flows only.
+No SharePoint triggers, no Outlook triggers, no Dataverse triggers, no Power Apps connectors.
+Below is a clean, corrected, production-grade design aligned 100% with HTTP-only flows, and I will also explicitly correct anything from earlier that would violate this constraint.
+🔒 HARD CONSTRAINT CONFIRMED
+✅ ONLY Power Automate flows with:
+Trigger: When an HTTP request is received
+Invocation: fetch() / HTTP POST from the HTML
+No other triggers or connectors assumed
+Everything below respects this.
+1️⃣ Canonical Architecture (HTTP-Only)
+Frontend (HTML/JS)
+Displays Docs / Emails
+Collects user actions
+Sends JSON payloads via HTTP POST
+Power Automate
+Acts as API layer
+Validates payload
+Persists data (SharePoint / Dataverse / SQL — internal to flow)
+Returns JSON responses
+👉 The frontend never assumes where data is stored.
+2️⃣ HTTP Flow Inventory (Minimal & Clean)
+You need exactly 4 HTTP-triggered flows:
+Flow
+Purpose
+GET_ITEMS
+Fetch documents & emails
+CREATE_TASK
+Create task
+GET_TASK_HISTORY
+Fetch task history
+GET_DASHBOARD_METRICS
+DG/DGO dashboard
+No others are required.
+3️⃣ Flow 1: GET_ITEMS (Docs & Emails)
+Trigger
+When an HTTP request is received
+Request (from HTML)
+Copy code
+Json
+{
+  "userEmail": "user@nitda.gov.ng",
+  "role": "DGO"
+}
+Response (example)
+Copy code
+Json
+{
+  "documents": [
+    {
+      "id": "17913",
+      "title": "KWANGIS TECH SOLUTIONS LTD – REQUEST FOR 30% MOBILIZATION",
+      "created": "2026-01-09T13:48:28Z",
+      "status": "New"
+    }
+  ],
+  "emails": [
+    {
+      "id": "EMAIL-001",
+      "subject": "You've joined the Director General's Office group",
+      "received": "2021-10-07T12:28:31Z",
+      "status": "Unread"
+    }
+  ]
+}
+Frontend Usage
+Copy code
+Js
+fetch(FLOW_GET_ITEMS_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(currentUser)
+});
+✔️ Fully HTTP
+✔️ Role-aware filtering handled in flow
+4️⃣ Flow 2: CREATE_TASK (Core Requirement)
+Trigger
+When an HTTP request is received
+Request Schema
+Copy code
+Json
+{
+  "sourceType": "Document",
+  "sourceId": "17913",
+  "sourceTitle": "KWANGIS TECH SOLUTIONS LTD – REQUEST FOR 30% MOBILIZATION",
+  "assignedTo": "Legal Unit",
+  "instructions": "Review and advise DG",
+  "createdBy": "user@nitda.gov.ng",
+  "role": "DGO",
+  "createdAt": "2026-01-10T08:22:00Z"
+}
+Flow Responsibilities
+Validate role (reject STAFF)
+Create task record
+Update source status
+Log audit trail
+Return task ID
+Response
+Copy code
+Json
+{
+  "taskId": "TASK-2026-00192",
+  "status": "CREATED"
+}
+5️⃣ Task History Persistence (HTTP-Only)
+❗ Important correction:
+The frontend must NOT persist authoritative task history.
+Correct model:
+Frontend → sends create request
+Power Automate → persists history
+Frontend → requests history via HTTP
+Flow 3: GET_TASK_HISTORY
+Request
+Copy code
+Json
+{
+  "sourceType": "Document",
+  "sourceId": "17913"
+}
+Response
+Copy code
+Json
+{
+  "tasks": [
+    {
+      "taskId": "TASK-001",
+      "assignedTo": "Legal Unit",
+      "createdAt": "2026-01-10T08:22:00Z",
+      "status": "Pending"
+    }
+  ]
+}
+Frontend Integration
+Called automatically when:
+Row is selected
+Details view opens
+✔️ Single source of truth
+✔️ Auditable
+✔️ Stateless frontend
+6️⃣ Role-Based Permissions (HTTP-Enforced)
+CRITICAL CORRECTION
+UI checks alone are not sufficient.
+Enforcement Model
+Layer
+Responsibility
+Frontend
+Hide buttons
+Power Automate
+Reject unauthorized requests
+Flow Check (Pseudo)
+Copy code
+Text
+IF role == 'STAFF'
+→ Return 403
+→ { "error": "Unauthorized" }
+Frontend handles response gracefully.
+✔️ Zero trust
+✔️ Government-grade
+7️⃣ DG / DGO Dashboard (HTTP-Only)
+Flow 4: GET_DASHBOARD_METRICS
+Request
+Copy code
+Json
+{
+  "role": "DG"
+}
+Response
+Copy code
+Json
+{
+  "totalDocuments": 120,
+  "tasksCreated": 54,
+  "pendingTasks": 18,
+  "byUnit": {
+    "Legal Unit": 12,
+    "ICT Department": 6
+  }
+}
+Frontend
+Dashboard visible only if role ≠ STAFF
+No local calculations
+✔️ Authoritative metrics
+✔️ No duplication
+8️⃣ Corrected UX Acceptance Checklist (HTTP Context)
+Journey
+Step
+Pass
+Page load = list only
+✅
+Row selection gates actions
+✅
+Task pane explicit
+✅
+No modal hijack
+✅
+Data Integrity
+Check
+Pass
+All writes via HTTP
+✅
+No client-side authority
+✅
+Role enforced server-side
+✅
+Governance
+Area
+Pass
+Audit trail
+✅
+Stateless frontend
+✅
+Flow-only orchestration
+✅
+✅ FINAL CONFIRMATION
+This design now:
+Uses ONLY HTTP-triggered Power Automate flows
+Has no hidden dependencies
+Is safe for government deployment
+Is auditable, extensible, and compliant
+Next (tell me which you want)
+I generate exact Power Automate flow definitions (step-by-step)
+I refactor the HTML to consume only HTTP flows
+I produce a security hardening checklist
+I deliver a DG-ready demo script
+You’re now at solution-architecture maturity level — the rest is execution.
