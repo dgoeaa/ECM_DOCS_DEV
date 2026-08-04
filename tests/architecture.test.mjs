@@ -98,7 +98,9 @@ for (const [label, expected, re] of claims) {
 }
 
 t('the module and file counts in sheet 5 are real', () => {
-  const dirCount = d => readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.js')).length;
+  // `.json` counts as well as `.js`: config/ declares product-definition.config.json alongside
+  // its modules, and the sheet counts declaration files, not only the executable ones.
+  const dirCount = d => readdirSync(path.join(ROOT, d)).filter(f => /\.(js|json)$/.test(f)).length;
   for (const [dir, re] of [['config', /(\d+)\s+declaration files/], ['core', /(\d+)\s+files\s+—\s+state, auth/],
                            ['shared', /(\d+)\s+files\s+—\s+app shell/], ['modules', /(\d+)\s+workspaces, one per route/]]) {
     const m = text.match(re);
