@@ -134,13 +134,15 @@
 <section class="sheet" id="s1">
   <div class="sh-head"><span class="sh-no">SHEET 1</span><h2>Zones and the one rule that makes this an architecture</h2></div>
   <p class="note">
-    Four trust zones. The rule they exist to express: <strong>no client, internal or external, holds a
-    credential for a system of record.</strong> The proxy is the only component that does — which is why
-    the credential boundary is drawn as a wall rather than a line, and why it sits between the enforcement
-    zone and everything to its left.
+    Three trust zones. The rule they exist to express: <strong>no client, internal or external, holds a
+    credential for a system of record.</strong> That rule is currently broken, and the diagram says so.
+    The <code>proxy/</code> tree that used to hold every signed trigger URL server-side has been removed,
+    so both clients now call each Power Automate flow directly with a signed URL configured into them at
+    deploy time. A signed trigger URL <em>is</em> the credential. The wall is therefore drawn around the
+    flow endpoint, which is the only remaining place any control can be enforced.
   </p>
   <div class="canvas">
-  <svg viewBox="0 0 1120 470" role="img" aria-label="Four trust zones with their components and the credential boundary">
+  <svg viewBox="0 0 1120 470" role="img" aria-label="Three trust zones with their components and the enforcement boundary at the flow endpoint">
     <defs>
       <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="var(--ink-3)"/>
@@ -156,17 +158,13 @@
       <rect x="16" y="60" width="236" height="30" rx="12" fill="var(--public)" opacity=".10"/>
       <text x="32" y="80" class="t-zone" fill="var(--public)">Public</text>
 
-      <rect x="300" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--enforce)" stroke-width="2.2"/>
-      <rect x="300" y="60" width="236" height="30" rx="12" fill="var(--enforce)" opacity=".14"/>
-      <text x="316" y="80" class="t-zone" fill="var(--enforce)">Enforcement</text>
+      <rect x="300" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--internal)" stroke-width="1.6" opacity=".55"/>
+      <rect x="300" y="60" width="236" height="30" rx="12" fill="var(--internal)" opacity=".10"/>
+      <text x="316" y="80" class="t-zone" fill="var(--internal)">Internal</text>
 
-      <rect x="584" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--internal)" stroke-width="1.6" opacity=".55"/>
-      <rect x="584" y="60" width="236" height="30" rx="12" fill="var(--internal)" opacity=".10"/>
-      <text x="600" y="80" class="t-zone" fill="var(--internal)">Internal</text>
-
-      <rect x="868" y="60" width="236" height="330" rx="12" fill="none" stroke="var(--record)" stroke-width="1.6" opacity=".55"/>
-      <rect x="868" y="60" width="236" height="30" rx="12" fill="var(--record)" opacity=".10"/>
-      <text x="884" y="80" class="t-zone" fill="var(--record)">Systems of record</text>
+      <rect x="584" y="60" width="520" height="330" rx="12" fill="none" stroke="var(--record)" stroke-width="1.6" opacity=".55"/>
+      <rect x="584" y="60" width="520" height="30" rx="12" fill="var(--record)" opacity=".10"/>
+      <text x="600" y="80" class="t-zone" fill="var(--record)">Systems of record</text>
     </g>
 
     <!-- components -->
@@ -175,68 +173,59 @@
       <text x="52" y="138" class="t-node" fill="var(--ink)">document-portal/</text>
       <text x="52" y="158" class="t-sub" fill="var(--ink-2)">5 pages · service worker</text>
       <text x="52" y="176" class="t-sub" fill="var(--ink-2)">submit · track · support</text>
-      <text x="52" y="192" class="t-mono" fill="var(--accent)">holds no credential</text>
+      <text x="52" y="192" class="t-mono" fill="var(--danger)">carries its signed URLs</text>
 
       <rect x="36" y="216" width="196" height="56" rx="9" fill="var(--paper)" stroke="var(--public)" stroke-width="1.4" stroke-dasharray="4 4"/>
       <text x="52" y="240" class="t-node" fill="var(--ink-2)">Anonymous submitter</text>
       <text x="52" y="258" class="t-sub" fill="var(--ink-3)">no account, by design</text>
 
-      <rect x="320" y="112" width="196" height="176" rx="9" fill="var(--paper)" stroke="var(--enforce)" stroke-width="1.6"/>
-      <text x="336" y="138" class="t-node" fill="var(--ink)">proxy/</text>
-      <text x="336" y="158" class="t-sub" fill="var(--ink-2)">token · role · idempotency</text>
-      <text x="336" y="180" class="t-mono" fill="var(--ink-2)">/intake/submission</text>
-      <text x="336" y="197" class="t-mono" fill="var(--ink-2)">/intake/upload</text>
-      <text x="336" y="214" class="t-mono" fill="var(--ink-2)">/intake/status</text>
-      <text x="336" y="231" class="t-mono" fill="var(--ink-2)">/intake/support</text>
-      <text x="336" y="248" class="t-mono" fill="var(--ink-2)">/documents/scan</text>
-      <text x="336" y="272" class="t-mono" fill="var(--enforce)">19 contract keys</text>
+      <rect x="320" y="112" width="196" height="176" rx="9" fill="var(--paper)" stroke="var(--internal)" stroke-width="1.4"/>
+      <text x="336" y="138" class="t-node" fill="var(--ink)">root platform</text>
+      <text x="336" y="158" class="t-sub" fill="var(--ink-2)">29 routes · 29 modules</text>
+      <text x="336" y="176" class="t-sub" fill="var(--ink-2)">22 state collections</text>
+      <text x="336" y="200" class="t-mono" fill="var(--ink-2)">config · core · shared</text>
+      <text x="336" y="217" class="t-mono" fill="var(--ink-2)">modules</text>
+      <text x="336" y="248" class="t-mono" fill="var(--accent)">single system of record</text>
+      <text x="336" y="266" class="t-sub" fill="var(--ink-3)">D6(b) — one internal app</text>
 
-      <rect x="604" y="112" width="196" height="176" rx="9" fill="var(--paper)" stroke="var(--internal)" stroke-width="1.4"/>
-      <text x="620" y="138" class="t-node" fill="var(--ink)">root platform</text>
-      <text x="620" y="158" class="t-sub" fill="var(--ink-2)">29 routes · 29 modules</text>
-      <text x="620" y="176" class="t-sub" fill="var(--ink-2)">22 state collections</text>
-      <text x="620" y="200" class="t-mono" fill="var(--ink-2)">config · core · shared</text>
-      <text x="620" y="217" class="t-mono" fill="var(--ink-2)">modules</text>
-      <text x="620" y="248" class="t-mono" fill="var(--accent)">single system of record</text>
-      <text x="620" y="266" class="t-sub" fill="var(--ink-3)">D6(b) — one internal app</text>
+      <rect x="604" y="112" width="216" height="176" rx="9" fill="var(--paper)" stroke="var(--record)" stroke-width="1.6"/>
+      <text x="620" y="138" class="t-node" fill="var(--ink)">Power Automate</text>
+      <text x="620" y="158" class="t-sub" fill="var(--ink-2)">25 dev/pilot workflows</text>
+      <text x="620" y="180" class="t-mono" fill="var(--ink-2)">token · role · idempotency</text>
+      <text x="620" y="197" class="t-mono" fill="var(--ink-2)">reference · upload ticket</text>
+      <text x="620" y="214" class="t-mono" fill="var(--ink-2)">filename policy · rate limit</text>
+      <text x="620" y="240" class="t-mono" fill="var(--enforce)">19 contract keys</text>
+      <text x="620" y="272" class="t-mono" fill="var(--danger)">F-001 · cutover scope</text>
 
       <rect x="888" y="112" width="196" height="80" rx="9" fill="var(--paper)" stroke="var(--record)" stroke-width="1.4"/>
       <text x="904" y="138" class="t-node" fill="var(--ink)">SharePoint</text>
       <text x="904" y="158" class="t-sub" fill="var(--ink-2)">lists + document library</text>
       <text x="904" y="178" class="t-mono" fill="var(--ink-2)">holds the bytes</text>
-
-      <rect x="888" y="208" width="196" height="80" rx="9" fill="var(--paper)" stroke="var(--record)" stroke-width="1.4"/>
-      <text x="904" y="234" class="t-node" fill="var(--ink)">Power Automate</text>
-      <text x="904" y="254" class="t-sub" fill="var(--ink-2)">25 dev/pilot workflows</text>
-      <text x="904" y="274" class="t-mono" fill="var(--danger)">F-001 · cutover scope</text>
     </g>
 
-    <!-- credential boundary -->
+    <!-- enforcement boundary -->
     <g>
-      <rect x="266" y="60" width="18" height="330" fill="url(#hatch)"/>
-      <line x1="275" y1="60" x2="275" y2="390" stroke="var(--danger)" stroke-width="2"/>
-      <text x="275" y="412" text-anchor="middle" class="t-cap" fill="var(--danger)">credential boundary</text>
-      <text x="275" y="430" text-anchor="middle" class="t-sub" fill="var(--ink-3)">nothing left of this line</text>
-      <text x="275" y="445" text-anchor="middle" class="t-sub" fill="var(--ink-3)">holds a system credential</text>
+      <rect x="566" y="60" width="18" height="330" fill="url(#hatch)"/>
+      <line x1="575" y1="60" x2="575" y2="390" stroke="var(--danger)" stroke-width="2"/>
+      <text x="575" y="412" text-anchor="middle" class="t-cap" fill="var(--danger)">enforcement boundary</text>
+      <text x="575" y="430" text-anchor="middle" class="t-sub" fill="var(--ink-3)">nothing left of this line</text>
+      <text x="575" y="445" text-anchor="middle" class="t-sub" fill="var(--ink-3)">can enforce anything</text>
     </g>
 
     <!-- flows -->
     <g stroke="var(--ink-3)" stroke-width="1.6" fill="none" marker-end="url(#ar)">
-      <path d="M232 155 L316 155"/>
-      <path d="M516 175 L600 175"/>
-      <path d="M800 160 L884 152"/>
-      <path d="M516 240 L884 240" stroke-dasharray="6 4"/>
+      <path d="M232 155 C270 155 280 175 600 175"/>
+      <path d="M516 240 L600 240"/>
+      <path d="M820 152 L884 152"/>
     </g>
-    <text x="274" y="146" text-anchor="middle" class="t-edge" fill="var(--ink-3)">anonymous</text>
-    <text x="558" y="166" text-anchor="middle" class="t-edge" fill="var(--ink-3)">bearer token</text>
-    <text x="700" y="230" class="t-edge" fill="var(--ink-3)">proxy egress only — credential held server-side</text>
+    <text x="380" y="150" class="t-edge" fill="var(--ink-3)">anonymous · signed URL</text>
+    <text x="558" y="232" text-anchor="end" class="t-edge" fill="var(--ink-3)">bearer token</text>
   </svg>
   </div>
   <div class="key">
     <span><i style="background:var(--public)"></i>Public — no authentication</span>
-    <span><i style="background:var(--enforce)"></i>Enforcement — validates everything</span>
     <span><i style="background:var(--internal)"></i>Internal — Entra ID (provisioned, inert until step 8)</span>
-    <span><i style="background:var(--record)"></i>Systems of record — reachable only from enforcement</span>
+    <span><i style="background:var(--record)"></i>Systems of record — each flow enforces its own callers</span>
   </div>
 </section>
 
@@ -310,7 +299,7 @@
       <text x="708" y="250">27</text>
       <text x="478" y="242">13</text>
       <text x="628" y="300">8</text>
-      <text x="528" y="352">38</text>
+      <text x="528" y="352">37</text>
     </g>
 
     <!-- the one upward edge: the composition root -->
@@ -597,8 +586,8 @@
       <path d="M393 268 L393 410" stroke-dasharray="5 4"/>
       <path d="M883 350 C883 380 883 390 883 410" stroke-dasharray="5 4"/>
     </g>
-    <text x="230" y="150" class="t-edge" fill="var(--ink-3)">proxy /intake</text>
-    <text x="228" y="336" class="t-edge" fill="var(--ink-3)">proxy /documents/scan</text>
+    <text x="230" y="150" class="t-edge" fill="var(--ink-3)">SUBMISSION flow</text>
+    <text x="228" y="336" class="t-edge" fill="var(--ink-3)">SCAN_INTAKE flow</text>
     <text x="404" y="350" class="t-edge" fill="var(--ink-3)">bytes</text>
     <text x="892" y="386" class="t-edge" fill="var(--ink-3)">metadata + link</text>
 
@@ -621,32 +610,35 @@
   <div class="sh-head"><span class="sh-no">SHEET 5</span><h2>Component inventory</h2></div>
   <p class="note">
     Every deployable component, what it holds, and what it must never hold. The last column is the one
-    worth reading twice — most of this architecture is a statement about where credentials are not.
+    worth reading twice — most of this architecture was a statement about where credentials are not, and
+    the removal of <code>proxy/</code> changed that answer rather than removing the question.
   </p>
   <div class="scroll">
   <table>
     <thead><tr><th>Zone</th><th>Component</th><th>Contents</th><th>Holds a credential?</th></tr></thead>
     <tbody>
-      <tr><td>Public</td><td><code>document-portal/</code></td><td>5 pages, service worker, offline outbox, design system</td><td><strong>No</strong> — step 5 removed all three signed URLs</td></tr>
-      <tr><td>Enforcement</td><td><code>proxy/src/</code></td><td>handler, jwt, authorize, intake, upload, config, server</td><td><strong>Yes — the only one.</strong> 19 contract keys, server-side environment</td></tr>
-      <tr><td>Internal</td><td><code>config/</code></td><td>33 declaration files — routes, RBAC, boundaries, categories, endpoints, filename policy</td><td>No</td></tr>
+      <tr><td>Public</td><td><code>document-portal/</code></td><td>5 pages, service worker, offline outbox, design system</td><td><strong>Yes</strong> — <code>config.local.js</code> carries the six signed flow URLs it calls, and every visitor can read it</td></tr>
+      <tr><td>Internal</td><td><code>config/</code></td><td>33 declaration files — routes, RBAC, boundaries, categories, endpoints, filename policy</td><td>No — <code>config.local.js</code> does, and is git-ignored</td></tr>
       <tr><td>Internal</td><td><code>core/</code></td><td>60 files — state, auth, router, governance, domain services</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>shared/</code></td><td>8 files — app shell, relationship runtime, components</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>modules/</code></td><td>29 workspaces, one per route</td><td>No</td></tr>
-      <tr><td>Record</td><td>SharePoint</td><td>Lists + document library — the bytes</td><td>Reachable from the proxy only</td></tr>
-      <tr><td>Record</td><td>Power Automate</td><td>25 dev/pilot workflows, to be decommissioned at cutover</td><td>Reachable from the proxy only</td></tr>
+      <tr><td>Record</td><td>Power Automate</td><td>25 dev/pilot workflows, to be decommissioned at cutover</td><td>19 contract keys, called directly by both browsers — <strong>the only place any control can be enforced</strong></td></tr>
+      <tr><td>Record</td><td>SharePoint</td><td>Lists + document library — the bytes</td><td>Reachable through the flows</td></tr>
     </tbody>
   </table>
   </div>
 
   <p class="note" style="margin-top:22px">
     <strong>Retired, and why it is on this sheet:</strong> an inventory that lists only what exists cannot
-    tell you what was considered and rejected. Three trees were removed —
+    tell you what was considered and rejected. Four trees were removed —
     <code>newack/</code> (orphaned, held a credential),
     <code>document-portal_Central_NITDA_/</code> (a byte-identical copy, 41/41 blob hashes),
-    and <code>ECM_ActivityHub_Portal/</code> (a second internal application; 15 of its 19 pages duplicated
+    <code>ECM_ActivityHub_Portal/</code> (a second internal application; 15 of its 19 pages duplicated
     root routes, and its three unique capabilities are now <code>briefs</code>, <code>meetings</code> and
-    <code>projects</code>).
+    <code>projects</code>),
+    and <code>proxy/</code> (the Cloudflare Worker that held every signed trigger URL server-side, minted
+    references, brokered uploads and enforced the filename policy — removed so the platform has no runtime
+    to deploy, at the cost of moving all four obligations onto the flows themselves).
   </p>
 </section>
 

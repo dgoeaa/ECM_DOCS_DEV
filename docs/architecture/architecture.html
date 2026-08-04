@@ -36,6 +36,10 @@
   .thesis-band p{margin:0 0 6px;font-size:15px;text-wrap:balance}
   .thesis-band p:last-child{margin:0}
   .thesis-band b{color:var(--ink)}
+  .amend-band{background:var(--crit-wash);border-left:4px solid var(--crit);border-radius:0 3px 3px 0;padding:16px 20px;margin-top:14px}
+  .amend-band p{margin:0 0 6px;font-size:14.5px;text-wrap:balance}
+  .amend-band p:last-child{margin:0}
+  .amend-band b{color:var(--ink)}
   figure.sheet{margin:0;background:var(--sheet);border:1px solid var(--rule);border-radius:3px;box-shadow:var(--sh);overflow:hidden}
   .sh-head{padding:16px 20px 14px;border-bottom:1px solid var(--rule)}
   .sh-no{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
@@ -92,6 +96,20 @@
 <div class="thesis-band">
   <p><b>The root platform is the internal operations system and the single system of record.</b></p>
   <p><b>The document portal is an external intake channel for documents and correspondence — not a service-request desk.</b></p>
+</div>
+
+<div class="amend-band">
+  <p><b>Amendment — the enforcement zone was built, and has since been removed.</b> Sheet A below,
+    steps 3, 4, 5 and 8 of sheet D, and every mention of “the proxy” describe a design that was
+    implemented as <code>proxy/</code> and then deleted. This page is left as it was drawn, because a
+    proposal that quietly acquires the outcome it argued for stops being evidence of what was decided.</p>
+  <p>What is true now: both clients call each Power Automate flow <b>directly</b>, with the signed
+    trigger URL configured into them at deploy time. There is no enforcement zone, no credential
+    boundary, and nothing between the browser and the flow. <b>Each flow is therefore the only place
+    authentication, authorisation, validation, rate limiting, reference minting, upload ticketing and
+    the filename policy can be enforced</b>, and “restrict flows to proxy egress” is no longer available
+    as a control. See <b>components.html</b> for the current zone model and
+    <b>AUTHENTICATION_CONTRACT.md</b> for the obligations that moved onto the flows.</p>
 </div>
 
 <!-- SHEET A — zones -->
@@ -300,8 +318,10 @@
 
 <footer>
   Full text: <b>docs/architecture/TARGET_ARCHITECTURE.md</b> · current-state evidence:
-  <b>docs/forensic/dd2e909/</b> · this is not a rewrite — the correspondence model, attachment-by-link, the proxy's
-  authorization core and the module structure are all already correct and unchanged.
+  <b>docs/forensic/dd2e909/</b> · current zone model: <b>docs/architecture/components.html</b> · this was
+  not a rewrite — the correspondence model, attachment-by-link and the module structure were all already
+  correct and unchanged. The enforcement zone this page proposed was built and has since been removed;
+  see the amendment at the top.
 </footer>
 
 </div>
