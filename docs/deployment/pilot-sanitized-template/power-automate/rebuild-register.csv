@@ -1,0 +1,2 @@
+workflow_id,endpoint_key,new_flow_identifier,url_vault_reference,operator_ref,completed_at_utc,notes
+314aaf27593147089b38322e5ca25936,OTP_GENERATE,null,vault://pilot/endpoints/OTP_GENERATE,OP-001,null,Delete and rebuild before storing replacement URL

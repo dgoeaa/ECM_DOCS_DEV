@@ -1,0 +1,12 @@
+document_kind,routing_domain,public_kind,confirmed,notes
+Ministerial Directive,Executive Correspondence,no,null,
+Policy Submission,Policy / Regulation,yes,null,
+Compliance Filing,Policy / Regulation,yes,null,
+Application,Operations,yes,null,
+Proposal,Operations,yes,null,
+Project Proposal,Operations,no,null,
+Report,Operations,yes,null,
+Meeting Request,General Administration,no,null,
+Event Invitation,General Administration,yes,null,
+Official Correspondence,General Administration,no,null,
+General Correspondence,General Administration,yes,null,

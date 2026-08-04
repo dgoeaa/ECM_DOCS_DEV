@@ -1,0 +1,11 @@
+template_name: access-application
+sanitized: true
+application:
+  name: NITDA DGO Platform
+  type: self-hosted
+  session_duration: 8 hours
+  domain: <PAGES-HOSTNAME>
+  aud_tag: <AUD-TAG>
+notes:
+  - Populate only outside Git.
+  - No account IDs, tenant exports, or operator identities in the repository copy.

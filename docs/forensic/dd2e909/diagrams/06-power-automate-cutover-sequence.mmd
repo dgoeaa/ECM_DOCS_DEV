@@ -1,0 +1,19 @@
+%% Diagram 6 — Sanitized Power Automate cutover sequence
+%% §2 must complete before any Cloudflare secret is written.
+
+sequenceDiagram
+  participant OP as Operator
+  participant PA as Power Automate
+  participant VAULT as Approved vault
+  participant CF as Cloudflare
+
+  OP->>PA: §2.1 Regenerate mapped triggers
+  OP->>PA: §2.2 Delete and rebuild OTP/FETCH_ALL flows
+  OP->>PA: §2.3 Delete unused triggers
+  OP->>PA: §2.5 Build intake flows if missing
+  PA-->>OP: New trigger URLs observed
+  OP->>VAULT: Store full URLs outside Git
+  Note over OP,CF: STOP — do not write any Cloudflare secret until all §2 records are complete
+  OP->>CF: Write endpoint secrets from vault references only after §2 completion
+  OP->>CF: Write DGO_UPLOAD_SECRET and DGO_VERIFY_SECRET
+  OP->>CF: Deploy Worker / Pages per §§4–5

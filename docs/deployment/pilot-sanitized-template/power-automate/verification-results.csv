@@ -1,0 +1,2 @@
+verification_id,check_name,result,evidence_ref,contains_internal_data,notes
+VA-001,Trigger inventory reconciled,pending,null,yes,May reference internal workflow names or evidence outside Git

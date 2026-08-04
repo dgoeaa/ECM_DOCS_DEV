@@ -1,0 +1,20 @@
+template_name: prerequisite-test-result
+sanitized: true
+checks:
+  npm_install:
+    status: null
+    command: npm install
+  npm_test:
+    status: null
+    command: npm test
+  test_secrets:
+    status: null
+    command: npm run test:secrets
+  test_exposure:
+    status: null
+    command: npm run test:exposure
+  test_links:
+    status: null
+    command: npm run test:links
+notes:
+  - Record command output file names, not live secrets or trigger URLs.

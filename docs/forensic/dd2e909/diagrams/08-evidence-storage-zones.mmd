@@ -1,0 +1,39 @@
+%% Diagram 8 — Sanitized deployment evidence / storage zones
+%% Shows what belongs in Git versus external private storage.
+
+graph TD
+  subgraph GIT[Repository — committed sanitized templates only]
+    RUNBOOK[docs/deployment/CLOUDFLARE.md]
+    TEMPLATES[docs/deployment/pilot-sanitized-template/]
+    DIAGRAMS[docs/forensic/dd2e909/diagrams/*.mmd]
+  end
+
+  subgraph PRIVATE[External private deployment records]
+    COPY[ECM_DOCS_DEV-deployment-private/pilot-YYYY-MM/]
+    CONTROL[Control and verification records]
+    LOGS[Logs / screenshots / whoami output]
+    CHECKSUMS[SHA-256 checksums for real evidence]
+  end
+
+  subgraph SECRET[Vault / Cloudflare secret stores]
+    VAULT[vault://pilot/... references]
+    CFSEC[Worker secrets
+DGO_UPLOAD_SECRET
+DGO_VERIFY_SECRET
+endpoint secrets]
+  end
+
+  RUNBOOK --> TEMPLATES
+  TEMPLATES --> COPY
+  COPY --> CONTROL
+  COPY --> LOGS
+  CONTROL --> CHECKSUMS
+  COPY --> VAULT
+  VAULT --> CFSEC
+
+  classDef repo fill:#1c2733,stroke:#5b7a99,color:#fff
+  classDef private fill:#0d3b26,stroke:#17b255,color:#fff
+  classDef secret fill:#4a1420,stroke:#c8102e,color:#fff
+  class RUNBOOK,TEMPLATES,DIAGRAMS repo
+  class COPY,CONTROL,LOGS,CHECKSUMS private
+  class VAULT,CFSEC secret

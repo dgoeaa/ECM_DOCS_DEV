@@ -1,0 +1,7 @@
+group_name,expected_role,officer_reference,observed_role,verified,notes
+DGO-SystemAdmin,systemAdmin,OUTSIDE_GIT,null,null,
+DGO-UserAdmin,userAdmin,OUTSIDE_GIT,null,null,
+DGO-Executive,executive,OUTSIDE_GIT,null,null,
+DGO-Director,director,OUTSIDE_GIT,null,null,
+DGO-Operator,operator,OUTSIDE_GIT,null,null,
+DGO-Viewer,viewer,OUTSIDE_GIT,null,null,
