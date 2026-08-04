@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NITDA Stats Screen</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;font-family:'Segoe UI',Verdana,Arial,sans-serif;background:#f5f5f5;color:#333;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;background:#f5f5f5;overflow:hidden}
+#navBar{display:flex;flex-direction:row;height:30px;min-height:20px;width:100%;background:#d6dde0;overflow-x:auto;overflow-y:hidden;flex-shrink:0;scrollbar-width:none}
+#navBar::-webkit-scrollbar{display:none}
+.nav-item{display:flex;align-items:center;justify-content:flex-start;padding:0 8px 0 6px;border:none;font-family:Verdana,sans-serif;font-size:8pt;font-weight:normal;white-space:nowrap;flex:1 1 auto;min-width:80px;height:30px;transition:background .15s;position:relative;text-align:left;color:#008B8B;background:#fff;border-right:1px solid #ccd}
+.nav-item.active{background:#008B8B;color:#fff}
+.nav-item:hover:not(.active){background:#e8f3f3}
+.nav-item .nav-dot{display:none;width:5px;height:5px;border-radius:50%;background:#fff;margin-left:auto}
+.nav-item.active .nav-dot{display:inline-block}
+#monthBar{display:flex;flex-direction:row;height:30px;width:100%;border:1px solid #00746e;background:#fff;flex-shrink:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+#monthBar::-webkit-scrollbar{display:none}
+.month-btn{display:flex;align-items:center;justify-content:flex-start;padding:0 8px;border:none;font-family:Verdana,sans-serif;font-size:10pt;font-weight:normal;white-space:nowrap;height:30px;min-width:60px;flex:1 1 auto;background:transparent;color:rgba(5,88,59,0.5);transition:background .15s,color .15s}
+.month-btn.selected{background:rgba(5,88,59,0.5);color:#fff}
+.month-btn:hover:not(.selected){background:rgba(56,96,178,0.4);color:#fff}
+.month-chevron{margin-left:auto;color:#05583B;font-size:11px;display:none}
+.month-btn:not(.selected) .month-chevron{display:inline-block}
+#hdr1,#hdr2{display:flex;flex-direction:row;flex-wrap:wrap;height:auto;min-height:30px;width:100%;background:#fff;border-radius:8px;flex-shrink:0;align-items:stretch;padding:1px;gap:1px}
+.hdr-btn{font-family:Verdana,sans-serif;font-size:8pt;font-weight:normal;height:30px;min-height:25px;min-width:120px;padding:0 12px 0 18px;border:1px solid;text-align:left;white-space:nowrap;flex:1 1 auto;transition:filter .15s;display:inline-flex;align-items:center;justify-content:flex-start;gap:6px}
+.hdr-btn:hover:not(:disabled){filter:brightness(0.92)}
+.hdr-btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-generate{background:#2d8028;color:#fff;border-color:rgba(5,88,59,0.95)}
+.btn-white-cyan{background:#fff;color:#008B8B;border-color:rgba(5,88,59,0.95)}
+.btn-teal{background:#3e8095;color:#fff;border-color:rgba(5,88,59,0.95)}
+.btn-orange{background:#e05606;color:#fff;border-color:rgba(5,88,59,0.95);font-weight:bold}
+.btn-blue{background:#b4d6fa;color:#008B8B;border-color:rgba(5,88,59,0.95)}
+.dp-wrap{display:flex;align-items:center;gap:4px;padding:0 6px;flex-shrink:0;height:30px}
+.dp-wrap label{font-family:Verdana,sans-serif;font-size:7pt;color:#333;white-space:nowrap;font-weight:bold}
+.dp-wrap input[type="date"]{font-family:Verdana,sans-serif;font-size:8pt;height:26px;border:1px solid #05583b;border-radius:4px;padding:2px 4px;background:#fff;color:#333;min-width:120px}
+.recip-wrap{display:flex;flex-direction:column;gap:2px;padding:0 6px;flex:2 1 220px;min-width:200px;height:auto;justify-content:center;position:relative}
+.recip-input-row{display:flex;align-items:center;gap:4px;min-height:30px;border:1px solid #008B8B;border-radius:4px;background:rgba(0,139,139,0.06);padding:2px 6px;flex-wrap:wrap}
+.recip-input-row input{flex:1;border:none;outline:none;background:transparent;height:24px;font-size:8pt;font-family:Verdana,sans-serif;color:#333;min-width:80px}
+.recip-chip{display:inline-flex;align-items:center;gap:4px;background:#0078D4;color:#fff;padding:2px 6px;border-radius:10px;font-size:7pt;cursor:default;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
+.recip-chip span.x{cursor:pointer;font-weight:bold;padding:0 2px}
+.recip-suggest{position:absolute;top:32px;left:6px;right:6px;background:#fff;border:1px solid #008B8B;border-radius:4px;max-height:240px;overflow-y:auto;z-index:5000;box-shadow:0 4px 12px rgba(0,0,0,.15);display:none}
+.recip-suggest.open{display:block}
+.recip-suggest-item{padding:6px 10px;font-size:8pt;cursor:pointer;border-bottom:1px solid #eee}
+.recip-suggest-item:hover,.recip-suggest-item.hl{background:#0078D4;color:#fff}
+.recip-suggest-item .name{font-weight:bold}
+.recip-suggest-item .mail{font-size:7pt;opacity:.75}
+#reportInfoBadge{display:none;align-items:center;padding:0 8px;font-family:Verdana,sans-serif;font-size:7pt;color:#055;background:#e6f7f9;border:1px solid #b0d8d8;border-radius:4px;flex-shrink:0;height:30px;white-space:nowrap;gap:6px;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#reportInfoBadge.show{display:flex}
+#bottom{flex:1 1 auto;display:flex;flex-direction:column;background:#f5f5f5;padding:2px;overflow:hidden;min-height:0;position:relative}
+.view{display:none;width:100%;height:100%;overflow:auto;background:#fff}
+.view.active{display:block}
+#galleryCards{padding:6px;background:#f5f5f5}
+.report-card{font-family:'Segoe UI',sans-serif;background:#f4f6f9;border:1px solid #dcdcdc;border-radius:10px;padding:14px;margin:8px 4px;box-shadow:0 2px 6px rgba(0,0,0,.05);cursor:pointer;transition:all .25s;overflow:hidden}
+.report-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.rc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.rc-title{margin:0;color:#023F2D;font-size:13px;font-weight:bold;line-height:1.3}
+.rc-refid{margin:4px 0 0;font-size:11px;color:#6c757d}
+.rc-status-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.rc-status-emoji{font-size:18px}
+.rc-status-badge{padding:5px 10px;border-radius:14px;font-size:11px;color:#fff;font-weight:600;white-space:nowrap}
+.rc-divider{margin:10px 0;border:0;border-top:1px solid #dcdcdc}
+.rc-grid{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}
+.rc-grid > div{flex:1 1 180px}
+.rc-grid strong{display:block;font-size:11px;color:#666;margin-bottom:2px}
+.rc-detail{margin-top:12px;font-size:12px;color:#333;background:#fff;padding:10px;border-radius:6px;border:1px solid #e8e8e8}
+.rc-detail strong{display:block;margin-bottom:4px;color:#023F2D}
+.rc-actions{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.rc-toggle{padding:4px 12px;background:#0078D4;color:#fff;border:none;border-radius:4px;font-size:11px;cursor:pointer}
+.rc-toggle:hover{background:#106ebe}
+.rc-doc-link{padding:6px 12px;background:#17A2B8;color:#fff;text-decoration:none;border-radius:6px;font-size:11px}
+.rc-doc-link:hover{background:#138496}
+.html-view{background:#fff}
+.html-view iframe{width:100%;height:100%;border:none;display:block}
+.list-gallery{background:#fff;border:2px solid #a6a6a6;height:100%;overflow-y:auto}
+.lg-header{display:grid;grid-template-columns:2fr 1.2fr 1.4fr 1fr 1.6fr 1fr 1.4fr 1fr;background:#E8F5F1;padding:8px;font-family:'Segoe UI',sans-serif;font-size:11px;font-weight:bold;color:#023F2D;border-bottom:2px solid #023F2D;position:sticky;top:0;z-index:1}
+.lg-row{display:grid;grid-template-columns:2fr 1.2fr 1.4fr 1fr 1.6fr 1fr 1.4fr 1fr;padding:6px 8px;font-family:'Segoe UI',sans-serif;font-size:11px;border-bottom:1px solid #eee;align-items:center;min-height:42px;cursor:pointer;transition:background .15s}
+.lg-row:hover{background:#f0f7f4}
+.lg-row .c-title{color:#005e92;font-weight:600;text-decoration:underline}
+.lg-row .c-status{text-align:center}
+.lg-row .c-date{text-align:center;font-variant-numeric:tabular-nums}
+#view9 .charts-wrap{padding:16px;background:#f9f9f9;height:100%;overflow:auto}
+.empty,.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:240px;color:#999;font-family:Verdana,sans-serif;font-size:12px;gap:10px;padding:24px;text-align:center}
+.empty svg,.placeholder svg{opacity:.3}
+.placeholder h3{color:#aaa;font-weight:normal}
+#loading{display:none;position:fixed;inset:0;background:rgba(255,255,255,.78);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#loading.show{display:flex}
+.spinner{width:44px;height:44px;border:4px solid #dce8f5;border-top-color:#0078D4;border-radius:50%;animation:spin .9s linear infinite}
+.spinner-label{font-family:Verdana,sans-serif;font-size:12px;color:#0078D4;font-weight:bold}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toasts{position:fixed;top:14px;right:14px;z-index:9998;display:flex;flex-direction:column;gap:8px;max-width:340px}
+.toast{padding:10px 14px;border-radius:6px;font-family:Verdana,sans-serif;font-size:9pt;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18);animation:slideIn .3s ease;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.toast .x{cursor:pointer;font-weight:bold;font-size:14px;opacity:.8}
+.toast .x:hover{opacity:1}
+.toast-success{background:#107C10}.toast-warning{background:#e07000}.toast-error{background:#a92323}.toast-info{background:#0078D4}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+.hdr-btn.busy{position:relative;color:transparent !important}
+.hdr-btn.busy::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;color:#fff;animation:spin .8s linear infinite}
+.btn-white-cyan.busy::after,.btn-blue.busy::after{color:#008B8B}
+@media (max-width:780px){
+  .hdr-btn{min-width:100px;font-size:7pt;padding-left:10px}
+  .lg-header,.lg-row{grid-template-columns:2fr 1fr 1fr 1fr}
+  .lg-header .hide-sm,.lg-row .hide-sm{display:none}
+  .month-btn{font-size:8pt;min-width:48px}
+  .nav-item{font-size:7pt;min-width:60px}
+}
+@media (max-width:520px){
+  .recip-wrap{flex:1 1 100%}.dp-wrap{flex:1 1 100%}
+  .hdr-btn{flex:1 1 calc(50% - 4px);min-width:0}
+}
+</style>
+</head>
+<body>
+<div id="loading" role="status" aria-live="polite"><div class="spinner"></div><div class="spinner-label" id="loadingLabel">Loading…</div></div>
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
+<div id="app">
+  <nav id="navBar" role="tablist" aria-label="Screen navigation"></nav>
+  <div id="monthBar" role="tablist" aria-label="View tab"></div>
+  <div id="hdr1">
+    <button class="hdr-btn btn-generate" id="btnGenerate" type="button">Generate Report</button>
+    <div id="reportInfoBadge"></div>
+    <button class="hdr-btn btn-orange" id="btnReport" type="button">Report</button>
+    <button class="hdr-btn btn-blue" id="btnGetSP" type="button">Get SharepointReport</button>
+    <div class="dp-wrap" id="datePickers">
+      <label for="dpStart">From</label><input type="date" id="dpStart" />
+      <label for="dpEnd">To</label><input type="date" id="dpEnd" />
+    </div>
+    <button class="hdr-btn btn-teal report-only" id="btnReport3" type="button" style="display:none">Report 3</button>
+    <button class="hdr-btn btn-teal report-only" id="btnReport4" type="button" style="display:none">Report 4</button>
+    <button class="hdr-btn btn-white-cyan report-only" id="btnSend38" type="button" style="display:none">Send Report 38</button>
+    <button class="hdr-btn btn-white-cyan report-only" id="btnSendV1" type="button" style="display:none">Send Report V1</button>
+    <button class="hdr-btn btn-white-cyan report-only" id="btnSend24_2" type="button" style="display:none">24_2</button>
+    <button class="hdr-btn btn-white-cyan report-only" id="btnSend37" type="button" style="display:none">Send Report 37</button>
+  </div>
+  <div id="hdr2" style="display:none">
+    <div class="recip-wrap">
+      <div class="recip-input-row" id="recipChips"><input type="text" id="recipInput" placeholder="Type to search users…" autocomplete="off"/></div>
+      <div class="recip-suggest" id="recipSuggest" role="listbox"></div>
+    </div>
+    <button class="hdr-btn btn-white-cyan" id="btnSendAtt24_2" type="button" disabled>Send Report w/ Attachment</button>
+    <button class="hdr-btn btn-teal" id="btnSendAttPerf" type="button" disabled>Send Performance w/ Attachment</button>
+  </div>
+  <div id="bottom">
+    <div id="view1" class="view"><div id="galleryCards"></div></div>
+    <div id="view2" class="view html-view"></div>
+    <div id="view3" class="view html-view"></div>
+    <div id="view4" class="view html-view"></div>
+    <div id="view5" class="view html-view"></div>
+    <div id="view6" class="view html-view"></div>
+    <div id="view7" class="view list-gallery">
+      <div class="lg-header"><span>Activity Title</span><span class="hide-sm">Activity Status</span><span class="hide-sm">Assignment</span><span class="hide-sm">Priority</span><span>Category</span><span class="hide-sm">Act. Date</span><span>Assigned To</span><span class="hide-sm">Task Date</span></div>
+      <div id="lg7Body"></div>
+    </div>
+    <div id="view8" class="view list-gallery">
+      <div class="lg-header"><span>Activity Title</span><span class="hide-sm">Activity Status</span><span class="hide-sm">Assignment</span><span class="hide-sm">Priority</span><span>Category</span><span class="hide-sm">Act. Date</span><span>Assigned To</span><span class="hide-sm">Task Date</span></div>
+      <div id="lg8Body"></div>
+    </div>
+    <div id="view9" class="view"><div class="charts-wrap" id="chartsBody"></div></div>
+    <div id="view10" class="view list-gallery">
+      <div class="lg-header"><span>Assigned To</span><span class="hide-sm">Task Date</span><span class="hide-sm">Activity Title</span><span class="hide-sm">Activity Status</span><span>Assignment</span><span class="hide-sm">Priority</span><span>Category</span><span class="hide-sm">Act. Date</span></div>
+      <div id="lg10Body"></div>
+    </div>
+  </div>
+</div>
+<script>
+"use strict";
+/* ============================================================
+ * POWER AUTOMATE FLOW ENDPOINTS — byte-for-byte from project files
+ * ============================================================ */
+const FLOW = Object.freeze({
+  E01_REFERENCES: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU",
+  E02_GET_DOCS:   "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+  E03_FETCH_TASKS:"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4",
+  E04_GET_EMAILS: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U",
+  E05_CREATE_TASK:"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b3bad3005b44bf6bced0f8074d3f2ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1kJge9P2IOMOLRZOK-cVb3bcDJbuDhbR8x9h0TvHspQ",
+  E06_BULK_ASSIGN:"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE",
+  E07_OPT_BULK:   "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1154b50e1d17420dadb3b012e7e2a02c/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Swbi7nJCn3-VSSz4KN1YxHfxFPfO-EUWsF-czBS3zs4"
+});
+const DISPATCH = Object.freeze({
+  generateReport:FLOW.E03_FETCH_TASKS, lookupTasksReports:FLOW.E03_FETCH_TASKS,
+  fetchAllUsers:FLOW.E01_REFERENCES, fetchReferences:FLOW.E01_REFERENCES,
+  fetchTasks:FLOW.E03_FETCH_TASKS, fetchEmails:FLOW.E04_GET_EMAILS,
+  fetchDocs:FLOW.E02_GET_DOCS, createTask:FLOW.E05_CREATE_TASK,
+  bulkAssignDirect:FLOW.E06_BULK_ASSIGN, bulkAssignOptimized:FLOW.E07_OPT_BULK,
+  sendEmailV2:FLOW.E04_GET_EMAILS, htmlReportsRun:FLOW.E07_OPT_BULK
+});
+const CFG = {CURRENT_USER_EMAIL:"user@nitda.gov.ng", CURRENT_USER_NAME:"Current User", SOURCE:"DGO_FAST_Track_WEB_OPS", ACTIVE_SCREEN:"Stats", REQUEST_TIMEOUT_MS:60000, MAX_TOASTS:4};
+const state = {
+  varReset:true, showReportButton:true,
+  cb1Active:true,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,cb6Active:false,cb7Active:false,cb8Active:false,cb9Active:false,cb10Active:false,
+  varReportID:"", varReportCreator:CFG.CURRENT_USER_NAME, varReportPeriod:"", varReportDurationDays:0,
+  varAvgTimeMinutes:0, varAvgTimeFormatted:"", ReportQueryString:"",
+  varEarliestActivityDate:null, varLatestActivityDate:null,
+  varHTMLDonutCanvas:"", varHTMLBarPriority:"", varHTMLBarCategory:"", varHTMLBarAssignedTo:"",
+  varHTMLCharts:"", varHTMLKPI:"", varHTMLTableRows:"", varHTMLDonut:"",
+  varHTMLReport:"", varHTMLReport_v1:"", varHTMLReport_24_2:"", varHTMLReport_37:"", varPerformanceReportHTML:"",
+  varAggregates:{Category:[],Priority:[],TaskStatus:[],AssignedTo:[],ActivityStatus:[],ActivityAssignStatus:[]},
+  varSortedCounts:{Category:[],Priority:[],TaskStatus:[],AssignedTo:[],ActivityStatus:[],ActivityAssignStatus:[]},
+  varKPICompleted:0, currentSelectionItemID:"", lastSelectionID:"",
+  selectedRecipients:[], varReportReceipients:""
+};
+const collections = {
+  colPerformanceReport:[], colSharepointReport:[], colReportGalleryItems:[],
+  colReportWithIndex:[], colReportWithIndexSorted:[], colReportSummary:[],
+  colProcessedDates:[], varDonutSegments:[], colAllUsers:[],
+  colScreenNavigation:[
+    {Name:"Stats",Screen:"Stats"},{Name:"Home",Screen:"Home Screen"},
+    {Name:"Activities",Screen:"Activities_1"},{Name:"Tasks",Screen:"Task"},
+    {Name:"E-mails",Screen:"EmailClient_Screen"},{Name:"Dashboard",Screen:"DashboardScreen"},
+    {Name:"Track",Screen:"Track"},{Name:"Support",Screen:"Support"}
+  ]
+};
+const MONTH_TABS = ["M1","M2","M3","M4","M5","M6","M7","M8","M9","M10","All","None"];
+const $=id=>document.getElementById(id);
+const el=(t,p={})=>{const n=document.createElement(t);for(const k in p){if(k==='style')Object.assign(n.style,p[k]);else if(k==='class')n.className=p[k];else if(k==='html')n.innerHTML=p[k];else if(k==='text')n.textContent=p[k];else if(k.startsWith('on'))n.addEventListener(k.slice(2),p[k]);else n.setAttribute(k,p[k])}return n};
+const escHtml=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function lower(s){return String(s==null?'':s).toLowerCase()}
+function trim(s){return String(s==null?'':s).trim()}
+function proper(s){return String(s==null?'':s).replace(/\b\w/g,c=>c.toUpperCase())}
+function upper(s){return String(s==null?'':s).toUpperCase()}
+function isBlank(v){return v==null||(typeof v==='string'&&v.trim()==='')}
+function dateValue(v){if(!v)return null;if(v instanceof Date)return isNaN(v)?null:v;const d=new Date(v);return isNaN(d)?null:d}
+function dateDiffMinutes(a,b){const x=dateValue(a),y=dateValue(b);if(!x||!y)return 0;return Math.round(Math.abs(y-x)/60000)}
+function dateDiffDays(a,b){const x=dateValue(a),y=dateValue(b);if(!x||!y)return 0;return Math.round(Math.abs(y-x)/86400000)}
+function roundDown(n,d){const p=Math.pow(10,d||0);return Math.floor((Number(n)||0)*p)/p}
+function maxBy(arr,k){if(!arr||!arr.length)return 0;return arr.reduce((m,r)=>Math.max(m,Number(r[k])||0),0)}
+function sumBy(arr,k){if(!arr||!arr.length)return 0;return arr.reduce((m,r)=>m+(Number(r[k])||0),0)}
+const MON_S=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAY_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_L=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON_L=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const pad2=n=>String(n).padStart(2,'0');
+function textFmt(d,fmt){
+  d=dateValue(d); if(!d) return '';
+  switch(fmt){
+    case 'mm/dd/yy':return `${pad2(d.getMonth()+1)}/${pad2(d.getDate())}/${String(d.getFullYear()).slice(-2)}`;
+    case 'dd-mmm-yyyy':return `${pad2(d.getDate())}-${MON_S[d.getMonth()]}-${d.getFullYear()}`;
+    case 'dd mmm yyyy':return `${pad2(d.getDate())} ${MON_S[d.getMonth()]} ${d.getFullYear()}`;
+    case 'longdate':return `${DAY_L[d.getDay()]}, ${d.getDate()} ${MON_L[d.getMonth()]} ${d.getFullYear()}`;
+    case 'ddd, dd mmm yyyy':return `${DAY_S[d.getDay()]}, ${pad2(d.getDate())} ${MON_S[d.getMonth()]} ${d.getFullYear()}`;
+    case 'ddd, dd mmm yyyy hh:mm AM/PM':{let h=d.getHours();const ap=h>=12?'PM':'AM';h=h%12||12;return `${DAY_S[d.getDay()]}, ${pad2(d.getDate())} ${MON_S[d.getMonth()]} ${d.getFullYear()} ${pad2(h)}:${pad2(d.getMinutes())} ${ap}`;}
+    case 'dddd, dd mmm yyyy hh:mm AM/PM':{let h=d.getHours();const ap=h>=12?'PM':'AM';h=h%12||12;return `${DAY_L[d.getDay()]}, ${pad2(d.getDate())} ${MON_S[d.getMonth()]} ${d.getFullYear()} ${pad2(h)}:${pad2(d.getMinutes())} ${ap}`;}
+    case 'yyyy-mm-ddTHH:mm:ssZ':return d.toISOString().replace(/\.\d{3}Z$/,'Z');
+    case 'yyyymmddhhmm':return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}${pad2(d.getHours())}${pad2(d.getMinutes())}`;
+    case 'yyyymmdd-HHmmss':return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+    case 'yyyy':return String(d.getFullYear());
+    default:return d.toISOString();
+  }
+}
+function formatAvgMinutes(mins){
+  mins=Number(mins)||0; if(!mins)return '0 mins';
+  if(mins>=1440){const days=Math.trunc(mins/1440);const hrs=Math.trunc((mins/60)%24);const m=Math.trunc(mins%60);return `${days} days ${hrs} hrs ${m} mins`;}
+  if(mins>=60){const hrs=Math.trunc(mins/60);const m=Math.trunc(mins%60);return `${hrs} hrs ${m} mins`;}
+  return `${Math.trunc(mins)} mins`;
+}
+function generateReportID(){
+  const ts=textFmt(new Date(),'yyyymmdd-HHmmss');
+  const rand=String(Math.floor(Math.random()*100000)).padStart(5,'0');
+  return `REP-${ts}-${rand}`;
+}
+function getStatusColor(s){
+  const v=lower(trim(s));
+  if(['complete','completed','treated','assigned'].includes(v))return '#28A745';
+  if(['in progress','not assigned'].includes(v))return '#FFC107';
+  if(['overdue','not started'].includes(v))return '#DC3545';
+  if(v==='pending')return '#17A2B8';
+  return '#6C757D';
+}
+function getPriorityColor(p){
+  const v=lower(trim(p));
+  if(v==='high')return '#DC3545';
+  if(v==='medium'||v==='normal')return '#FFC107';
+  if(v==='low')return '#28A745';
+  return '#6C757D';
+}
+function getActivityStatusColor(s){
+  const v=lower(trim(s));
+  if(v==='assigned'||v==='treated'||v==='completed')return '#28A745';
+  if(v==='not assigned'||v==='in progress')return '#FFC107';
+  if(v==='pending')return '#17A2B8';
+  return '#DC3545';
+}
+function normalizeRecord(r){
+  if(!r||typeof r!=='object') return {};
+  const get=(...keys)=>{for(const k of keys){if(r&&r[k]!=null&&r[k]!=='')return r[k]}return ''};
+  return {
+    Activity_AttachmentLink:String(get('Activity_AttachmentLink','activity_attachmentlink','ActivityAttachmentLink','AttachmentLink')||''),
+    Activity_ID:String(get('Activity_ID','ActivityID','activity_id','Activity_Id','RefIDD','ID')||''),
+    Activity_Title:String(get('Activity_Title','ActivityTitle','activity_title','Title')||''),
+    Activity_DateCreated:dateValue(get('Activity_DateCreated','ActivityDateCreated','activity_datecreated','Created','CreatedDate')),
+    Activity_AssignmentStatus:lower(trim(String(get('Activity_AssignmentStatus','ActivityAssignmentStatus','activity_assignmentstatus','AssignmentStatus')||''))),
+    Activity_Status:lower(trim(String(get('Activity_Status','ActivityStatus','activity_status','Status','Progress')||''))),
+    Task_Title:String(get('Task_Title','TaskTitle','task_title','Title')||''),
+    Task_Creation_Date:dateValue(get('Task_Creation_Date','TaskCreationDate','task_creation_date','TaskCreated','Created','StartDate')),
+    Task_Assigned_To:lower(trim(String(get('Task_Assigned_To','TaskAssignedTo','task_assigned_to','AssignedTo','Assigned')||''))),
+    Task_RefIDD:String(get('Task_RefIDD','TaskRefIDD','task_refidd','RefIDD','Reference_ID')||''),
+    Task_Priority:lower(trim(String(get('Task_Priority','TaskPriority','task_priority','Priority')||''))),
+    Task_Category:lower(trim(String(get('Task_Category','TaskCategory','task_category','Category','Classification')||''))),
+    Task_ID:String(get('Task_ID','TaskID','task_id','Task_Id','ID')||''),
+    Task_Status:lower(trim(String(get('Task_Status','TaskStatus','task_status','Progress','Status')||''))),
+    Task_AttachmentLink:String(get('Task_AttachmentLink','TaskAttachmentLink','task_attachmentlink','AttachmentLink')||''),
+    Time_Difference:String(get('Time_Difference','TimeDifference','time_difference')||'')
+  };
+}
+function normalizeUser(u){
+  if(!u||typeof u!=='object') return {Mail:'',DisplayName:'',Department:'',Id:''};
+  return {
+    Mail:String(u.Mail||u.mail||u.UserEmail||u.userEmail||u.Email||u.email||''),
+    DisplayName:String(u.DisplayName||u.displayName||u.Name||u.name||u.FullName||u.fullName||''),
+    Department:String(u.Department||u.department||''),
+    JobTitle:String(u.JobTitle||u.jobTitle||u.title||''),
+    Id:String(u.Id||u.id||u.ID||'')
+  };
+}
+async function callFlow(url, payload, opts={}){
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), opts.timeoutMs || CFG.REQUEST_TIMEOUT_MS);
+  let response;
+  try{
+    response = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'application/json; charset=utf-8','Accept':'application/json'},
+      body: JSON.stringify(payload),
+      signal: ctrl.signal, mode:'cors', credentials:'omit', cache:'no-store'
+    });
+  } catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError') throw new Error('Request timed out');
+    throw new Error(`Network error: ${e.message}`);
+  } finally { clearTimeout(timer); }
+  const text = await response.text().catch(()=>'');
+  let body;
+  try {
+    body = text ? JSON.parse(text) : {};
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch(_){} }
+  } catch(_) { body = { raw:text }; }
+  if(!response.ok){
+    const msg = (body && (body.errors?.[0]?.message || body.message || body.error?.message)) || `HTTP ${response.status}`;
+    const err = new Error(msg); err.status = response.status; err.body = body; throw err;
+  }
+  if(body && typeof body === 'object' && body.ok === false && Array.isArray(body.errors) && body.errors.length){
+    const err = new Error(body.errors.map(e=>e.message||String(e)).join('; '));
+    err.status = body.status?.http || 500; err.body = body; throw err;
+  }
+  try { window.NITDA_STATS && (window.NITDA_STATS.lastResponse = body); } catch(_){}
+  return body;
+}
+function unwrap(body){
+  if(body==null) return null;
+  if(Array.isArray(body)) return body;
+  if(body.data!=null) return body.data;
+  if(body.result!=null) return body.result;
+  if(body.value!=null) return body.value;
+  if(body.items!=null) return body.items;
+  return body;
+}
+function extractArray(body){
+  let v = unwrap(body);
+  if(typeof v === 'string'){ try { v = JSON.parse(v); } catch(_){ return []; } }
+  if(Array.isArray(v)) return v;
+  if(v && typeof v==='object'){
+    const ARR_KEYS = ['reportdata','reportData','Report_Data','records','list','rows','tasks','users','docs','emails','results','data','items','value','body','response','output','payload'];
+    for(const k of ARR_KEYS){
+      if(Array.isArray(v[k])) return v[k];
+      if(typeof v[k]==='string'){ try { const p = JSON.parse(v[k]); if(Array.isArray(p)) return p; } catch(_){} }
+    }
+    // Last-resort scan: any first-level array property
+    for(const k of Object.keys(v)){
+      if(Array.isArray(v[k]) && v[k].length && typeof v[k][0]==='object') return v[k];
+    }
+    // Recurse one level
+    for(const k of Object.keys(v)){
+      if(v[k] && typeof v[k]==='object' && !Array.isArray(v[k])){
+        for(const kk of ARR_KEYS){ if(Array.isArray(v[k][kk])) return v[k][kk]; }
+      }
+    }
+  }
+  return [];
+}
+function toast(msg,type='info',ttl=5500){
+  const c=$('toasts'); if(!c)return;
+  while(c.children.length>=CFG.MAX_TOASTS) c.removeChild(c.firstChild);
+  const t=el('div',{class:`toast toast-${type}`,html:`<span>${escHtml(msg)}</span><span class="x">×</span>`});
+  t.addEventListener('click',()=>t.remove());
+  c.appendChild(t);
+  if(ttl>0)setTimeout(()=>{ if(t.parentNode) t.remove(); }, ttl);
+}
+function notify(msg,type){ toast(msg, type==='Warning'?'warning':type==='Error'?'error':type==='Success'?'success':'info'); }
+let _loadCnt=0;
+function showLoading(label='Loading…'){_loadCnt++;const e=$('loading');if(e){$('loadingLabel').textContent=label;e.classList.add('show');}}
+function hideLoading(){_loadCnt=Math.max(0,_loadCnt-1);if(_loadCnt===0){const e=$('loading');if(e)e.classList.remove('show');}}
+function setBtnBusy(id, busy){const b=$(id);if(b){b.classList.toggle('busy',busy);b.disabled=busy||b.dataset.disabled==='1';}}
+function groupCount(arr,key){
+  const m=new Map();
+  arr.forEach(r=>{const v=lower(trim(String(r[key]||'')));m.set(v,(m.get(v)||0)+1);});
+  return Array.from(m,([Value,Count])=>({Value,Count}));
+}
+function computeAggregates(rows){
+  if(!rows||!rows.length) return false;
+  state.varAggregates = {
+    Category:groupCount(rows,'Task_Category'), Priority:groupCount(rows,'Task_Priority'),
+    TaskStatus:groupCount(rows,'Task_Status'), AssignedTo:groupCount(rows,'Task_Assigned_To'),
+    ActivityAssignStatus:groupCount(rows,'Activity_AssignmentStatus'),
+    ActivityStatus:groupCount(rows,'Activity_Status')
+  };
+  const sortDesc = a => [...a].sort((x,y)=>y.Count-x.Count);
+  state.varSortedCounts = {
+    Category:sortDesc(state.varAggregates.Category), Priority:sortDesc(state.varAggregates.Priority),
+    TaskStatus:sortDesc(state.varAggregates.TaskStatus), AssignedTo:sortDesc(state.varAggregates.AssignedTo),
+    ActivityAssignStatus:sortDesc(state.varAggregates.ActivityAssignStatus),
+    ActivityStatus:sortDesc(state.varAggregates.ActivityStatus)
+  };
+  const valid = rows.filter(r=>!isBlank(r.Activity_DateCreated)&&!isBlank(r.Task_Creation_Date));
+  state.varAvgTimeMinutes = valid.length ? valid.reduce((s,r)=>s+dateDiffMinutes(r.Activity_DateCreated,r.Task_Creation_Date),0)/valid.length : 0;
+  state.varAvgTimeFormatted = formatAvgMinutes(state.varAvgTimeMinutes);
+  collections.colProcessedDates = rows.map(r=>({...r,ProcessedActivityDate:r.Activity_DateCreated})).filter(r=>!isBlank(r.ProcessedActivityDate));
+  if(collections.colProcessedDates.length){
+    const ts = collections.colProcessedDates.map(r=>r.ProcessedActivityDate.getTime());
+    state.varEarliestActivityDate = new Date(Math.min(...ts));
+    state.varLatestActivityDate = new Date(Math.max(...ts));
+    if(state.varEarliestActivityDate.getTime()===state.varLatestActivityDate.getTime()){
+      state.varReportPeriod = textFmt(state.varEarliestActivityDate,'longdate');
+    } else {
+      state.varReportPeriod = textFmt(state.varEarliestActivityDate,'longdate')+' to '+textFmt(state.varLatestActivityDate,'longdate');
+    }
+    state.varReportDurationDays = dateDiffDays(state.varEarliestActivityDate,state.varLatestActivityDate)+1;
+  } else {
+    state.varEarliestActivityDate=null;state.varLatestActivityDate=null;
+    state.varReportPeriod='No data available';state.varReportDurationDays=0;
+  }
+  collections.colReportSummary = [
+    {Metric:"Average Time",Value:state.varAvgTimeFormatted},
+    {Metric:"Report Period",Value:state.varReportPeriod},
+    {Metric:"Duration (Days)",Value:String(state.varReportDurationDays)}
+  ];
+  const totalAS = sumBy(state.varSortedCounts.ActivityStatus,'Count');
+  let run=0;
+  collections.varDonutSegments = state.varSortedCounts.ActivityStatus.map(r=>{
+    const start = Math.round((run/(totalAS||1))*360);
+    const end = Math.round(((run+r.Count)/(totalAS||1))*360);
+    run += r.Count;
+    return {Color:getActivityStatusColor(r.Value),StartAngle:start,EndAngle:end,Value:r.Value,Count:r.Count};
+  });
+  collections.colReportWithIndex = rows.map((r,i)=>({...r,RowIndex:rows.length-i}));
+  collections.colReportWithIndexSorted = [...collections.colReportWithIndex].sort((a,b)=>a.RowIndex-b.RowIndex);
+  state.varKPICompleted = (state.varSortedCounts.ActivityStatus.find(r=>r.Value==='assigned')||{Count:0}).Count;
+  return true;
+}
+function buildHTMLDonutCanvas(){
+  const sc=state.varSortedCounts.ActivityStatus;
+  const completedCount = (sc.find(r=>lower(r.Value)==='assigned')||{Count:0}).Count;
+  const progressCount = (sc.find(r=>lower(r.Value)==='not assigned')||{Count:0}).Count;
+  const total = sumBy(sc,'Count')||1;
+  const cp = roundDown((completedCount/total)*100,0);
+  const pp = roundDown((progressCount/total)*100,0);
+  return `<div style="width:160px;height:160px;margin:auto;border-radius:50%;background:conic-gradient(#28A745 0% ${cp}%,#FFC107 ${cp}% ${cp+pp}%,#DC3545 ${cp+pp}% 100%);display:flex;align-items:center;justify-content:center;"><div style="width:80px;height:80px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:#023F2D;">${cp}%</div></div>`;
+}
+function buildBarBlock(items, colorFn, title, useProper=true){
+  const max=maxBy(items,'Count')||1;
+  const rows=items.map(r=>{
+    const pct=roundDown((r.Count/max)*100,0);
+    const lbl=useProper?proper(r.Value||''):r.Value||'';
+    return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(lbl)} (${r.Count})</div><div style="width:100%;background:#eee;height:16px;border-radius:4px;"><div style="width:${pct}%;background:${colorFn(r.Value)};height:100%;border-radius:4px;"></div></div></div>`;
+  }).join('');
+  return `<div style="margin-top:20px;"><h3 style="color:#023F2D;font-size:16px;">${escHtml(title)}</h3>${rows}</div>`;
+}
+function buildSVGDonut(){
+  const segs=collections.varDonutSegments;
+  if(!segs.length) return `<svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="#eee"/></svg>`;
+  const cx=100,cy=100,r=80;
+  const paths=segs.map(s=>{
+    const sa=(s.StartAngle-90)*Math.PI/180, ea=(s.EndAngle-90)*Math.PI/180;
+    const x1=cx+r*Math.cos(sa), y1=cy+r*Math.sin(sa);
+    const x2=cx+r*Math.cos(ea), y2=cy+r*Math.sin(ea);
+    const large = (s.EndAngle-s.StartAngle)>180?1:0;
+    return `<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${s.Color}" stroke="#fff" stroke-width="1"/>`;
+  }).join('');
+  return `<svg width="200" height="200" viewBox="0 0 200 200">${paths}</svg>`;
+}
+function buildHTMLTableRowsBasic(rows){
+  return rows.map(r=>`<tr>
+    <td style="padding:8px;">${r.RowIndex||''}</td>
+    <td style="padding:8px;">${escHtml(r.Task_Title)}</td>
+    <td style="padding:8px;">${escHtml(proper(r.Task_Category))}</td>
+    <td style="padding:8px;">${escHtml(proper(r.Task_Priority))}</td>
+    <td style="padding:8px;">${escHtml(proper(r.Task_Assigned_To))}</td>
+    <td style="padding:8px;">${escHtml(proper(r.Task_Status))}</td>
+    <td style="padding:8px;">${textFmt(r.Task_Creation_Date,'dd-mmm-yyyy')}</td>
+    <td style="padding:8px;text-align:center;"><a href="${escHtml(r.Task_AttachmentLink||'#')}" target="_blank" rel="noopener">📎 View</a></td>
+    <td style="padding:8px;text-align:center;"><a href="${escHtml(r.Activity_AttachmentLink||'#')}" target="_blank" rel="noopener">🔗 Open</a></td>
+  </tr>`).join('');
+}
+function buildAllHTMLReports(){
+  const data = collections.colPerformanceReport.length ? collections.colPerformanceReport : collections.colSharepointReport;
+  if(!data.length) return;
+  const sc = state.varSortedCounts;
+  state.varHTMLDonutCanvas = buildHTMLDonutCanvas();
+  state.varHTMLBarPriority = buildBarBlock(sc.Priority, v=>{const lv=lower(v);return lv==='high'?'#DC3545':(lv==='medium'||lv==='normal')?'#FFC107':'#28A745';},'Priority Breakdown');
+  state.varHTMLBarCategory = buildBarBlock(sc.Category, ()=>'#007BFF','Category Breakdown');
+  state.varHTMLBarAssignedTo = buildBarBlock(sc.AssignedTo,()=>'#6F42C1','Assigned To Breakdown', false);
+  state.varHTMLCharts = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:32px;">
+    <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);text-align:center;"><h3 style="color:#023F2D;">Activity Status</h3>${state.varHTMLDonutCanvas}</div>
+    <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">${state.varHTMLBarPriority}</div>
+    <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">${state.varHTMLBarCategory}</div>
+    <div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05);">${state.varHTMLBarAssignedTo}</div></div>`;
+  state.varHTMLKPI = `<div style="display:flex;flex-wrap:wrap;gap:16px;">${
+    collections.colReportSummary.map(r=>`<div style="flex:1 1 220px;background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);"><h4 style="margin:0;font-size:14px;color:#888;">${escHtml(r.Metric)}</h4><p style="margin:8px 0 0;font-size:18px;color:#023F2D;font-weight:bold;">${escHtml(r.Value)}</p></div>`).join('')
+  }</div>`;
+  state.varHTMLDonut = buildSVGDonut();
+  state.varHTMLTableRows = buildHTMLTableRowsBasic(collections.colReportWithIndexSorted);
+  const kpiCards = collections.colReportSummary.map(r=>`<div style="flex:1 1 220px;background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-align:center;"><h4 style="margin:0;font-size:13px;color:#777;">${escHtml(r.Metric)}</h4><p style="margin:6px 0 0;font-size:18px;font-weight:bold;color:#023F2D;">${escHtml(r.Value)}</p></div>`).join('');
+  const r38_pri = sc.Priority.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.Priority,'Count')||1))*100,0);const bg=lower(r.Value)==='high'?'#DC3545':(lower(r.Value)==='medium'||lower(r.Value)==='normal')?'#FFC107':'#28A745';return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(proper(r.Value))} (${r.Count})</div><div style="background:#eee;height:16px;border-radius:4px;"><div style="width:${pct}%;background:${bg};height:100%;border-radius:4px;"></div></div></div>`;}).join('');
+  const r38_cat = sc.Category.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.Category,'Count')||1))*100,0);return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(proper(r.Value))} (${r.Count})</div><div style="background:#eee;height:16px;border-radius:4px;"><div style="width:${pct}%;background:#82ca9d;height:100%;border-radius:4px;"></div></div></div>`;}).join('');
+  const r38_ass = sc.AssignedTo.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.AssignedTo,'Count')||1))*100,0);return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(proper(r.Value))} (${r.Count})</div><div style="background:#eee;height:16px;border-radius:4px;"><div style="width:${pct}%;background:#6F42C1;height:100%;border-radius:4px;"></div></div></div>`;}).join('');
+  const r38_rows = collections.colReportWithIndexSorted.map(r=>{
+    const pBg=lower(r.Task_Priority)==='high'?'#DC3545':(lower(r.Task_Priority)==='medium'||lower(r.Task_Priority)==='normal')?'#FFC107':'#28A745';
+    const sBg=lower(r.Task_Status)==='completed'?'#28A745':lower(r.Task_Status)==='in progress'?'#FFC107':lower(r.Task_Status)==='not started'?'#DC3545':'#6C757D';
+    return `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px 8px;font-size:13px;">${r.RowIndex}</td><td style="padding:10px 8px;font-size:13px;max-width:180px;word-wrap:break-word;"><strong>${escHtml(r.Task_Title)}</strong></td><td style="padding:10px 8px;font-size:13px;color:#555;">${escHtml(proper(r.Task_Category))}</td><td style="padding:10px 8px;"><span style="padding:4px 10px;border-radius:20px;font-size:12px;color:#fff;background:${pBg};display:inline-block;">${escHtml(upper(r.Task_Priority))}</span></td><td style="padding:10px 8px;font-size:13px;color:#333;">${escHtml(proper(r.Task_Assigned_To))}</td><td style="padding:10px 8px;"><span style="padding:4px 10px;border-radius:20px;font-size:12px;color:#fff;background:${sBg};display:inline-block;">${escHtml(upper(r.Task_Status))}</span></td><td style="padding:10px 8px;font-size:12px;color:#444;">${textFmt(r.Task_Creation_Date,'dd-mmm-yyyy')}</td><td style="padding:10px 8px;text-align:center;white-space:nowrap;"><a href="${escHtml(r.Task_AttachmentLink||'#')}" target="_blank" rel="noopener" style="padding:6px 12px;margin:2px;font-size:12px;background:#007BFF;color:#fff;text-decoration:none;border-radius:6px;display:inline-block;">📎 View</a><a href="${escHtml(r.Activity_AttachmentLink||'#')}" target="_blank" rel="noopener" style="padding:6px 12px;margin:2px;font-size:12px;background:#28A745;color:#fff;text-decoration:none;border-radius:6px;display:inline-block;">🔗 Open</a></td></tr>`;
+  }).join('');
+  state.varHTMLReport = `<div style="font-family:Segoe UI,Arial,sans-serif;background:#f9f9f9;padding:20px;color:#333;"><div style="background:#023F2D;color:#fff;padding:24px 20px;border-radius:10px;text-align:center;margin-bottom:20px;"><h1 style="margin:0;font-size:28px;">NITDA Digital Activity Report</h1><p style="margin:6px 0 0;font-size:14px;">Reference ID: <b>${escHtml(state.varReportID)}</b></p></div><div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;margin:30px 0;">${kpiCards}</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:40px;"><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);text-align:center;"><h3 style="font-size:16px;color:#023F2D;margin-bottom:12px;">Activity Status</h3>${state.varHTMLDonutCanvas}</div><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="font-size:16px;color:#023F2D;text-align:center;margin-bottom:12px;">Tasks by Category</h3>${r38_cat}</div><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="font-size:16px;color:#023F2D;text-align:center;margin-bottom:12px;">Tasks by Priority</h3>${r38_pri}</div><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="font-size:16px;color:#023F2D;text-align:center;margin-bottom:12px;">Tasks by Assignee</h3>${r38_ass}</div></div><div style="margin-top:30px;background:#fff;padding:16px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);"><h3 style="font-size:16px;color:#023F2D;text-align:center;margin-bottom:16px;">Task Details</h3><div style="font-size:12px;color:#999;text-align:right;margin-bottom:6px;">Swipe left/right on small screens</div><div style="overflow-x:auto;max-width:100%;"><table style="width:100%;border-collapse:collapse;min-width:920px;font-size:13px;"><thead><tr style="background-color:#E8F5F1;color:#023F2D;"><th style="padding:10px 8px;text-align:left;">#</th><th style="padding:10px 8px;text-align:left;">Title</th><th style="padding:10px 8px;text-align:left;">Category</th><th style="padding:10px 8px;text-align:left;">Priority</th><th style="padding:10px 8px;text-align:left;">Assigned To</th><th style="padding:10px 8px;text-align:left;">Status</th><th style="padding:10px 8px;text-align:left;">Created</th><th style="padding:10px 8px;text-align:center;">Actions</th></tr></thead><tbody>${r38_rows}</tbody></table></div></div><p style="text-align:center;font-size:13px;margin-top:40px;color:#666;">&copy; ${textFmt(new Date(),'yyyy')} NITDA – National Information Technology Development Agency. Generated automatically.</p></div>`;
+  const mgmtStat = sc.ActivityStatus.map(r=>`<li style="margin-bottom:6px;"><span style="font-weight:bold;color:${getActivityStatusColor(r.Value)};">${escHtml(r.Value)}</span>: ${r.Count}</li>`).join('');
+  const mgmtPri = sc.Priority.map(r=>`<li style="margin-bottom:6px;"><span style="font-weight:bold;color:${getPriorityColor(r.Value)};">${escHtml(r.Value)}</span>: ${r.Count}</li>`).join('');
+  const mgmtCat = sc.Category.map(r=>`<li style="margin-bottom:6px;"><span style="font-weight:bold;">${escHtml(proper(r.Value))}</span>: ${r.Count}</li>`).join('');
+  const mgmtAss = sc.AssignedTo.map(r=>`<li style="margin-bottom:6px;">${escHtml(r.Value)}: ${r.Count}</li>`).join('');
+  const mgmtRows = data.map(r=>{
+    const aBg=lower(r.Activity_Status)==='completed'?'#4CAF50':lower(r.Activity_Status)==='in progress'?'#FFC107':lower(r.Activity_Status)==='not started'?'#f44336':'#9E9E9E';
+    const pBg=lower(r.Task_Priority)==='high'?'#f44336':lower(r.Task_Priority)==='medium'?'#FFC107':lower(r.Task_Priority)==='low'?'#4CAF50':'#9E9E9E';
+    return `<tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">${escHtml(r.Activity_ID)} / ${escHtml(r.Task_ID)} / ${escHtml(r.Task_RefIDD)}</td><td style="padding:8px;">${escHtml(r.Activity_Title)}</td><td style="padding:8px;">${textFmt(r.Activity_DateCreated,'ddd, dd mmm yyyy hh:mm AM/PM')}</td><td style="padding:8px;">${textFmt(r.Task_Creation_Date,'ddd, dd mmm yyyy hh:mm AM/PM')}</td><td style="padding:8px;">${escHtml(r.Task_Assigned_To)}</td><td style="padding:8px;">${escHtml(r.Task_Category)}</td><td style="padding:8px;background-color:${aBg};color:white;">${escHtml(r.Activity_Status)}</td><td style="padding:8px;background-color:${pBg};color:white;">${escHtml(r.Task_Priority)}</td><td style="padding:8px;">${escHtml(r.Time_Difference)}</td></tr>`;
+  }).join('');
+  state.varHTMLReport_v1 = `<div style="font-family:Arial,sans-serif;background-color:#f4f6f9;padding:20px;"><div style="background-color:#05583B;color:white;padding:20px;text-align:center;border-radius:8px;"><h1 style="margin:0;font-size:28px;">NITDA Management Report</h1><p style="margin:5px 0;font-size:16px;">Comprehensive Overview of Activities, Tasks &amp; Performance</p></div><div style="margin-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;"><div style="flex:1;background:#E2EFDA;padding:15px;border-radius:8px;text-align:center;min-width:220px;"><h3 style="color:#05583B;">Total Activities</h3><p style="font-size:22px;font-weight:bold;color:#002060;">${data.length}</p></div><div style="flex:1;background:#FFF2CC;padding:15px;border-radius:8px;text-align:center;min-width:220px;"><h3 style="color:#05583B;">Unique Categories</h3><p style="font-size:22px;font-weight:bold;color:#002060;">${sc.Category.length}</p></div><div style="flex:1;background:#D9E1F2;padding:15px;border-radius:8px;text-align:center;min-width:220px;"><h3 style="color:#05583B;">Avg Assignment Time</h3><p style="font-size:22px;font-weight:bold;color:#C00000;">${escHtml(state.varAvgTimeFormatted)}</p></div></div><div style="margin-top:30px;background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.05);"><h2 style="color:#023F2D;font-size:20px;margin-bottom:16px;">Summary Breakdown</h2><div style="display:flex;flex-wrap:wrap;gap:20px;"><div style="flex:1 1 250px;background:#F8F9FA;border-radius:8px;padding:15px;"><h3 style="margin:0 0 10px;color:#023F2D;font-size:16px;">Activity Status</h3><ul style="margin:0;padding-left:18px;font-size:14px;color:#333;">${mgmtStat}</ul></div><div style="flex:1 1 250px;background:#F8F9FA;border-radius:8px;padding:15px;"><h3 style="margin:0 0 10px;color:#023F2D;font-size:16px;">Priority</h3><ul style="margin:0;padding-left:18px;font-size:14px;color:#333;">${mgmtPri}</ul></div><div style="flex:1 1 250px;background:#F8F9FA;border-radius:8px;padding:15px;"><h3 style="margin:0 0 10px;color:#023F2D;font-size:16px;">Categories</h3><ul style="margin:0;padding-left:18px;font-size:14px;color:#333;">${mgmtCat}</ul></div><div style="flex:1 1 250px;background:#F8F9FA;border-radius:8px;padding:15px;"><h3 style="margin:0 0 10px;color:#023F2D;font-size:16px;">Assigned To</h3><ul style="margin:0;padding-left:18px;font-size:14px;color:#333;">${mgmtAss}</ul></div></div></div><div style="margin-top:20px;background:#fff;padding:20px;border-radius:8px;overflow-x:auto;"><h2 style="color:#05583B;">Activity Details</h2><table style="width:100%;border-collapse:collapse;"><thead><tr style="background-color:#4CAF50;color:white;"><th style="padding:8px;">Activity / Task / RefID</th><th style="padding:8px;">Activity Title</th><th style="padding:8px;">Activity Created</th><th style="padding:8px;">Task Created</th><th style="padding:8px;">Assigned To</th><th style="padding:8px;">Category</th><th style="padding:8px;">Status</th><th style="padding:8px;">Priority</th><th style="padding:8px;">Time Difference</th></tr></thead><tbody>${mgmtRows}</tbody></table></div><div style="margin-top:20px;text-align:center;font-size:12px;color:#666;">&copy; ${textFmt(new Date(),'yyyy')} NITDA. All rights reserved.</div></div>`;
+  const donutCss = (collections.varDonutSegments.length?collections.varDonutSegments:[{Color:'#ccc',StartAngle:0,EndAngle:360}]).map(s=>`${s.Color} ${s.StartAngle}deg ${s.EndAngle}deg`).join(', ');
+  const dgo_pri = sc.Priority.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.Priority,'Count')||1))*100,0);const bg=lower(r.Value)==='high'?'#DC3545':(lower(r.Value)==='medium'||lower(r.Value)==='normal')?'#FFC107':'#28A745';return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(r.Value)} (${r.Count})</div><div style="width:100%;background:#e9ecef;border-radius:4px;height:18px;"><div style="width:${pct}%;background-color:${bg};height:18px;border-radius:4px;"></div></div></div>`;}).join('');
+  const dgo_cat = sc.Category.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.Category,'Count')||1))*100,0);return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(proper(r.Value))} (${r.Count})</div><div style="width:100%;background:#f1f1f1;border-radius:4px;height:16px;"><div style="width:${pct}%;background:#007BFF;height:16px;border-radius:4px;"></div></div></div>`;}).join('');
+  const dgo_ass = sc.AssignedTo.map(r=>{const pct=roundDown((r.Count/(maxBy(sc.AssignedTo,'Count')||1))*100,0);return `<div style="margin-bottom:10px;"><div style="font-size:13px;margin-bottom:4px;">${escHtml(r.Value)} (${r.Count})</div><div style="width:100%;background:#f1f1f1;border-radius:4px;height:16px;"><div style="width:${pct}%;background:#6F42C1;height:16px;border-radius:4px;"></div></div></div>`;}).join('');
+  const totalAS_dgo = sumBy(sc.ActivityStatus,'Count');
+  const dgo_rows = data.map(r=>{
+    const aBg=lower(r.Activity_Status)==='treated'?'#28A745':lower(r.Activity_Status)==='in progress'?'#FFC107':'#DC3545';
+    const pBg=lower(r.Task_Priority)==='high'?'#DC3545':(lower(r.Task_Priority)==='medium'||lower(r.Task_Priority)==='normal')?'#FFC107':'#28A745';
+    const appLink=`https://apps.powerapps.com/play/1b402856-92cb-45e8-afbf-f362265afaa1?ITEMID=${encodeURIComponent(r.Task_ID||'')}`;
+    return `<tr style="border-bottom:1px solid #e1e1e1;"><td style="padding:10px 8px;">${escHtml(r.Activity_ID)} / ${escHtml(r.Task_ID)}</td><td style="padding:10px 8px;"><span style="display:inline-block;padding:4px 10px;color:#fff;border-radius:4px;font-weight:600;background:${aBg};">${escHtml(proper(r.Activity_Status))}</span></td><td style="padding:10px 8px;"><a href="${escHtml(r.Activity_AttachmentLink||'#')}" target="_blank" rel="noopener" style="color:#0056B3;text-decoration:underline;font-weight:bold;">${escHtml(r.Activity_Title)}</a></td><td style="padding:10px 8px;">${textFmt(r.Activity_DateCreated,'ddd, dd mmm yyyy hh:mm AM/PM')}</td><td style="padding:10px 8px;">${textFmt(r.Task_Creation_Date,'ddd, dd mmm yyyy hh:mm AM/PM')}</td><td style="padding:10px 8px;">${escHtml(r.Task_Assigned_To)}</td><td style="padding:10px 8px;">${escHtml(proper(r.Task_Category))}</td><td style="padding:10px 8px;"><span style="display:inline-block;padding:4px 10px;color:#fff;border-radius:4px;font-weight:600;background:${pBg};">${escHtml(proper(r.Task_Priority))}</span></td><td style="padding:10px 8px;"><a href="${escHtml(r.Activity_AttachmentLink||'#')}" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;background:#17A2B8;color:#fff;text-decoration:none;border-radius:6px;font-size:13px;">View</a></td><td style="padding:10px 8px;"><a href="${appLink}" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;background:#0056B3;color:#fff;text-decoration:none;border-radius:6px;font-size:13px;">Open</a></td></tr>`;
+  }).join('');
+  state.varHTMLReport_24_2 = `<div style="font-family:Arial,sans-serif;background-color:#f8f9fa;padding:20px;max-width:100%;"><div style="background-color:#023F2D;color:white;padding:25px 20px;text-align:center;border-radius:8px;"><h1 style="margin:0;font-size:28px;font-weight:bold;">Office of the Director General</h1><p style="margin:8px 0 0;font-size:16px;opacity:.9;">Comprehensive Overview of Activities, Tasks &amp; Performance Report</p></div><div style="background:#fff;margin-top:20px;padding:24px 20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;border:1px solid #e6e6e6;"><div><div style="font-size:13px;font-weight:600;color:#6c757d;">📅 Report Date</div><div style="font-size:15px;color:#212529;font-weight:bold;">${textFmt(new Date(),'dddd, dd mmm yyyy hh:mm AM/PM')}</div></div><div><div style="font-size:13px;font-weight:600;color:#6c757d;">🕓 Report Period</div><div style="font-size:15px;color:#212529;font-weight:bold;">${escHtml(state.varReportPeriod)}</div></div><div><div style="font-size:13px;font-weight:600;color:#6c757d;">🆔 Reference ID</div><div style="font-size:15px;color:#212529;font-weight:bold;">${escHtml(state.varReportID||('REP-'+textFmt(new Date(),'yyyymmddhhmm')))}</div></div><div><div style="font-size:13px;font-weight:600;color:#6c757d;">👤 Report Generated By</div><div style="font-size:15px;color:#212529;font-weight:bold;">${escHtml(state.varReportCreator)}</div></div></div><div style="margin-top:25px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;"><div style="flex:1 1 280px;background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Total Records</h3><p style="font-size:28px;font-weight:bold;color:#0056B3;margin:8px 0;">${data.length}</p></div><div style="flex:1 1 280px;background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Assigned</h3><p style="font-size:28px;font-weight:bold;color:#28A745;margin:8px 0;">${data.filter(r=>r.Activity_Status==='treated').length}</p></div><div style="flex:1 1 280px;background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Avg Assignment Interval</h3><p style="font-size:28px;font-weight:bold;color:#DC3545;margin:8px 0;">${escHtml(state.varAvgTimeFormatted)}</p></div></div><div style="margin-top:30px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;"><div style="background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Activity Status</h3><div style="width:180px;height:180px;border-radius:50%;margin:20px auto;background:conic-gradient(${donutCss});"></div><p style="font-size:14px;color:#555;">Total: ${totalAS_dgo}</p></div><div style="background:#fff;padding:20px;border-radius:8px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Priority Breakdown</h3><div style="margin-top:12px;text-align:left;">${dgo_pri}</div></div><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Categories</h3><div style="margin-top:10px;">${dgo_cat}</div></div><div style="background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.08);"><h3 style="color:#023F2D;font-size:16px;">Assignees</h3><div style="margin-top:10px;">${dgo_ass}</div></div></div><div style="margin-top:30px;background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.05);overflow-x:auto;"><h2 style="color:#023F2D;font-size:20px;margin-bottom:16px;">Activity Details</h2><table style="width:100%;border-collapse:collapse;font-size:14px;text-align:left;"><thead><tr style="background:#023F2D;color:white;"><th style="padding:12px 10px;">Activity / Task</th><th style="padding:12px 10px;">Assignment Status</th><th style="padding:12px 10px;">Activity Title</th><th style="padding:12px 10px;">Date Received</th><th style="padding:12px 10px;">Assigned On</th><th style="padding:12px 10px;">Assigned To</th><th style="padding:12px 10px;">Category</th><th style="padding:12px 10px;">Priority</th><th style="padding:12px 10px;">Attachment</th><th style="padding:12px 10px;">App Link</th></tr></thead><tbody>${dgo_rows}</tbody></table></div></div>`;
+  const totalPri = sumBy(sc.Priority,'Count')||1;
+  const r37_pri = sc.Priority.map(r=>{const pct=Math.round((r.Count*100)/totalPri);return `<div style="display:flex;align-items:center;"><div style="width:100px;font-size:14px;color:#212529;">${escHtml(r.Value)}</div><div style="flex:1;background:#e0e0e0;height:12px;border-radius:4px;overflow:hidden;margin:0 8px;"><div style="height:100%;width:${pct}%;background:#28a745;"></div></div><div style="width:40px;text-align:right;font-size:14px;">${r.Count}</div></div>`;}).join('');
+  const r37_legend = sc.ActivityStatus.map(r=>{const v=lower(r.Value);const bg=v==='assigned'?'#28A745':v==='not assigned'?'#FFC107':'#DC3545';return `<div style="display:flex;align-items:center;gap:6px;"><div style="width:14px;height:14px;border-radius:50%;background:${bg};"></div><span style="font-size:14px;color:#212529;">${escHtml(upper(r.Value))} (${r.Count})</span></div>`;}).join('');
+  const r37_table = collections.colReportWithIndexSorted.map(r=>`<tr style="border-bottom:1px solid #ddd;"><td style="padding:6px;">${r.RowIndex}</td><td style="padding:6px;">${escHtml(r.Task_Title)}</td><td style="padding:6px;">${escHtml(r.Task_Category)}</td><td style="padding:6px;">${escHtml(r.Task_Priority)}</td><td style="padding:6px;">${escHtml(r.Task_Status)}</td></tr>`).join('');
+  state.varHTMLReport_37 = `<div style="font-family:Segoe UI,sans-serif;background:#f4f6f9;padding:20px;"><div style="background:#023F2D;color:#fff;padding:30px;border-radius:10px;text-align:center;"><h1 style="margin:0;font-size:24px;">NITDA PERFORMANCE REPORT</h1><p style="margin:6px 0 0;font-size:14px;color:#e9ecef;">ID: ${escHtml(state.varReportID)}</p></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;background:#fff;margin-top:20px;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.05);"><div><strong>Report Date:</strong><br>${textFmt(new Date(),'dddd, dd mmm yyyy hh:mm AM/PM')}</div><div><strong>Period:</strong><br>${escHtml(state.varReportPeriod)}</div><div><strong>Duration:</strong><br>${state.varReportDurationDays} days</div><div><strong>Generated By:</strong><br>${escHtml(state.varReportCreator)}</div><div><strong>Avg Turnaround:</strong><br>${escHtml(state.varAvgTimeFormatted)}</div></div><div style="margin-top:25px;background:#fff;padding:20px;border-radius:8px;"><h2 style="color:#023F2D;margin-bottom:12px;">Key Metrics</h2><table style="width:100%;border-collapse:collapse;font-size:14px;"><thead><tr style="background:#eff3f2;"><th style="padding:10px;">Metric</th><th style="padding:10px;">Value</th></tr></thead><tbody>${collections.colReportSummary.map(r=>`<tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">${escHtml(r.Metric)}</td><td style="padding:8px;">${escHtml(r.Value)}</td></tr>`).join('')}</tbody></table></div><div style="margin-top:30px;"><h2 style="color:#023F2D;">Task Priority Breakdown</h2><div style="display:flex;flex-direction:column;gap:8px;">${r37_pri}</div></div><div style="margin-top:30px;"><h2 style="color:#023F2D;">Activity Status Overview</h2><div style="display:flex;flex-wrap:wrap;gap:12px;">${r37_legend}</div></div><div style="margin-top:30px;"><h2 style="color:#023F2D;">Detailed Task List</h2><table style="width:100%;border-collapse:collapse;font-size:14px;"><thead><tr style="background:#eff3f2;"><th style="padding:8px;text-align:left;">#</th><th style="padding:8px;text-align:left;">Title</th><th style="padding:8px;text-align:left;">Category</th><th style="padding:8px;text-align:left;">Priority</th><th style="padding:8px;text-align:left;">Status</th></tr></thead><tbody>${r37_table}</tbody></table></div></div>`;
+  state.varPerformanceReportHTML = state.varHTMLReport;
+  const safeRender = (viewId, html, label) => { try { renderHtmlIframe(viewId, html); } catch(e){ console.warn(`[${label}] render failed:`,e); const v=$(viewId); if(v) v.innerHTML=`<div class="empty"><p>Failed to render: ${escHtml(label)}.</p></div>`; } };
+  safeRender('view2', state.varHTMLReport,        'HtmlText38');
+  safeRender('view3', state.varHTMLReport_v1,     'HtmlTextv1');
+  safeRender('view4', state.varHTMLReport_24_2,   'HtmlText24_2');
+  safeRender('view5', state.varHTMLReport_37,     'HtmlText37');
+  safeRender('view6', state.varPerformanceReportHTML, 'HtmlText38_1');
+}
+function renderHtmlIframe(viewId, html){
+  const v=$(viewId); if(!v) return;
+  v.innerHTML='';
+  const wrapped = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><base target="_blank"></head><body style="margin:0;padding:0;">${html}</body></html>`;
+  try {
+    const ifr = document.createElement('iframe');
+    ifr.setAttribute('sandbox','allow-popups allow-popups-to-escape-sandbox');
+    ifr.setAttribute('title','Report');
+    ifr.style.cssText = 'width:100%;height:100%;border:none;display:block;background:#fff;';
+    if('srcdoc' in ifr){
+      ifr.srcdoc = wrapped;
+    } else {
+      ifr.src = 'data:text/html;charset=utf-8,'+encodeURIComponent(wrapped);
+    }
+    v.appendChild(ifr);
+  } catch(e) {
+    console.warn('[renderHtmlIframe] iframe failed; falling back to inline embed:',e);
+    v.innerHTML = `<div style="width:100%;height:100%;overflow:auto;background:#fff;">${html}</div>`;
+  }
+}
+function renderCardGallery(){
+  const c=$('galleryCards'); if(!c)return;
+  const items = collections.colReportGalleryItems;
+  if(!items.length){
+    c.innerHTML = `<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p>No report data. Click "Report" or "Get SharepointReport" to load data.</p></div>`;
+    return;
+  }
+  c.innerHTML = items.map((item,idx)=>{
+    const aStatus=lower(item.Activity_AssignmentStatus);
+    const emoji=aStatus==='assigned'?'✅':aStatus==='not assigned'?'⏳':'❌';
+    const sBg=aStatus==='assigned'?'#28a745':aStatus==='not assigned'?'#ffc107':'#dc3545';
+    const pColor=getPriorityColor(item.Task_Priority);
+    const pIcon=lower(item.Task_Priority)==='high'?'🔥 ':lower(item.Task_Priority)==='medium'?'⚠️ ':lower(item.Task_Priority)==='low'?'✅ ':'';
+    const expanded=item.showDetails===true;
+    const detail=expanded?`<div class="rc-detail"><strong>Description:</strong><p style="margin:4px 0;line-height:1.5;">${escHtml(item.Task_AttachmentLink||'No description available.')}</p></div>`:'';
+    const docBtn=expanded?`<a class="rc-doc-link" href="${escHtml(item.Activity_AttachmentLink||'#')}" target="_blank" rel="noopener">📎 View Document</a>`:'';
+    return `<div class="report-card" data-id="${escHtml(item.Activity_ID)}" data-idx="${idx}"><div class="rc-head"><div><h2 class="rc-title">${escHtml(item.Activity_Title)}</h2><p class="rc-refid">Ref ID: ${escHtml(item.Activity_ID)}</p></div><div class="rc-status-wrap"><span class="rc-status-emoji">${emoji}</span><span class="rc-status-badge" style="background:${sBg};">${escHtml(proper(item.Activity_AssignmentStatus))}</span></div></div><hr class="rc-divider"/><div class="rc-grid"><div><strong>Department</strong>${escHtml(item.Task_Category)}</div><div><strong>Assigned To</strong>${escHtml(item.Task_Assigned_To)}</div><div><strong>Priority</strong><span style="color:${pColor};font-weight:bold;">${pIcon}${escHtml(proper(item.Task_Priority))}</span></div><div><strong>Task Created On</strong>${textFmt(item.Task_Creation_Date,'dd mmm yyyy')}</div></div>${detail}<div class="rc-actions"><button class="rc-toggle" data-act="toggle" data-idx="${idx}">${expanded?'▲ Collapse':'▼ Expand'}</button>${docBtn}</div></div>`;
+  }).join('');
+  c.querySelectorAll('button[data-act="toggle"]').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{e.stopPropagation();const idx=Number(btn.getAttribute('data-idx'));toggleCardDetail(idx);});
+  });
+}
+function toggleCardDetail(idx){
+  state.lastSelectionID = state.currentSelectionItemID;
+  const prev = collections.colReportGalleryItems.find(r=>r.Activity_ID===state.lastSelectionID);
+  if(prev) prev.showDetails = false;
+  const cur = collections.colReportGalleryItems[idx];
+  if(cur){cur.showDetails = !cur.showDetails; state.currentSelectionItemID = cur.Activity_ID;}
+  renderCardGallery();
+}
+function renderListGallery(bodyId, rows, mode){
+  const c=$(bodyId); if(!c) return;
+  if(!rows.length){c.innerHTML=`<div class="empty"><p>No data. Generate a report first.</p></div>`;return;}
+  c.innerHTML = rows.map(r=>{
+    const sCol=getActivityStatusColor(r.Activity_Status);
+    const pCol=getPriorityColor(r.Task_Priority);
+    const aDate=textFmt(r.Activity_DateCreated,'mm/dd/yy');
+    const tDate=textFmt(r.Task_Creation_Date,'mm/dd/yy');
+    if(mode==='assignedTo'){
+      return `<div class="lg-row" tabindex="0"><span class="c-title">${escHtml(r.Task_Assigned_To)}</span><span class="c-date hide-sm">${tDate}</span><span class="c-title hide-sm">${escHtml(r.Activity_Title)}</span><span class="c-status hide-sm" style="color:${sCol};font-weight:600;">${escHtml(proper(r.Activity_Status))}</span><span>${escHtml(proper(r.Activity_AssignmentStatus))}</span><span class="hide-sm" style="color:${pCol};font-weight:600;">${escHtml(proper(r.Task_Priority))}</span><span>${escHtml(proper(r.Task_Category))}</span><span class="c-date hide-sm">${aDate}</span></div>`;
+    }
+    return `<div class="lg-row" tabindex="0"><span class="c-title">${escHtml(r.Activity_Title)}</span><span class="c-status hide-sm" style="color:${sCol};font-weight:600;">${escHtml(proper(r.Activity_Status))}</span><span class="hide-sm">${escHtml(proper(r.Activity_AssignmentStatus))}</span><span class="hide-sm" style="color:${pCol};font-weight:600;">${escHtml(proper(r.Task_Priority))}</span><span>${escHtml(proper(r.Task_Category))}</span><span class="c-date hide-sm">${aDate}</span><span>${escHtml(r.Task_Assigned_To)}</span><span class="c-date hide-sm">${tDate}</span></div>`;
+  }).join('');
+}
+function renderAllGalleries(){
+  const data = collections.colPerformanceReport.length ? collections.colPerformanceReport : collections.colSharepointReport;
+  renderCardGallery();
+  renderListGallery('lg7Body', data, 'normal');
+  renderListGallery('lg8Body', data, 'normal');
+  renderListGallery('lg10Body',data, 'assignedTo');
+  renderChartsView();
+}
+function renderChartsView(){
+  const c=$('chartsBody'); if(!c)return;
+  const sc = state.varSortedCounts;
+  if(!sc.Category.length && !sc.Priority.length){
+    c.innerHTML = `<div class="placeholder"><h3>Charts View</h3><p>Generate a report to view charts.</p></div>`;
+    return;
+  }
+  c.innerHTML = `${state.varHTMLCharts}<div style="margin-top:24px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);">${state.varHTMLKPI}</div>`;
+}
+function applyViewVisibility(){
+  const map={view1:state.cb1Active,view2:state.cb2Active,view3:state.cb3Active,view4:state.cb4Active,view5:state.cb5Active,view6:state.cb6Active,view7:state.cb7Active,view8:state.cb8Active,view9:state.cb9Active,view10:state.cb10Active};
+  Object.entries(map).forEach(([id,vis])=>{const v=$(id);if(v)v.classList.toggle('active',!!vis);});
+}
+function renderNavBar(){
+  const bar=$('navBar'); if(!bar)return;
+  bar.innerHTML='';
+  collections.colScreenNavigation.forEach(item=>{
+    const active = item.Name===CFG.ACTIVE_SCREEN;
+    const b = el('button',{class:`nav-item${active?' active':''}`,type:'button',role:'tab','aria-selected':String(active),html:`${escHtml(item.Name)} <span class="nav-dot"></span>`,onclick:()=>navigateTo(item.Screen,item.Name)});
+    bar.appendChild(b);
+  });
+}
+function navigateTo(screen,name){if(name===CFG.ACTIVE_SCREEN)return;toast(`Navigation to "${name}" is handled by the Power Apps host.`,'info');}
+let _selectedMonth='M1';
+function renderMonthBar(){
+  const bar=$('monthBar'); if(!bar)return;
+  bar.innerHTML='';
+  MONTH_TABS.forEach(t=>{
+    const sel=(t===_selectedMonth);
+    const b=el('button',{class:`month-btn${sel?' selected':''}`,type:'button',role:'tab','aria-selected':String(sel),html:`<span>${escHtml(t)}</span><span class="month-chevron">›</span>`,onclick:()=>handleMonthSelect(t)});
+    bar.appendChild(b);
+  });
+}
+function handleMonthSelect(value){
+  _selectedMonth=value;
+  const all0={cb1Active:false,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,cb6Active:false,cb7Active:false,cb8Active:false,cb9Active:false,cb10Active:false};
+  const M={
+    M1:{...all0,cb1Active:true},M2:{...all0,cb2Active:true},M3:{...all0,cb3Active:true},
+    M4:{...all0,cb4Active:true},M5:{...all0,cb5Active:true},M6:{...all0,cb6Active:true},
+    M7:{...all0,cb7Active:true},M8:{...all0,cb8Active:true},M9:{...all0,cb9Active:true},
+    M10:{...all0,cb10Active:true},
+    All:{cb1Active:true,cb2Active:true,cb3Active:true,cb4Active:true,cb5Active:true,cb6Active:true,cb7Active:true,cb8Active:true,cb9Active:true,cb10Active:true},
+    None:{...all0}
+  };
+  Object.assign(state, M[value]||M.M1);
+  applyViewVisibility(); renderMonthBar();
+  if(state.cb9Active) renderChartsView();
+}
+function applyShowReportButton(){
+  const v=state.showReportButton;
+  $('btnReport').style.display=v?'':'none';
+  $('btnGetSP').style.display=v?'':'none';
+  $('datePickers').style.display=v?'':'none';
+  document.querySelectorAll('.report-only').forEach(b=>{b.style.display=v?'none':'';});
+  $('hdr2').style.display=v?'none':'';
+  const badge=$('reportInfoBadge');
+  if(badge){
+    if(state.varReportID){
+      badge.classList.add('show');
+      const rows = collections.colPerformanceReport.length||collections.colSharepointReport.length;
+      badge.innerHTML = `<strong>📋 ID:</strong>&nbsp;${escHtml(state.varReportID)}${state.varReportPeriod?`&nbsp;|&nbsp;<strong>Period:</strong>&nbsp;${escHtml(state.varReportPeriod)}`:''}${rows?`&nbsp;|&nbsp;<strong>Rows:</strong>&nbsp;${rows}`:''}`;
+    } else { badge.classList.remove('show'); badge.textContent=''; }
+  }
+}
+function initDatePickers(){
+  const today=new Date();
+  const seven=new Date(today); seven.setDate(today.getDate()-7);
+  const fmt=d=>`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const s=$('dpStart'),e=$('dpEnd');
+  if(s) s.value=fmt(seven);
+  if(e) e.value=fmt(today);
+}
+function renderRecipientChips(){
+  const row = $('recipChips'); if(!row) return;
+  row.querySelectorAll('.recip-chip').forEach(n=>n.remove());
+  const input = $('recipInput');
+  state.selectedRecipients.forEach((u,i)=>{
+    const chip = el('span',{class:'recip-chip',title:u.Mail,html:`${escHtml(u.DisplayName||u.Mail)} <span class="x" data-i="${i}">×</span>`});
+    chip.querySelector('.x').addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const idx = Number(chip.querySelector('.x').dataset.i);
+      state.selectedRecipients.splice(idx,1);
+      state.varReportReceipients = state.selectedRecipients.map(u=>u.Mail).join(';')+(state.selectedRecipients.length?';':'');
+      renderRecipientChips(); updateAttachmentBtnState();
+    });
+    row.insertBefore(chip,input);
+  });
+  state.varReportReceipients = state.selectedRecipients.map(u=>u.Mail).join(';')+(state.selectedRecipients.length?';':'');
+  updateAttachmentBtnState();
+}
+function showRecipSuggestions(query){
+  const sg = $('recipSuggest'); if(!sg) return;
+  query = lower(trim(query||''));
+  const taken = new Set(state.selectedRecipients.map(u=>lower(u.Mail)));
+  const matches = collections.colAllUsers.filter(u=>!taken.has(lower(u.Mail))).filter(u=>!query||lower(u.DisplayName).includes(query)||lower(u.Mail).includes(query)).slice(0,40);
+  if(!matches.length){sg.classList.remove('open');sg.innerHTML='';return;}
+  sg.innerHTML = matches.map((u,i)=>`<div class="recip-suggest-item${i===0?' hl':''}" data-mail="${escHtml(u.Mail)}" data-name="${escHtml(u.DisplayName)}"><div class="name">${escHtml(u.DisplayName||u.Mail)}</div><div class="mail">${escHtml(u.Mail)}</div></div>`).join('');
+  sg.classList.add('open');
+  sg.querySelectorAll('.recip-suggest-item').forEach(item=>{
+    item.addEventListener('mousedown',(e)=>{e.preventDefault();addRecipient({Mail:item.dataset.mail,DisplayName:item.dataset.name});});
+  });
+}
+function addRecipient(u){
+  if(!u||!u.Mail) return;
+  const already = state.selectedRecipients.some(x=>lower(x.Mail)===lower(u.Mail));
+  if(!already){if(!u.DisplayName)u.DisplayName=u.Mail;state.selectedRecipients.push(u);renderRecipientChips();}
+  const inp=$('recipInput'); if(inp){inp.value='';inp.focus();}
+  $('recipSuggest').classList.remove('open');
+}
+function updateAttachmentBtnState(){
+  const has = state.selectedRecipients.length>0;
+  ['btnSendAtt24_2','btnSendAttPerf'].forEach(id=>{
+    const b=$(id); if(!b)return;
+    b.disabled = !has; b.dataset.disabled = has?'0':'1';
+  });
+}
+async function flowGenerateReport(queryString, reportID){
+  const payload = {
+    name:"GenerateReport",action:"generateReport",Action:"generateReport",
+    operation:"read",Operation:"read",method:"POST",
+    source:CFG.SOURCE,userEmail:CFG.CURRENT_USER_EMAIL,UserEmail:CFG.CURRENT_USER_EMAIL,email:CFG.CURRENT_USER_EMAIL,
+    text:queryString,text_1:reportID,reportId:reportID,filter:queryString,
+    contextType:"report",
+    device:{id:"standalone-html",platform:navigator.platform||'',ua:navigator.userAgent||''}
+  };
+  const body = await callFlow(DISPATCH.generateReport, payload);
+  // Unwrap possibly double-encoded envelope
+  let root = body;
+  if(typeof root === 'string'){ try { root = JSON.parse(root); } catch(_){} }
+  const data = (root && root.data) || root;
+  // Try report-specific keys
+  let rd = data && (data.reportdata || data.reportData || data.Report_Data || data.tasks || data.records);
+  if(typeof rd === 'string'){ try { rd = JSON.parse(rd); } catch(_){ rd = null; } }
+  if(Array.isArray(rd)) return rd;
+  // Generic fallback
+  return extractArray(body);
+}
+async function flowLookupTasksReport(reportID){
+  const payload = {
+    name:"LookupTasksReports",action:"lookupTasksReports",Action:"lookupTasksReports",
+    operation:"read",Operation:"read",method:"POST",
+    source:CFG.SOURCE,userEmail:CFG.CURRENT_USER_EMAIL,
+    reportId:reportID,text:`Report ID eq '${reportID}'`,text_1:reportID,
+    filter:`Report_ID eq '${reportID}'`,contextType:"sharepointLookup"
+  };
+  const body = await callFlow(DISPATCH.lookupTasksReports, payload);
+  const arr = extractArray(body);
+  if(arr.length) return arr[0];
+  const u = unwrap(body);
+  if(u && typeof u==='object' && !Array.isArray(u)) return u;
+  return null;
+}
+async function flowFetchAllUsers(){
+  const payload = {
+    name:"FetchAllUsers",action:"lookups",Action:"lookups",
+    operation:"read",Operation:"read",method:"POST",
+    source:CFG.SOURCE,userEmail:CFG.CURRENT_USER_EMAIL,
+    target:"colAllUsers",contextType:"users"
+  };
+  const body = await callFlow(DISPATCH.fetchAllUsers, payload);
+  let root = body; if(typeof root==='string'){ try { root=JSON.parse(root); } catch(_){} }
+  const data = (root && root.data) || root || {};
+  let arr = Array.isArray(data.users) ? data.users : extractArray(body);
+  return arr.map(normalizeUser).filter(u=>!!u.Mail);
+}
+async function flowSendEmailV2(subject, htmlBody, toRecipients, importance='Normal'){
+  const payload = {
+    name:"SendEmailV2",action:"sendEmailV2",Action:"sendEmailV2",
+    operation:"create",Operation:"create",method:"POST",
+    source:CFG.SOURCE,userEmail:CFG.CURRENT_USER_EMAIL,
+    Email:{to:toRecipients,subject:subject,body:htmlBody,importance:importance,isHtml:true},
+    Subject:subject,Body:htmlBody,To:toRecipients,Importance:importance,
+    contextType:"email",contextId:state.varReportID||""
+  };
+  return await callFlow(DISPATCH.sendEmailV2, payload);
+}
+async function flowHTMLReportsRun(htmlBody, recipientsConcat, reportTag){
+  const payload = {
+    name:"HTMLReportsRun",action:"htmlReportsRun",Action:"htmlReportsRun",
+    operation:"create",Operation:"create",method:"POST",
+    source:CFG.SOURCE,userEmail:CFG.CURRENT_USER_EMAIL,
+    HTML:htmlBody,htmlBody:htmlBody,
+    recipients:recipientsConcat,Recipients:recipientsConcat,
+    reportTag:reportTag,ReportTag:reportTag,
+    reportId:state.varReportID||"",reportPeriod:state.varReportPeriod||"",
+    contextType:"htmlReportAttachment",contextId:state.varReportID||""
+  };
+  return await callFlow(DISPATCH.htmlReportsRun, payload);
+}
+function handleToggleGenerate(){state.showReportButton=!state.showReportButton;applyShowReportButton();}
+async function handleRunReport(){
+  const sd=$('dpStart').value, ed=$('dpEnd').value;
+  if(!sd||!ed){notify('Please select start and end dates.','Warning');return;}
+  const startD=new Date(sd+'T00:00:00Z'), endD=new Date(ed+'T23:59:59Z');
+  if(isNaN(startD)||isNaN(endD)){notify('Invalid date selected.','Warning');return;}
+  if(startD>endD){notify('Start date must be on or before end date.','Warning');return;}
+  state.varReportCreator = CFG.CURRENT_USER_NAME;
+  state.varReportID = generateReportID();
+  state.ReportQueryString = `Created ge '${textFmt(startD,'yyyy-mm-ddTHH:mm:ssZ')}' and Created le '${textFmt(endD,'yyyy-mm-ddTHH:mm:ssZ')}'`;
+  setBtnBusy('btnReport',true); showLoading('Running report…');
+  try{
+    const rawArr = await flowGenerateReport(state.ReportQueryString, state.varReportID);
+    collections.colPerformanceReport = (rawArr||[]).map(normalizeRecord);
+    if(!collections.colPerformanceReport.length){notify('No data found for the selected date range','Warning');return;}
+    computeAggregates(collections.colPerformanceReport);
+    collections.colReportGalleryItems = collections.colPerformanceReport.map(r=>({...r,showDetails:false}));
+    try { buildAllHTMLReports(); } catch(e){ console.warn('[buildAllHTMLReports]',e); notify('Some HTML report views could not be built. Card and list views are available.','Warning'); }
+    renderAllGalleries();
+    state.showReportButton = !state.showReportButton;
+    applyShowReportButton();
+    notify(`Report generated. ${collections.colPerformanceReport.length} records.`,'Success');
+  } catch(err){
+    notify(`Failed to generate report: ${err.message}`,'Error');
+    console.error('[handleRunReport]',err);
+  } finally { hideLoading(); setBtnBusy('btnReport',false); }
+}
+async function handleGetSharepointReport(){
+  if(!state.varReportID){
+    const sd=$('dpStart').value, ed=$('dpEnd').value;
+    if(!sd||!ed){notify('Run "Report" first, or pick dates and try again.','Warning');return;}
+    state.varReportID = generateReportID();
+    state.ReportQueryString = `Created ge '${textFmt(new Date(sd+'T00:00:00Z'),'yyyy-mm-ddTHH:mm:ssZ')}' and Created le '${textFmt(new Date(ed+'T23:59:59Z'),'yyyy-mm-ddTHH:mm:ssZ')}'`;
+  }
+  setBtnBusy('btnGetSP',true); showLoading('Fetching SharePoint report…');
+  try{
+    const rec = await flowLookupTasksReport(state.varReportID);
+    let rd = rec && (rec.Report_Data || rec.report_data || rec.ReportData || rec.reportdata || rec.data);
+    if(typeof rd === 'string'){try{rd = JSON.parse(rd);}catch(_){rd=[];}}
+    if(!Array.isArray(rd)){rd = Array.isArray(rec)?rec:[];}
+    collections.colSharepointReport = (rd||[]).map(normalizeRecord);
+    if(!collections.colSharepointReport.length){notify('No data found for the selected date range','Warning');return;}
+    computeAggregates(collections.colSharepointReport);
+    collections.colPerformanceReport  = [...collections.colSharepointReport];
+    collections.colReportGalleryItems = collections.colSharepointReport.map(r=>({...r,showDetails:false}));
+    try { buildAllHTMLReports(); } catch(e){ console.warn('[buildAllHTMLReports]',e); notify('Some HTML report views could not be built. Card and list views are available.','Warning'); }
+    renderAllGalleries();
+    state.showReportButton = !state.showReportButton;
+    applyShowReportButton();
+    notify(`SharePoint report loaded: ${collections.colSharepointReport.length} records.`,'Success');
+  } catch(err){
+    notify(`Failed to fetch SharePoint report: ${err.message}`,'Error');
+    console.error('[handleGetSharepointReport]',err);
+  } finally { hideLoading(); setBtnBusy('btnGetSP',false); }
+}
+function handleReport3(){
+  const data = collections.colPerformanceReport.length ? collections.colPerformanceReport : collections.colSharepointReport;
+  if(!data.length){notify('No report data. Generate a report first.','Warning');return;}
+  computeAggregates(data); buildAllHTMLReports(); renderAllGalleries();
+  notify('Report 3 charts rebuilt.','Success');
+}
+function handleReport4(){
+  const data = collections.colSharepointReport.length ? collections.colSharepointReport : collections.colPerformanceReport;
+  if(!data.length){notify('No SharePoint report data. Use "Get SharepointReport" first.','Warning');return;}
+  computeAggregates(data);
+  collections.colPerformanceReport = [...data];
+  collections.colReportGalleryItems = data.map(r=>({...r,showDetails:false}));
+  buildAllHTMLReports(); renderAllGalleries();
+  notify('Report 4 generated.','Success');
+}
+async function handleSendReport(reportKey, btnId){
+  const map = {
+    '38':{subject:"Stats Report 38.",html:state.varHTMLReport},
+    'v1':{subject:"Stats Report V1.",html:state.varHTMLReport_v1},
+    '24_2':{subject:"Stats Report 24_2.",html:state.varHTMLReport_24_2},
+    '37':{subject:"Stats Report37",html:state.varHTMLReport_37}
+  };
+  const r = map[reportKey];
+  if(!r||!r.html){notify('Report not generated yet.','Warning');return;}
+  setBtnBusy(btnId,true);
+  try{
+    await flowSendEmailV2(r.subject, r.html, CFG.CURRENT_USER_EMAIL, 'Normal');
+    notify(`"${r.subject}" sent to ${CFG.CURRENT_USER_EMAIL}.`,'Success');
+  } catch(err){
+    notify(`Email send failed (${err.message}). Opening print preview as fallback.`,'Warning');
+    const w=window.open('', '_blank', 'width=900,height=700');
+    if(w){w.document.write(`<!DOCTYPE html><html><head><title>${escHtml(r.subject)}</title></head><body>${r.html}</body></html>`);w.document.close();}
+  } finally { setBtnBusy(btnId,false); }
+}
+async function handleSendWithAttachment(reportKey, btnId){
+  if(!state.selectedRecipients.length){notify('Please select at least one recipient.','Warning');return;}
+  const map = {'24_2':state.varHTMLReport_24_2,'main':state.varPerformanceReportHTML};
+  const html = map[reportKey];
+  if(!html){notify('Report not generated yet.','Warning');return;}
+  state.varPerformanceReportHTML = html;
+  state.varReportReceipients = state.selectedRecipients.map(u=>u.Mail).join(';')+';';
+  const reportTag = (state.varReportID||'')+(state.varReportPeriod||'');
+  setBtnBusy(btnId,true);
+  try{
+    await flowHTMLReportsRun(state.varPerformanceReportHTML, state.varReportReceipients, reportTag);
+    notify(`HTMLReports flow dispatched to ${state.selectedRecipients.length} recipient(s).`,'Success');
+  } catch(err){
+    notify(`HTMLReports.Run failed: ${err.message}`,'Error');
+    console.error('[handleSendWithAttachment]',err);
+  } finally { setBtnBusy(btnId,false); }
+}
+function wireEvents(){
+  $('btnGenerate').addEventListener('click',handleToggleGenerate);
+  $('btnReport').addEventListener('click',handleRunReport);
+  $('btnGetSP').addEventListener('click',handleGetSharepointReport);
+  $('btnReport3').addEventListener('click',handleReport3);
+  $('btnReport4').addEventListener('click',handleReport4);
+  $('btnSend38').addEventListener('click',()=>handleSendReport('38','btnSend38'));
+  $('btnSendV1').addEventListener('click',()=>handleSendReport('v1','btnSendV1'));
+  $('btnSend24_2').addEventListener('click',()=>handleSendReport('24_2','btnSend24_2'));
+  $('btnSend37').addEventListener('click',()=>handleSendReport('37','btnSend37'));
+  $('btnSendAtt24_2').addEventListener('click',()=>handleSendWithAttachment('24_2','btnSendAtt24_2'));
+  $('btnSendAttPerf').addEventListener('click',()=>handleSendWithAttachment('main','btnSendAttPerf'));
+  const inp=$('recipInput'), sg=$('recipSuggest');
+  inp.addEventListener('input',()=>showRecipSuggestions(inp.value));
+  inp.addEventListener('focus',()=>showRecipSuggestions(inp.value));
+  inp.addEventListener('blur',()=>setTimeout(()=>sg.classList.remove('open'),150));
+  inp.addEventListener('keydown',(e)=>{
+    const items = sg.querySelectorAll('.recip-suggest-item');
+    if(e.key==='ArrowDown' && items.length){
+      e.preventDefault();
+      const cur=sg.querySelector('.hl');
+      if(cur){cur.classList.remove('hl');const n=cur.nextElementSibling||items[0];n.classList.add('hl');n.scrollIntoView({block:'nearest'});}
+      else items[0].classList.add('hl');
+    } else if(e.key==='ArrowUp' && items.length){
+      e.preventDefault();
+      const cur=sg.querySelector('.hl');
+      if(cur){cur.classList.remove('hl');const n=cur.previousElementSibling||items[items.length-1];n.classList.add('hl');n.scrollIntoView({block:'nearest'});}
+      else items[items.length-1].classList.add('hl');
+    } else if(e.key==='Enter'){
+      e.preventDefault();
+      const hl = sg.querySelector('.hl');
+      if(hl){addRecipient({Mail:hl.dataset.mail,DisplayName:hl.dataset.name});}
+      else if(inp.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value.trim())){
+        addRecipient({Mail:inp.value.trim(),DisplayName:inp.value.trim()});
+      }
+    } else if(e.key==='Backspace' && !inp.value && state.selectedRecipients.length){
+      state.selectedRecipients.pop(); renderRecipientChips();
+    } else if(e.key==='Escape'){sg.classList.remove('open');}
+  });
+  $('recipChips').addEventListener('click',(e)=>{
+    if(e.target.id==='recipInput'||e.target.classList.contains('x'))return;
+    inp.focus();
+  });
+}
+async function onVisible(){
+  Object.assign(state,{
+    varReset:true,showReportButton:true,
+    cb1Active:true,cb2Active:false,cb3Active:false,cb4Active:false,cb5Active:false,
+    cb6Active:false,cb7Active:false,cb8Active:false,cb9Active:false,cb10Active:false
+  });
+  state.selectedRecipients=[]; state.varReportReceipients='';
+  initDatePickers(); renderNavBar(); renderMonthBar();
+  applyViewVisibility(); applyShowReportButton();
+  renderRecipientChips(); renderCardGallery();
+  renderListGallery('lg7Body',[],'normal');
+  renderListGallery('lg8Body',[],'normal');
+  renderListGallery('lg10Body',[],'assignedTo');
+  renderChartsView();
+  try{
+    const users = await flowFetchAllUsers();
+    if(users.length){collections.colAllUsers = users;}
+  } catch(err){
+    console.warn('[colAllUsers load]',err);
+    notify(`User directory unavailable (${err.message}). You can still type emails manually.`,'Warning');
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  wireEvents();
+  onVisible().catch(e=>{console.error(e);notify(`Init failure: ${e.message}`,'Error');});
+});
+window.NITDA_STATS = {state,collections,FLOW,DISPATCH,callFlow,flowGenerateReport,flowLookupTasksReport,flowSendEmailV2,flowHTMLReportsRun};
+</script>
+</body>
+</html>

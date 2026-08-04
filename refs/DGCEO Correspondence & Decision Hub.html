@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>NITDA DGCEO Correspondence & Decision Hub</title>
+  <!-- ========== DESIGN TOKENS (NITDA BRAND / CONDITIONAL) ========== -->
+  <style>
+    :root {
+      --nitda-green: #0b5f3c;
+      --nitda-green-light: #e6f2ed;
+      --nitda-gold: #c9a227;
+      --danger: #b42318;
+      --warning: #f79009;
+      --success: #027a48;
+      --bg: #f7f9fb;
+      --panel: #ffffff;
+      --text: #101828;
+      --muted: #667085;
+      --radius: 14px;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--nitda-green);
+      color: white;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    header span {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      cursor: pointer;
+      background: rgba(255,255,255,0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    
+    header span:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* ====== LAYOUT GRID (RESPONSIVE & ORIENTATION AWARE) ====== */
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr 360px;
+      height: calc(100vh - 56px);
+    }
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 320px 1fr;
+      }
+      .panel-actions {
+        display: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .panel-inbox {
+        display: none;
+      }
+    }
+
+    section {
+      background: var(--panel);
+      border-radius: var(--radius);
+      margin: 10px;
+      padding: 18px;
+      overflow-y: auto;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      margin: 0 0 14px;
+      color: var(--nitda-green);
+      border-bottom: 1px solid #eaecf0;
+      padding-bottom: 8px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .primary { background: var(--nitda-green); color: white; }
+    .danger { background: var(--danger); color: white; }
+    .muted { background: #f2f4f7; color: var(--text); }
+    .btn-sync { background: var(--nitda-gold); color: #101828; padding: 6px 12px; font-size: 0.85rem; }
+
+    select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #d0d5dd;
+      font-family: inherit;
+      box-sizing: border-box;
+      background: #fcfcfd;
+    }
+
+    /* ====== ROLE VISIBILITY ====== */
+    .role-DGCEO .ea-only,
+    .role-DGCEO .officer-only { display: none !important; }
+
+    .role-EA .dg-only { display: none !important; }
+
+    .role-Officer .dg-only,
+    .role-Officer .ea-only { display: none !important; }
+
+    /* ====== STATUS TAGS ====== */
+    .tag {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      display: inline-block;
+      font-weight: 600;
+    }
+    .overdue { background: #fee4e2; color: var(--danger); }
+    .awaiting { background: #fff7e0; color: var(--warning); }
+    .ok { background: #e6f4ea; color: var(--success); }
+    .neutral { background: #f2f4f7; color: var(--muted); }
+
+    /* ====== DYNAMIC LIST STYLES ====== */
+    .dashboard-metrics {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;
+    }
+
+    ul.doc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    ul.doc-list li {
+      padding: 12px;
+      border: 1px solid #eaecf0;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--panel);
+    }
+
+    ul.doc-list li:hover { background: #f9fafb; border-color: #d0d5dd; }
+    ul.doc-list li.active { 
+      background: var(--nitda-green-light); 
+      border-color: var(--nitda-green); 
+      border-left: 5px solid var(--nitda-green); 
+    }
+
+    .doc-list-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; display: block; word-break: break-word;}
+    .doc-list-meta { font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center;}
+
+    /* ====== DETAILS STYLES ====== */
+    .matrix-card {
+      background: #f9fafb;
+      border: 1px solid #eaecf0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .matrix-card h4 { margin: 0 0 6px 0; font-size: 0.9rem; color: var(--text); }
+    .matrix-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px;}
+
+    /* ====== LOADING OVERLAY ====== */
+    #loading-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(3px);
+      z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .hidden { display: none !important; }
+    .spinner {
+      width: 40px; height: 40px; border: 4px solid #eaecf0; border-top-color: var(--nitda-green);
+      border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+  </style>
+</head>
+
+<body class="role-DGCEO" id="appBody">
+  <header>
+    <div>NITDA – DGCEO Correspondence & Decision Hub</div>
+    <div class="header-controls">
+      <button class="btn-sync" id="btnSync">⟳ Sync Live Data</button>
+      <span id="userRole" title="Click to switch user" onclick="promptUserEmail()">Role: DGCEO</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    
+    <!-- ========== INBOX / DASHBOARD ========== -->
+    <section class="panel-inbox">
+      <h2>Executive Dashboard</h2>
+      <div class="dashboard-metrics">
+        <div id="statOverdue" class="tag overdue">Overdue: 0</div>
+        <div id="statAwaiting" class="tag awaiting">Awaiting Decision: 0</div>
+        <div id="statOk" class="tag ok">On Track: 0</div>
+      </div>
+      
+      <h2>Incoming Correspondences</h2>
+      <ul id="docList" class="doc-list">
+        <div style="text-align:center; padding: 20px; color: var(--muted); font-size: 0.9rem;">
+          Click "Sync Live Data" to fetch flows.
+        </div>
+      </ul>
+    </section>
+
+    <!-- ========== DETAILS + MATRIX PREVIEW ========== -->
+    <section id="panel-details">
+      <h2>Correspondence Details</h2>
+      <div id="docDetails">
+        <div style="text-align:center; padding: 40px; color: var(--muted);">
+          Select an item from the inbox to view orchestrated details, linked tasks, and email threads.
+        </div>
+      </div>
+
+      <!-- AI Classification Mock -->
+      <div id="aiPreviewPanel" class="hidden">
+        <hr />
+        <h2>🧠 AI Classification Preview</h2>
+        <p><strong>Suggested Category:</strong> <span id="aiCategory">Analyzing...</span></p>
+        <p><strong>Suggested Priority:</strong> <span id="aiPriority">High</span></p>
+        <button class="muted" style="width: 100%;">Apply Suggestions to Metadata</button>
+      </div>
+
+      <hr class="ea-only" />
+
+      <!-- ROUTING UI (Live Lookups) -->
+      <div class="ea-only">
+        <h2>Route / Assign Task</h2>
+        <select id="routeDept"><option value="">Loading Departments...</option></select>
+        <select id="routeAssignee"><option value="">Loading Users...</option></select>
+        <select id="routePriority">
+          <option value="Normal">Priority: Normal</option>
+          <option value="High">Priority: High</option>
+          <option value="Low">Priority: Low</option>
+        </select>
+        <textarea placeholder="Routing instructions & minute notes..." rows="3"></textarea>
+        <button class="primary" style="width: 100%;" onclick="alert('Routing payload prepared for Power Automate.')">Create & Route Task</button>
+      </div>
+
+      <hr />
+      
+      <!-- AUDIT TRAIL -->
+      <h2>Matrix Audit Trail</h2>
+      <ul id="auditList" style="font-size: 0.85rem; color: var(--muted); padding-left: 20px; line-height: 1.6;">
+        <li>System initialized. Awaiting selection.</li>
+      </ul>
+    </section>
+
+    <!-- ========== DGCEO DECISION PANEL ========== -->
+    <section class="panel-actions dg-only">
+      <h2>DGCEO Decision</h2>
+      <button class="primary" style="width: 100%; margin-bottom: 12px;">Approve / Accept</button>
+      <button class="danger" style="width: 100%; margin-bottom: 12px;">Decline / Reject</button>
+      <button class="muted" style="width: 100%; margin-bottom: 24px;">Delegate via EA</button>
+      
+      <hr />
+      <h2>Quick Minute</h2>
+      <textarea placeholder="Type your directive here..." rows="4"></textarea>
+      <button class="primary" style="width: 100%;">Append to Document</button>
+    </section>
+
+  </div>
+
+  <!-- Global Loader -->
+  <div id="loading-overlay" class="hidden">
+    <div class="spinner"></div>
+    <h3 style="margin: 0; color: var(--nitda-green);">Orchestrating Live Data</h3>
+    <p style="color: var(--muted); font-size: 0.9rem;">Fetching Documents, Tasks, Emails & Lookups...</p>
+  </div>
+
+  <!-- ========== APPLICATION LOGIC (DIRECT FLOWS & MATRIX ENGINE) ========== -->
+  <script>
+    // 1. CONFIGURATION & CONSTANTS
+    const CONFIG = {
+      flows: {
+        lookups: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU',
+        docs: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50',
+        tasks: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4',
+        emails: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U'
+      }
+    };
+
+    // 2. AUTHORITATIVE STATE
+    const state = {
+      userEmail: 'dg@nitda.gov.ng', // Default to DG
+      role: 'DGCEO',
+      docs: [],
+      tasks: [],
+      emails: [],
+      departments: [],
+      users: [],
+      matrix: [],
+      selectedId: null
+    };
+
+    // 3. UTILITIES
+    const $ = id => document.getElementById(id);
+    function safeText(str) { return str == null ? '' : String(str); }
+    function escapeHtml(str) {
+      return safeText(str).replace(/[&<>'"]/g, 
+        tag => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[tag])
+      );
+    }
+    
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const d = new Date(dateString);
+      return isNaN(d) ? 'N/A' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // 4. ROLE MANAGEMENT
+    function computeRole() {
+      const email = state.userEmail.toLowerCase();
+      if (email.includes('dg@')) state.role = 'DGCEO';
+      else if (email.includes('dgs@') || email.includes('registry')) state.role = 'EA';
+      else state.role = 'Officer';
+
+      $('userRole').innerText = `Role: ${state.role} (${email})`;
+      $('appBody').className = `role-${state.role}`;
+    }
+
+    function promptUserEmail() {
+      const input = prompt("Enter email to simulate RBAC\n(e.g. dg@nitda.gov.ng for DG, dgs@nitda.gov.ng for EA):", state.userEmail);
+      if (input) {
+        state.userEmail = input.trim();
+        computeRole();
+      }
+    }
+
+    // 5. DIRECT FLOW FETCHING (No Proxy/Auth)
+    async function apiCall(url, actionDef) {
+      const payload = {
+        action: actionDef,
+        operation: 'read',
+        mode: 'read',
+        source: 'SPA_Direct',
+        userEmail: state.userEmail,
+        method: 'POST',
+        device: { id: 'browser' },
+        folderPath: 'Inbox', top: 30, skip: 0 // Email specific safeties
+      };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+      const json = await res.json();
+      return json.data || json;
+    }
+
+    async function syncData() {
+      $('loading-overlay').classList.remove('hidden');
+      try {
+        // Parallel fetch of all Enterprise entities
+        const [lookupsData, docsData, tasksData, emailsData] = await Promise.all([
+          apiCall(CONFIG.flows.lookups, 'fetchReferencesAndLookups'),
+          apiCall(CONFIG.flows.docs, 'getDocs'),
+          apiCall(CONFIG.flows.tasks, 'fetch_tasks'),
+          apiCall(CONFIG.flows.emails, 'emailsfetch')
+        ]);
+
+        // Parse structures natively
+        state.departments = lookupsData.departments || [];
+        state.users = lookupsData.users || [];
+        state.docs = docsData.docs || [];
+        state.tasks = tasksData.tasks || [];
+        state.emails = emailsData.emails || [];
+
+        populateLookups();
+        buildPolymorphicMatrix();
+        renderDashboard();
+        renderDocList();
+
+      } catch (error) {
+        console.error(error);
+        alert("Sync failed: Check network or flow endpoints.");
+      } finally {
+        $('loading-overlay').classList.add('hidden');
+      }
+    }
+
+    // 6. ENTERPRISE MATRIX ENGINE (Polymorphic Linking)
+    function buildPolymorphicMatrix() {
+      state.matrix = state.docs.map(doc => {
+        const docIdStr = String(doc.ID);
+        
+        // 1. Link Emails by Subject matching Document Title
+        const relatedEmails = state.emails.filter(em => 
+          (em.subject && em.subject.includes(docIdStr)) || 
+          (em.bodyPreview && em.bodyPreview.includes(doc.Title))
+        );
+        const emailIds = relatedEmails.map(e => e.id);
+
+        // 2. Link Tasks by RefIDD (matching Doc ID OR Email ID)
+        const relatedTasks = state.tasks.filter(t => 
+          t.RefIDD === docIdStr || 
+          emailIds.includes(t.RefIDD) || 
+          (t.Reference_ID && t.Reference_ID.includes(docIdStr)) ||
+          (t.Title && t.Title.includes(docIdStr))
+        );
+
+        return { ...doc, relatedEmails, relatedTasks };
+      });
+      
+      // Sort matrix by Created date descending
+      state.matrix.sort((a,b) => new Date(b.Created||0) - new Date(a.Created||0));
+    }
+
+    // 7. UI RENDERING
+    function populateLookups() {
+      const deptSel = $('routeDept');
+      const userSel = $('routeAssignee');
+      
+      deptSel.innerHTML = '<option value="">Select Department DSU...</option>' + 
+        state.departments.map(d => `<option value="${escapeHtml(d.DSU_KEY)}">${escapeHtml(d.Title)} (${escapeHtml(d.DSU_KEY)})</option>`).join('');
+        
+      userSel.innerHTML = '<option value="">Select User / Assignee...</option>' + 
+        state.users.map(u => `<option value="${escapeHtml(u.email)}">${escapeHtml(u.name)}</option>`).join('');
+    }
+
+    function renderDashboard() {
+      let overdue = 0, awaiting = 0, ok = 0;
+      const now = new Date();
+
+      state.tasks.forEach(t => {
+        const isPending = t.Progress !== 'Treated' && t.Progress !== 'Completed';
+        const due = t.DueDate ? new Date(t.DueDate) : null;
+        
+        if (isPending && due && due < now) overdue++;
+        else if (isPending) awaiting++;
+        else ok++;
+      });
+
+      $('statOverdue').innerText = `Overdue: ${overdue}`;
+      $('statAwaiting').innerText = `Awaiting Decision: ${awaiting}`;
+      $('statOk').innerText = `On Track: ${ok}`;
+    }
+
+    function getStatusClass(status) {
+      if (!status) return 'neutral';
+      const s = status.toLowerCase();
+      if (s.includes('treated') || s.includes('completed')) return 'ok';
+      if (s.includes('assigned') || s.includes('pending')) return 'awaiting';
+      return 'neutral';
+    }
+
+    function renderDocList() {
+      const list = $('docList');
+      if (state.matrix.length === 0) {
+        list.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--muted);">No records found.</div>';
+        return;
+      }
+
+      list.innerHTML = state.matrix.map(m => `
+        <li class="${m.ID === state.selectedId ? 'active' : ''}" onclick="selectDoc(${m.ID})">
+          <span class="doc-list-title">${escapeHtml(m.Title)}</span>
+          <div class="doc-list-meta">
+            <span class="tag ${getStatusClass(m.Status || m.AssignmentStatus)}">
+              ${escapeHtml(m.Status || m.AssignmentStatus || 'Pending')}
+            </span>
+            <span>${formatDate(m.Created)}</span>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    function selectDoc(id) {
+      state.selectedId = id;
+      renderDocList(); // update active state
+
+      const doc = state.matrix.find(m => m.ID === id);
+      if (!doc) return;
+
+      // Update AI Preview Panel
+      $('aiPreviewPanel').classList.remove('hidden');
+      $('aiCategory').innerText = doc.Category || 'Unclassified / Governance';
+
+      // Update Audit Trail
+      const audit = $('auditList');
+      audit.innerHTML = `
+        <li><strong>${formatDate(doc.Created)}</strong> - Document ingested into Data Model.</li>
+        <li><strong>Status:</strong> ${escapeHtml(doc.AssignmentStatus)}</li>
+        ${doc.AssignedTo && doc.AssignedTo !== 'N/A' ? `<li><strong>Routed To:</strong> ${escapeHtml(doc.AssignedTo)}</li>` : ''}
+      `;
+
+      // Update Main Details
+      const details = $('docDetails');
+      details.innerHTML = `
+        <h3 style="margin-top:0; color:var(--text);">${escapeHtml(doc.Title)}</h3>
+        <div style="margin-bottom: 15px; font-size: 0.9rem;">
+          <span class="tag neutral">ID: ${doc.ID}</span>
+          <span class="tag neutral">Cat: ${escapeHtml(doc.Category || 'None')}</span>
+        </div>
+        ${doc.AttachmentLink ? `<a href="${doc.AttachmentLink}" target="_blank" style="color:var(--nitda-green); font-weight:600; text-decoration:none; display:block; margin-bottom: 20px;">📄 Open Original Document ↗</a>` : ''}
+        
+        <h4 style="color:var(--nitda-green); margin-bottom: 8px;">Linked Execution Tasks (${doc.relatedTasks.length})</h4>
+        ${doc.relatedTasks.length > 0 ? doc.relatedTasks.map(t => `
+          <div class="matrix-card">
+            <h4>${escapeHtml(t.Title)}</h4>
+            <div class="matrix-meta"><strong>RefID:</strong> ${escapeHtml(t.Reference_ID || t.RefIDD)}</div>
+            <div class="matrix-meta"><strong>Priority:</strong> ${escapeHtml(t.Priority)} | <strong>Status:</strong> ${escapeHtml(t.Status)}</div>
+            <div class="matrix-meta"><strong>DSU Routing:</strong> ${escapeHtml(t.GDSUROUT || t.Classification)}</div>
+            <div class="matrix-meta"><strong>Assigned:</strong> ${escapeHtml(t.AssignedTo)}</div>
+          </div>
+        `).join('') : '<p style="font-size:0.85rem; color:var(--muted);">No tasks spawned from this lineage.</p>'}
+
+        <h4 style="color:var(--nitda-green); margin-bottom: 8px; margin-top: 20px;">Communication Threads (${doc.relatedEmails.length})</h4>
+        ${doc.relatedEmails.length > 0 ? doc.relatedEmails.map(e => `
+          <div class="matrix-card">
+            <h4>${escapeHtml(e.subject)}</h4>
+            <div class="matrix-meta"><strong>From:</strong> ${escapeHtml(e.From)} | <strong>Date:</strong> ${formatDate(e.DateTimeReceived)}</div>
+            <div style="font-size: 0.8rem; margin-top: 6px; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #eaecf0; max-height: 100px; overflow-y:auto;">
+              ${escapeHtml(e.bodyPreview)}
+            </div>
+          </div>
+        `).join('') : '<p style="font-size:0.85rem; color:var(--muted);">No correlated emails detected.</p>'}
+      `;
+    }
+
+    // 8. BIND EVENTS
+    $('btnSync').addEventListener('click', syncData);
+
+    // Init
+    computeRole();
+    
+    // PWA Setup (Mock stub required by user's original HTML)
+    if ('serviceWorker' in navigator) {
+      // Intentionally left as stub for local file execution
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DGO Digital OPS SharePoint Persistence Documentation</title>
+<style>
+:root{
+  --dgo-ink:#0b1f2a; --dgo-muted:#58707d; --dgo-bg:#f4f8f7; --dgo-card:#ffffff;
+  --dgo-green:#007a3d; --dgo-green-2:#0d8f50; --dgo-gold:#c99a2e; --dgo-blue:#0f5f8c;
+  --dgo-red:#b42318; --dgo-line:#d8e5e0; --dgo-shadow:0 18px 45px rgba(11,31,42,.10);
+  --radius:22px;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:linear-gradient(135deg,#eef7f2,#f9fbfa 45%,#fffaf0);font-family:Segoe UI,Arial,sans-serif;color:var(--dgo-ink);line-height:1.55}
+.hero{padding:42px 48px 38px;background:radial-gradient(circle at top left,rgba(0,122,61,.18),transparent 30%),linear-gradient(135deg,#073b2a,#0d5b3c 55%,#09364c);color:white;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;inset:auto -80px -140px auto;width:380px;height:380px;border-radius:50%;background:rgba(201,154,46,.22)}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}.brand-mark{width:54px;height:54px;border-radius:16px;background:linear-gradient(145deg,var(--dgo-gold),#f6d779);display:grid;place-items:center;color:#073b2a;font-weight:900;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.brand-text b{display:block;font-size:18px;letter-spacing:.3px}.brand-text span{color:#dceee7;font-size:13px}.hero h1{font-size:42px;line-height:1.08;margin:0 0 12px;max-width:980px}.hero p{max-width:960px;color:#e8f5ef;font-size:17px}.hero-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px;margin-top:26px;max-width:920px}.metric{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:18px;padding:16px;backdrop-filter:blur(8px)}.metric b{font-size:28px;display:block}.metric span{font-size:12px;color:#dceee7;text-transform:uppercase;letter-spacing:.7px}
+main{padding:34px 48px 80px;max-width:1480px;margin:0 auto}.nav-panel,.list-section,.summary-panel{background:var(--dgo-card);border:1px solid var(--dgo-line);box-shadow:var(--dgo-shadow);border-radius:var(--radius);padding:26px;margin-bottom:24px}.nav-panel h2,.summary-panel h2{margin-top:0}.list-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.list-card{text-decoration:none;color:inherit;border:1px solid var(--dgo-line);border-radius:18px;padding:16px;display:grid;gap:6px;background:linear-gradient(180deg,#fff,#f8fbfa)}.list-card:hover{border-color:var(--dgo-green);transform:translateY(-1px)}.list-card__index{font-size:12px;color:var(--dgo-gold);font-weight:800}.list-card__title{font-weight:800}.list-card__desc{font-size:13px;color:var(--dgo-muted)}.list-card__meta{font-size:12px;color:var(--dgo-blue)}
+.section-head{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;border-bottom:1px solid var(--dgo-line);padding-bottom:18px;margin-bottom:20px}.section-head h2{margin:.1rem 0;font-size:28px}.eyebrow{text-transform:uppercase;letter-spacing:1.2px;font-size:12px;color:var(--dgo-green);font-weight:900;margin:0}.section-stats{display:flex;gap:10px;flex-wrap:wrap}.section-stats span{background:#edf8f1;border:1px solid #cbe9d7;color:#0a6b3a;border-radius:999px;padding:8px 12px;font-size:13px}.subsection h3{margin:20px 0 12px}.table-wrap{overflow:auto;border:1px solid var(--dgo-line);border-radius:16px}table{width:100%;border-collapse:collapse;background:white;min-width:900px}th{background:#0d5b3c;color:white;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.65px;padding:12px}td{border-top:1px solid var(--dgo-line);padding:12px;vertical-align:top}tr:nth-child(even) td{background:#fbfdfc}.num{color:var(--dgo-muted);font-variant-numeric:tabular-nums;width:52px}code{background:#eef5f2;border:1px solid #d5e7df;border-radius:8px;padding:2px 6px;color:#07402b}pre{white-space:pre-wrap;word-break:break-word;background:#071f19;color:#d8ffec;border-radius:12px;padding:14px;max-height:300px;overflow:auto}.pill,.chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;font-size:12px;margin:2px}.pill--type{background:#e8f2ff;color:#0f5f8c;border:1px solid #c8ddf4}.chip{background:#fff7df;color:#7a5200;border:1px solid #f0d48b}.muted{color:var(--dgo-muted)}.footer{padding:28px 48px;background:#06251d;color:#dceee7;font-size:13px}.footer b{color:white}.toc-note{background:#fff8e6;border-left:5px solid var(--dgo-gold);padding:14px 16px;border-radius:12px;margin-top:16px}
+@media(max-width:860px){.hero,main,.footer{padding-left:22px;padding-right:22px}.hero h1{font-size:32px}.hero-grid{grid-template-columns:repeat(2,1fr)}.section-head{display:block}}
+@media print{.hero,.footer{background:#fff;color:#000}.nav-panel,.list-section,.summary-panel{box-shadow:none}.list-card{break-inside:avoid}.list-section{break-before:page}a{color:inherit}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="brand"><div class="brand-mark">DGO</div><div class="brand-text"><b>DGO Digital OPS</b><span>Office of the Director-General · SharePoint Persistence Documentation</span></div></div>
+  <h1>SharePoint List Structures and Provisioning Documentation</h1>
+  <p>This branded documentation describes the full SharePoint persistence model for the DGO Digital OPS platform on the NITDA activity-tracking site. It preserves the approved original 10-list structure and documents every list, column, schema XML definition, and seed record.</p>
+  <div class="hero-grid">
+    <div class="metric"><b>10</b><span>Lists</span></div>
+    <div class="metric"><b>97</b><span>Fields / Columns</span></div>
+    <div class="metric"><b>10</b><span>Seed Records</span></div>
+    <div class="metric"><b>R11.6</b><span>Provisioning Version</span></div>
+  </div>
+</header>
+<main>
+  <section class="summary-panel">
+    <p class="eyebrow">Target Site</p>
+    <h2>https://nitdanigeria.sharepoint.com/sites/NITDADGO-EAAACTIVITYTRACKING</h2>
+    <p class="muted">Generated: 2026-07-24T16:05:18.364346Z · Source manifest: <code>dgo-sharepoint-schema.json</code> · Environment: <code>pilot</code></p>
+    <div class="toc-note"><b>Implementation stance:</b> this document keeps the original SharePoint structure unchanged. It is intended to support the manifest-driven Power Automate provisioning flow, not a redesigned data model.</div>
+  </section>
+  <section class="nav-panel">
+    <h2>List Index</h2>
+    <div class="list-grid">
+      <a class="list-card" href="#DGO_UserDirectory">
+        <span class="list-card__index">01</span>
+        <span class="list-card__title">DGO_UserDirectory</span>
+        <span class="list-card__desc">Authoritative pilot user directory</span>
+        <span class="list-card__meta"><b>21</b> fields · <b>1</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_RoleCatalogue">
+        <span class="list-card__index">02</span>
+        <span class="list-card__title">DGO_RoleCatalogue</span>
+        <span class="list-card__desc">RBAC role catalogue</span>
+        <span class="list-card__meta"><b>9</b> fields · <b>6</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_UserRoleHistory">
+        <span class="list-card__index">03</span>
+        <span class="list-card__title">DGO_UserRoleHistory</span>
+        <span class="list-card__desc">Immutable user role assignment history</span>
+        <span class="list-card__meta"><b>9</b> fields · <b>0</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_AuditLog">
+        <span class="list-card__index">04</span>
+        <span class="list-card__title">DGO_AuditLog</span>
+        <span class="list-card__desc">Central platform audit log</span>
+        <span class="list-card__meta"><b>14</b> fields · <b>1</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_PendingWrites">
+        <span class="list-card__index">05</span>
+        <span class="list-card__title">DGO_PendingWrites</span>
+        <span class="list-card__desc">Pending and offline write queue</span>
+        <span class="list-card__meta"><b>10</b> fields · <b>0</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_DepartmentDirectory">
+        <span class="list-card__index">06</span>
+        <span class="list-card__title">DGO_DepartmentDirectory</span>
+        <span class="list-card__desc">Directorates, departments, units, and DSUs</span>
+        <span class="list-card__meta"><b>6</b> fields · <b>0</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_AccessScopes">
+        <span class="list-card__index">07</span>
+        <span class="list-card__title">DGO_AccessScopes</span>
+        <span class="list-card__desc">Controlled access scope catalogue</span>
+        <span class="list-card__meta"><b>6</b> fields · <b>1</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_PilotCohorts">
+        <span class="list-card__index">08</span>
+        <span class="list-card__title">DGO_PilotCohorts</span>
+        <span class="list-card__desc">Pilot cohort register</span>
+        <span class="list-card__meta"><b>7</b> fields · <b>1</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_EndpointRegistry">
+        <span class="list-card__index">09</span>
+        <span class="list-card__title">DGO_EndpointRegistry</span>
+        <span class="list-card__desc">Power Automate endpoint inventory</span>
+        <span class="list-card__meta"><b>8</b> fields · <b>0</b> seed record(s)</span>
+      </a>
+    
+      <a class="list-card" href="#DGO_AccessEvents">
+        <span class="list-card__index">10</span>
+        <span class="list-card__title">DGO_AccessEvents</span>
+        <span class="list-card__desc">Access denied, current-user resolution, and session diagnostic events</span>
+        <span class="list-card__meta"><b>7</b> fields · <b>0</b> seed record(s)</span>
+      </a>
+    </div>
+  </section>
+  
+      <section class="list-section" id="DGO_UserDirectory">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 01</p>
+            <h2>DGO_UserDirectory</h2>
+            <p>Authoritative pilot user directory</p>
+          </div>
+          <div class="section-stats">
+            <span><b>21</b> fields</span>
+            <span><b>1</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>UserId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;UserId&#x27; StaticName=&#x27;UserId&#x27; Name=&#x27;UserId&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>FullName</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;FullName&#x27; StaticName=&#x27;FullName&#x27; Name=&#x27;FullName&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>Email</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Email&#x27; StaticName=&#x27;Email&#x27; Name=&#x27;Email&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>Directorate</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Directorate&#x27; StaticName=&#x27;Directorate&#x27; Name=&#x27;Directorate&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>Department</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Department&#x27; StaticName=&#x27;Department&#x27; Name=&#x27;Department&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>Unit</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Unit&#x27; StaticName=&#x27;Unit&#x27; Name=&#x27;Unit&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>JobTitle</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;JobTitle&#x27; StaticName=&#x27;JobTitle&#x27; Name=&#x27;JobTitle&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>Phone</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Phone&#x27; StaticName=&#x27;Phone&#x27; Name=&#x27;Phone&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">9</td>
+            <td><code>Role</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">systemAdmin</span><span class="chip">userAdmin</span><span class="chip">executive</span><span class="chip">director</span><span class="chip">operator</span><span class="chip">viewer</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Role&#x27; StaticName=&#x27;Role&#x27; Name=&#x27;Role&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;systemAdmin&lt;/CHOICE&gt;&lt;CHOICE&gt;userAdmin&lt;/CHOICE&gt;&lt;CHOICE&gt;executive&lt;/CHOICE&gt;&lt;CHOICE&gt;director&lt;/CHOICE&gt;&lt;CHOICE&gt;operator&lt;/CHOICE&gt;&lt;CHOICE&gt;viewer&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">10</td>
+            <td><code>Persona</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">admin</span><span class="chip">executive</span><span class="chip">registry</span><span class="chip">general</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Persona&#x27; StaticName=&#x27;Persona&#x27; Name=&#x27;Persona&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;admin&lt;/CHOICE&gt;&lt;CHOICE&gt;executive&lt;/CHOICE&gt;&lt;CHOICE&gt;registry&lt;/CHOICE&gt;&lt;CHOICE&gt;general&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">11</td>
+            <td><code>Status</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">staged</span><span class="chip">active</span><span class="chip">disabled</span><span class="chip">unregistered</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Status&#x27; StaticName=&#x27;Status&#x27; Name=&#x27;Status&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;staged&lt;/CHOICE&gt;&lt;CHOICE&gt;active&lt;/CHOICE&gt;&lt;CHOICE&gt;disabled&lt;/CHOICE&gt;&lt;CHOICE&gt;unregistered&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">12</td>
+            <td><code>AccessScope</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;AccessScope&#x27; StaticName=&#x27;AccessScope&#x27; Name=&#x27;AccessScope&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">13</td>
+            <td><code>PilotCohort</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;PilotCohort&#x27; StaticName=&#x27;PilotCohort&#x27; Name=&#x27;PilotCohort&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">14</td>
+            <td><code>CreatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;CreatedAt&#x27; StaticName=&#x27;CreatedAt&#x27; Name=&#x27;CreatedAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">15</td>
+            <td><code>CreatedBy</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;CreatedBy&#x27; StaticName=&#x27;CreatedBy&#x27; Name=&#x27;CreatedBy&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">16</td>
+            <td><code>UpdatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;UpdatedAt&#x27; StaticName=&#x27;UpdatedAt&#x27; Name=&#x27;UpdatedAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">17</td>
+            <td><code>UpdatedBy</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;UpdatedBy&#x27; StaticName=&#x27;UpdatedBy&#x27; Name=&#x27;UpdatedBy&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">18</td>
+            <td><code>DisabledReason</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;DisabledReason&#x27; StaticName=&#x27;DisabledReason&#x27; Name=&#x27;DisabledReason&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">19</td>
+            <td><code>LastSeenAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;LastSeenAt&#x27; StaticName=&#x27;LastSeenAt&#x27; Name=&#x27;LastSeenAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">20</td>
+            <td><code>LastResolvedRole</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;LastResolvedRole&#x27; StaticName=&#x27;LastResolvedRole&#x27; Name=&#x27;LastResolvedRole&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">21</td>
+            <td><code>LastResolvedPersona</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;LastResolvedPersona&#x27; StaticName=&#x27;LastResolvedPersona&#x27; Name=&#x27;LastResolvedPersona&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>Email</code></td>
+            <td><code>dgsregistry@nitda.gov.ng</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;Registry Bootstrap Administrator&quot;,
+  &quot;UserId&quot;: &quot;bootstrap-registry-admin&quot;,
+  &quot;FullName&quot;: &quot;Registry&quot;,
+  &quot;Email&quot;: &quot;dgsregistry@nitda.gov.ng&quot;,
+  &quot;Directorate&quot;: &quot;Registry&quot;,
+  &quot;Department&quot;: &quot;Office of the Director-General&quot;,
+  &quot;Unit&quot;: &quot;Digital Operations&quot;,
+  &quot;JobTitle&quot;: &quot;Bootstrap Administrator&quot;,
+  &quot;Role&quot;: &quot;systemAdmin&quot;,
+  &quot;Persona&quot;: &quot;admin&quot;,
+  &quot;Status&quot;: &quot;active&quot;,
+  &quot;AccessScope&quot;: &quot;[\&quot;all\&quot;]&quot;,
+  &quot;PilotCohort&quot;: &quot;bootstrap&quot;,
+  &quot;CreatedAt&quot;: &quot;2026-07-23T00:00:00Z&quot;,
+  &quot;CreatedBy&quot;: &quot;system-provisioning&quot;,
+  &quot;UpdatedAt&quot;: &quot;2026-07-23T00:00:00Z&quot;,
+  &quot;UpdatedBy&quot;: &quot;system-provisioning&quot;
+}</pre></details></td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_RoleCatalogue">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 02</p>
+            <h2>DGO_RoleCatalogue</h2>
+            <p>RBAC role catalogue</p>
+          </div>
+          <div class="section-stats">
+            <span><b>9</b> fields</span>
+            <span><b>6</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>RoleId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;RoleId&#x27; StaticName=&#x27;RoleId&#x27; Name=&#x27;RoleId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>Persona</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">admin</span><span class="chip">executive</span><span class="chip">registry</span><span class="chip">general</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Persona&#x27; StaticName=&#x27;Persona&#x27; Name=&#x27;Persona&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;admin&lt;/CHOICE&gt;&lt;CHOICE&gt;executive&lt;/CHOICE&gt;&lt;CHOICE&gt;registry&lt;/CHOICE&gt;&lt;CHOICE&gt;general&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>PermissionsJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;PermissionsJson&#x27; StaticName=&#x27;PermissionsJson&#x27; Name=&#x27;PermissionsJson&#x27; Required=&#x27;TRUE&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>AllowedRoutesJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;AllowedRoutesJson&#x27; StaticName=&#x27;AllowedRoutesJson&#x27; Name=&#x27;AllowedRoutesJson&#x27; Required=&#x27;TRUE&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>CanAssignRoles</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;CanAssignRoles&#x27; StaticName=&#x27;CanAssignRoles&#x27; Name=&#x27;CanAssignRoles&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>CanManageSettings</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;CanManageSettings&#x27; StaticName=&#x27;CanManageSettings&#x27; Name=&#x27;CanManageSettings&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>CanViewAudit</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;CanViewAudit&#x27; StaticName=&#x27;CanViewAudit&#x27; Name=&#x27;CanViewAudit&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>Active</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;Active&#x27; StaticName=&#x27;Active&#x27; Name=&#x27;Active&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">9</td>
+            <td><code>Version</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Version&#x27; StaticName=&#x27;Version&#x27; Name=&#x27;Version&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>RoleId</code></td>
+            <td><code>systemAdmin</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;systemAdmin&quot;,
+  &quot;RoleId&quot;: &quot;systemAdmin&quot;,
+  &quot;Persona&quot;: &quot;admin&quot;,
+  &quot;PermissionsJson&quot;: &quot;[\&quot;user:view\&quot;,\&quot;user:create\&quot;,\&quot;user:update\&quot;,\&quot;user:disable\&quot;,\&quot;role:assign\&quot;,\&quot;role:view\&quot;,\&quot;settings:manage\&quot;,\&quot;audit:view\&quot;,\&quot;dispatch:approve\&quot;,\&quot;bulk:assign\&quot;,\&quot;route:manage\&quot;,\&quot;executive:view\&quot;,\&quot;executive:export\&quot;]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;*\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: true,
+  &quot;CanManageSettings&quot;: true,
+  &quot;CanViewAudit&quot;: true,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>RoleId</code></td>
+            <td><code>userAdmin</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;userAdmin&quot;,
+  &quot;RoleId&quot;: &quot;userAdmin&quot;,
+  &quot;Persona&quot;: &quot;admin&quot;,
+  &quot;PermissionsJson&quot;: &quot;[\&quot;user:view\&quot;,\&quot;user:create\&quot;,\&quot;user:update\&quot;,\&quot;user:disable\&quot;,\&quot;role:assign\&quot;,\&quot;role:view\&quot;,\&quot;audit:view\&quot;]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;home\&quot;,\&quot;settings\&quot;,\&quot;user-admin\&quot;,\&quot;diagnostics\&quot;,\&quot;operator-hud\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: true,
+  &quot;CanManageSettings&quot;: true,
+  &quot;CanViewAudit&quot;: true,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>RoleId</code></td>
+            <td><code>executive</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;executive&quot;,
+  &quot;RoleId&quot;: &quot;executive&quot;,
+  &quot;Persona&quot;: &quot;executive&quot;,
+  &quot;PermissionsJson&quot;: &quot;[\&quot;executive:view\&quot;,\&quot;executive:export\&quot;,\&quot;audit:view\&quot;]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;home\&quot;,\&quot;executive\&quot;,\&quot;response-tracking\&quot;,\&quot;approvals\&quot;,\&quot;reports\&quot;,\&quot;statistics\&quot;,\&quot;lookup\&quot;,\&quot;assistant\&quot;,\&quot;archive\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: false,
+  &quot;CanManageSettings&quot;: false,
+  &quot;CanViewAudit&quot;: true,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>RoleId</code></td>
+            <td><code>director</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;director&quot;,
+  &quot;RoleId&quot;: &quot;director&quot;,
+  &quot;Persona&quot;: &quot;registry&quot;,
+  &quot;PermissionsJson&quot;: &quot;[\&quot;executive:view\&quot;,\&quot;route:manage\&quot;,\&quot;dispatch:approve\&quot;,\&quot;bulk:assign\&quot;]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;home\&quot;,\&quot;activities\&quot;,\&quot;correspondence\&quot;,\&quot;response-tracking\&quot;,\&quot;orchestrator\&quot;,\&quot;approvals\&quot;,\&quot;dispatch\&quot;,\&quot;reports\&quot;,\&quot;statistics\&quot;,\&quot;lookup\&quot;,\&quot;assistant\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: false,
+  &quot;CanManageSettings&quot;: false,
+  &quot;CanViewAudit&quot;: false,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>RoleId</code></td>
+            <td><code>operator</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;operator&quot;,
+  &quot;RoleId&quot;: &quot;operator&quot;,
+  &quot;Persona&quot;: &quot;registry&quot;,
+  &quot;PermissionsJson&quot;: &quot;[\&quot;route:manage\&quot;,\&quot;bulk:assign\&quot;]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;home\&quot;,\&quot;activities\&quot;,\&quot;correspondence\&quot;,\&quot;response-tracking\&quot;,\&quot;orchestrator\&quot;,\&quot;single-assignment\&quot;,\&quot;bulk-assignment\&quot;,\&quot;registry\&quot;,\&quot;comments\&quot;,\&quot;dispatch\&quot;,\&quot;correspondence-email\&quot;,\&quot;lookup\&quot;,\&quot;assistant\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: false,
+  &quot;CanManageSettings&quot;: false,
+  &quot;CanViewAudit&quot;: false,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>RoleId</code></td>
+            <td><code>viewer</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;viewer&quot;,
+  &quot;RoleId&quot;: &quot;viewer&quot;,
+  &quot;Persona&quot;: &quot;general&quot;,
+  &quot;PermissionsJson&quot;: &quot;[]&quot;,
+  &quot;AllowedRoutesJson&quot;: &quot;[\&quot;home\&quot;,\&quot;response-tracking\&quot;,\&quot;reports\&quot;,\&quot;statistics\&quot;,\&quot;lookup\&quot;]&quot;,
+  &quot;CanAssignRoles&quot;: false,
+  &quot;CanManageSettings&quot;: false,
+  &quot;CanViewAudit&quot;: false,
+  &quot;Active&quot;: true,
+  &quot;Version&quot;: &quot;R11.6-PILOT&quot;
+}</pre></details></td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_UserRoleHistory">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 03</p>
+            <h2>DGO_UserRoleHistory</h2>
+            <p>Immutable user role assignment history</p>
+          </div>
+          <div class="section-stats">
+            <span><b>9</b> fields</span>
+            <span><b>0</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>UserEmail</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;UserEmail&#x27; StaticName=&#x27;UserEmail&#x27; Name=&#x27;UserEmail&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>PreviousRole</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;PreviousRole&#x27; StaticName=&#x27;PreviousRole&#x27; Name=&#x27;PreviousRole&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>NewRole</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;NewRole&#x27; StaticName=&#x27;NewRole&#x27; Name=&#x27;NewRole&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>PreviousPersona</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;PreviousPersona&#x27; StaticName=&#x27;PreviousPersona&#x27; Name=&#x27;PreviousPersona&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>NewPersona</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;NewPersona&#x27; StaticName=&#x27;NewPersona&#x27; Name=&#x27;NewPersona&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>ChangedBy</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ChangedBy&#x27; StaticName=&#x27;ChangedBy&#x27; Name=&#x27;ChangedBy&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>ChangedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;ChangedAt&#x27; StaticName=&#x27;ChangedAt&#x27; Name=&#x27;ChangedAt&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>Reason</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;Reason&#x27; StaticName=&#x27;Reason&#x27; Name=&#x27;Reason&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">9</td>
+            <td><code>RequestId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;RequestId&#x27; StaticName=&#x27;RequestId&#x27; Name=&#x27;RequestId&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">No seed records defined for this list.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_AuditLog">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 04</p>
+            <h2>DGO_AuditLog</h2>
+            <p>Central platform audit log</p>
+          </div>
+          <div class="section-stats">
+            <span><b>14</b> fields</span>
+            <span><b>1</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>AuditId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;AuditId&#x27; StaticName=&#x27;AuditId&#x27; Name=&#x27;AuditId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>RequestId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;RequestId&#x27; StaticName=&#x27;RequestId&#x27; Name=&#x27;RequestId&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>Event</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Event&#x27; StaticName=&#x27;Event&#x27; Name=&#x27;Event&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>Module</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Module&#x27; StaticName=&#x27;Module&#x27; Name=&#x27;Module&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>Action</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Action&#x27; StaticName=&#x27;Action&#x27; Name=&#x27;Action&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>ActorEmail</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ActorEmail&#x27; StaticName=&#x27;ActorEmail&#x27; Name=&#x27;ActorEmail&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>ActorRole</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ActorRole&#x27; StaticName=&#x27;ActorRole&#x27; Name=&#x27;ActorRole&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>ActorPersona</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ActorPersona&#x27; StaticName=&#x27;ActorPersona&#x27; Name=&#x27;ActorPersona&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">9</td>
+            <td><code>EntityType</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;EntityType&#x27; StaticName=&#x27;EntityType&#x27; Name=&#x27;EntityType&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">10</td>
+            <td><code>EntityId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;EntityId&#x27; StaticName=&#x27;EntityId&#x27; Name=&#x27;EntityId&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">11</td>
+            <td><code>Ref</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Ref&#x27; StaticName=&#x27;Ref&#x27; Name=&#x27;Ref&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">12</td>
+            <td><code>MetaJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;MetaJson&#x27; StaticName=&#x27;MetaJson&#x27; Name=&#x27;MetaJson&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">13</td>
+            <td><code>Severity</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">info</span><span class="chip">warning</span><span class="chip">error</span><span class="chip">security</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Severity&#x27; StaticName=&#x27;Severity&#x27; Name=&#x27;Severity&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;info&lt;/CHOICE&gt;&lt;CHOICE&gt;warning&lt;/CHOICE&gt;&lt;CHOICE&gt;error&lt;/CHOICE&gt;&lt;CHOICE&gt;security&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">14</td>
+            <td><code>CreatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;CreatedAt&#x27; StaticName=&#x27;CreatedAt&#x27; Name=&#x27;CreatedAt&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>AuditId</code></td>
+            <td><code>provision-pilot</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;SharePoint schema provisioned&quot;,
+  &quot;AuditId&quot;: &quot;provision-pilot&quot;,
+  &quot;RequestId&quot;: &quot;provision-pilot&quot;,
+  &quot;Event&quot;: &quot;audit:sharepoint-schema-provisioned&quot;,
+  &quot;Module&quot;: &quot;provisioning&quot;,
+  &quot;Action&quot;: &quot;create-sharepoint-structures&quot;,
+  &quot;ActorEmail&quot;: &quot;system-provisioning&quot;,
+  &quot;ActorRole&quot;: &quot;systemAdmin&quot;,
+  &quot;ActorPersona&quot;: &quot;admin&quot;,
+  &quot;EntityType&quot;: &quot;sharepoint-schema&quot;,
+  &quot;EntityId&quot;: &quot;pilot&quot;,
+  &quot;Ref&quot;: &quot;https://nitdanigeria.sharepoint.com/sites/NITDADGO-EAAACTIVITYTRACKING&quot;,
+  &quot;MetaJson&quot;: &quot;{\&quot;environment\&quot;:\&quot;pilot\&quot;,\&quot;lists\&quot;:10,\&quot;model\&quot;:\&quot;manifest-driven-original-structure\&quot;}&quot;,
+  &quot;Severity&quot;: &quot;info&quot;,
+  &quot;CreatedAt&quot;: &quot;2026-07-23T00:00:00Z&quot;
+}</pre></details></td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_PendingWrites">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 05</p>
+            <h2>DGO_PendingWrites</h2>
+            <p>Pending and offline write queue</p>
+          </div>
+          <div class="section-stats">
+            <span><b>10</b> fields</span>
+            <span><b>0</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>PendingId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;PendingId&#x27; StaticName=&#x27;PendingId&#x27; Name=&#x27;PendingId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>Operation</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Operation&#x27; StaticName=&#x27;Operation&#x27; Name=&#x27;Operation&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>QueueType</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;QueueType&#x27; StaticName=&#x27;QueueType&#x27; Name=&#x27;QueueType&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>PayloadJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;PayloadJson&#x27; StaticName=&#x27;PayloadJson&#x27; Name=&#x27;PayloadJson&#x27; Required=&#x27;TRUE&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>ErrorMessage</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;ErrorMessage&#x27; StaticName=&#x27;ErrorMessage&#x27; Name=&#x27;ErrorMessage&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>RetryCount</code></td>
+            <td><span class="pill pill--type">Number</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Number&#x27; DisplayName=&#x27;RetryCount&#x27; StaticName=&#x27;RetryCount&#x27; Name=&#x27;RetryCount&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>Status</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">pending</span><span class="chip">retrying</span><span class="chip">resolved</span><span class="chip">failed</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Status&#x27; StaticName=&#x27;Status&#x27; Name=&#x27;Status&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;pending&lt;/CHOICE&gt;&lt;CHOICE&gt;retrying&lt;/CHOICE&gt;&lt;CHOICE&gt;resolved&lt;/CHOICE&gt;&lt;CHOICE&gt;failed&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>CreatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;CreatedAt&#x27; StaticName=&#x27;CreatedAt&#x27; Name=&#x27;CreatedAt&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">9</td>
+            <td><code>LastRetryAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;LastRetryAt&#x27; StaticName=&#x27;LastRetryAt&#x27; Name=&#x27;LastRetryAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">10</td>
+            <td><code>ResolvedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;ResolvedAt&#x27; StaticName=&#x27;ResolvedAt&#x27; Name=&#x27;ResolvedAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">No seed records defined for this list.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_DepartmentDirectory">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 06</p>
+            <h2>DGO_DepartmentDirectory</h2>
+            <p>Directorates, departments, units, and DSUs</p>
+          </div>
+          <div class="section-stats">
+            <span><b>6</b> fields</span>
+            <span><b>0</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>DepartmentId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;DepartmentId&#x27; StaticName=&#x27;DepartmentId&#x27; Name=&#x27;DepartmentId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>Directorate</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Directorate&#x27; StaticName=&#x27;Directorate&#x27; Name=&#x27;Directorate&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>Department</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Department&#x27; StaticName=&#x27;Department&#x27; Name=&#x27;Department&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>Unit</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Unit&#x27; StaticName=&#x27;Unit&#x27; Name=&#x27;Unit&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>DsuCode</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;DsuCode&#x27; StaticName=&#x27;DsuCode&#x27; Name=&#x27;DsuCode&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>Active</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;Active&#x27; StaticName=&#x27;Active&#x27; Name=&#x27;Active&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">No seed records defined for this list.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_AccessScopes">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 07</p>
+            <h2>DGO_AccessScopes</h2>
+            <p>Controlled access scope catalogue</p>
+          </div>
+          <div class="section-stats">
+            <span><b>6</b> fields</span>
+            <span><b>1</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>ScopeId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ScopeId&#x27; StaticName=&#x27;ScopeId&#x27; Name=&#x27;ScopeId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>ScopeName</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;ScopeName&#x27; StaticName=&#x27;ScopeName&#x27; Name=&#x27;ScopeName&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>Description</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;Description&#x27; StaticName=&#x27;Description&#x27; Name=&#x27;Description&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>RoutesJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;RoutesJson&#x27; StaticName=&#x27;RoutesJson&#x27; Name=&#x27;RoutesJson&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>DirectoratesJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;DirectoratesJson&#x27; StaticName=&#x27;DirectoratesJson&#x27; Name=&#x27;DirectoratesJson&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>Active</code></td>
+            <td><span class="pill pill--type">Boolean</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Boolean&#x27; DisplayName=&#x27;Active&#x27; StaticName=&#x27;Active&#x27; Name=&#x27;Active&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>ScopeId</code></td>
+            <td><code>all</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;All&quot;,
+  &quot;ScopeId&quot;: &quot;all&quot;,
+  &quot;ScopeName&quot;: &quot;All&quot;,
+  &quot;Description&quot;: &quot;Full platform scope.&quot;,
+  &quot;RoutesJson&quot;: &quot;[\&quot;*\&quot;]&quot;,
+  &quot;DirectoratesJson&quot;: &quot;[\&quot;all\&quot;]&quot;,
+  &quot;Active&quot;: true
+}</pre></details></td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_PilotCohorts">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 08</p>
+            <h2>DGO_PilotCohorts</h2>
+            <p>Pilot cohort register</p>
+          </div>
+          <div class="section-stats">
+            <span><b>7</b> fields</span>
+            <span><b>1</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>CohortId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;CohortId&#x27; StaticName=&#x27;CohortId&#x27; Name=&#x27;CohortId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>CohortName</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;CohortName&#x27; StaticName=&#x27;CohortName&#x27; Name=&#x27;CohortName&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>StartDate</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;StartDate&#x27; StaticName=&#x27;StartDate&#x27; Name=&#x27;StartDate&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>EndDate</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;EndDate&#x27; StaticName=&#x27;EndDate&#x27; Name=&#x27;EndDate&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>OwnerEmail</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;OwnerEmail&#x27; StaticName=&#x27;OwnerEmail&#x27; Name=&#x27;OwnerEmail&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>Status</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">planned</span><span class="chip">active</span><span class="chip">paused</span><span class="chip">closed</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Status&#x27; StaticName=&#x27;Status&#x27; Name=&#x27;Status&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;planned&lt;/CHOICE&gt;&lt;CHOICE&gt;active&lt;/CHOICE&gt;&lt;CHOICE&gt;paused&lt;/CHOICE&gt;&lt;CHOICE&gt;closed&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>Notes</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;Notes&#x27; StaticName=&#x27;Notes&#x27; Name=&#x27;Notes&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>CohortId</code></td>
+            <td><code>COHORT-1</code></td>
+            <td><details open><summary>Seed payload</summary><pre>{
+  &quot;Title&quot;: &quot;Cohort 1&quot;,
+  &quot;CohortId&quot;: &quot;COHORT-1&quot;,
+  &quot;CohortName&quot;: &quot;Controlled Pilot Cohort 1&quot;,
+  &quot;Status&quot;: &quot;active&quot;,
+  &quot;OwnerEmail&quot;: &quot;dgsregistry@nitda.gov.ng&quot;,
+  &quot;Notes&quot;: &quot;Initial controlled pilot enrollment cohort.&quot;
+}</pre></details></td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_EndpointRegistry">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 09</p>
+            <h2>DGO_EndpointRegistry</h2>
+            <p>Power Automate endpoint inventory</p>
+          </div>
+          <div class="section-stats">
+            <span><b>8</b> fields</span>
+            <span><b>0</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>EndpointKey</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;EndpointKey&#x27; StaticName=&#x27;EndpointKey&#x27; Name=&#x27;EndpointKey&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>FlowName</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;FlowName&#x27; StaticName=&#x27;FlowName&#x27; Name=&#x27;FlowName&#x27; Required=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>FlowUrl</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;FlowUrl&#x27; StaticName=&#x27;FlowUrl&#x27; Name=&#x27;FlowUrl&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>OwnerEmail</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;OwnerEmail&#x27; StaticName=&#x27;OwnerEmail&#x27; Name=&#x27;OwnerEmail&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>Environment</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">dev</span><span class="chip">test</span><span class="chip">pilot</span><span class="chip">production</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Environment&#x27; StaticName=&#x27;Environment&#x27; Name=&#x27;Environment&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;dev&lt;/CHOICE&gt;&lt;CHOICE&gt;test&lt;/CHOICE&gt;&lt;CHOICE&gt;pilot&lt;/CHOICE&gt;&lt;CHOICE&gt;production&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>Status</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">planned</span><span class="chip">active</span><span class="chip">disabled</span><span class="chip">retired</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;Status&#x27; StaticName=&#x27;Status&#x27; Name=&#x27;Status&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;planned&lt;/CHOICE&gt;&lt;CHOICE&gt;active&lt;/CHOICE&gt;&lt;CHOICE&gt;disabled&lt;/CHOICE&gt;&lt;CHOICE&gt;retired&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>Version</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Version&#x27; StaticName=&#x27;Version&#x27; Name=&#x27;Version&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">8</td>
+            <td><code>LastValidatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;LastValidatedAt&#x27; StaticName=&#x27;LastValidatedAt&#x27; Name=&#x27;LastValidatedAt&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">No seed records defined for this list.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+      <section class="list-section" id="DGO_AccessEvents">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SharePoint List 10</p>
+            <h2>DGO_AccessEvents</h2>
+            <p>Access denied, current-user resolution, and session diagnostic events</p>
+          </div>
+          <div class="section-stats">
+            <span><b>7</b> fields</span>
+            <span><b>0</b> seed</span>
+          </div>
+        </div>
+        <section class="subsection">
+          <h3>Field / Column Specification</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Internal Name</th><th>Type</th><th>Required</th><th>Choices</th><th>Schema</th></tr></thead>
+              <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><code>EventId</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;EventId&#x27; StaticName=&#x27;EventId&#x27; Name=&#x27;EventId&#x27; Required=&#x27;TRUE&#x27; Indexed=&#x27;TRUE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">2</td>
+            <td><code>UserEmail</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;UserEmail&#x27; StaticName=&#x27;UserEmail&#x27; Name=&#x27;UserEmail&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">3</td>
+            <td><code>Route</code></td>
+            <td><span class="pill pill--type">Text</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Text&#x27; DisplayName=&#x27;Route&#x27; StaticName=&#x27;Route&#x27; Name=&#x27;Route&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">4</td>
+            <td><code>EventType</code></td>
+            <td><span class="pill pill--type">Choice</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="chip">access-denied</span><span class="chip">disabled-user</span><span class="chip">unregistered-user</span><span class="chip">session-start</span><span class="chip">session-end</span><span class="chip">current-user-resolved</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Choice&#x27; DisplayName=&#x27;EventType&#x27; StaticName=&#x27;EventType&#x27; Name=&#x27;EventType&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;Dropdown&#x27;&gt;&lt;CHOICES&gt;&lt;CHOICE&gt;access-denied&lt;/CHOICE&gt;&lt;CHOICE&gt;disabled-user&lt;/CHOICE&gt;&lt;CHOICE&gt;unregistered-user&lt;/CHOICE&gt;&lt;CHOICE&gt;session-start&lt;/CHOICE&gt;&lt;CHOICE&gt;session-end&lt;/CHOICE&gt;&lt;CHOICE&gt;current-user-resolved&lt;/CHOICE&gt;&lt;/CHOICES&gt;&lt;/Field&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">5</td>
+            <td><code>Message</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;Message&#x27; StaticName=&#x27;Message&#x27; Name=&#x27;Message&#x27; NumLines=&#x27;6&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">6</td>
+            <td><code>MetaJson</code></td>
+            <td><span class="pill pill--type">Note</span></td>
+            <td>No</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;Note&#x27; DisplayName=&#x27;MetaJson&#x27; StaticName=&#x27;MetaJson&#x27; Name=&#x27;MetaJson&#x27; NumLines=&#x27;10&#x27; RichText=&#x27;FALSE&#x27; /&gt;</pre></details></td>
+          </tr>
+        
+          <tr>
+            <td class="num">7</td>
+            <td><code>CreatedAt</code></td>
+            <td><span class="pill pill--type">DateTime</span></td>
+            <td>Yes</td>
+            <td class="choices"><span class="muted">—</span></td>
+            <td><details><summary>Schema XML</summary><pre>&lt;Field Type=&#x27;DateTime&#x27; DisplayName=&#x27;CreatedAt&#x27; StaticName=&#x27;CreatedAt&#x27; Name=&#x27;CreatedAt&#x27; Required=&#x27;TRUE&#x27; Format=&#x27;DateTime&#x27; /&gt;</pre></details></td>
+          </tr>
+        </tbody>
+            </table>
+          </div>
+        </section>
+        
+      <section class="subsection">
+        <h3>Seed Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Key Field</th><th>Key Value</th><th>Payload</th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">No seed records defined for this list.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    
+      </section>
+    
+</main>
+<footer class="footer">
+  <b>DGO Digital OPS</b> · SharePoint persistence documentation · Generated from manifest · SHA-ready distribution package.
+</footer>
+</body>
+</html>

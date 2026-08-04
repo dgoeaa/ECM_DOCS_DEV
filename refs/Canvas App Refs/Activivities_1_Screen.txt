@@ -1,0 +1,1787 @@
+Screens:
+  Activities_1:
+    Properties:
+      Fill: =
+      LoadingSpinnerColor: =ColorValue("#05583B")
+      OnVisible: |
+        =
+        UpdateContext({showNow:false, show1B: true, show2B: false});
+
+        UpdateContext({showMoreActions:false, selectedAction:"",
+                showConfirmArchive: false,
+                showConfirmSIWES: false,
+                showConfirmSNYSC: false,
+                showGallery: true,
+                showAttachments: false,
+                showDetails: false,
+                showFilters: false,
+
+                DGOselected: Blank(),showSelectedAttachment:false
+            }
+        );
+
+        Set(
+            BreakpointConfig,
+            {
+                Small: {WrapOK: 1, WrapError: 2, WidthOK: 0.05, WidthError: 0.1},
+                Medium: {WrapOK: 3, WrapError: 2, WidthOK: 0.075, WidthError: 0.15},
+                Large: {WrapOK: 4, WrapError: 3, WidthOK: 0.1, WidthError: 0.2}
+            }
+        );
+    Children:
+      - Container18_1:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            Height: =Parent.Height
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =8
+            Width: =Parent.Width
+          Children:
+            - cmpScreenHeader_18:
+                Control: CanvasComponent
+                ComponentName: cmpScreenHeader
+                Properties:
+                  AlignInContainer: =AlignInContainer.Stretch
+                  Fill: =Color.Transparent
+                  Height: =30
+                  IsDebugMode: =false
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  UserDepartment: =UserDetails.TTSDeptkey
+                  UserName: |-
+                    ="User:    "& User().FullName
+                  Visible: =showGallery
+                  Width: =200
+                  Y: =-0
+                  cmpAppRestart: =cmpScreenHeader_18.cmpHomeNav
+                  cmpHeaderActions: |-
+                    =[
+
+                        {
+                            ActionName: "Navigation",
+                            Name: "Navigation",
+                            TextColor: "#00A69D",
+                            Color: "#FFB400",
+                            // Yellow for toggle actions
+                    Icon: Icon.Manufacture
+                        }
+                    ]
+                  cmpHomeNav: ='Home Screen'
+                  varDeviceType: =
+            - Container9:
+                Control: GroupContainer@1.4.0
+                Variant: AutoLayout
+                Properties:
+                  FillPortions: =0
+                  Height: =80
+                  LayoutDirection: =LayoutDirection.Vertical
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =
+                  LayoutMinWidth: =
+                  Visible: =showGallery=true && showFilters=true
+                  Width: =200
+                  Y: =-0
+                Children:
+                  - Container10:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        Height: =35
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =30
+                        LayoutMinWidth: =
+                      Children:
+                        - btnActivitiesResetFilters_3:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =ColorFade(ColorValue("#05583B"), 95%)
+                              Fill: =ColorValue("#05583B")
+                              FillPortions: =1
+                              FocusedBorderColor: =
+                              FocusedBorderThickness: =0
+                              Font: =Font.Verdana
+                              FontWeight: =FontWeight.Normal
+                              Height: =Parent.Height*95%
+                              HoverBorderColor: =ColorFade(ColorValue("#05583B"), 95%)
+                              HoverColor: =RGBA(255, 255, 255, 1)
+                              HoverFill: =
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =If(showFilters=true,UpdateContext({showFilters:false,gblReset:true}),UpdateContext({showFilters:true}))
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =8
+                              Text: ="Close Filters"
+                              Width: =200
+                        - lblStyle_7:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="AssignedTo"
+                              Width: =200
+                        - lblRegion_2:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="Category"
+                              Width: =200
+                        - lblStudent_2:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="Status"
+                              Width: =200
+                        - lblPagination_3:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="Assignment Status"
+                              Width: =200
+                        - lblStyle_6:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="Date From"
+                              Width: =200
+                        - lblStyle_8:
+                            Control: Label@2.5.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: =
+                              Size: =8
+                              Text: ="Date To"
+                              Width: =200
+                  - Container14:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        FillPortions: =0
+                        Height: =35
+                        LayoutDirection: =LayoutDirection.Horizontal
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =30
+                        LayoutMinWidth: =
+                      Children:
+                        - btnActivitiesResetFilters_4:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =
+                              BorderStyle: =BorderStyle.None
+                              BorderThickness: =0
+                              Color: =RGBA(255, 255, 255, 1)
+                              DisabledBorderColor: =ColorFade(ColorValue("#05583B"), 95%)
+                              Fill: =ColorValue("#05583B")
+                              FillPortions: =1
+                              FocusedBorderColor: =
+                              FocusedBorderThickness: =0
+                              Font: =Font.Verdana
+                              FontWeight: =FontWeight.Normal
+                              Height: =Parent.Height*95%
+                              HoverBorderColor: =ColorFade(ColorValue("#05583B"), 95%)
+                              HoverColor: =RGBA(255, 255, 255, 1)
+                              HoverFill: =
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: |
+                                =
+                                    UpdateContext({gblReset:true
+                                });
+
+                                    UpdateContext({gblReset:false
+                                });
+                              RadiusBottomLeft: =0
+                              RadiusBottomRight: =0
+                              RadiusTopLeft: =0
+                              RadiusTopRight: =0
+                              Size: =8
+                              Text: ="Reset Filters"
+                              Width: =200
+                        - icoFilter_2:
+                            Control: Classic/Icon@2.5.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              Color: =AppTheme.PrimaryBackground
+                              Fill: =ColorValue("#05583B")
+                              FillPortions: =1
+                              Height: =Parent.Height*95%
+                              Icon: =Icon.Filter
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              OnSelect: |
+                                =
+                                    UpdateContext({gblReset:true,
+                                            showGallery:true,
+                                            showAttachments: false,
+                                            showDetails: false
+                                });
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              Visible: =false
+                              Width: =200
+                        - cbAssignedToFilter_2:
+                            Control: Classic/ComboBox@2.4.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              ChevronBackground: =ColorValue("#05583B")
+                              ChevronFill: =AppTheme.PrimaryBackground
+                              ChevronHoverFill: =ColorFade(ColorValue("#05583B"),30%)
+                              Color: =ColorValue("#05583B")
+                              DisplayFields: =["DisplayName","Mail"]
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              Items: =colAllUsers
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              NoSelectionText: ="Select User"
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              Reset: =gblReset
+                              SearchFields: =["Mail"]
+                              SelectMultiple: =false
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =ColorValue("#05583B")
+                              Size: =8
+                              Width: =200
+                        - drpFilterCategory:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              AllowEmptySelection: =true
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              ChevronBackground: =ColorValue("#05583B")
+                              ChevronFill: =AppTheme.PrimaryBackground
+                              ChevronHoverFill: =ColorFade(ColorValue("#05583B"),30%)
+                              Color: =ColorValue("#05583B")
+                              Default: =
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              HoverBorderColor: =ColorValue("#008080")
+                              Items: =colCategoriesInfo
+                              Items.Value: =field_1
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              OnChange: =
+                              OnSelect: =
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              PressedBorderColor: =ColorValue("#008080")
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =ColorValue("#008080")
+                              Reset: =gblReset
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =ColorValue("#008080")
+                              Size: =8
+                              Width: =200
+                        - dpStatusFilter:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              AllowEmptySelection: =true
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              ChevronBackground: =ColorValue("#05583B")
+                              ChevronFill: =AppTheme.PrimaryBackground
+                              ChevronHoverFill: =ColorFade(ColorValue("#05583B"),30%)
+                              Color: =ColorValue("#05583B")
+                              Default: =
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              HoverBorderColor: =ColorValue("#008080")
+                              Items: |-
+                                =
+                                ["", "Treated", "Not Treated"]
+                              Items.Value: =Value
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              OnChange: =
+                              OnSelect: =
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              PressedBorderColor: =ColorValue("#008080")
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =ColorValue("#008080")
+                              Reset: =gblReset
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =ColorValue("#008080")
+                              Size: =8
+                              Width: =200
+                        - dpAssignmentStatusFilter:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              AllowEmptySelection: =true
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              ChevronBackground: =ColorValue("#05583B")
+                              ChevronFill: =AppTheme.PrimaryBackground
+                              ChevronHoverFill: =ColorFade(ColorValue("#05583B"),30%)
+                              Color: =ColorValue("#05583B")
+                              Default: =
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              HoverBorderColor: =ColorValue("#008080")
+                              Items: =["","Assigned","Not Assigned"]
+                              Items.Value: =Value
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              OnChange: =
+                              OnSelect: =
+                              PaddingBottom: =5
+                              PaddingLeft: =5
+                              PaddingRight: =5
+                              PaddingTop: =5
+                              PressedBorderColor: =ColorValue("#008080")
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =ColorValue("#008080")
+                              Reset: =gblReset
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =ColorValue("#008080")
+                              Size: =8
+                              Width: =200
+                        - DatePicker2_2:
+                            Control: Classic/DatePicker@2.6.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              DefaultDate: =
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              IconBackground: =ColorValue("#05583B")
+                              IconFill: =AppTheme.PrimaryBackground
+                              IsEditable: =true
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              OnSelect: =
+                              PaddingLeft: =5
+                              PaddingTop: =5
+                              Reset: =gblReset
+                              Size: =8
+                              Width: =200
+                        - DatePicker4_2:
+                            Control: Classic/DatePicker@2.6.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              BorderColor: =ColorValue("#05583B")
+                              BorderThickness: =1
+                              Color: =ColorValue("#05583B")
+                              DefaultDate: =
+                              Fill: =ColorFade(ColorValue("#05583B"),90%)
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =Parent.Height*95%
+                              IconBackground: =ColorValue("#05583B")
+                              IconFill: =AppTheme.PrimaryBackground
+                              IsEditable: =true
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              OnSelect: =
+                              PaddingLeft: =5
+                              PaddingTop: =5
+                              Reset: =gblReset
+                              Size: =8
+                              Width: =200
+            - Container9_15:
+                Control: GroupContainer@1.4.0
+                Variant: AutoLayout
+                Properties:
+                  FillPortions: =0
+                  Height: =30
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutJustifyContent: =LayoutJustifyContent.End
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =20
+                  LayoutMinWidth: =
+                  Visible: =Parent.Height>750 && showGallery
+                  Width: =200
+                  Y: =-0
+                Children:
+                  - Button5_12:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =ColorValue("#05583B")
+                        Color: =ColorValue("#373435")
+                        Fill: =Color.Transparent
+                        FillPortions: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverColor: =ColorValue("#00A69D")
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =25
+                        LayoutMinWidth: =
+                        OnSelect: |-
+                          =If(showG1=true,
+                          UpdateContext({showG1:false,showG2:true,showG3:false})
+                          ;,showG2=true,
+                          UpdateContext({showG1:false,showG2:false,showG3:true})
+                          ;,
+                          UpdateContext({showG1:true,showG2:false,showG3:false})
+                          ;)
+                        Size: =If(App.Width<700,8,10)
+                        Text: =Gallery_DGOAssignments_Desktop_2.AllItemsCount
+                        Visible: =Parent.Width>750 && showDetails=false && showAttachments=false && showFilters=false && showDetails=false
+                        Width: =150
+                  - Button5_11:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =AppTheme.BrandPrimary
+                        Color: =AppTheme.NeutralPrimary
+                        Fill: =Color.Transparent
+                        FillPortions: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverColor: =AppTheme.NeutralLighter
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =25
+                        LayoutMinWidth: =
+                        OnSelect: "=If(\r\n    show1 = true,\r\n    UpdateContext({ show1: false, show2: true, show3: false }),\r\n\r\n        show2 = true,\r\n        UpdateContext({ show1: false, show2: false, show3: true }),\r\n       \r\n            UpdateContext({ show1: true, show2: false, show3: false })\r\n        )\r\n"
+                        Size: =If(App.Width < 700, 8, 10)
+                        Text: ="Today's Stats:"
+                        Visible: =Parent.Width > 750 && !showDetails && !showAttachments && !showFilters
+                        Width: =150
+                  - Button2_19:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =AppTheme.BrandPrimary
+                        Color: =AppTheme.BrandPrimary
+                        Fill: =Color.Transparent
+                        FillPortions: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverColor: =AppTheme.NeutralLighter
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =25
+                        LayoutMinWidth: =
+                        OnSelect: =If(showNow=true,UpdateContext({showNow:false}),UpdateContext({showNow:true}))
+                        PaddingLeft: =12
+                        Size: =If(App.Width < 700, 8, 10)
+                        Text: |-
+                          ="All Today: " & CountRows(
+                            Distinct(Filter('DGO DIGITAL OPS', Created >= Today()), ID)
+                          )
+                        Visible: =Parent.Width > 750 && !showDetails && !showAttachments && !showFilters
+                        Width: =150
+                  - Button3_10:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =AppTheme.BrandPrimary
+                        Color: =AppTheme.Success
+                        Fill: =Color.Transparent
+                        FillPortions: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverColor: =AppTheme.BrandPrimary
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =25
+                        LayoutMinWidth: =
+                        OnSelect: =
+                        Size: =If(App.Width < 700, 8, 10)
+                        Text: ="Treated (Today):"
+                        Visible: =Parent.Width > 750 && !showDetails && !showAttachments && !showFilters
+                        Width: =150
+                  - Button4_10:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        BorderColor: =AppTheme.BrandPrimary
+                        Color: =AppTheme.Error
+                        Fill: =Color.Transparent
+                        FillPortions: =1
+                        Font: =Font.'Segoe UI'
+                        Height: =25
+                        HoverColor: =AppTheme.NeutralLighter
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =25
+                        LayoutMinWidth: =
+                        OnSelect: =Blank()
+                        Size: =If(App.Width < 700, 8, 10)
+                        Text: ="Not Treated (Today):"
+                        Visible: =Parent.Width > 750 && !showDetails && !showAttachments && !showFilters
+                        Width: =150
+            - Container9_16:
+                Control: GroupContainer@1.4.0
+                Variant: AutoLayout
+                Properties:
+                  FillPortions: =0
+                  Height: =35
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutJustifyContent: =LayoutJustifyContent.End
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinHeight: =20
+                  LayoutMinWidth: =
+                  Width: =200
+                  Y: =-0
+                Children:
+                  - txtActivitySearch_4:
+                      Control: Classic/TextInput@2.3.2
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =AppTheme.BrandPrimary
+                        Default: =
+                        DelayOutput: =true
+                        Fill: =AppTheme.TextInputFill
+                        Font: =Font.Verdana
+                        Height: =Parent.Height
+                        HintText: ="Search"
+                        HoverBorderColor: =AppTheme.TextInputFill
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =
+                        LayoutMinWidth: =
+                        Reset: =gblReset
+                        Size: =8
+                        Visible: |-
+                          =If(App.Width>750,If(
+                              Parent.Width>500,
+                              showGallery,
+                              showGallery && !showDetails && !showAttachments && !showSelectedAttachment
+                          )
+                          ,false)
+                        Width: =Parent.Width * 0.4
+                  - galDGOAssignmentsFIlter_3:
+                      Control: Gallery@2.15.0
+                      Variant: BrowseLayout_Horizontal_TwoTextOneImageVariant_ver5.0
+                      Properties:
+                        BorderStyle: =BorderStyle.None
+                        Fill: =AppTheme.SecondaryBackground
+                        Height: =Parent.Height
+                        Items: =["All", "Treated", "Not Treated"]
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =
+                        LayoutMinWidth: =
+                        ShowScrollbar: =false
+                        TemplateFill: =If(ThisItem.IsSelected, AppTheme.NeutralLight,AppTheme.BrandSecondary)
+                        TemplateSize: =If(Self.AllItemsCount <= 0, Self.Width, Self.Width / Self.AllItemsCount)
+                        Visible: |+
+                          =If(
+                              Parent.Width > 800,
+                              showGallery,
+                              showGallery && !showDetails && !showAttachments && !showSelectedAttachment
+                          )
+                        Width: =200
+                      Children:
+                        - Btn_Subform1_63:
+                            Control: Classic/Button@2.2.0
+                            Properties:
+                              Color: =If(ThisItem.IsSelected,AppTheme.BrandSecondary, AppTheme.White)
+                              Fill: =Color.Transparent
+                              Font: =Font.'Segoe UI'
+                              Height: =Parent.TemplateHeight
+                              HoverColor: =AppTheme.NeutralLighter
+                              Size: =8
+                              Text: =ThisItem.Value
+                              Width: =Parent.TemplateWidth
+                        - Circle_Status_SubForm1_62:
+                            Control: Circle@2.3.0
+                            Properties:
+                              BorderThickness: =4
+                              Fill: =If(ThisItem.IsSelected, AppTheme.SecondaryBackground, AppTheme.BrandPrimary)
+                              Height: =1
+                              Visible: =ThisItem.IsSelected
+                              Width: =1
+                  - btnshowactRstFilters_10:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Color: =AppTheme.NeutralLighter
+                        Fill: =AppTheme.BrandPrimary
+                        Font: =Font.Verdana
+                        FontWeight: =FontWeight.Normal
+                        Height: =Parent.Height
+                        HoverFill: =ColorFade(AppTheme.NeutralLight, 20%)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =
+                        LayoutMinWidth: =75
+                        OnSelect: |
+                          =Switch(true,
+                            showSelectedAttachment, UpdateContext({
+                              showSelectedAttachment: false, showAttachments: true
+                            }),
+                            showAttachments, UpdateContext({
+                              showAttachments: false, showDetails: true
+                            }),
+                            showDetails, UpdateContext({
+                              showDetails: false, showGallery: true, DGOselected: Blank()
+                            })
+                          )
+                        Size: =8
+                        Text: |
+                          =Switch(true,
+                            showSelectedAttachment, "Close Current Attachment",
+                            showAttachments, "Close Attachments",
+                            showDetails, "Close Details"
+                          )
+                        Visible: =showDetails || showAttachments || showSelectedAttachment
+                        Width: =150
+                  - btnshowactRstFilters_11:
+                      Control: Classic/Button@2.2.0
+                      Properties:
+                        AlignInContainer: =AlignInContainer.Stretch
+                        Color: =AppTheme.White
+                        Fill: =AppTheme.BrandPrimary
+                        Font: =Font.Verdana
+                        FontWeight: =FontWeight.Normal
+                        Height: =Parent.Height
+                        HoverFill: =ColorFade(AppTheme.NeutralLighter, 20%)
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =
+                        LayoutMinWidth: =75
+                        OnSelect: |-
+                          =UpdateContext({showFilters: !showFilters, gblReset: showFilters})
+                        Size: =8
+                        Text: =If(showFilters, "Reset Filters", "Show Filters")
+                        Visible: =App.ActiveScreen.Height>400 && showGallery && Not(showFilters)
+                        Width: =100
+            - Container12_1:
+                Control: GroupContainer@1.4.0
+                Variant: AutoLayout
+                Properties:
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  LayoutMinWidth: =
+                  Width: =200
+                  Y: =-0
+                Children:
+                  - Gallery_DGOAssignments_Responsive_1:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        BorderStyle: =BorderStyle.None
+                        Fill: =AppTheme.PrimaryBackground
+                        Height: =Parent.Height
+                        LayoutAlignItems: =LayoutAlignItems.Stretch
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutGap: =AppSpacing.S
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        PaddingBottom: =AppSpacing.S
+                        PaddingLeft: =AppSpacing.S
+                        PaddingRight: =AppSpacing.S
+                        PaddingTop: =AppSpacing.S
+                        Visible: =App.ActiveScreen.Width > 750 || (showGallery && !showDetails && !showAttachments && !showSelectedAttachment)
+                        Width: =Parent.Width
+                      Children:
+                        - Gallery_DGOAssignments_Desktop_2:
+                            Control: Gallery@2.15.0
+                            Variant: Vertical
+                            Properties:
+                              BorderStyle: =BorderStyle.None
+                              Fill: =AppTheme.PrimaryBackground
+                              Height: =Parent.Height
+                              Items: |-
+                                =
+
+
+                                SortByColumns(
+                                    Filter(
+                                        'DGO DIGITAL OPS',
+
+                                        // Status-based filter
+                                        (
+                                            galDGOAssignmentsFIlter_3.Selected.Value = "All" ||
+                                            (
+                                                galDGOAssignmentsFIlter_3.Selected.Value = "Treated" &&
+                                                (Status.Value = "Treated" || Status.Value = "Processed")
+                                            ) ||
+                                            (
+                                                galDGOAssignmentsFIlter_3.Selected.Value = "Not Treated" &&
+                                                (AssignmentStatus.Value = "Pending" || Status.Value = "")
+                                            )
+                                        ),
+
+                                        // Assigned To filter
+                                        (
+                                            IsEmpty(cbAssignedToFilter_2.SelectedItems) ||
+                                            IsBlank(cbAssignedToFilter_2.Selected) ||
+                                            AssignedTo = cbAssignedToFilter_2.Selected.Mail
+                                        ),
+
+                                        // Status filter dropdown
+                                        (
+                                            IsBlank(dpStatusFilter.Selected.Value) ||
+                                            Status.Value = dpStatusFilter.Selected.Value
+                                        ),
+
+                                        // Assignment Status filter dropdown
+                                        (
+                                            IsBlank(dpAssignmentStatusFilter.Selected.Value) ||
+                                            AssignmentStatus.Value = dpAssignmentStatusFilter.Selected.Value
+                                        ),
+
+                                        // Date range filters
+                                        (
+                                            IsBlank(DatePicker4_2.SelectedDate) ||
+                                            Created >= DatePicker4_2.SelectedDate
+                                        ),
+                                        (
+                                            IsBlank(DatePicker2_2.SelectedDate) ||
+                                            Created <= DatePicker2_2.SelectedDate
+                                        ),
+
+                                        // Search filter
+                                        (
+                                            IsBlank(txtActivitySearch_4.Text) ||
+                                            StartsWith(Title, txtActivitySearch_4.Text)
+                                        )
+                                    ),
+                                    "Created", // Make sure this matches the internal name of your column
+                                    SortOrder.Descending
+                                )
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              OnSelect: =UpdateContext({DGOselected:ThisItem})
+                              TemplatePadding: =AppSpacing.S
+                              TemplateSize: =If(App.Height < 800, 150, 120)
+                              Width: =Parent.Width
+                            Children:
+                              - Stripe_Priority_2:
+                                  Control: Rectangle@2.3.0
+                                  Properties:
+                                    Fill: =If(And(ThisItem.AssignmentStatus.Value<>"Assigned", ThisItem.Status.Value<>"Treated"), AppTheme.Error, AppTheme.Success)
+                                    Height: =150
+                                    Width: =6
+                              - Container_DesktopTemplate_10:
+                                  Control: GroupContainer@1.4.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    BorderColor: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.NeutralTertiary)
+                                    BorderThickness: =1
+                                    Fill: =If(ThisItem.IsSelected, ColorFade(AppTheme.BrandPrimary, 90%), AppTheme.SecondaryBackground)
+                                    Height: =Parent.TemplateHeight * 0.98
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =LayoutDirection.Horizontal
+                                    LayoutGap: =AppSpacing.M
+                                    PaddingBottom: =10
+                                    PaddingLeft: =AppSpacing.M
+                                    PaddingRight: =AppSpacing.M
+                                    PaddingTop: =10
+                                    RadiusBottomLeft: =AppSpacing.Radius
+                                    RadiusBottomRight: =AppSpacing.Radius
+                                    RadiusTopLeft: =AppSpacing.Radius
+                                    RadiusTopRight: =AppSpacing.Radius
+                                    Width: =Parent.TemplateWidth
+                                    Y: =3
+                                  Children:
+                                    - Container_DesktopTemplate_11:
+                                        Control: GroupContainer@1.4.0
+                                        Variant: AutoLayout
+                                        Properties:
+                                          Fill: =AppTheme.SecondaryBackground
+                                          Height: =Parent.Height * 0.98
+                                          LayoutAlignItems: =LayoutAlignItems.Stretch
+                                          LayoutDirection: =LayoutDirection.Vertical
+                                          LayoutGap: =AppSpacing.M
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =
+                                          LayoutMinWidth: =Parent.Width*60%
+                                          PaddingBottom: =5
+                                          PaddingLeft: =AppSpacing.M
+                                          PaddingRight: =AppSpacing.M
+                                          PaddingTop: =5
+                                          RadiusBottomLeft: =AppSpacing.Radius
+                                          RadiusBottomRight: =AppSpacing.Radius
+                                          RadiusTopLeft: =AppSpacing.Radius
+                                          RadiusTopRight: =AppSpacing.Radius
+                                        Children:
+                                          - lbl_Title_Desktop_7:
+                                              Control: Label@2.5.1
+                                              Properties:
+                                                AlignInContainer: =AlignInContainer.Stretch
+                                                Color: =AppTheme.BrandPrimary
+                                                FillPortions: =1
+                                                Font: =LookUp(TextStyles, Name="Heading3").Font
+                                                FontWeight: =FontWeight.Semibold
+                                                Height: =Parent.Height * 0.75
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                Size: =LookUp(TextStyles, Name="Body").Size*90%
+                                                Text: =ThisItem.Title
+                                                VerticalAlign: =VerticalAlign.Top
+                                          - Container_Meta_Desktop_3:
+                                              Control: GroupContainer@1.4.0
+                                              Variant: AutoLayout
+                                              Properties:
+                                                Height: =Parent.Height * 0.25
+                                                LayoutAlignItems: =LayoutAlignItems.Center
+                                                LayoutDirection: =LayoutDirection.Horizontal
+                                                LayoutGap: =AppSpacing.M
+                                                LayoutMaxHeight: =
+                                                LayoutMaxWidth: =
+                                                LayoutMinHeight: =30
+                                                Width: =Parent.Width
+                                              Children:
+                                                - ClosePDF_1:
+                                                    Control: Classic/Button@2.2.0
+                                                    Properties:
+                                                      Align: =Align.Left
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      BorderStyle: =BorderStyle.None
+                                                      Color: =AppTheme.PrimaryForeground
+                                                      Fill: =AppTheme.BrandPrimary
+                                                      Height: =28
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      OnSelect: =Launch(ThisItem.AttachmentLink)
+                                                      RadiusBottomLeft: =AppSpacing.Radius
+                                                      RadiusBottomRight: =AppSpacing.Radius
+                                                      RadiusTopLeft: =AppSpacing.Radius
+                                                      RadiusTopRight: =AppSpacing.Radius
+                                                      Size: =8
+                                                      Text: ="View PDF"
+                                                      Width: =80
+                                                - lbl_Created_Desktop_7:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      AlignInContainer: =AlignInContainer.Stretch
+                                                      Color: =AppTheme.NeutralPrimary
+                                                      Font: =LookUp(TextStyles, Name="Body").Font
+                                                      FontWeight: =FontWeight.Semibold
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =
+                                                      LayoutMinWidth: =
+                                                      Size: =LookUp(TextStyles, Name="Body").Size
+                                                      Text: =Text(ThisItem.Created, "dd-mm-yyyy")
+                                                - Meta_Category_9:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      Color: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.NeutralSecondary)
+                                                      Font: =LookUp(TextStyles, Name="Caption").Font
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =
+                                                      LayoutMinWidth: =
+                                                      Size: =LookUp(TextStyles, Name="Caption").Size
+                                                      Text: =Coalesce(ThisItem.Category, "Uncategorized")
+                                                      Visible: =App.Width > 700
+                                                - lbl_Status_Desktop_7:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      Color: =If(ThisItem.Status.Value="Treated", AppTheme.Success, AppTheme.Warning)
+                                                      Font: =LookUp(TextStyles, Name="Body").Font
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =
+                                                      LayoutMinWidth: =
+                                                      Size: =LookUp(TextStyles, Name="Body").Size
+                                                      Text: =ThisItem.Status.Value
+                                                      Visible: =Parent.Width > 800
+                                                - lbl_AssignedTo_Desktop_7:
+                                                    Control: Label@2.5.1
+                                                    Properties:
+                                                      Align: =Align.Center
+                                                      Color: =AppTheme.NeutralSecondary
+                                                      Font: =LookUp(TextStyles, Name="Caption").Font
+                                                      LayoutMaxHeight: =
+                                                      LayoutMaxWidth: =
+                                                      LayoutMinHeight: =
+                                                      LayoutMinWidth: =
+                                                      Size: =LookUp(TextStyles, Name="Caption").Size
+                                                      Text: =ThisItem.AssignedTo
+                                                      Visible: =Parent.Width > 750 && Or(ThisItem.AssignmentStatus.Value="Assigned", ThisItem.Status.Value="Treated")
+                                    - galactionbuttons_3:
+                                        Control: Gallery@2.15.0
+                                        Variant: Vertical
+                                        Properties:
+                                          Height: =Parent.Height * 0.9
+                                          Items: |-
+                                            =With(
+                                            { _isError: And(ThisItem.AssignmentStatus.Value <> "Assigned", ThisItem.Status.Value <> "Treated") },
+                                            If(
+                                            _isError,
+                                            // 🟥 Untreated / Unassigned — 8 buttons
+                                            Table(
+                                            { Label:"Assign", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.Add, ActionType:"Assign" },
+
+                                            { Label:"NYSC", Color:AppTheme.White, Fill:ColorValue("#1A202C"), BorderColor:ColorFade(ColorValue("#1A202C"), -20%), IconType:Icon.People, ActionType:"NYSC" },
+                                            { Label:"SIWES", Color:AppTheme.White, Fill:ColorValue("#1A202C"), BorderColor:ColorFade(ColorValue("#1A202C"), -20%), IconType:Icon.Waypoint, ActionType:"SIWES" },
+                                            { Label:"Archive", Color:AppTheme.White, Fill:ColorValue("#E05606"), BorderColor:ColorFade(ColorValue("#E05606"), -20%), IconType:Icon.ListScrollWatchlist, ActionType:"Archive" },
+                                            { Label:"PDF", Color:ColorValue("#007B5E"), Fill:Color.Transparent, BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.DocumentPDF, ActionType:"PDF" },
+                                            { Label:"View", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.OptionsList, ActionType:"Options" }
+                                            ),
+                                            // 🟩 Treated / Assigned — 5 buttons
+                                            Table(
+
+                                            { Label:"ReAssign", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.Add, ActionType:"ReAssign" },
+                                            { Label:"PDF", Color:ColorValue("#007B5E"), Fill:Color.Transparent, BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.DocumentPDF, ActionType:"PDF" },
+                                            { Label:"View", Color:AppTheme.White, Fill:ColorValue("#007B5E"), BorderColor:ColorFade(ColorValue("#007B5E"), -20%), IconType:Icon.OptionsList, ActionType:"Options" }
+                                            )
+                                            )
+                                            )
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          LayoutMinHeight: =
+                                          LayoutMinWidth: =150
+                                          OnSelect: |-
+                                            =
+
+
+                                            UpdateContext({DGOselected:Gallery_DGOAssignments_Desktop_2.Selected});
+
+                                                  // ENHANCEMENT: Removed redundant 'Navigate' call.
+                                                  // The Switch now handles ALL actions cleanly.
+                                                  Switch(
+                                                      ThisItem.ActionType,
+
+                                                      // --- Navigation Actions ---
+                                                      "Assign",
+                                                      Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                                                      "ReAssign",
+                                                      Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                                                      "NewAssign",
+                                                      Navigate(EAA_Terminal, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                                                      "ReNewAssign",
+                                                      Navigate(EAA_Terminal, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                                                      // --- BUG FIX ---
+                                                      // 'NewAssign1' has been corrected to 'NewAssign2' to match the 'Items' property.
+                                                      "NewAssign2",
+                                                      Navigate(EmailClient_Screen, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"newassignment" }),
+
+                                                      "ReNewAssign2",
+                                                      Navigate(Activity_Assignments, ScreenTransition.None, { DGOselected: DGOselected, AssignmentType:"reassignment" }),
+
+                                                      // --- Robust UI State Actions ---
+                                                      // ENHANCEMENT: Each action now resets all other UI states
+                                                      // to prevent overlapping popups or panes.
+                                                      "NYSC",
+                                                      UpdateContext({
+                                                          showConfirmSNYSC: true,
+                                                          showGallery: false,
+                                                          showDetails: false,
+                                                          showAttachments: false,
+                                                          showConfirmSIWES: false,
+                                                          showConfirmArchive: false
+                                                      }),
+
+                                                      "SIWES",
+                                                      UpdateContext({
+                                                          showConfirmSNYSC: false,
+                                                          showGallery: false,
+                                                          showDetails: false,
+                                                          showAttachments: false,
+                                                          showConfirmSIWES: true,
+                                                          showConfirmArchive: false
+                                                      }),
+
+                                                      "Archive",
+                                                      UpdateContext({
+                                                          showConfirmSNYSC: false,
+                                                          showGallery: false,
+                                                          showDetails: false,
+                                                          showAttachments: false,
+                                                          showConfirmSIWES: false,
+                                                          showConfirmArchive: true
+                                                      }),
+
+                                                      "PDF",
+                                                      UpdateContext({
+                                                          showConfirmSNYSC: false,
+                                                          showGallery: false,
+                                                          showDetails: false,
+                                                          showAttachments: true,
+                                                          showConfirmSIWES: false,
+                                                          showConfirmArchive: false
+                                                      }),
+
+                                                      "Options",
+                                                      UpdateContext({
+                                                          showConfirmSNYSC: false,
+                                                          showGallery: false,
+                                                          showDetails: true,
+                                                          showAttachments: false,
+                                                          showConfirmSIWES: false,
+                                                          showConfirmArchive: false
+                                                      })
+                                                  )
+                                          TemplateSize: =40
+                                          Width: =Min(Parent.Width * 0.35, 250)
+                                          WrapCount: =Switch(CurrentScreenSize,"Smail",2,"Medium",3,"Large",1)
+                                        Children:
+                                          - btnTag_36:
+                                              Control: Classic/Button@2.2.0
+                                              Properties:
+                                                BorderColor: =ThisItem.BorderColor
+                                                Color: =ThisItem.Color
+                                                Fill: =ThisItem.Fill
+                                                FocusedBorderColor: =AppTheme_Default.BrandSecondary
+                                                FocusedBorderThickness: =AppSpacing.FocusBorder
+                                                Font: =AppStyles.font
+                                                Height: =Parent.TemplateHeight * 0.9
+                                                HoverBorderColor: =ColorFade(Self.BorderColor, 10%)
+                                                HoverFill: =ColorFade(Self.Fill, -20%)
+                                                OnSelect: =Select(Parent)
+                                                PressedBorderColor: =ColorFade(Self.Fill, -10%)
+                                                PressedColor: =Self.Fill
+                                                PressedFill: =Self.Color
+                                                RadiusBottomLeft: =AppSpacing.Radius
+                                                RadiusBottomRight: =AppSpacing.Radius
+                                                RadiusTopLeft: =AppSpacing.Radius
+                                                RadiusTopRight: =AppSpacing.Radius
+                                                Size: =LookUp(TextStyles, Name = "Label").Size
+                                                Text: =ThisItem.Label
+                                                Width: |-
+                                                  =Min(
+                                                      Parent.TemplateWidth - (AppSpacing.S * 2),
+                                                      Switch(
+                                                          CurrentScreenSize,
+                                                          "Small", 140,
+                                                          "Medium", 130,
+                                                          "Large", 120,
+                                                          "ExtraLarge", 110,
+                                                          120))
+                                                X: =(Parent.TemplateWidth - Self.Width) / 2
+                                                Y: =3
+                  - Container17:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        Visible: =showDetails
+                        Width: =Parent.Width
+                      Children:
+                        - HtmlText14_2:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =1
+                              Font: =Font.Verdana
+                              Height: =200
+                              HtmlText: "=\"<div style='\r\n  font-family: Arial, sans-serif; \r\n  color: #333; \r\n  width: auto; /* Adjust width as needed */\r\n  background-color: #e6f7f9; \r\n  border: 1px solid #00A69D; \r\n  border-radius: 8px; \r\n  padding: 15px; \r\n  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); \r\n  box-sizing: border-box; \r\n  position: auto; \r\n  right: 0; \r\n  top: 0; \r\n  height: 100%; \r\n '>\r\n  \r\n  <h2 style='color: #00A69D; margin: 0 0 10px;'>Task Details</h2>\r\n  \r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>Title:</strong>\r\n    <p style='margin: 5px 0; font-size: 1rem;'> \" & DGOselected.Title & \" </p>\r\n  </div>\r\n  \r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>ID:</strong>\r\n    <p style='margin: 5px 0; font-size: 0.9rem;'> \" & DGOselected.ID & \" </p>\r\n  </div>\r\n  \r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>Status:</strong>\r\n    <p style='margin: 5px 0; font-size: 0.9rem;'> \" & DGOselected.Status.Value & \" </p>\r\n  </div>\r\n  \r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>Date Created:</strong>\r\n    <p style='margin: 5px 0; font-size: 0.9rem;'> \" & Text(DGOselected.Created, \"dd/mm/yyyy\") & \" </p>\r\n  </div>\r\n\r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>Category:</strong>\r\n    <p style='margin: 5px 0; font-size: 0.9rem;'> \" & DGOselected.Category & \" </p>\r\n  </div>\r\n\r\n  <div style='margin-bottom: 15px;'>\r\n    <strong style='color: #05583B;'>Assigned To:</strong>\r\n    <p style='margin: 5px 0; font-size: 0.9rem;'> \" & DGOselected.AssignedTo & \" </p>\r\n  </div>\r\n\r\n</div>\r\n\""
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinWidth: =
+                              OnSelect: =If(showSidePane=true,UpdateContext({showSidePane:false}),UpdateContext({showSidePane:false}))
+                              Size: =10
+                        - HtmlText8:
+                            Control: HtmlViewer@2.1.0
+                            Properties:
+                              AlignInContainer: =AlignInContainer.Stretch
+                              FillPortions: =1
+                              Height: =200
+                              HtmlText: =DGOselected.Description
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinWidth: =
+                              Size: =10
+                  - Container17_1:
+                      Control: GroupContainer@1.4.0
+                      Variant: AutoLayout
+                      Properties:
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutMaxHeight: =
+                        LayoutMaxWidth: =
+                        LayoutMinHeight: =
+                        LayoutMinWidth: =
+                        Visible: =showAttachments
+                        Width: =Parent.Width
+                      Children:
+                        - galDGOAssnAttachments_2:
+                            Control: Gallery@2.15.0
+                            Variant: BrowseLayout_Horizontal_TwoTextOneImageVariant_ver4.0
+                            Properties:
+                              BorderColor: =AppTheme.NeutralLight
+                              BorderThickness: =1
+                              Fill: =AppTheme.PrimaryBackground
+                              Height: =If(App.Width < BreakpointMedium, 400 * TextScale, 200 * TextScale)
+                              Items: =DGOselected.Attachments
+                              LayoutMaxHeight: =
+                              LayoutMaxWidth: =
+                              LayoutMinHeight: =
+                              LayoutMinWidth: =
+                              LoadingSpinner: =LoadingSpinner.None
+                              OnSelect: |-
+                                =UpdateContext({
+                                    selectedAttachment: ThisItem,
+                                    showSelectedAttachment: true,
+                                    varOpenPdf: true
+                                })
+                              ShowNavigation: =true
+                              ShowScrollbar: =false
+                              TemplatePadding: =AppSpacing.S
+                              TemplateSize: =If(Self.AllItemsCount <= 0, Self.Height, If(App.Width < BreakpointMedium, 180 * TextScale, 220 * TextScale))
+                              Width: =Parent.Width - AppSpacing.L
+                              WrapCount: =0
+                            Children:
+                              - lblAttachmentName_1:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    AutoHeight: =true
+                                    Color: =AppTheme.NeutralPrimary
+                                    Font: =LookUp(TextStyles,Name="Body",Font)
+                                    FontWeight: =FontWeight.Semibold
+                                    OnSelect: =Select(Parent)
+                                    PaddingBottom: =AppSpacing.XS
+                                    PaddingLeft: =AppSpacing.S
+                                    PaddingRight: =AppSpacing.S
+                                    PaddingTop: =AppSpacing.XS
+                                    Size: =LookUp(TextStyles,Name="Body",Size)
+                                    Text: =ThisItem.DisplayName
+                                    Tooltip: =ThisItem.DisplayName
+                                    Width: =Parent.TemplateWidth - AppSpacing.M
+                              - lblNoAttachments:
+                                  Control: Label@2.5.1
+                                  Properties:
+                                    Align: =Align.Center
+                                    Color: =AppTheme.Error
+                                    Font: =LookUp(TextStyles,Name="Caption",Font)
+                                    Size: =LookUp(TextStyles,Name="Caption",Size)
+                                    Text: ="No Attachments"
+                                    Visible: =galDGOAssnAttachments_2.AllItemsCount = 0
+                                    Width: =Parent.TemplateWidth
+                                    Y: =Parent.TemplateHeight / 2 - Self.Height / 2
+                              - containerAttachmentActions:
+                                  Control: GroupContainer@1.4.0
+                                  Variant: AutoLayout
+                                  Properties:
+                                    Height: =If(App.Width < BreakpointMedium, 60 * TextScale, 30 * TextScale)
+                                    LayoutAlignItems: =LayoutAlignItems.Center
+                                    LayoutDirection: =If(App.Width < BreakpointMedium, LayoutDirection.Vertical, LayoutDirection.Horizontal)
+                                    LayoutJustifyContent: =If(App.Width < BreakpointMedium, LayoutJustifyContent.Center, LayoutJustifyContent.SpaceBetween)
+                                    Width: =Parent.TemplateWidth
+                                    Y: =lblAttachmentName_1.Y+lblAttachmentName_1.Height+10
+                                  Children:
+                                    - btnDownloadAttachment:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          Color: =AppTheme.PrimaryForeground
+                                          Fill: =AppTheme.BrandSecondary
+                                          Font: =LookUp(TextStyles,Name="Label",Font)
+                                          Height: =25 * TextScale
+                                          HoverFill: =ColorFade(AppTheme.BrandSecondary, -15%)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          OnSelect: =Download(ThisItem.AbsoluteUri)
+                                          Size: =LookUp(TextStyles,Name="Label",Size)
+                                          Text: ="Download"
+                                          Visible: =showDetails || showAttachments || showSelectedAttachment
+                                          Width: =If(App.Width < BreakpointMedium, Parent.Width - AppSpacing.M, 100 * TextScale)
+                                    - btnViewAttachment:
+                                        Control: Classic/Button@2.2.0
+                                        Properties:
+                                          Color: =AppTheme.PrimaryForeground
+                                          Fill: =AppTheme.BrandPrimary
+                                          Font: =LookUp(TextStyles,Name="Label",Font)
+                                          Height: =25 * TextScale
+                                          HoverFill: =ColorFade(AppTheme.BrandPrimary, -15%)
+                                          LayoutMaxHeight: =
+                                          LayoutMaxWidth: =
+                                          OnSelect: |-
+                                            =UpdateContext({
+                                                selectedAttachment: ThisItem,
+                                                showSelectedAttachment: true,
+                                                varOpenPdf: true
+                                            })
+                                          Size: =LookUp(TextStyles,Name="Label",Size)
+                                          Text: ="View"
+                                          Visible: =showDetails || showAttachments || showSelectedAttachment
+                                          Width: =If(App.Width < BreakpointMedium, Parent.Width - AppSpacing.M, 100 * TextScale)
+                              - imgAttachmentPreview:
+                                  Control: Image@2.2.3
+                                  Properties:
+                                    AccessibleLabel: |-
+                                      ="Preview: " & ThisItem.DisplayName
+                                    Height: =72 * TextScale
+                                    Image: |-
+                                      =With(
+                                                        { ext: Lower(Last(Split(ThisItem.DisplayName,".")).Value) },
+                                                        Switch(
+                                                            true,
+                                                            ext in ["jpg","jpeg","png","gif"], ThisItem.Value,
+                                                            ext in ["xls","xlsx","csv"], "icon_excel.png",
+                                                            ext in ["pdf"], "icon_pdf.png",
+                                                            ext in ["doc","docx","ppt","pptx"], "icon_office.png",
+                                                            "icon_file.png"
+                                                        )
+                                                    )
+                                    OnSelect: =Select(Parent)
+                                    Width: =72 * TextScale
+                                    X: =(Parent.TemplateWidth - Self.Width) / 2
+                                    Y: =10 * TextScale
+      - cmpScreenNavigation_4:
+          Control: CanvasComponent
+          ComponentName: cmpScreenNavigation
+          Properties:
+            Fill: =ColorFade(ColorValue("#05583B"),50%)
+            Height: =Parent.Height-100
+            Visible: =cmpScreenHeader_18.showNavigationOutput
+            Width: =If(Parent.Width>1000,300,Parent.Width)
+            Y: =75
+            colScreensNavigation: |-
+              =Filter(Switch(
+                  Lower(User().Email),
+                  "dgsregistry@nitda.gov.ng",
+                  Table(
+                      {
+                          Name: "Home",
+                          Screen: 'Home Screen',
+                          Icon: Icon.Home,
+                          Color: ColorValue("#05583B")
+                      },
+                      SortByColumns(
+                          Table(
+                              {
+                                  Name: "E-mails",
+                                  Screen:EmailClient_Screen,
+                                  Icon: Icon.Message,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Activities",
+                                  Screen: Activities_1,
+                                  Icon: Icon.Database,
+                                  Color: ColorValue("#00A69D")
+                              },
+                              {
+                                  Name: "Task",
+                                  Screen: Task,
+                                  Icon: Icon.ListScrollWatchlist,
+                                  Color: ColorValue("#05583B")
+                              },
+                              {
+                                  Name: "Bulk Tagging",
+                                  Screen: Task,
+                                  Icon: Icon.Tag,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Support",
+                                  Screen: Support,
+                                  Icon: Icon.Help,
+                                  Color: ColorValue("#00A69D")
+                              },
+                              {
+                                  Name: "Maintenance",
+                                  Screen: Maintenance,
+                                  Icon: Icon.Tools,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Settings",
+                                  Screen: Settings,
+                                  Icon: Icon.Settings,
+                                  Color: ColorValue("#05583B")
+                              }
+                          ),
+                          "Name"
+                      )
+                  ),
+                  "dgs@nitda.gov.ng",
+                  Table(
+                      {
+                          Name: "Home",
+                          Screen: 'Home Screen',
+                          Icon: Icon.Home,
+                          Color: ColorValue("#05583B")
+                      },
+                      SortByColumns(
+                          Table(
+                              {
+                                  Name: "Activities",
+                                  Screen: Activities_1,
+                                  Icon: Icon.Database,
+                                  Color: ColorValue("#00A69D")
+                              },
+                              {
+                                  Name: "E-mails",
+                                  Screen:EmailClient_Screen,
+                                  Icon: Icon.Message,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Task",
+                                  Screen: Task,
+                                  Icon: Icon.ListScrollWatchlist,
+                                  Color: ColorValue("#05583B")
+                              },
+                              {
+                                  Name: "Support",
+                                  Screen: Support,
+                                  Icon: Icon.Help,
+                                  Color: ColorValue("#00A69D")
+                              },
+                              {
+                                  Name: "Maintenance",
+                                  Screen: Maintenance,
+                                  Icon: Icon.Tools,
+                                  Color: ColorValue("#373435")
+                              }
+                          ),
+                          "Name"
+                      )
+                  ),
+                  "dg@nitda.gov.ng",
+                  Table(
+                      {
+                          Name: "Home",
+                          Screen: 'Home Screen',
+                          Icon: Icon.Home,
+                          Color: ColorValue("#05583B")
+                      },
+                      SortByColumns(
+                          Table(
+                              {
+                                  Name: "Activities",
+                                  Screen: Activities_1,
+                                  Icon: Icon.Database,
+                                  Color: ColorValue("#00A69D")
+                              },
+                              {
+                                  Name: "E-mails",
+                                  Screen:EmailClient_Screen,
+                                  Icon: Icon.Message,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Task",
+                                  Screen: Task,
+                                  Icon: Icon.ListScrollWatchlist,
+                                  Color: ColorValue("#05583B")
+                              },
+                              {
+                                  Name: "Support",
+                                  Screen: Support,
+                                  Icon: Icon.Help,
+                                  Color: ColorValue("#00A69D")
+                              }
+                          ),
+                          "Name"
+                      )
+                  ),
+                  Table(
+                      {
+                          Name: "Home",
+                          Screen: 'Home Screen',
+                          Icon: Icon.Home,
+                          Color: ColorValue("#05583B")
+                      },
+                      SortByColumns(
+                          Table(
+                              {
+                                  Name: "E-mails",
+                                  Screen:EmailClient_Screen,
+                                  Icon: Icon.Message,
+                                  Color: ColorValue("#373435")
+                              },
+                              {
+                                  Name: "Task",
+                                  Screen: Task,
+                                  Icon: Icon.ListScrollWatchlist,
+                                  Color: ColorValue("#05583B")
+                              },
+                              {
+                                  Name: "Support",
+                                  Screen: Support,
+                                  Icon: Icon.Help,
+                                  Color: ColorValue("#00A69D")
+                              }
+                          ),
+                          "Name"
+                      )
+                  )
+              ),Name<>App.ActiveScreen.Name)
+      - Container16_7:
+          Control: GroupContainer@1.4.0
+          Variant: ManualLayout
+          Properties:
+            BorderColor: =ColorValue("#CCCCCC")
+            BorderThickness: =1
+            DropShadow: =
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height
+            RadiusBottomLeft: =12
+            RadiusBottomRight: =12
+            RadiusTopLeft: =12
+            RadiusTopRight: =12
+            Visible: =showConfirmArchive || showConfirmSIWES || showConfirmSNYSC
+            Width: =Parent.Width
+          Children:
+            - Label5_5:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =ColorValue("#05583B")
+                  Fill: =ColorValue("#F4F4F4")
+                  Font: =Font.Verdana
+                  FontWeight: =FontWeight.Bold
+                  Height: =60
+                  PaddingBottom: =12
+                  PaddingTop: =12
+                  Size: =12
+                  Text: |-
+                    =
+                    Switch(
+                        selectedAction,
+                        "Archive",
+                        "Confirm Archiving of the Correspondence below:",
+                        "SIWES",
+                        "Confirm the Correspondence below as SIWES:",
+                        "NYSC",
+                        "Confirm the Correspondence below as NYSC:"
+                    )
+                  Width: =Parent.Width
+            - HtmlTextConfirm:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  BorderColor: =ColorValue("#E5E5E5")
+                  BorderStyle: =BorderStyle.Solid
+                  BorderThickness: =1
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =Font.Verdana
+                  Height: =200
+                  HtmlText: |-
+                    =Switch(
+                        selectedAction,
+                        "Archive",
+                        Concatenate(
+                            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 10px; background-color: #f4f4f4; border-radius: 5px;'>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; background-color: #ffffff;'>",
+                            "<a href='", DGOselected.AttachmentLink, "' target='_blank' style='color: #05583B; text-decoration: none;'>",
+                            DGOselected.Title,
+                            "</a></div>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; margin-top: 10px; background-color:",
+                            If(DGOselected.AssignmentStatus.Value, "#d4edda", "#f8d7da"),
+                            "; color:",
+                            If(DGOselected.AssignmentStatus.Value, "#155724", "#721c24"),
+                            ";'><strong>Status:</strong> ",
+                            If(DGOselected.AssignmentStatus.Value,
+                               "Assigned To: " & DGOselected.AssignedTo & " on: " & Text(DGOselected.Created, "dd-mmm-yyyy"),
+                               "Awaiting Assignment"),
+                            "</div></div>"
+                        ),
+                        "SIWES",
+                        Concatenate(
+                            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 10px; background-color: #f4f4f4; border-radius: 5px;'>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; background-color: #ffffff;'>",
+                            "<a href='", DGOselected.AttachmentLink, "' target='_blank' style='color: #05583B; text-decoration: none;'>",
+                            DGOselected.Title, "</a></div>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; margin-top: 10px; background-color:",
+                            If(DGOselected.AssignmentStatus.Value, "#d4edda", "#f8d7da"),
+                            "; color:",
+                            If(DGOselected.AssignmentStatus.Value, "#155724", "#721c24"),
+                            ";'><strong>Status:</strong> ",
+                            If(DGOselected.AssignmentStatus.Value,
+                               "Assigned To: " & DGOselected.AssignedTo & " on: " & Text(DGOselected.Created, "dd-mmm-yyyy"),
+                               "Awaiting Assignment"),
+                            "</div></div>"
+                        ),
+                        "NYSC",
+                        Concatenate(
+                            "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 10px; background-color: #f4f4f4; border-radius: 5px;'>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; background-color: #ffffff;'>",
+                            "<a href='", DGOselected.AttachmentLink, "' target='_blank' style='color: #05583B; text-decoration: none;'>",
+                            DGOselected.Title, "</a></div>",
+                            "<div style='padding: 8px; border: 1px solid #ddd; margin-top: 10px; background-color:",
+                            If(DGOselected.AssignmentStatus.Value, "#d4edda", "#f8d7da"),
+                            "; color:",
+                            If(DGOselected.AssignmentStatus.Value, "#155724", "#721c24"),
+                            ";'><strong>Status:</strong> ",
+                            If(DGOselected.AssignmentStatus.Value,
+                               "Assigned To: " & DGOselected.AssignedTo & " on: " & Text(DGOselected.Created, "dd-mmm-yyyy"),
+                               "Awaiting Assignment"),
+                            "</div></div>"
+                        )
+                    )
+                  Size: =10
+                  Visible: =false
+                  Width: =Parent.Width * 0.9
+                  X: =(Parent.Width - Self.Width)/2
+                  Y: =Label5_5.Y + Label5_5.Height + 20
+            - Button1_7:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorValue("#05583B")
+                  Color: =ColorFade(ColorValue("#05583B"),80%)
+                  Fill: =ColorValue("#05583B")
+                  Font: =Font.Verdana
+                  HoverColor: =ColorFade(ColorValue("#05583B"),80%)
+                  OnSelect: "=\nSwitch(\n    selectedAction,\n    \"Archive\",\n    \n// Step 1: Create the patch record for 'Global Tracking Queue'\nUpdateContext(\n    {\n        varPatchRecord: Patch(\n            'Global Tracking Queue',\n            Defaults('Global Tracking Queue'),\n            {\n                Title: DGOselected.Title,\n                'Activity Tracking ID': DGOselected.RefIDD,\n                StartDate: Today(),\n                AttachmentLink: DGOselected.AttachmentLink,\n                AssignedBy: \"DGS OFFICE\",\n                RefIDD: Text(DGOselected.ID),\n                AssignedTo: \"dgs@NITDA.gov.ng\",\n                RefIDDN: DGOselected.ID,\n                Status: {Value: \"Completed\"},\n                Priority: {Value: \"low\"},\n                'Acknowledgement Due Date': DateValue(Today()),\n                DueDate: DateValue(Today()),\n                NVERSE: \"DGOFASTTRACK\",\n                Category: \"Archived\"\n            }\n        )\n    }\n);\nConcurrent(\n// Step 2: Update the 'DGO DIGITAL OPS' record\n    Patch(\n        'DGO DIGITAL OPS',\n        LookUp(\n            'DGO DIGITAL OPS',\n            ID = DGOselected.ID\n        ),\n        {\n            Status: {Value: \"Treated\"},\n            AssignedTo: varPatchRecord.AssignedTo,\n            Category: varPatchRecord.Category,\n            AssignmentStatus: {Value: \"Assigned\"}\n        }\n    );\n    ,\n// Step 3: Update the 'Global Tracking Queue' with the updated reference ID\n    Patch(\n        'Global Tracking Queue',\n        varPatchRecord,\n        {\n            Reference_ID: Text(\n                Today() + 1,\n                \"yyyymmdd\"\n            ) & \"-\" & DGOselected.ID & \"-\" & \"UNC\" & \"-\" & varPatchRecord.ID\n        }\n    ),\n    Notify(\n        \"Archiving \" & varPatchRecord.Title & \" Successful\",\n        NotificationType.Information\n    )\n)\n\n,\n    \"SIWES\",\n    \n// Step 1: Create the patch record for 'Global Tracking Queue'\nUpdateContext(\n    {\n        varPatchRecord: Patch(\n            'Global Tracking Queue',\n            Defaults('Global Tracking Queue'),\n            {\n                Title: DGOselected.Title,\n                'Activity Tracking ID': DGOselected.RefIDD,\n                StartDate: Today(),\n                AttachmentLink: DGOselected.AttachmentLink,\n                AssignedBy: \"DGS OFFICE\",\n                RefIDD: Text(DGOselected.ID),\n                AssignedTo: \"dgs@NITDA.gov.ng\",\n                RefIDDN: DGOselected.ID,\n                Status: {Value: \"Completed\"},\n                Priority: {Value: \"low\"},\n                'Acknowledgement Due Date': DateValue(Today()),\n                DueDate: DateValue(Today()),\n                NVERSE: \"DGOFASTTRACK\",\n                Category: \"Internships (SIWES)\"\n            }\n        )\n    }\n);\nConcurrent(\n// Step 2: Update the 'DGO DIGITAL OPS' record\n    Patch(\n        'DGO DIGITAL OPS',\n        LookUp(\n            'DGO DIGITAL OPS',\n            ID = DGOselected.ID\n        ),\n        {\n            Status: {Value: \"Treated\"},\n            AssignedTo: varPatchRecord.AssignedTo,\n            Category: varPatchRecord.Category,\n            AssignmentStatus: {Value: \"Assigned\"}\n        }\n    );\n    ,\n// Step 3: Update the 'Global Tracking Queue' with the updated reference ID\n    Patch(\n        'Global Tracking Queue',\n        varPatchRecord,\n        {\n            Reference_ID: Text(\n                Today() + 1,\n                \"yyyymmdd\"\n            ) & \"-\" & DGOselected.ID & \"-\" & \"INT\" & \"-\" & \"SIWES\" &  \"-\" & varPatchRecord.ID\n        }\n    ),\n    Notify(\n        \"SIWES \" & varPatchRecord.Title & \" Successful\",\n        NotificationType.Information\n    )\n)\n,\n    \"NYSC\",\n   \n// Step 1: Create the patch record for 'Global Tracking Queue'\nUpdateContext(\n    {\n        varPatchRecord: Patch(\n            'Global Tracking Queue',\n            Defaults('Global Tracking Queue'),\n            {\n                Title: DGOselected.Title,\n                'Activity Tracking ID': DGOselected.RefIDD,\n                StartDate: Today(),\n                AttachmentLink: DGOselected.AttachmentLink,\n                AssignedBy: \"DGS OFFICE\",\n                RefIDD: Text(DGOselected.ID),\n                AssignedTo: \"dgs@NITDA.gov.ng\",\n                RefIDDN: DGOselected.ID,\n                Status: {Value: \"Completed\"},\n                Priority: {Value: \"low\"},\n                'Acknowledgement Due Date': DateValue(Today()),\n                DueDate: DateValue(Today()),\n                NVERSE: \"DGOFASTTRACK\",\n                Category: \"Internships (NYSC)\"\n            }\n        )\n    }\n);\nConcurrent(\n// Step 2: Update the 'DGO DIGITAL OPS' record\n    Patch(\n        'DGO DIGITAL OPS',\n        LookUp(\n            'DGO DIGITAL OPS',\n            ID = DGOselected.ID\n        ),\n        {\n            Status: {Value: \"Treated\"},\n            AssignedTo: varPatchRecord.AssignedTo,\n            Category: varPatchRecord.Category,\n            AssignmentStatus: {Value: \"Assigned\"}\n        }\n    );\n    ,\n// Step 3: Update the 'Global Tracking Queue' with the updated reference ID\n    Patch(\n        'Global Tracking Queue',\n        varPatchRecord,\n        {\n            Reference_ID: Text(\n                Today() + 1,\n                \"yyyymmdd\"\n            ) & \"-\" & DGOselected.ID & \"-\" & \"INT\" & \"-\" & \"NYSC\"& \"-\" & varPatchRecord.ID\n        }\n    ),\n    Notify(\n        \"Archiving \" & varPatchRecord.Title & \" Successful\",\n        NotificationType.Information\n    )\n)\n\n);\n\n\n\n        \nUpdateContext({showMoreActions:false, selectedAction:\"\",\n        showConfirmArchive: false,\n        showConfirmSIWES: false,\n        showConfirmSNYSC: false,\n        showGallery: true,\n        showAttachments: false,\n        showDetails: false,\n        showFilters: false,\n\n        DGOselected: Blank(),showSelectedAttachment:false\n,\n        varPatchRecord: Blank()});\n\n\n\n"
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  Size: =10
+                  Text: ="Confirm"
+                  Tooltip: ="Confirm and proceed with processing"
+                  Width: =120
+                  X: =(Parent.Width / 2) - Self.Width - 25
+                  Y: =If(App.ActiveScreen.Width>App.ActiveScreen.Height,  HtmlTextConfirm.Y + HtmlTextConfirm.Height ,HtmlTextConfirm.Y + HtmlTextConfirm.Height + 30)
+            - Button2_6:
+                Control: Classic/Button@2.2.0
+                Properties:
+                  BorderColor: =ColorValue("#8B0000")
+                  Color: =ColorFade(ColorValue("#8B0000"),80%)
+                  Fill: =ColorValue("#8B0000")
+                  Font: =Font.Verdana
+                  HoverColor: =ColorFade(ColorValue("#8B0000"),70%)
+                  OnSelect: "=\n\n        \nUpdateContext({showMoreActions:false, selectedAction:\"\",\n        showConfirmArchive: false,\n        showConfirmSIWES: false,\n        showConfirmSNYSC: false,\n        showGallery: true,\n        showAttachments: false,\n        showDetails: false,\n        showFilters: false,\n\n        DGOselected: Blank(),showSelectedAttachment:false\n,\n        varPatchRecord: Blank()});\n\n\n\nNotify(\"Action canceled.\", NotificationType.Information);\n"
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  Size: =10
+                  Text: ="Cancel"
+                  Tooltip: ="Cancel and close the modal"
+                  Width: =120
+                  X: =Button1_7.X + Button1_7.Width + 40
+                  Y: =If(App.ActiveScreen.Width>App.ActiveScreen.Height,  HtmlTextConfirm.Y + HtmlTextConfirm.Height ,HtmlTextConfirm.Y + HtmlTextConfirm.Height + 30)
+            - HtmlTextConfirm_2:
+                Control: HtmlViewer@2.1.0
+                Properties:
+                  BorderColor: =AppTheme.NeutralTertiary
+                  BorderStyle: =BorderStyle.Solid
+                  BorderThickness: =1
+                  Fill: =AppTheme.PrimaryBackground
+                  Font: =AppTheme.Fonts.Default
+                  Height: =200
+                  HtmlText: |-
+                    =
+                            With(
+                                {
+                                    _link: Coalesce(DGOselected.AttachmentLink, "#"),
+                                    _title: Coalesce(DGOselected.Title, "No Title Available"),
+                                    _assigned: Coalesce(DGOselected.AssignedTo, "Unassigned"),
+                                    _created: Text(DGOselected.Created, "dd-mmm-yyyy"),
+                                    _isAssigned: !IsBlank(DGOselected.AssignmentStatus.Value)
+                                },
+                                If(
+                                    selectedAction in ["Archive", "SIWES", "NYSC"],
+                                    Concatenate(
+                                        "<div style='font-family:Segoe UI, Arial, sans-serif; max-width:600px; margin:auto; padding:10px; ",
+                                        "background-color:#f4f4f4; border-radius:8px;'>",
+
+                                            // --- Document Title ---
+                                            "<div style='padding:8px; border:1px solid #ddd; background-color:#ffffff;'>",
+                                                "<a href='", _link, "' target='_blank' style='color:#05583B; font-weight:600; text-decoration:none;'>",
+                                                    _title,
+                                                "</a>",
+                                            "</div>",
+
+                                            // --- Status Section ---
+                                            "<div style='padding:8px; border:1px solid #ddd; margin-top:10px; background-color:",
+                                                If(_isAssigned, "#d4edda", "#f8d7da"),
+                                                "; color:",
+                                                If(_isAssigned, "#155724", "#721c24"),
+                                                "; border-radius:4px;'>",
+                                                "<strong>Status:</strong> ",
+                                                If(
+                                                    _isAssigned,
+                                                    "Assigned To: " & _assigned & " on " & _created,
+                                                    "Awaiting Assignment"
+                                                ),
+                                            "</div>",
+                                        "</div>"
+                                    ),
+                                    // Fallback if selectedAction doesn’t match
+                                    "<div style='text-align:center; color:#888;'>No details available.</div>"
+                                )
+                            )
+                  Size: =LookUp(TextStyles, Name="Body").Size
+                  Width: =Parent.Width * 0.9
+                  X: =(Parent.Width - Self.Width) / 2
+                  Y: =Label5_5.Y + Label5_5.Height + AppSpacing.L
+      - EmptyState_1:
+          Control: GroupContainer@1.4.0
+          Variant: AutoLayout
+          Properties:
+            Fill: =ColorFade(App.Theme.Colors.Lighter80, 0.3)
+            Height: =Container12_1.Height
+            LayoutAlignItems: =LayoutAlignItems.Center
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutJustifyContent: =LayoutJustifyContent.Center
+            Visible: =false
+            Width: =Container12_1.Width
+            Y: =Parent.Height-Container12_1.Height
+          Children:
+            - lblEmptyTitle_1:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  Color: =AppTheme.NeutralSecondary
+                  FontWeight: =FontWeight.Semibold
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =RoundDown(14 * TextScale, 0)
+                  Text: ="No data available"
+            - lblEmptyMessage_1:
+                Control: Label@2.5.1
+                Properties:
+                  Align: =Align.Center
+                  AutoHeight: =true
+                  Color: =AppTheme.NeutralSecondary
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Size: =RoundDown(11 * TextScale, 0)
+                  Text: ="Try adjusting filters or refreshing your data."
+            - imgEmptyIcon_1:
+                Control: Image@2.2.3
+                Properties:
+                  Height: =If(App.ActiveScreen.Size > ScreenSize.Medium, 120, 80)
+                  Image: ="data:image/svg+xml; utf-8, " & EncodeUrl($"<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' fill={JSON(App.Theme.Colors.Darker30)} class='bi bi-inbox' viewBox='0 0 16 16'><path d='M4 0h8a2 2 0 0 1 2 2v2l-1 1v1l-1 1H4L3 6V5L2 4V2a2 2 0 0 1 2-2z'/><path d='M0 6h4l1 1h6l1-1h4v7a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6z'/></svg>")
+                  LayoutMaxHeight: =
+                  LayoutMaxWidth: =
+                  Width: =Self.Height
+      - PdfViewer3_3:
+          Control: PDFViewer@2.5.0
+          Properties:
+            BorderColor: =ColorValue("#D6D6D6")
+            Document: =galDGOAssnAttachments_2.Selected.Value
+            Fill: =AppTheme.PrimaryBackground
+            Height: =Parent.Height - (Container9_16.Height + Container9_16.Y)
+            OnStateChange: =
+            Visible: =showSelectedAttachment
+            Width: |+
+              =If(
+                  showSelectedAttachment,
+                  If(Parent.Width > 750, Parent.Width / 2, Parent.Width),
+                  0
+              )
+            X: =If(Parent.Width > 750,Parent.Width / 2, 0)
+            Y: =Container9_16.Height + Container9_16.Y
+      - lbl_EmptyState As label:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            Color: =RGBA(100, 100, 100, 1)
+            Height: =80
+            OnSelect: |+
+              =
+            Size: =18
+            Text: ="You have no items assigned to you."
+            Visible: =false
+            Width: =Parent.Width * 0.8
+            X: =(Parent.Width - Self.Width) / 2
+            Y: =(Parent.Height - Self.Height) / 2

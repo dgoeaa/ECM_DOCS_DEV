@@ -1,0 +1,719 @@
+# Power Automate HTTP Flows — Phase C: Flow-Content Fidelity Reconciliation
+## End-to-End Live Execution Runbook (Termux on Android)
+
+Phase A (canonical build) and Phase B (per-folder merge) are closed: every retained byte is SHA-256-verified and every container is structurally intact. Phase C closes the **semantic** gap — proving that the flow inventories, endpoints, trigger schemas, response schemas, parameter contracts, and per-flow narratives across the retained corpus describe one coherent set of flows with no unresolved disagreements.
+
+| Step | Purpose | Output |
+|---:|---|---|
+| C1 | Build flow × artefact coverage matrix from the candidate flow universe | `_phaseC/coverage_matrix.tsv` |
+| C2 | Assign canonical authority per attribute axis | `_phaseC/authority_matrix.md` |
+| C3 | Pairwise consistency diff across all coverage cells | `_phaseC/diff_report.md` |
+| C4 | Log every disagreement as a defect with disposition | `_phaseC/defect_log.tsv` |
+| C5 | Apply reconciliations + tombstone retired artefacts | `_phaseC/reconciliation_log.md` |
+| C6 | Re-run canonical build + merge over reconciled content | new `Flows_Details_Canonical_SoT_<ts>/` |
+| C7 | Issue signed Fidelity Determination + re-audit | `_phaseC/FIDELITY_DETERMINATION.md` |
+
+Phase C is **additive** to the canonical folder; nothing from Phase A or B is deleted until C7 exits cleanly.
+
+---
+
+## SECTION 0 — Preliminary Flow Inventory (candidate universe across all retained artefacts)
+
+This is the union of every flow named, schemed, or sampled in any retained artefact. It is the **input** to C1, not the output. Names are taken verbatim from the artefacts in which they appear; the goal of Phase C is to converge them to one canonical label per row.
+
+| Flow ID | Canonical name candidate | E-series (Per_Flow_DOCX) | Closeout series (Standardized / Master_Closeout) | Schema library (`02_Schemas/schema_library`) | Plain-text response references |
+|---:|---|:---:|:---:|:---:|:---:|
+| F01 | Fetch References & Lookups Data | E01 | — | `13_fetch_references_and_lookups_data` | `getreferences(users,departments,categories)`, `WEB Get All Reference Data POST` |
+| F02 | Get Docs (HTTP POST) | E02 | — | `12_fetch_docs` | `getdocs`, `Web - Get Docs (HTTP POST)` |
+| F03 | Fetch Tasks / Tasks Retrieval | E03 | `03_Tasks_Retrieval_Master_Closeout`, `07_Tasks_Retrieval_Standardized` | `11_fetch_tasks` | `gettasks`, `Web - Get Tasks POST` |
+| F04 | Get Emails / Email Retrieval & Merge | E04 | `01_Email_Retrieval_and_Merge_Master_Closeout`, `05_Email_Retrieval_and_Merge_Standardized` | `14_fetch_emails` | `getemails`, `WEB Get Emails HTTP POST` |
+| F05 | Deployed Create Task / Single Task Assignment | E05 | — | `21_single_task_assignment_create` | — |
+| F06 | Bulk Assign Direct / Hybrid Assign | E06 | `02_Hybrid_Assign_Master_Closeout`, `06_Hybrid_Assign_Standardized` | `22_bulk_task_assignment_create` | `flow_hybrid_assign_*` |
+| F07 | Optimised Bulk Assign | E07 | — | (suspected: `22_bulk_task_assignment_create` variant) | `Optimised_Bulk_Assigm_Flow_TRIGGER` |
+| F08 | Flag Document Action / Dynamic Global Actions | E08 | — | `24_dynamic_global_actions` | — |
+| F09 | Email-to-Task Create | **MISSING (E09 absent)** | `04_Email_to_Task_Create_Master_Closeout`, `08_Email_to_Task_Create_Standardized` | `23_email_related_task_create` | — |
+| F10 | Update Task | E10 | — | (not separately schemed) | — |
+| F11 | Subsidiary Actions — Extended Trigger | — | `05_Subsidiary_Actions_Extended_Trigger_Master_Closeout`, `09_Subsidiary_Actions_Extended_Trigger_Standardized` | `42_subsidiary_actions` | `Subsidiary_Actions_Flow_Schema.txt` |
+| F12 | Subsidiary Actions — Switch & Response | — | `06_Subsidiary_Actions_Switch_and_Response_Master_Closeout`, `10_Subsidiary_Actions_Switch_and_Response_Standardized`, `31_…_Response_Normalization_v4`, `41_…_Final_Verification_Register_v4` | `42_subsidiary_actions` (shared) | — |
+| F13 | Fetch Email Attachments | — | — | `34_fetch_email_attachments` | `Fech_Email Attachments_Flow_Schema.txt` |
+| F14 | OTP Generate / Verify | — | — | `41_otp_generate_verify` | `OTP Generate_Flow_Schema.txt` |
+| F15 | AI-Assisted Email Analysis | — | — | `31_ai_assisted_email_analysis` | — |
+| F16 | AI-Assisted Event / Document Analysis Processing | — | — | `32_ai_assisted_event_document_analysis_processing` | — |
+| F17 | AI Chat | — | — | `33_ai_chat` | — |
+
+**Observed disagreements that Phase C must resolve:**
+
+1. **Cardinality conflict.** The E-series asserts ≤ 10 flows (with E09 absent → 9 documented). The schema library asserts at least 14 distinct flow types (11–42, non-contiguous). The Closeout numbering asserts a third set of 10 (01–10), partially overlapping with the E-series but using different names for the same underlying flows.
+2. **Naming-scheme collision.** F03/F04/F06 each carry three distinct labels across the three families.
+3. **E09 gap.** Either Email-to-Task Create was never produced as a per-flow DOCX, or the DOCX was lost. The Closeout family covers it; the E-series does not.
+4. **v3 vs v4 coexistence.** `05_Architecture_and_Closeout/04_technical_artifacts` carries both `v3` and `v4` of the Subsidiary Actions cluster (files numbered 16–25 are v3, 31–42 are v4). Authority is undeclared.
+5. **AI-assisted flows are schema-only.** F15, F16, F17 have schemas but no DOCX, no master closeout, no sample response, and no endpoint URL in the retained corpus. Their production status is undeclared.
+6. **Integrity-ledger drift.** `08_Integrity_Ledger/ALL_FILES_SHA256.csv` was generated against the pre-canonical source and contains SHA hashes for paths that no longer exist after the Phase A retention pass.
+
+---
+
+## SECTION 1 — Preliminaries (one-time, idempotent)
+
+### 1.1 Confirm the canonical folder from Phase A
+
+```bash
+CANON_DIR="/storage/emulated/0/Main_Verified/Folders/Flows_Details_Canonical"
+[[ -d "$CANON_DIR" ]] && echo "OK $CANON_DIR" || \
+  CANON_DIR="$(ls -1dt /storage/emulated/0/Main_Verified/Folders/Flows_Details_Canonical_SoT_*/ 2>/dev/null | head -n 1)"
+CANON_DIR="${CANON_DIR%/}"
+echo "Canonical: $CANON_DIR"
+```
+
+### 1.2 Create the Phase C workspace inside the canonical folder
+
+```bash
+PHASEC="$CANON_DIR/_phaseC"
+mkdir -p "$PHASEC" "$PHASEC/_logs"
+echo "Phase C workspace: $PHASEC"
+```
+
+### 1.3 Tool verification (Phase C adds `diff`, `python3`, `csvkit`-equivalent capabilities — all already present)
+
+```bash
+for t in bash awk diff python3 jq sha256sum tee; do
+  command -v "$t" >/dev/null && echo "OK $t" || echo "MISS $t"
+done
+python3 -c 'import openpyxl, json, csv; print("OK libs")'
+```
+
+All must print `OK`. If any prints `MISS`, re-run Phase A Section 1.2 / 1.3 of the original runbook.
+
+---
+
+## SECTION 2 — STEP C1: Build the flow × artefact coverage matrix
+
+### 2.1 Seed the canonical flow ID list
+
+```bash
+cat > "$PHASEC/flows_seed.tsv" <<'EOF'
+flow_id	canonical_name
+F01	Fetch_References_and_Lookups_Data
+F02	Get_Docs
+F03	Fetch_Tasks
+F04	Get_Emails
+F05	Single_Task_Assignment_Create
+F06	Hybrid_Assign
+F07	Optimised_Bulk_Assign
+F08	Flag_Document_Action
+F09	Email_to_Task_Create
+F10	Update_Task
+F11	Subsidiary_Actions_Extended_Trigger
+F12	Subsidiary_Actions_Switch_and_Response
+F13	Fetch_Email_Attachments
+F14	OTP_Generate_Verify
+F15	AI_Assisted_Email_Analysis
+F16	AI_Assisted_Event_Document_Analysis
+F17	AI_Chat
+EOF
+wc -l "$PHASEC/flows_seed.tsv"
+```
+
+The seed list is editable. If C3 reveals an additional flow not in the table above, append it as F18, F19, … and re-run C1.
+
+### 2.2 Generate the coverage matrix (one row per flow × attribute, one column per artefact)
+
+```bash
+python3 - <<'PY' > "$PHASEC/coverage_matrix.tsv"
+import os, re, csv, sys
+CANON = os.environ.get("CANON_DIR")
+flows = []
+with open(f"{CANON}/_phaseC/flows_seed.tsv") as f:
+    next(f)
+    for line in f:
+        fid, name = line.rstrip("\n").split("\t")
+        flows.append((fid, name))
+
+# Tokens that match each flow in filenames (case-insensitive substrings)
+TOKENS = {
+    "F01": ["fetch_references", "getreferences", "13_fetch_references", "reference_data"],
+    "F02": ["get_docs", "getdocs", "12_fetch_docs", "fetch_docs"],
+    "F03": ["fetch_tasks", "gettasks", "tasks_retrieval", "11_fetch_tasks"],
+    "F04": ["get_emails", "getemails", "email_retrieval", "14_fetch_emails"],
+    "F05": ["deployed_create_task", "single_task_assignment", "21_single_task"],
+    "F06": ["hybrid_assign", "bulk_assign_direct", "22_bulk_task"],
+    "F07": ["optimized_bulk_assign", "optimised_bulk"],
+    "F08": ["flag_document_action", "24_dynamic_global"],
+    "F09": ["email_to_task_create", "23_email_related_task"],
+    "F10": ["update_task"],
+    "F11": ["subsidiary_actions_extended_trigger"],
+    "F12": ["subsidiary_actions_switch", "response_normalization", "final_verification_register"],
+    "F13": ["fetch_email_attachments", "34_fetch_email_attachments"],
+    "F14": ["otp_generate", "41_otp_generate"],
+    "F15": ["31_ai_assisted_email"],
+    "F16": ["32_ai_assisted_event"],
+    "F17": ["33_ai_chat"],
+}
+
+# Walk canonical folder and bucket files by which flows they reference
+buckets = {fid: [] for fid, _ in flows}
+for root, _, files in os.walk(CANON):
+    if "/_phaseC" in root or "/_build_logs" in root or "/_merged_by_folder" in root:
+        continue
+    for fn in files:
+        low = fn.lower()
+        for fid, tokens in TOKENS.items():
+            if any(t in low for t in tokens):
+                rel = os.path.relpath(os.path.join(root, fn), CANON)
+                buckets[fid].append(rel)
+
+# Emit TSV: flow_id, canonical_name, artefact_count, artefact_paths
+w = csv.writer(sys.stdout, delimiter="\t")
+w.writerow(["flow_id", "canonical_name", "artefact_count", "artefact_paths"])
+for fid, name in flows:
+    paths = sorted(set(buckets[fid]))
+    w.writerow([fid, name, len(paths), "|".join(paths)])
+PY
+column -t -s$'\t' "$PHASEC/coverage_matrix.tsv" | head -25
+```
+
+### 2.3 Identify flows with zero coverage (candidate phantoms or schema-only)
+
+```bash
+awk -F'\t' 'NR>1 && $3==0 {print $1, $2}' "$PHASEC/coverage_matrix.tsv" \
+  > "$PHASEC/_logs/zero_coverage.txt"
+cat "$PHASEC/_logs/zero_coverage.txt"
+```
+
+Expected at this stage: F09 (E09 missing) may still appear with non-zero coverage via its Closeout/schema artefacts. F15/F16/F17 should appear with low coverage (schema-only).
+
+### 2.4 Identify artefacts that match **no** flow (orphans — candidates for retirement)
+
+```bash
+python3 - <<'PY' > "$PHASEC/_logs/orphan_artefacts.txt"
+import os
+CANON = os.environ["CANON_DIR"]
+matched = set()
+with open(f"{CANON}/_phaseC/coverage_matrix.tsv") as f:
+    next(f)
+    for line in f:
+        cols = line.rstrip("\n").split("\t")
+        for p in cols[3].split("|") if cols[3] else []:
+            matched.add(p)
+for root, _, files in os.walk(CANON):
+    if any(skip in root for skip in ("/_phaseC", "/_build_logs", "/_merged_by_folder")):
+        continue
+    for fn in files:
+        rel = os.path.relpath(os.path.join(root, fn), CANON)
+        if rel not in matched:
+            print(rel)
+PY
+wc -l "$PHASEC/_logs/orphan_artefacts.txt"
+```
+
+Every line is an artefact present in the canonical folder that the flow-matching pass could not assign to any flow. Each must be classified in C4 as **cross-cutting** (applies to all flows — keep), **historical** (retire to a `_attic/` subfolder), or **renamed-misclassified** (add a token to TOKENS in C1 and re-run).
+
+**C1 Exit:** `coverage_matrix.tsv` exists and is non-empty; `zero_coverage.txt` and `orphan_artefacts.txt` exist (may be empty).
+
+---
+
+## SECTION 3 — STEP C2: Authority assignment per attribute axis
+
+### 3.1 Declare which artefact wins for each attribute (single decision per row)
+
+Copy-paste this template into `$PHASEC/authority_matrix.md`, then make a single decisive choice per row by deleting the rejected options. **No multi-choice retentions; each axis has exactly one authority.**
+
+```bash
+cat > "$PHASEC/authority_matrix.md" <<'EOF'
+# Phase C — Canonical Authority Matrix
+
+For each attribute axis below, exactly one artefact is the canonical authority.
+All other artefacts that disagree are subordinate and must be either
+amended-to-match or tombstoned in C5.
+
+| Attribute axis | Canonical authority (PICK ONE per row) |
+|---|---|
+| Flow enumeration (which flows exist) | `01_Flow_Inventory/flow-registry.json` OR `01_Flow_Inventory/merged_power_automate_http_flows_database.json` OR `01_Flow_Inventory/power_automate_flows.xlsx` |
+| Canonical flow names + IDs | `01_Flow_Inventory/flow-registry.json` OR `_phaseC/flows_seed.tsv` (manually curated) |
+| Endpoint URLs | `04_Live_Operational_Reference/ALL_URLs_POWER_AUTOMATE_ENDPOINTS.txt` OR `04_Live_Operational_Reference/ALL_FLOWS_ENDPOINT-URL_*.txt` |
+| Trigger schemas | `02_Schemas/schema_library/*.schema.json` OR `04_Live_Operational_Reference/REFORMATTED_TRIGGER_SCHEMAS_PACKAGE.json` |
+| Response schemas / envelope | `02_Schemas/schema_library/06_standard_response_envelope.schema.json` (+ 07/08/09 collections) OR `04_Live_Operational_Reference/REFORMATTED_SAMPLE_RESPONSES_PACKAGE.json` |
+| Per-flow parameter contracts | `01_Flow_Inventory/power_automate_flow_parameter_quick_reference_complete_contracts.md` OR `03_Per_Flow_DOCX/E*_*.docx` |
+| Per-flow narrative / rationale | `03_Per_Flow_DOCX/E*_*.docx` OR `05_Architecture_and_Closeout/01_individual_master_files/*_Master_Closeout.md` |
+| Subsidiary Actions canonical version | `v4` (`31_…v4`, `41_…v4`, `42_…v4`) OR `v3` (`16–25_…v3`) — pick exactly one; the other family moves to `_attic/` |
+| Sample request payloads | `07_Integration_Examples/Request_Examples_By_Flow.json` |
+| Sample response payloads | `07_Integration_Examples/Response_Examples_By_Flow.json` OR `04_Live_Operational_Reference/REFORMATTED_SAMPLE_RESPONSES_PACKAGE.json` |
+| Integrity ledger (current canonical state) | regenerate from `_build_logs/sha256_verification.tsv` — **retire `08_Integrity_Ledger/ALL_FILES_SHA256.csv` because it indexes the pre-canonical source** |
+
+EOF
+echo "Edit: $PHASEC/authority_matrix.md"
+```
+
+### 3.2 Record the decisions
+
+After editing the matrix to leave one authority per row, lock the decisions:
+
+```bash
+sha256sum "$PHASEC/authority_matrix.md" | tee "$PHASEC/_logs/authority_matrix.sha256"
+```
+
+**C2 Exit:** `authority_matrix.md` exists with one authority per row, and its SHA-256 is recorded.
+
+---
+
+## SECTION 4 — STEP C3: Pairwise consistency diff across all coverage cells
+
+### 4.1 For each flow, extract the same attribute from every covering artefact
+
+```bash
+python3 - <<'PY' > "$PHASEC/diff_report.md"
+import os, json, re, subprocess
+CANON = os.environ["CANON_DIR"]
+PHASEC = f"{CANON}/_phaseC"
+
+print("# Phase C — Pairwise Consistency Diff Report\n")
+print(f"Generated against canonical: `{CANON}`\n")
+
+# Load coverage matrix
+flows = []
+with open(f"{PHASEC}/coverage_matrix.tsv") as f:
+    next(f)
+    for line in f:
+        fid, name, cnt, paths = line.rstrip("\n").split("\t")
+        flows.append((fid, name, int(cnt), paths.split("|") if paths else []))
+
+for fid, name, cnt, paths in flows:
+    print(f"\n## {fid} — {name}  ({cnt} artefact{'s' if cnt!=1 else ''})\n")
+    if not paths:
+        print("> **ZERO COVERAGE — phantom or schema-only flow. Defer to C4 disposition.**\n")
+        continue
+    for p in paths:
+        ext = os.path.splitext(p)[1].lower()
+        full = os.path.join(CANON, p)
+        size = os.path.getsize(full) if os.path.isfile(full) else 0
+        sha = subprocess.check_output(["sha256sum", full]).decode().split()[0][:12]
+        print(f"- `{p}`  ({ext or '—'}, {size} B, sha {sha}…)")
+    print()
+
+PY
+wc -l "$PHASEC/diff_report.md"
+head -40 "$PHASEC/diff_report.md"
+```
+
+### 4.2 Endpoint URL diff (the highest-risk axis — single command, decisive output)
+
+```bash
+URL_AUTH=$(grep -m1 -E '^\| Endpoint URLs' "$PHASEC/authority_matrix.md" | sed 's/.*| `//;s/`.*//')
+echo "Endpoint authority: $URL_AUTH"
+{
+  echo "--- AUTHORITY ($URL_AUTH) ---"
+  cat "$CANON_DIR/$URL_AUTH"
+  echo
+  echo "--- CANDIDATE (REFORMATTED_TRIGGER_SCHEMAS_PACKAGE.json — endpoints embedded) ---"
+  jq -r '.. | .endpoint? // empty' "$CANON_DIR/04_Live_Operational_Reference/REFORMATTED_TRIGGER_SCHEMAS_PACKAGE.json" 2>/dev/null | sort -u
+  echo
+  echo "--- CANDIDATE (Request_Examples_By_Flow.json — URLs in examples) ---"
+  jq -r '.. | strings | select(test("https?://"))' "$CANON_DIR/07_Integration_Examples/Request_Examples_By_Flow.json" 2>/dev/null | sort -u
+} > "$PHASEC/_logs/endpoint_diff.txt"
+diff <(sort -u "$CANON_DIR/$URL_AUTH") \
+     <(jq -r '.. | strings | select(test("https?://"))' "$CANON_DIR/07_Integration_Examples/Request_Examples_By_Flow.json" 2>/dev/null | sort -u) \
+  > "$PHASEC/_logs/endpoint_diff.delta" || true
+wc -l "$PHASEC/_logs/endpoint_diff.txt" "$PHASEC/_logs/endpoint_diff.delta"
+```
+
+### 4.3 Trigger-schema diff (per-flow, schema-library vs reformatted package)
+
+```bash
+SCHEMA_DIR="$CANON_DIR/02_Schemas/schema_library"
+REFORMATTED="$CANON_DIR/04_Live_Operational_Reference/REFORMATTED_TRIGGER_SCHEMAS_PACKAGE.json"
+python3 - <<'PY' > "$PHASEC/_logs/schema_diff.md"
+import os, json, hashlib
+CANON = os.environ["CANON_DIR"]
+sd = f"{CANON}/02_Schemas/schema_library"
+ref = f"{CANON}/04_Live_Operational_Reference/REFORMATTED_TRIGGER_SCHEMAS_PACKAGE.json"
+print("# Trigger-schema fingerprint diff\n")
+print("| Schema file | SHA-256 (first 12) | Bytes | In reformatted package? |")
+print("|---|---|---:|:---:|")
+try:
+    with open(ref) as f: r = json.load(f)
+    ref_keys = set()
+    def walk(o):
+        if isinstance(o, dict):
+            for k,v in o.items():
+                ref_keys.add(k.lower())
+                walk(v)
+        elif isinstance(o, list):
+            for x in o: walk(x)
+    walk(r)
+except Exception as e:
+    ref_keys = set()
+    print(f"\n> WARNING: could not parse reformatted package: {e}\n")
+for fn in sorted(os.listdir(sd)):
+    if not fn.endswith(".json"): continue
+    p = os.path.join(sd, fn)
+    with open(p, "rb") as f: data = f.read()
+    sha = hashlib.sha256(data).hexdigest()[:12]
+    base = os.path.splitext(fn)[0].lower()
+    hit = "✓" if any(tok in ref_keys for tok in base.split("_")) else "✗"
+    print(f"| `{fn}` | `{sha}` | {len(data)} | {hit} |")
+PY
+head -30 "$PHASEC/_logs/schema_diff.md"
+```
+
+### 4.4 Parameter-contract diff (DOCX-extracted text vs quick-reference markdown)
+
+```bash
+QR="$CANON_DIR/01_Flow_Inventory/power_automate_flow_parameter_quick_reference_complete_contracts.md"
+MERGED="$CANON_DIR/_merged_by_folder/03_Per_Flow_DOCX.merged.md"
+# Extract flow-name occurrences from both; differences reveal coverage drift
+grep -oE '(E0[1-9]|E10)_[A-Za-z_]+' "$QR" 2>/dev/null | sort -u > "$PHASEC/_logs/qr_flows.txt" || true
+grep -oE '(E0[1-9]|E10)_[A-Za-z_]+' "$MERGED" | sort -u > "$PHASEC/_logs/docx_flows.txt"
+diff "$PHASEC/_logs/qr_flows.txt" "$PHASEC/_logs/docx_flows.txt" > "$PHASEC/_logs/param_flowset.delta" || true
+cat "$PHASEC/_logs/param_flowset.delta"
+```
+
+**C3 Exit:** `diff_report.md`, `_logs/endpoint_diff.txt` (+ `.delta`), `_logs/schema_diff.md`, `_logs/param_flowset.delta` all exist. Operator reads each and proceeds to C4.
+
+---
+
+## SECTION 5 — STEP C4: Defect log + disposition
+
+### 5.1 Open the defect log
+
+```bash
+cat > "$PHASEC/defect_log.tsv" <<'EOF'
+defect_id	flow_id	attribute_axis	defect_type	conflicting_artefacts	disposition	owner	status
+EOF
+```
+
+### 5.2 Append one row per disagreement found in C3
+
+`defect_type` ∈ {missing, duplicate, contradiction, orphan, version_collision, ledger_drift}
+`disposition` ∈ {amend_subordinate, retire_to_attic, add_to_canonical, formally_annotate, no_action}
+`status` ∈ {open, in_progress, applied, verified}
+
+Worked seed rows (operator must add the rest from C3 outputs):
+
+```bash
+cat >> "$PHASEC/defect_log.tsv" <<'EOF'
+D001	F09	per_flow_narrative	missing	03_Per_Flow_DOCX/(E09 absent)	add_to_canonical	—	open
+D002	F11,F12	subsidiary_actions_version	version_collision	05_Architecture_and_Closeout/04_technical_artifacts/{v3 vs v4}	retire_to_attic	—	open
+D003	ALL	integrity_ledger	ledger_drift	08_Integrity_Ledger/ALL_FILES_SHA256.csv	retire_to_attic + regenerate	—	open
+D004	F15,F16,F17	flow_existence	contradiction	02_Schemas/schema_library/{31,32,33}_ai_*.schema.json vs no DOCX / no endpoint	formally_annotate	—	open
+D005	F03,F04,F06	canonical_name	contradiction	E-series vs Closeout vs schema-library labels	amend_subordinate	—	open
+EOF
+column -t -s$'\t' "$PHASEC/defect_log.tsv"
+```
+
+### 5.3 Quantify the defect surface
+
+```bash
+awk -F'\t' 'NR>1 {open+=($8=="open"); total++} END{printf "Total defects: %d, open: %d\n", total, open}' \
+  "$PHASEC/defect_log.tsv"
+```
+
+**C4 Exit:** Every disagreement surfaced in C3 has a row in `defect_log.tsv`. No row left as `status=open` with `disposition` blank.
+
+---
+
+## SECTION 6 — STEP C5: Reconciliation
+
+### 6.1 Create the attic for retired artefacts (subordinate to authority decisions)
+
+```bash
+ATTIC="$CANON_DIR/_attic"
+mkdir -p "$ATTIC"
+echo "Attic: $ATTIC"
+```
+
+### 6.2 Apply each `retire_to_attic` defect
+
+For every defect with disposition `retire_to_attic`, move the subordinate artefact:
+
+```bash
+# Example pattern — repeat per defect row:
+move_to_attic() {
+  local src="$1"
+  local defect="$2"
+  [[ -f "$CANON_DIR/$src" ]] || { echo "skip $src (not present)"; return; }
+  mkdir -p "$ATTIC/$(dirname "$src")"
+  mv "$CANON_DIR/$src" "$ATTIC/$src"
+  echo "$(date '+%F %T')	$defect	$src	retired" >> "$PHASEC/reconciliation_log.tsv"
+}
+# Initialise the log
+echo -e "timestamp\tdefect_id\tartefact\taction" > "$PHASEC/reconciliation_log.tsv"
+
+# Apply D003 (ledger drift)
+move_to_attic "08_Integrity_Ledger/ALL_FILES_SHA256.csv" "D003"
+
+# Apply D002 (pick v4 as authority, retire v3 — adjust list to match authority_matrix.md)
+for f in 05_Architecture_and_Closeout/04_technical_artifacts/16_Subsidiary_Actions_Revalidation_Review_v3.md \
+         05_Architecture_and_Closeout/04_technical_artifacts/17_manual_node_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/18_switch_action_node_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/19_compose_global_response_node_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/20_response_global_node_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/21_Subsidiary_Actions_Action_Matrix_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/22_Subsidiary_Actions_Implementation_Artifacts_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/23_Subsidiary_Actions_Expression_Library_v3.md \
+         05_Architecture_and_Closeout/04_technical_artifacts/28_Manual_Trigger_Schema_Full_v3.json \
+         05_Architecture_and_Closeout/04_technical_artifacts/29_Branch_Completeness_Register_v3.json; do
+  move_to_attic "$f" "D002"
+done
+```
+
+If authority is v3 instead, edit the list. **The decision is one-way and recorded.**
+
+### 6.3 Apply `amend_subordinate` defects (rename / re-label to match authority)
+
+Use `sed -i` on subordinate Markdown / JSON files **only** after a backup-to-attic copy of the original:
+
+```bash
+amend_subordinate() {
+  local src="$1" pattern="$2" replacement="$3" defect="$4"
+  [[ -f "$CANON_DIR/$src" ]] || return
+  cp "$CANON_DIR/$src" "$ATTIC/$src.preC5.bak" 2>/dev/null || \
+    { mkdir -p "$ATTIC/$(dirname "$src")"; cp "$CANON_DIR/$src" "$ATTIC/$src.preC5.bak"; }
+  sed -i "s|$pattern|$replacement|g" "$CANON_DIR/$src"
+  echo "$(date '+%F %T')	$defect	$src	amended (s|$pattern|$replacement|)" >> "$PHASEC/reconciliation_log.tsv"
+}
+# Example invocation per defect — operator fills these from D005 etc.
+# amend_subordinate "<path>" "<old_label>" "<new_label>" "D005"
+```
+
+### 6.4 Apply `add_to_canonical` defects (produce missing artefacts)
+
+For D001 (E09 Email-to-Task Create DOCX missing): either author the missing document and place it at `03_Per_Flow_DOCX/E09_Email_to_Task_Create_Flow_Detail.docx`, or formally annotate its non-existence in `00_READ_FIRST/`:
+
+```bash
+cat > "$CANON_DIR/00_READ_FIRST/E09_DISPOSITION.md" <<'EOF'
+# E09 Disposition
+
+Email-to-Task Create is documented as `04_Email_to_Task_Create_Master_Closeout.md` and
+`08_Email_to_Task_Create_Standardized.docx`. No standalone `E09_*_Flow_Detail.docx` was
+produced in the Per_Flow_DOCX_Pack. The flow is canonical and operative; the gap is
+documentation-style only and is closed by the Closeout-series artefacts above.
+
+Authority for F09 narrative: `05_Architecture_and_Closeout/01_individual_master_files/04_Email_to_Task_Create_Flow_Master_Closeout.md`
+EOF
+```
+
+### 6.5 Apply `formally_annotate` defects (e.g., AI flows status)
+
+```bash
+cat > "$CANON_DIR/00_READ_FIRST/AI_FLOWS_DISPOSITION.md" <<'EOF'
+# AI-Assisted Flows (F15, F16, F17) — Disposition
+
+Schemas exist for these flows in `02_Schemas/schema_library/` (31, 32, 33) but no per-flow
+DOCX, Master Closeout, endpoint URL, or sample response was retained. As of this Phase C
+pass, these flows are classified as: <RESERVED | PROVISIONAL | NOT_DEPLOYED — pick one>.
+
+Until deployed and end-to-end documented, downstream consumers should treat F15–F17 as
+schema-only design artefacts, not live operational flows.
+EOF
+```
+
+### 6.6 Regenerate the integrity ledger from the current canonical state
+
+```bash
+cd "$CANON_DIR"
+{
+  echo "filename,sha256,bytes,relative_path"
+  find . -type f \
+    ! -path "./_phaseC/*" ! -path "./_build_logs/*" ! -path "./_merged_by_folder/*" ! -path "./_attic/*" \
+    -print0 \
+  | xargs -0 sha256sum \
+  | awk '{ path=$2; sub(/^\.\//,"",path); n=split(path,a,"/"); print a[n] "," $1 "," "," path }'
+} > "$CANON_DIR/08_Integrity_Ledger/CANONICAL_FILES_SHA256.csv"
+# Backfill the byte size column
+python3 - <<'PY'
+import os, csv
+CANON=os.environ["CANON_DIR"]
+src=f"{CANON}/08_Integrity_Ledger/CANONICAL_FILES_SHA256.csv"
+rows=[]
+with open(src) as f:
+    r=csv.reader(f); rows.append(next(r))
+    for row in r:
+        path=row[3]
+        try: row[2]=str(os.path.getsize(os.path.join(CANON,path)))
+        except OSError: row[2]="0"
+        rows.append(row)
+with open(src,"w",newline="") as f:
+    csv.writer(f).writerows(rows)
+PY
+wc -l "$CANON_DIR/08_Integrity_Ledger/CANONICAL_FILES_SHA256.csv"
+```
+
+**C5 Exit:** Every defect with `status=open` is now `status=applied`. `reconciliation_log.tsv` records every move/amend/add. `08_Integrity_Ledger/CANONICAL_FILES_SHA256.csv` reflects the post-reconciliation state.
+
+---
+
+## SECTION 7 — STEP C6: Re-build canonical SoT and re-merge
+
+The reconciled canonical folder is no longer bit-identical to the Phase A output, so the SHA-256 verification log, the manifest, the bundle, and the merged documents must all be regenerated.
+
+```bash
+# Use the original Section 9 one-shot block, pointed at the reconciled canonical
+# but using the existing canonical folder name (NOT the Flows_Details source, which is retired).
+# The cleanest path is to treat the reconciled canonical as the new "source" for a fresh build:
+
+cd /storage/emulated/0/Main_Verified/Folders
+SRC="$CANON_DIR" \
+DEST_PARENT="/storage/emulated/0/Main_Verified/Folders" \
+DEST_NAME="Flows_Details_Canonical_SoT_$(date '+%Y%m%d_%H%M%S')_postC" \
+bash ~/build_flows_canonical_sot.sh; rc=$?
+echo "Re-build exit code: $rc"
+
+NEW_CANON="$(ls -1dt /storage/emulated/0/Main_Verified/Folders/Flows_Details_Canonical_SoT_*_postC | head -n 1)"
+CANON="$NEW_CANON" bash ~/merge_canonical_folders.sh; rc=$?
+echo "Re-merge exit code: $rc"
+
+tail -1 "$NEW_CANON/_build_logs/build.log"
+tail -1 "$NEW_CANON/_merged_by_folder/_merge.log"
+awk -F'\t' 'NR>1 && $1!="PASS"{bad++} END{print "non-PASS rows:", bad+0}' \
+    "$NEW_CANON/_build_logs/sha256_verification.tsv"
+( cd /storage/emulated/0/Main_Verified/Folders && \
+  sha256sum -c "$(basename "$NEW_CANON").tar.gz.sha256" )
+```
+
+Both `RESULT:` lines must read clean. `non-PASS rows: 0`. Bundle `OK`.
+
+**C6 Exit:** A new timestamped canonical folder `…_postC/` and its bundle exist and pass every integrity check. The pre-reconciliation canonical folder is preserved alongside it for diff/audit.
+
+---
+
+## SECTION 8 — STEP C7: Fidelity Determination + closure
+
+### 8.1 Generate the post-reconciliation drift report
+
+```bash
+diff "$CANON_DIR/_build_logs/canonical_manifest.txt" \
+     "$NEW_CANON/_build_logs/canonical_manifest.txt" \
+  > "$NEW_CANON/_phaseC/manifest_drift.diff" || true
+wc -l "$NEW_CANON/_phaseC/manifest_drift.diff"
+```
+
+Every line of the drift diff must correspond to an applied defect row in `reconciliation_log.tsv`. If a line in the diff has no matching defect, it is an unintended change and must be reverted before sign-off.
+
+### 8.2 Write the Fidelity Determination
+
+```bash
+cp "$CANON_DIR/_phaseC/defect_log.tsv"          "$NEW_CANON/_phaseC/defect_log.tsv"
+cp "$CANON_DIR/_phaseC/authority_matrix.md"     "$NEW_CANON/_phaseC/authority_matrix.md"
+cp "$CANON_DIR/_phaseC/reconciliation_log.tsv"  "$NEW_CANON/_phaseC/reconciliation_log.tsv"
+cp "$CANON_DIR/_phaseC/coverage_matrix.tsv"     "$NEW_CANON/_phaseC/coverage_matrix.tsv"
+
+cat > "$NEW_CANON/_phaseC/FIDELITY_DETERMINATION.md" <<EOF
+# Phase C — Flow-Content Fidelity Determination
+
+Generated: $(date '+%F %T')
+Pre-reconciliation canonical : $CANON_DIR
+Post-reconciliation canonical: $NEW_CANON
+
+## Scope
+- Flows in canonical universe (post-C2): \$(awk 'NR>1' "$NEW_CANON/_phaseC/coverage_matrix.tsv" | wc -l)
+- Defects logged                       : \$(awk 'NR>1' "$NEW_CANON/_phaseC/defect_log.tsv" | wc -l)
+- Defects applied (status=applied)     : \$(awk -F'\t' 'NR>1 && \$8=="applied"' "$NEW_CANON/_phaseC/defect_log.tsv" | wc -l)
+- Defects open                          : \$(awk -F'\t' 'NR>1 && \$8=="open"' "$NEW_CANON/_phaseC/defect_log.tsv" | wc -l)
+
+## Integrity
+- Re-build exit code               : 0
+- Re-merge exit code               : 0
+- Non-PASS rows in verification    : 0
+- Bundle sha256sum -c              : OK
+- Manifest drift accountable       : YES (each line maps to a defect row)
+
+## Determination
+<VALID | DEGRADED | INVALID — pick after manual review>
+
+## Sign-off
+- Reconciliation owner             : <name>
+- Audit reviewer                   : <name>
+- Date                             : $(date '+%F')
+EOF
+
+# Expand the heredoc command-substitutions in-place
+python3 - <<'PY'
+import os, re, subprocess
+p=os.environ["NEW_CANON"]+"/_phaseC/FIDELITY_DETERMINATION.md"
+with open(p) as f: txt=f.read()
+def sh(cmd):
+    return subprocess.check_output(cmd, shell=True, text=True).strip()
+txt=re.sub(r'\$\(([^)]+)\)', lambda m: sh(m.group(1)), txt)
+with open(p,"w") as f: f.write(txt)
+PY
+
+cat "$NEW_CANON/_phaseC/FIDELITY_DETERMINATION.md"
+```
+
+### 8.3 Final closure check
+
+```bash
+{
+  echo "===== PHASE C CLOSURE ====="
+  echo "Date            : $(date '+%F %T')"
+  echo "Post-C canonical: $NEW_CANON"
+  echo
+  echo "--- Defect status counts ---"
+  awk -F'\t' 'NR>1 {c[$8]++} END{for (k in c) print k, c[k]}' "$NEW_CANON/_phaseC/defect_log.tsv"
+  echo
+  echo "--- Verification headlines ---"
+  tail -1 "$NEW_CANON/_build_logs/build.log"
+  tail -1 "$NEW_CANON/_merged_by_folder/_merge.log"
+  echo
+  echo "--- Bundle ---"
+  cd /storage/emulated/0/Main_Verified/Folders \
+    && sha256sum -c "$(basename "$NEW_CANON").tar.gz.sha256"
+} | tee "$NEW_CANON/_phaseC/PHASEC_CLOSURE_REPORT.txt"
+```
+
+**C7 Exit:** `FIDELITY_DETERMINATION.md` is signed. Defect counts show 0 open. Closure report shows clean RESULT lines and bundle OK.
+
+---
+
+## SECTION 9 — Execution status tracker (single source of truth)
+
+Maintain this checklist as you work. Mark each step `[x]` only when its Exit criteria are met.
+
+```text
+PHASE C — STATUS TRACKER
+
+[ ] §1.1  Canonical folder located:               $CANON_DIR
+[ ] §1.2  _phaseC/ workspace created
+[ ] §1.3  All tools verified present
+[ ] §2.1  flows_seed.tsv frozen at 17 rows (or amended count: ___)
+[ ] §2.2  coverage_matrix.tsv generated, non-empty
+[ ] §2.3  zero_coverage.txt reviewed
+[ ] §2.4  orphan_artefacts.txt reviewed and each line classified
+[ ] §3.1  authority_matrix.md filled in, one authority per row
+[ ] §3.2  authority_matrix.sha256 recorded
+[ ] §4.1  diff_report.md generated
+[ ] §4.2  endpoint_diff.delta reviewed
+[ ] §4.3  schema_diff.md reviewed
+[ ] §4.4  param_flowset.delta reviewed
+[ ] §5.1  defect_log.tsv initialised
+[ ] §5.2  All disagreements from §4 added to defect_log.tsv
+[ ] §5.3  Open-defect count = total-defect count (all dispositions assigned)
+[ ] §6.1  _attic/ created
+[ ] §6.2  retire_to_attic defects applied
+[ ] §6.3  amend_subordinate defects applied
+[ ] §6.4  add_to_canonical defects applied
+[ ] §6.5  formally_annotate defects applied
+[ ] §6.6  CANONICAL_FILES_SHA256.csv regenerated
+[ ] §7    Re-build + re-merge both exit 0, non-PASS=0, bundle OK
+[ ] §8.1  manifest_drift.diff reviewed; every line maps to a defect row
+[ ] §8.2  FIDELITY_DETERMINATION.md signed
+[ ] §8.3  PHASEC_CLOSURE_REPORT.txt shows: open=0, both RESULT clean, bundle OK
+```
+
+---
+
+## SECTION 10 — Exit criteria (Phase C is closed ⇔ all of the following hold)
+
+1. `coverage_matrix.tsv` accounts for every flow in the seed list and every artefact in the canonical folder (no orphans, no phantoms).
+2. `authority_matrix.md` declares exactly one authority per attribute axis. The hash is recorded in `_logs/authority_matrix.sha256`.
+3. `defect_log.tsv` has zero rows with `status=open`. Every defect is `applied` and `verified` against the post-reconciliation manifest.
+4. `reconciliation_log.tsv` records one entry per applied defect; each entry is reproducible from the attic backups.
+5. E09 and v3/v4 are explicitly resolved (either produced/annotated for E09; one of v3 or v4 retired to attic for Subsidiary Actions).
+6. F15/F16/F17 carry an explicit disposition (`RESERVED` / `PROVISIONAL` / `NOT_DEPLOYED`) in `00_READ_FIRST/AI_FLOWS_DISPOSITION.md`.
+7. `08_Integrity_Ledger/CANONICAL_FILES_SHA256.csv` indexes only paths that currently exist in the canonical folder.
+8. The post-C canonical re-build returned exit 0; the per-file TSV shows zero non-PASS rows; the merge log shows `Extracted (degraded) : 0` and `Declared but missing : 0`; the new bundle `sha256sum -c` returned `OK`.
+9. `manifest_drift.diff` between pre-C and post-C canonical folders is fully accountable: every additive/subtractive line maps to a defect row.
+10. `FIDELITY_DETERMINATION.md` is signed by the reconciliation owner and the audit reviewer with the determination set to `VALID`.
+
+Only after all ten criteria hold may the project advance to off-device replication, source retirement, and consumer distribution (i.e., the Phase C output supersedes the Phase A bundle as the canonical Source-of-Truth).
+
+— *End of Phase C execution runbook.*

@@ -1,0 +1,1028 @@
+Power Automate HTTP Flows — Deduplicated Specification
+This document contains the complete deduplicated version of the Power Automate HTTP flow details provided, preserving all properties, structures, parameters, and provided variants (e.g., multiple URL signatures and response variants) without omission.
+Flow Count and List
+Total deduplicated flows: 12
+1) LOOKUPS (users, departments, categories) — workflow id: 20e3b003a57f47febae8a24ad5b9acd4
+2) GET EMAILS — workflow id: 3931e2ff995242b6b2c920c8b2209797
+3) BULK OPS GET DOCS — workflow id: 7995c1eb50d94d5daa2780e71391d874
+4) GET TASKS — workflow id: 37642ba3597f4cf58288cc71b5e6b519
+5) GET DOCS — workflow id: 818ec4053f1e4f0b87845114241d8b74
+6) GET REFERENCES (users, categories, departments) — workflow id: ff455c68e9ac493e858fb984bcfd01fb
+7) SUPPLEMENTARY ACTIONS / SUBSIDIARY ACTIONS — workflow id: 85c556f10b8244ba9d839a2ebe240b91
+8) BULK ASSIGN — workflow id: 7e71fffe770a45ccb93bf216bb53786e
+9) SINGLE ASSIGN — workflow id: f71397ff3ca145059dc8f78c04923e9f
+10) DYNAMIC GLOBAL ENDPOINT INTERFACE — workflow id: bc83d98acf474a088832d78f50085388
+11) EVENTS AND INVITATION PROCESSING — workflow id: workflow id not provided (no workflows/{id} URL in provided block)
+12) CREATE TASK FOR EMAIL — workflow id: a942d230337c4ddfa9a386e92bbd048b
+Deduplicated Flow Definitions
+FLOW: LOOKUPS (users, departments, categories)
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU"
+Trigger schema:
+"{ "type": "object", "title": "Action Request", "description": "", "properties": { "action": { "type": [ "string", "null" ], "description": "The operation to perform. Can be null." }, "operation": { "type": [ "string", "null" ], "description": "The specific operation name. Can be null." }, "mode": { "type": [ "string", "null" ], "description": "Execution mode (e.g., single, reassign). Can be null." }, "source": { "type": [ "string", "null" ], "description": "Source system initiating the request. Can be null." }, "userEmail": { "type": [ "string", "null" ], "format": "email", "description": "The initiating user's email address. Can be null." }, "method": { "type": [ "string", "null" ], "description": "Request or execution method (e.g., GET, POST). Can be null." }, "id": { "type": [ "string", "integer", "null" ], "description": "Primary identifier associated with the request. Can be null." }, "device": { "type": [ "object", "null" ], "description": "Device information related to the request. Can be null.", "additionalProperties": true, "properties": { "id": { "type": [ "string", "integer", "null" ], "description": "Device identifier. Can be null." } } } }, "required": [], "additionalProperties": true } "
+HTTP Response:
+"{   "triggerBod": @{triggerBody()},   "users": @{body('Select_Users')},   "categories": @{body('Select_Categories')},   "departments": @{body('Select_Departments')},   "ok": @{variables('varOk')},   "message": "@{variables('varMessage')}",   "details": "" }"
+
+FLOW: GET EMAILS
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U"
+Trigger schema:
+"{ "type": "object", "properties": { "folderPath": { "type": "string" }, "top": { "type": "integer" }, "skip": { "type": "integer" }, "fetchOnlyUnread": { "type": "boolean" } } } "
+Fields / Select field mapping:
+"{   "id": "@{item()?[\"id\"]}",   "receivedDateTime": "@{item()?[\"receivedDateTime\"]}",   "hasAttachments": "@{item()?[\"hasAttachments\"]}",   "subject": "@{item()?[\"subject\"]}",   "bodyPreview": "@{item()?[\"bodyPreview\"]}",   "importance": "@{item()?[\"importance\"]}",   "webLink": "",   "bodyContent": "@{item()?[\"body\"]}",   "from": "@{item()?[\"from\"]}",   "fromAddress": "@{item()?[\"from\"]}",   "toRecipients": "@{item()?[\"toRecipients\"]}",   "ccRecipients": "@{item()?[\"ccRecipients\"]}",   "bccRecipients": "@{item()?[\"bccRecipients\"]}",   "attachments": "",   "internetMessageId": "@{item()?[\"internetMessageId\"]}",   "conversationId": "@{item()?[\"conversationId\"]}",   "body": "@{item()?[\"body\"]}" }"
+HTTP Response:
+"{   "emails": @{body('Select_Email_Fields_4')},   "nextBatchAvailable": true }"
+
+FLOW: BULK OPS GET DOCS
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7995c1eb50d94d5daa2780e71391d874/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G9ti0-fzVRwt8fdGGheNgSrvIoMCcXKEibCaBDci4oE"
+Trigger schema:
+"{ "type": "object", "title": "Action Request", "description": "Schema for HTTP trigger containing only action and user email fields.", "properties": { "action": { "type": [ "string", "null" ], "description": "The operation to perform (e.g., Create, Update, Acknowledge). Can be null." }, "userEmail": { "type": [ "string", "null" ], "format": "email", "description": "The initiating user's email address. Can be null." } }, "required": [], "additionalProperties": false } "
+Fields / Select field mapping:
+"{   "title": @{coalesce(item()?['Title'], '')},   "createdOn": @{item()?['Created']},   "assignedTo": @{coalesce(item()?['AssignedTo'], '')},   "activityType": @{coalesce(item()?['Category0'], '')},   "assignmentStatus": @{coalesce(item()?['AssignmentStatus'], '')},   "status": @{coalesce(item()?['Status'], '')},   "routed_x0020_To": @{coalesce(item()?['Routed_x0020_To'], '')},   "description": @{coalesce(item()?['Description'], '')},   "CC_x0027_dTo": @{coalesce(item()?['CC_x0027_dTo'], '')},   "assigned": @{coalesce(item()?['Assigned'], '')},   "attachmentLink": @{coalesce(item()?['AttachmentLink'], '')},   "category": @{coalesce(item()?['Category0'], '')} }"
+HTTP Response:
+"@{body('Select_getDocs')}"
+
+FLOW: GET TASKS
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4"
+Trigger schema:
+"{ "type": "object", "title": "Action Request", "description": "", "properties": { "action": { "type": [ "string", "null" ], "description": "The operation to perform Can be null." }, "userEmail": { "type": [ "string", "null" ], "format": "email", "description": "The initiating user's email address. Can be null." } }, "required": [], "additionalProperties": true } "
+Fields / Select field mapping:
+"{   "ID": @{coalesce(item()?['ID'], 0)},   "Title": @{coalesce(item()?['Title'], 'No Title')},   "Assigned": @{coalesce(item()?['Assigned'], 'No Assigned Value')},   "_x0033_rdAssigned": @{coalesce(item()?['_x0033_rdAssigned'], 'No 3rdAssigned Value')},   "RefIDD": @{coalesce(item()?['RefIDD'], 'No RefIDD')},   "Reference_ID": @{coalesce(item()?['Reference_ID'], 'No Reference ID')},   "Classification": @{coalesce(item()?['Classification'], 'No Classification')},   "Priority": @{coalesce(item()?['Priority/Value'], '----')},   "Created": @{coalesce(item()?['Created'], 'No Date')},   "Progress": @{coalesce(item()?['Progress/Value'], 'Not Started')},   "DueDate": @{coalesce(item()?['DueDate'], 'No Due Date')},   "StartDate": @{coalesce(item()?['StartDate'], 'No Start Date')},   "Description": @{coalesce(item()?['Description'], 'No Description')},   "AssignedTo": @{coalesce(item()?['AssignedTo'], 'Unassigned')},   "EditorEmail": @{coalesce(item()?['Editor']?['EMail'], 'No Editor Email')},   "AuthorTitle": @{coalesce(item()?['Author']?['Title'], 'No Author')},   "GBDLookUp": @{coalesce(item()?['GBDLookUp'], json('[]'))},   "GDSUROUT": @{coalesce(item()?['GDSUROUT'], 'No Route')} }"
+HTTP Response:
+"{   "tasks": @{body('Select_Get_items')} }"
+
+FLOW: GET DOCS
+Method: POST
+Url: https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50
+Trigger schema:
+{ "type": "object", "title": "Action Request", "description": "Schema for HTTP trigger containing only action and user email fields.", "properties": { "action": { "type": [ "string", "null" ], "description": "The operation to perform . Can be null." }, "userEmail": { "type": [ "string", "null" ], "format": "email", "description": "The initiating user's email address. Can be null." } }, "required": [], "additionalProperties": false }
+Fields / Select field mapping:
+{ "ID": @{item()?['ID']}, "Title": @{coalesce(item()?['Title'], '')}, "Created": @{item()?['Created']}, "AssignedTo": @{coalesce(item()?['AssignedTo'], '')}, "Category": @{coalesce(item()?['Category0'], '')}, "AssignmentStatus": @{coalesce(item()?['AssignmentStatus'], '')}, "Status": @{coalesce(item()?['Status'], '')}, "Routed_x0020_To": @{coalesce(item()?['Routed_x0020_To'], '')}, "Description": @{coalesce(item()?['Description'], '')}, "CC_x0027_dTo": @{coalesce(item()?['CC_x0027_dTo'], '')}, "Assigned": @{coalesce(item()?['Assigned'], '')}, "AttachmentLink": @{coalesce(item()?['AttachmentLink'], '')} }
+HTTP Response:
+{ "docs": @{body('Select')} }
+
+FLOW: GET REFERENCES (users, categories, departments)
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU"
+Trigger schema:
+{ "userEmail": "string" }
+Select fields mapping — departments:
+{ "ID": @{item()?['ID']}, "Title": @{item()?['Title']}, "DSU_KEY": @{item()?['field_1']}, "DSU_Email": @{item()?['field_2']}, "DSU_HeadEmail": @{item()?['field_5']}, "DSU_HeadTitle": @{item()?['field_6']}, "DSU_HeadPersonalEmail": @{item()?['field_5']} }
+Select fields mapping — categories:
+{ "ID": @{item()?['ID']}, "Title": @{item()?['Title']}, "DSU_KEY": @{item()?['field_3']}, "Category": @{item()?['Title']}, "Subcategory": @{item()?['field_2']}, "Category Code": @{item()?['field_1']}, "SubCategory Code": @{item()?['field_3']}, "Default Primary Responsible": @{item()?['field_4']}, "Default Supporting Department/Unit": @{item()?['field_6']}, "INFORMDSU1": @{item()?['field_6']}, "INFORMDSU2": @{item()?['field_7']}, "INFORMDSU3": @{item()?['field_8']}, "Timeline": @{item()?['field_9']}, "Priority": @{item()?['field_14']} }
+Select fields mapping — users:
+{ "name": @{coalesce(item()?['DisplayName'], concat(coalesce(item()?['GivenName'],''), ' ', coalesce(item()?['Surname'],'')))}, "email": @{coalesce(item()?['Mail'], item()?['UserPrincipalName'])}, "department": @{coalesce(item()?['Department'],'')}, "jobTitle": @{coalesce(item()?['JobTitle'],'')} }
+HTTP Response:
+{ "users": @{body('Select_Users')}, "categories": @{body('Select_Categories')}, "departments": @{body('Select_Departments')} }
+
+FLOW: SUPPLEMENTARY ACTIONS / SUBSIDIARY ACTIONS
+Method: POST
+Url: https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85c556f10b8244ba9d839a2ebe240b91/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8ikbMhXrOn_L4QRUBF94wiq2swh7GlNVY_GZ5BD5jK0
+Trigger schema (Normalized Payload — draft-04):
+{ "$schema": "http://json-schema.org/draft-04/schema#", "title": "Subsidiary Actions - Normalized Payload (with contextId/contextType)", "type": "object", "additionalProperties": true, "properties": { "name": { "type": ["string", "null"] }, "method": { "type": ["string", "null"] }, "action": { "type": ["string", "null"] }, "operation": { "type": ["string", "null"] }, "userEmail": { "type": ["string", "null"] }, "id": { "type": ["string", "null"] }, "docId": { "type": ["string", "null"] }, "taskId": { "type": ["string", "null"] }, "acknowledgedBy": {}, "status": { "type": ["string", "null"] }, "trackingID": { "type": ["string", "null"] }, "source": { "type": ["string", "null"] }, "AssignmentType": { "type": ["string", "null"] }, "Selected": { "type": ["object", "null"], "additionalProperties": true, "properties": { "ID": { "type": ["string", "null"] }, "RefIDD": { "type": ["string", "null"] } } }, "NewActivityTask": { "type": ["object", "null"], "additionalProperties": true, "properties": { "StartDate": { "type": ["string", "null"] }, "ActivityID": { "type": ["string", "null"] }, "Title": { "type": ["string", "null"] }, "Description": { "type": ["string", "null"] }, "Status": { "type": ["string", "null"] }, "Category": { "type": ["string", "null"] }, "CategoryCode": { "type": ["string", "null"] }, "SubCategory": { "type": ["string", "null"] }, "SubCategoryCode": { "type": ["string", "null"] }, "AssignedTo": { "type": ["string", "null"] }, "AssignedDSU": { "type": ["string", "null"] }, "supportingAssignedTo": { "type": ["string", "null"] }, "TaskDueDate": { "type": ["string", "null"] }, "Priority": { "type": ["string", "null"] }, "CopyTo": { "type": ["string", "null"] }, "AttachmentLink": { "type": ["string", "null"] }, "Comments": { "type": ["string", "null"] } } }, "contextId": { "type": ["string", "null"] }, "contextType": { "type": ["string", "null"] } } }
+Trigger schema (Extended / Merged Schema):
+"{ "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json", "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Subsidiary Actions - Extended (Merged) Schema", "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).", "type": "object", "additionalProperties": true, "properties": { "name": { "type": [ "string", "null" ] }, "id": { "type": [ "string", "integer", "null" ] }, "method": { "type": [ "string", "null" ] }, "action": { "type": [ "string", "null" ] }, "Action": { "type": [ "string", "null" ] }, "operation": { "type": [ "string", "null" ] }, "Operation": { "type": [ "string", "null" ] }, "userEmail": { "type": [ "string", "null" ] }, "UserEmail": { "type": [ "string", "null" ] }, "email": { "type": [ "string", "null" ] }, "docId": { "type": [ "string", "integer", "null" ] }, "DocId": { "type": [ "string", "integer", "null" ] }, "taskId": { "type": [ "string", "integer", "null" ] }, "TaskId": { "type": [ "string", "integer", "null" ] }, "acknowledgedBy": {}, "status": { "type": [ "string", "null" ] }, "trackingID": { "type": [ "string", "null" ] }, "source": { "type": [ "string", "null" ] }, "AssignmentType": { "type": [ "string", "null" ] }, "Selected": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "ID": { "type": [ "string", "integer", "null" ] }, "RefIDD": { "type": [ "string", "null" ] }, "Title": { "type": [ "string", "null" ] } } }, "NewActivityTask": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "StartDate": { "type": [ "string", "null" ] }, "ActivityID": { "type": [ "string", "integer", "null" ] }, "Title": { "type": [ "string", "null" ] }, "Description": { "type": [ "string", "null" ] }, "Status": { "type": [ "string", "null" ] }, "Category": { "type": [ "string", "null" ] }, "CategoryCode": { "type": [ "string", "null" ] }, "SubCategory": { "type": [ "string", "null" ] }, "SubCategoryCode": { "type": [ "string", "null" ] }, "AssignedTo": { "type": [ "string", "null" ] }, "AssignedDSU": { "type": [ "string", "null" ] }, "supportingAssignedTo": { "type": [ "string", "null" ] }, "TaskDueDate": { "type": [ "string", "null" ] }, "Priority": { "type": [ "string", "null" ] }, "CopyTo": { "type": [ "string", "null" ] }, "AttachmentLink": { "type": [ "string", "null" ] }, "Comments": { "type": [ "string", "null" ] }, "PrimaryDSU": { "type": [ "string", "null" ] }, "AssignedToTitle": { "type": [ "string", "null" ] }, "SupportAssignedTo": { "type": [ "string", "null" ] }, "SupportAssignedToTitle": { "type": [ "string", "null" ] }, "SupportDSU": { "type": [ "string", "null" ] }, "SupportDSUKey": { "type": [ "string", "null" ] }, "AckDue": { "type": [ "string", "null" ] }, "AcknolwedgementDueBy": { "type": [ "string", "null" ] }, "TaskDue": { "type": [ "string", "null" ] }, "Timeline": { "type": [ "string", "null" ] }, "PreReferenceID": { "type": [ "string", "null" ] }, "Categorization": { "type": [ "string", "null" ] }, "CreatedBy": { "type": [ "string", "null" ] } } }, "mode": { "type": [ "string", "null" ] }, "device": { "type": [ "string", "object", "null" ], "additionalProperties": true }, "Email": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "id": { "type": [ "string", "null" ] }, "subject": { "type": [ "string", "null" ] }, "webLink": { "type": [ "string", "null" ] } } }, "SelectedItems": { "type": [ "array", "null" ], "items": { "type": "object", "additionalProperties": true, "properties": { "ID": { "type": [ "string", "integer", "null" ] }, "RefIDD": { "type": [ "string", "null" ] }, "Title": { "type": [ "string", "null" ] } } } } } } "
+
+FLOW: BULK ASSIGN
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/7e71fffe770a45ccb93bf216bb53786e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=RtvNxwUI6kgsyM0rTjfV6b60OsCvmmJCyFqhb4L96NE"
+Trigger schema:
+{
+"$id": "https://example.com/schemas/hybrid-assign.schema.json",
+"$schema": "https://json-schema.org/draft/2020-12/schema",
+"title": "Hybrid Assign Request (Single or Bulk) - No Required Fields",
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"action": {
+"type": "string",
+"minLength": 1,
+"description": "Request type (e.g., singleassignment, bulkassignment)"
+},
+"operation": {
+"type": "string",
+"minLength": 1,
+"description": "Operation (e.g., create, reassign)"
+},
+"mode": {
+"type": "string",
+"description": "Optional hint for routing (if provided), e.g., single or bulk"
+},
+"source": {
+"type": "string",
+"description": "Optional source system identifier"
+},
+"userEmail": {
+"type": "string",
+"minLength": 1,
+"format": "email",
+"description": "Email of the user initiating the request"
+},
+"method": {
+"type": "string",
+"description": "Optional HTTP method or client method indicator"
+},
+"id": {
+"type": [
+"string",
+"integer",
+"null"
+],
+"description": "Optional request or entity identifier (root-level)"
+},
+"device": {
+"type": [
+"string",
+"object",
+"null"
+],
+"additionalProperties": true,
+"description": "Optional device info (string or object), e.g., deviceId, model, platform"
+},
+"AssignmentType": {
+"type": "string",
+"minLength": 1,
+"description": "Assignment type (e.g., singleassignment, bulkassignment)"
+},
+"NewActivityTask": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"StartDate": {
+"type": "string"
+},
+"ActivityID": {
+"type": [
+"integer",
+"string"
+]
+},
+"AttachmentLink": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+},
+"Description": {
+"type": "string"
+},
+"Status": {
+"type": "string"
+},
+"Category": {
+"type": "string"
+},
+"CategoryCode": {
+"type": "string"
+},
+"SubCategory": {
+"type": "string"
+},
+"SubCategoryCode": {
+"type": "string"
+},
+"PrimaryDSU": {
+"type": "string"
+},
+"AssignedTo": {
+"type": "string"
+},
+"AssignedToTitle": {
+"type": "string"
+},
+"AssignedDSU": {
+"type": "string"
+},
+"supportingAssignedTo": {
+"type": "string"
+},
+"SupportAssignedTo": {
+"type": "string"
+},
+"SupportAssignedToTitle": {
+"type": "string"
+},
+"SupportDSU": {
+"type": "string"
+},
+"SupportDSUKey": {
+"type": "string"
+},
+"AckDue": {
+"type": "string"
+},
+"AcknolwedgementDueBy": {
+"type": "string"
+},
+"TaskDue": {
+"type": "string"
+},
+"TaskDueDate": {
+"type": "string"
+},
+"Timeline": {
+"type": "string"
+},
+"CopyTo": {
+"type": "string"
+},
+"Priority": {
+"type": "string"
+},
+"PreReferenceID": {
+"type": "string"
+},
+"Categorization": {
+"type": "string"
+},
+"Comments": {
+"type": "string"
+},
+"CreatedBy": {
+"type": "string"
+}
+}
+},
+"Selected": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+},
+"description": "Use for single assignment"
+},
+"SelectedItems": {
+"type": "array",
+"items": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+}
+},
+"description": "Use for bulk assignment"
+}
+}
+}
+HTTP Response:
+{
+ "mode": "bulk",
+ "ok": @{equals(variables('varFailed'), 0)},
+ "success": @{equals(variables('varFailed'), 0)},
+ "action": "@{coalesce(triggerBody()?['action'], 'bulkassignment')}",
+ "operation": "@{coalesce(triggerBody()?['operation'], 'create')}",
+ "requestId": "@{coalesce(triggerBody()?['requestId'], guid())}",
+ "receivedAtUtc": "@{utcNow()}",
+ "completedAtUtc": "@{utcNow()}",
+ "durationMs": @{div(sub(ticks(utcNow()), variables('varStartTicks')), 10000)},
+ "requestedBy": "@{coalesce(triggerBody()?['userEmail'], triggerBody()?['NewActivityTask']?['CreatedBy'], 'unknown@domain')}",
+ "assignedTo": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedTo'], '')}",
+ "assignedToTitle": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedToTitle'], '')}",
+ "Category": "@{coalesce(triggerBody()?['NewActivityTask']?['Category'], '')}",
+ "SubCategory": "@{coalesce(triggerBody()?['NewActivityTask']?['SubCategory'], '')}",
+ "PrimaryDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['PrimaryDSU'], '')}",
+ "AssignedDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedDSU'], '')}",
+ "SupportDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['SupportDSU'], '')}",
+ "Priority": "@{coalesce(triggerBody()?['NewActivityTask']?['Priority'], 'Normal')}",
+ "AckDue": "@{coalesce(triggerBody()?['NewActivityTask']?['AckDue'], triggerBody()?['NewActivityTask']?['AcknolwedgementDueBy'], '')}",
+ "TaskDue": "@{coalesce(triggerBody()?['NewActivityTask']?['TaskDue'], triggerBody()?['NewActivityTask']?['TaskDueDate'], '')}",
+ "CopyTo": "@{coalesce(triggerBody()?['NewActivityTask']?['CopyTo'], '')}",
+ "selected": @{length(coalesce(triggerBody()?['SelectedItems'], createArray()))},
+ "tasksCreated": @{variables('varTasksCreated')},
+ "docsUpdated": @{variables('varDocsUpdated')},
+ "notificationsSent": @{variables('varNotificationsSent')},
+ "failed": @{variables('varFailed')},
+ "results": @{coalesce(variables('varResults'), createArray())},
+ "errors": @{coalesce(variables('varErrors'), createArray())},
+ "summaryText": "@{concat(
+   'Bulk assignment completed: ',
+   string(length(coalesce(triggerBody()?['SelectedItems'], createArray()))), ' selected, ',
+   string(variables('varTasksCreated')), ' tasks created, ',
+   string(variables('varDocsUpdated')), ' docs updated, ',
+   string(variables('varFailed')), ' failed. Notification(s) sent: ',
+   string(variables('varNotificationsSent')), '.'
+ )}"
+}
+
+FLOW: SINGLE ASSIGN
+Method: POST
+URL variants:
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxwp2NJ0"
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0"
+Trigger schema:
+{
+"$id": "https://example.com/schemas/hybrid-assign.schema.json",
+"$schema": "https://json-schema.org/draft/2020-12/schema",
+"title": "Hybrid Assign Request (Single or Bulk) - No Required Fields",
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"action": {
+"type": "string",
+"minLength": 1,
+"description": "Request type (e.g., singleassignment, bulkassignment)"
+},
+"operation": {
+"type": "string",
+"minLength": 1,
+"description": "Operation (e.g., create, reassign)"
+},
+"mode": {
+"type": "string",
+"description": "Optional hint for routing (if provided), e.g., single or bulk"
+},
+"source": {
+"type": "string",
+"description": "Optional source system identifier"
+},
+"userEmail": {
+"type": "string",
+"minLength": 1,
+"format": "email",
+"description": "Email of the user initiating the request"
+},
+"method": {
+"type": "string",
+"description": "Optional HTTP method or client method indicator"
+},
+"id": {
+"type": [
+"string",
+"integer",
+"null"
+],
+"description": "Optional request or entity identifier (root-level)"
+},
+"device": {
+"type": [
+"string",
+"object",
+"null"
+],
+"additionalProperties": true,
+"description": "Optional device info (string or object), e.g., deviceId, model, platform"
+},
+"AssignmentType": {
+"type": "string",
+"minLength": 1,
+"description": "Assignment type (e.g., singleassignment, bulkassignment)"
+},
+"NewActivityTask": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"StartDate": {
+"type": "string"
+},
+"ActivityID": {
+"type": [
+"integer",
+"string"
+]
+},
+"AttachmentLink": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+},
+"Description": {
+"type": "string"
+},
+"Status": {
+"type": "string"
+},
+"Category": {
+"type": "string"
+},
+"CategoryCode": {
+"type": "string"
+},
+"SubCategory": {
+"type": "string"
+},
+"SubCategoryCode": {
+"type": "string"
+},
+"PrimaryDSU": {
+"type": "string"
+},
+"AssignedTo": {
+"type": "string"
+},
+"AssignedToTitle": {
+"type": "string"
+},
+"AssignedDSU": {
+"type": "string"
+},
+"supportingAssignedTo": {
+"type": "string"
+},
+"SupportAssignedTo": {
+"type": "string"
+},
+"SupportAssignedToTitle": {
+"type": "string"
+},
+"SupportDSU": {
+"type": "string"
+},
+"SupportDSUKey": {
+"type": "string"
+},
+"AckDue": {
+"type": "string"
+},
+"AcknolwedgementDueBy": {
+"type": "string"
+},
+"TaskDue": {
+"type": "string"
+},
+"TaskDueDate": {
+"type": "string"
+},
+"Timeline": {
+"type": "string"
+},
+"CopyTo": {
+"type": "string"
+},
+"Priority": {
+"type": "string"
+},
+"PreReferenceID": {
+"type": "string"
+},
+"Categorization": {
+"type": "string"
+},
+"Comments": {
+"type": "string"
+},
+"CreatedBy": {
+"type": "string"
+}
+}
+},
+"Selected": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+},
+"description": "Use for single assignment"
+},
+"SelectedItems": {
+"type": "array",
+"items": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+}
+},
+"description": "Use for bulk assignment"
+}
+}
+}
+HTTP Response variants:
+{   "mode": "single",   "ok": @{equals(coalesce(variables('varFailed'), 0), 0)},   "success": @{equals(coalesce(variables('varFailed'), 0), 0)},   "action": "@{coalesce(triggerBody()?['action'], 'singleassignment')}",   "operation": "@{coalesce(triggerBody()?['operation'], 'create')}",   "timestampUtc": "@{utcNow()}",   "receivedAtUtc": "@{utcNow()}",   "completedAtUtc": "@{utcNow()}",   "durationMs": @{div(sub(ticks(utcNow()), variables('varStartTicks')), 10000)},   "requestId": "@{coalesce(triggerBody()?['requestId'], guid())}",   "referenceId": "@{coalesce(string(triggerBody()?['NewActivityTask']?['PreReferenceID']), '')}",   "patchId": @{int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))},   "requestedBy": "@{coalesce(triggerBody()?['userEmail'], triggerBody()?['NewActivityTask']?['CreatedBy'], 'unknown@domain')}",   "routedTo": "@{coalesce(string(outputs('Get_item_Task')?['body/AssignedTo']), string(triggerBody()?['NewActivityTask']?['AssignedTo']), '')}",   "assignedTo": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedTo'], '')}",   "assignedToTitle": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedToTitle'], '')}",   "AssignmentType": "@{coalesce(string(triggerBody()?['AssignmentType']), '')}",   "Selected": {     "ID": @{int(coalesce(triggerBody()?['Selected']?['ID'], 0))},     "RefIDD": "@{coalesce(string(triggerBody()?['Selected']?['RefIDD']), '')}"   },   "NewActivityTask": {     "Title": "@{coalesce(string(triggerBody()?['NewActivityTask']?['Title']), '')}",     "AssignedTo": "@{coalesce(string(triggerBody()?['NewActivityTask']?['AssignedTo']), '')}",     "Priority": "@{toUpper(coalesce(string(triggerBody()?['NewActivityTask']?['Priority']), 'NORMAL'))}",     "StartDate": "@{if(or(empty(triggerBody()?['NewActivityTask']?['StartDate']), equals(trim(string(triggerBody()?['NewActivityTask']?['StartDate'])), '')), formatDateTime(utcNow(), 'yyyy-MM-dd'), string(triggerBody()?['NewActivityTask']?['StartDate']))}"   },   "SourceDocument": {     "ID": @{int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))},     "Title": "@{coalesce(string(outputs('Get_item_Doc')?['body/Title']), '')}",     "AttachmentLink": "@{coalesce(string(outputs('Get_item_Doc')?['body/AttachmentLink']), '')}",     "Status": "@{coalesce(string(outputs('Get_item_Doc')?['body/Status/Value']), '')}"   },   "CreatedTask": {     "ID": @{int(coalesce(outputs('Get_item_Task')?['body/ID'], 0))},     "Title": "@{coalesce(string(outputs('Get_item_Task')?['body/Title']), '')}",     "Priority": "@{coalesce(string(outputs('Get_item_Task')?['body/Priority/Value']), '')}",     "StartDate": "@{coalesce(string(outputs('Get_item_Task')?['body/StartDate']), '')}",     "AttachmentLink": "@{coalesce(string(outputs('Get_item_Task')?['body/AttachmentLink']), '')}"   },   "totals": {     "selected": 1,     "tasksCreated": @{if(greater(int(coalesce(outputs('Get_item_Task')?['body/ID'], 0)), 0), 1, 0)},     "docsUpdated": @{if(greater(int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0)), 0), 1, 0)},     "notificationsSent": @{coalesce(variables('varNotificationsSent'), 0)},     "failed": @{coalesce(variables('varFailed'), 0)}   },   "assignment": {     "Category": "@{coalesce(triggerBody()?['NewActivityTask']?['Category'], '')}",     "SubCategory": "@{coalesce(triggerBody()?['NewActivityTask']?['SubCategory'], '')}",     "PrimaryDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['PrimaryDSU'], '')}",     "AssignedDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedDSU'], '')}",     "SupportDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['SupportDSU'], '')}",     "Priority": "@{coalesce(triggerBody()?['NewActivityTask']?['Priority'], 'Normal')}",     "AckDue": "@{coalesce(triggerBody()?['NewActivityTask']?['AckDue'], triggerBody()?['NewActivityTask']?['AcknolwedgementDueBy'], '')}",     "TaskDue": "@{coalesce(triggerBody()?['NewActivityTask']?['TaskDue'], triggerBody()?['NewActivityTask']?['TaskDueDate'], '')}",     "CopyTo": "@{coalesce(triggerBody()?['NewActivityTask']?['CopyTo'], '')}"   },   "results": @{coalesce(variables('varResults'), createArray())},   "errors": @{coalesce(variables('varErrors'), createArray())},   "summaryText": "@{concat('Single assignment completed: taskId=', string(int(coalesce(outputs('Get_item_Task')?['body/ID'], 0))), ', docId=', string(int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))), ', failed=', string(coalesce(variables('varFailed'), 0)), '. Notification(s) sent: ', string(coalesce(variables('varNotificationsSent'), 0)), '.')}" }
+{
+ "mode": "@{coalesce(triggerBody()?['mode'], 'bulk')}",
+ "ok": @{equals(coalesce(variables('varFailed'), 0), 0)},
+ "success": @{equals(coalesce(variables('varFailed'), 0), 0)},
+ "action": "@{coalesce(triggerBody()?['action'], 'bulkassignment')}",
+ "operation": "@{coalesce(triggerBody()?['operation'], 'create')}",
+ "requestId": "@{coalesce(triggerBody()?['requestId'], guid())}",
+ "timestampUtc": "@{utcNow()}",
+ "receivedAtUtc": "@{utcNow()}",
+ "completedAtUtc": "@{utcNow()}",
+ "durationMs": @{div(sub(ticks(utcNow()), variables('varStartTicks')), 10000)},
+ "requestedBy": "@{coalesce(triggerBody()?['userEmail'], triggerBody()?['NewActivityTask']?['CreatedBy'], 'unknown@domain')}",
+ "routedTo": "@{coalesce(string(outputs('Get_item_Task')?['body/AssignedTo']), string(triggerBody()?['NewActivityTask']?['AssignedTo']), '')}",
+ "assignedTo": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedTo'], '')}",
+ "assignedToTitle": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedToTitle'], '')}",
+ "referenceId": "@{coalesce(string(triggerBody()?['NewActivityTask']?['PreReferenceID']), '')}",
+ "patchId": @{int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))},
+ "AssignmentType": "@{coalesce(string(triggerBody()?['AssignmentType']), '')}",
+ "Selected": {
+   "ID": @{int(coalesce(triggerBody()?['Selected']?['ID'], 0))},
+   "RefIDD": "@{coalesce(string(triggerBody()?['Selected']?['RefIDD']), '')}"
+ },
+ "NewActivityTask": {
+   "Title": "@{coalesce(string(triggerBody()?['NewActivityTask']?['Title']), '')}",
+   "AssignedTo": "@{coalesce(string(triggerBody()?['NewActivityTask']?['AssignedTo']), '')}",
+   "Priority": "@{toUpper(coalesce(string(triggerBody()?['NewActivityTask']?['Priority']), 'NORMAL'))}",
+   "StartDate": "@{if(or(empty(triggerBody()?['NewActivityTask']?['StartDate']), equals(trim(string(triggerBody()?['NewActivityTask']?['StartDate'])), '')), formatDateTime(utcNow(), 'yyyy-MM-dd'), string(triggerBody()?['NewActivityTask']?['StartDate']))}"
+ },
+ "SourceDocument": {
+   "ID": @{int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))},
+   "Title": "@{coalesce(string(outputs('Get_item_Doc')?['body/Title']), '')}",
+   "AttachmentLink": "@{coalesce(string(outputs('Get_item_Doc')?['body/AttachmentLink']), '')}",
+   "Status": "@{coalesce(string(outputs('Get_item_Doc')?['body/Status/Value']), '')}"
+ },
+ "CreatedTask": {
+   "ID": @{int(coalesce(outputs('Get_item_Task')?['body/ID'], 0))},
+   "Title": "@{coalesce(string(outputs('Get_item_Task')?['body/Title']), '')}",
+   "Priority": "@{coalesce(string(outputs('Get_item_Task')?['body/Priority/Value']), '')}",
+   "StartDate": "@{coalesce(string(outputs('Get_item_Task')?['body/StartDate']), '')}",
+   "AttachmentLink": "@{coalesce(string(outputs('Get_item_Task')?['body/AttachmentLink']), '')}"
+ },
+ "totals": {
+   "selected": @{if(equals(coalesce(triggerBody()?['mode'], 'bulk'), 'single'), 1, length(coalesce(triggerBody()?['SelectedItems'], createArray())))},
+   "tasksCreated": @{if(equals(coalesce(triggerBody()?['mode'], 'bulk'), 'single'), if(greater(int(coalesce(outputs('Get_item_Task')?['body/ID'], 0)), 0), 1, 0), coalesce(variables('varTasksCreated'), 0))},
+   "docsUpdated": @{if(equals(coalesce(triggerBody()?['mode'], 'bulk'), 'single'), if(greater(int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0)), 0), 1, 0), coalesce(variables('varDocsUpdated'), 0))},
+   "notificationsSent": @{coalesce(variables('varNotificationsSent'), 0)},
+   "failed": @{coalesce(variables('varFailed'), 0)}
+ },
+ "assignment": {
+   "Category": "@{coalesce(triggerBody()?['NewActivityTask']?['Category'], '')}",
+   "SubCategory": "@{coalesce(triggerBody()?['NewActivityTask']?['SubCategory'], '')}",
+   "PrimaryDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['PrimaryDSU'], '')}",
+   "AssignedDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedDSU'], '')}",
+   "SupportDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['SupportDSU'], '')}",
+   "Priority": "@{coalesce(triggerBody()?['NewActivityTask']?['Priority'], 'Normal')}",
+   "AckDue": "@{coalesce(triggerBody()?['NewActivityTask']?['AckDue'], triggerBody()?['NewActivityTask']?['AcknolwedgementDueBy'], '')}",
+   "TaskDue": "@{coalesce(triggerBody()?['NewActivityTask']?['TaskDue'], triggerBody()?['NewActivityTask']?['TaskDueDate'], '')}",
+   "CopyTo": "@{coalesce(triggerBody()?['NewActivityTask']?['CopyTo'], '')}"
+ },
+ "results": @{coalesce(variables('varResults'), createArray())},
+ "errors": @{coalesce(variables('varErrors'), createArray())},
+ "summaryText": "@{if(equals(coalesce(triggerBody()?['mode'], 'bulk'), 'single'), concat('Single assignment completed: taskId=', string(int(coalesce(outputs('Get_item_Task')?['body/ID'], 0))), ', docId=', string(int(coalesce(outputs('Get_item_Doc')?['body/ID'], 0))), ', failed=', string(coalesce(variables('varFailed'), 0)), '.'), concat('Bulk assignment completed: ', string(length(coalesce(triggerBody()?['SelectedItems'], createArray()))), ' selected, ', string(coalesce(variables('varTasksCreated'), 0)), ' tasks created.'))}"
+}
+" 
+
+FLOW: DYNAMIC GLOBAL ENDPOINT INTERFACE
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/bc83d98acf474a088832d78f50085388/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=_Co-r3TG6rtP0yGDDJXIM90WD4Wpym2NmR5OyOSsgnY"
+Trigger schema:
+{
+"$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json", "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "Subsidiary Actions - Extended (Merged) Schema", "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).", "type": "object", "additionalProperties": true, "properties": { "name": { "type": [ "string", "null" ] }, "id": { "type": [ "string", "integer", "null" ] }, "method": { "type": [ "string", "null" ] }, "action": { "type": [ "string", "null" ] }, "Action": { "type": [ "string", "null" ] }, "operation": { "type": [ "string", "null" ] }, "Operation": { "type": [ "string", "null" ] }, "userEmail": { "type": [ "string", "null" ] }, "UserEmail": { "type": [ "string", "null" ] }, "email": { "type": [ "string", "null" ] }, "docId": { "type": [ "string", "integer", "null" ] }, "DocId": { "type": [ "string", "integer", "null" ] }, "taskId": { "type": [ "string", "integer", "null" ] }, "TaskId": { "type": [ "string", "integer", "null" ] }, "acknowledgedBy": {}, "status": { "type": [ "string", "null" ] }, "trackingID": { "type": [ "string", "null" ] }, "source": { "type": [ "string", "null" ] }, "AssignmentType": { "type": [ "string", "null" ] }, "Selected": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "ID": { "type": [ "string", "integer", "null" ] }, "RefIDD": { "type": [ "string", "null" ] }, "Title": { "type": [ "string", "null" ] } } }, "NewActivityTask": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "StartDate": { "type": [ "string", "null" ] }, "ActivityID": { "type": [ "string", "integer", "null" ] }, "Title": { "type": [ "string", "null" ] }, "Description": { "type": [ "string", "null" ] }, "Status": { "type": [ "string", "null" ] }, "Category": { "type": [ "string", "null" ] }, "CategoryCode": { "type": [ "string", "null" ] }, "SubCategory": { "type": [ "string", "null" ] }, "SubCategoryCode": { "type": [ "string", "null" ] }, "AssignedTo": { "type": [ "string", "null" ] }, "AssignedDSU": { "type": [ "string", "null" ] }, "supportingAssignedTo": { "type": [ "string", "null" ] }, "TaskDueDate": { "type": [ "string", "null" ] }, "Priority": { "type": [ "string", "null" ] }, "CopyTo": { "type": [ "string", "null" ] }, "AttachmentLink": { "type": [ "string", "null" ] }, "Comments": { "type": [ "string", "null" ] }, "PrimaryDSU": { "type": [ "string", "null" ] }, "AssignedToTitle": { "type": [ "string", "null" ] }, "SupportAssignedTo": { "type": [ "string", "null" ] }, "SupportAssignedToTitle": { "type": [ "string", "null" ] }, "SupportDSU": { "type": [ "string", "null" ] }, "SupportDSUKey": { "type": [ "string", "null" ] }, "AckDue": { "type": [ "string", "null" ] }, "AcknolwedgementDueBy": { "type": [ "string", "null" ] }, "TaskDue": { "type": [ "string", "null" ] }, "Timeline": { "type": [ "string", "null" ] }, "PreReferenceID": { "type": [ "string", "null" ] }, "Categorization": { "type": [ "string", "null" ] }, "CreatedBy": { "type": [ "string", "null" ] } } }, "mode": { "type": [ "string", "null" ] }, "device": { "type": [ "string", "object", "null" ], "additionalProperties": true }, "Email": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "id": { "type": [ "string", "null" ] }, "subject": { "type": [ "string", "null" ] }, "webLink": { "type": [ "string", "null" ] } } }, "SelectedItems": { "type": [ "array", "null" ], "items": { "type": "object", "additionalProperties": true, "properties": { "ID": { "type": [ "string", "integer", "null" ] }, "RefIDD": { "type": [ "string", "null" ] }, "Title": { "type": [ "string", "null" ] } } } }, "client": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "app": { "type": [ "string", "null" ] }, "version": { "type": [ "string", "null" ] }, "submittedAt": { "type": [ "string", "null" ] } } }, "emailId": { "type": [ "string", "null" ] }, "payload": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "email": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "id": { "type": [ "string", "null" ] }, "subject": { "type": [ "string", "null" ] }, "receivedDateTime": { "type": [ "string", "null" ] }, "fromAddress": { "type": [ "object", "null" ], "additionalProperties": true }, "webLink": { "type": [ "string", "null" ] }, "conversationId": { "type": [ "string", "null" ] }, "internetMessageId": { "type": [ "string", "null" ] }, "bodyPreview": { "type": [ "string", "null" ] }, "bodyContent": { "type": [ "string", "null" ] } } }, "task": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "category": { "type": [ "string", "null" ] }, "categoryCode": { "type": [ "string", "null" ] }, "priority": { "type": [ "string", "null" ] }, "assignee": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "name": { "type": [ "string", "null" ] }, "email": { "type": [ "string", "null" ] } } }, "directiveHtml": { "type": [ "string", "null" ] } } }, "ai": { "type": [ "object", "null" ], "additionalProperties": true, "properties": { "summary": { "type": [ "string", "null" ] }, "actionRequired": { "type": [ "string", "null" ] }, "recommendedAction": { "type": [ "string", "null" ] }, "suggestedCategoryCode": { "type": [ "string", "null" ] }, "suggestedPriority": { "type": [ "string", "null" ] }, "suggestedAssigneeEmail": { "type": [ "string", "null" ] } } } } } } 
+}
+
+FLOW: EVENTS AND INVITATION PROCESSING
+Method: POST
+Url: {  "eventing": {  "current_date": "@{body('Parse_JSON')?['current_date']}",  "event_name": "@{body('Parse_JSON')?['event_name']}",  "inviting_organization": "@{body('Parse_JSON')?['inviting_organization']}",  "event_date": "@{body('Parse_JSON')?['event_date']}",  "event_time": "@{body('Parse_JSON')?['event_time']}",  "location": "@{body('Parse_JSON')?['location']}",  "invitee_role": "@{body('Parse_JSON')?['invitee_role']}",  "ai_summary": "@{body('Parse_JSON')?['ai_summary']}",  "strategic_value": "@{body('Parse_JSON')?['strategic_value']}",  "justification": "@{body('Parse_JSON')?['justification']}",  "accept_url": "@{body('Parse_JSON')?['accept_url']}",  "decline_url": "@{body('Parse_JSON')?['decline_url']}",  "delegate_url": "@{body('Parse_JSON')?['delegate_url']}" } }
+Trigger schema:
+{
+"type": "object",
+"properties": {
+"schemaVersion": {
+"type": "string"
+},
+"type": {
+"type": "string"
+},
+"mode": {
+"type": "string"
+},
+"source": {
+"type": "string"
+},
+"method": {
+"type": "string"
+},
+"idempotencyKey": {
+"type": "string"
+},
+"action": {
+"type": "string"
+},
+"operation": {
+"type": "string"
+},
+"userEmail": {
+"type": "string"
+},
+"contextType": {
+"type": "string"
+},
+"contextId": {
+"type": "string"
+},
+"id": {},
+"refId": {},
+"DocId": {
+"type": "string"
+},
+"DocumentId": {},
+"TaskId": {
+"type": "string"
+},
+"EmailId": {},
+"ItemId": {},
+"ListItemId": {},
+"PatchId": {},
+"SelectedId": {},
+"SelectedIds": {
+"type": "array"
+},
+"SelectedItems": {
+"type": "array"
+},
+"Selected": {
+"type": "object",
+"properties": {
+"ID": {},
+"RefId": {}
+}
+},
+"deviceId": {},
+"device": {
+"type": "object",
+"properties": {
+"id": {}
+}
+},
+"tenantId": {},
+"environment": {},
+"siteUrl": {},
+"webUrl": {},
+"listId": {},
+"listName": {},
+"libraryName": {},
+"requestId": {
+"type": "string"
+},
+"correlationId": {
+"type": "string"
+},
+"payload": {
+"type": "object",
+"properties": {}
+}
+}
+}
+HTTP Response:
+{
+ "eventing": {
+ "current_date": "@{body('Parse_JSON')?['current_date']}",
+ "event_name": "@{body('Parse_JSON')?['event_name']}",
+ "inviting_organization": "@{body('Parse_JSON')?['inviting_organization']}",
+ "event_date": "@{body('Parse_JSON')?['event_date']}",
+ "event_time": "@{body('Parse_JSON')?['event_time']}",
+ "location": "@{body('Parse_JSON')?['location']}",
+ "invitee_role": "@{body('Parse_JSON')?['invitee_role']}",
+ "ai_summary": "@{body('Parse_JSON')?['ai_summary']}",
+ "strategic_value": "@{body('Parse_JSON')?['strategic_value']}",
+ "justification": "@{body('Parse_JSON')?['justification']}",
+ "accept_url": "@{body('Parse_JSON')?['accept_url']}",
+ "decline_url": "@{body('Parse_JSON')?['decline_url']}",
+ "delegate_url": "@{body('Parse_JSON')?['delegate_url']}"
+}
+}
+
+FLOW: CREATE TASK FOR EMAIL
+Method: POST
+Url: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a942d230337c4ddfa9a386e92bbd048b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=KAItnmgczUUEDkJQvICwLdfbTZ3IBbPpaPePNqz0A7U"
+Trigger schema:
+{
+"$id": "https://example.com/schemas/hybrid-assign.schema.json",
+"$schema": "https://json-schema.org/draft/2020-12/schema",
+"title": "Hybrid Assign Request (Single or Bulk) - No Required Fields",
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"action": {
+"type": "string",
+"minLength": 1,
+"description": "Request type (e.g., singleassignment, bulkassignment)"
+},
+"operation": {
+"type": "string",
+"minLength": 1,
+"description": "Operation (e.g., create, reassign)"
+},
+"mode": {
+"type": "string",
+"description": "Optional hint for routing (if provided), e.g., single or bulk"
+},
+"source": {
+"type": "string",
+"description": "Optional source system identifier"
+},
+"userEmail": {
+"type": "string",
+"minLength": 1,
+"format": "email",
+"description": "Email of the user initiating the request"
+},
+"method": {
+"type": "string",
+"description": "Optional HTTP method or client method indicator"
+},
+"id": {
+"type": [
+"string",
+"integer",
+"null"
+],
+"description": "Optional request or entity identifier (root-level)"
+},
+"device": {
+"type": [
+"string",
+"object",
+"null"
+],
+"additionalProperties": true,
+"description": "Optional device info (string or object), e.g., deviceId, model, platform"
+},
+"Email": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"id": {
+"type": "string",
+"description": "Outlook/Graph message id returned by the Get/List Emails flow"
+},
+"subject": {
+"type": "string",
+"description": "Optional email subject (can be used as task title fallback)"
+},
+"webLink": {
+"type": "string",
+"description": "Optional web link/deep link to the email for traceability"
+}
+},
+"description": "Email context for Email → Task actions"
+},
+"AssignmentType": {
+"type": "string",
+"minLength": 1,
+"description": "Assignment type (e.g., singleassignment, bulkassignment)"
+},
+"NewActivityTask": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"StartDate": {
+"type": "string"
+},
+"ActivityID": {
+"type": [
+"integer",
+"string"
+]
+},
+"AttachmentLink": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+},
+"Description": {
+"type": "string"
+},
+"Status": {
+"type": "string"
+},
+"Category": {
+"type": "string"
+},
+"CategoryCode": {
+"type": "string"
+},
+"SubCategory": {
+"type": "string"
+},
+"SubCategoryCode": {
+"type": "string"
+},
+"PrimaryDSU": {
+"type": "string"
+},
+"AssignedTo": {
+"type": "string"
+},
+"AssignedToTitle": {
+"type": "string"
+},
+"AssignedDSU": {
+"type": "string"
+},
+"supportingAssignedTo": {
+"type": "string"
+},
+"SupportAssignedTo": {
+"type": "string"
+},
+"SupportAssignedToTitle": {
+"type": "string"
+},
+"SupportDSU": {
+"type": "string"
+},
+"SupportDSUKey": {
+"type": "string"
+},
+"AckDue": {
+"type": "string"
+},
+"AcknolwedgementDueBy": {
+"type": "string"
+},
+"TaskDue": {
+"type": "string"
+},
+"TaskDueDate": {
+"type": "string"
+},
+"Timeline": {
+"type": "string"
+},
+"CopyTo": {
+"type": "string"
+},
+"Priority": {
+"type": "string"
+},
+"PreReferenceID": {
+"type": "string"
+},
+"Categorization": {
+"type": "string"
+},
+"Comments": {
+"type": "string"
+},
+"CreatedBy": {
+"type": "string"
+}
+}
+},
+"Selected": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+},
+"description": "Use for single assignment"
+},
+"SelectedItems": {
+"type": "array",
+"items": {
+"type": "object",
+"additionalProperties": true,
+"properties": {
+"ID": {
+"type": [
+"integer",
+"string"
+]
+},
+"RefIDD": {
+"type": "string"
+},
+"Title": {
+"type": "string"
+}
+}
+},
+"description": "Use for bulk assignment"
+}
+}
+}
+HTTP Response:
+{
+ "mode": "bulk",
+ "ok": @{equals(variables('varFailed'), 0)},
+ "success": @{equals(variables('varFailed'), 0)},
+ "action": "@{coalesce(triggerBody()?['action'], 'bulkassignment')}",
+ "operation": "@{coalesce(triggerBody()?['operation'], 'create')}",
+ "requestId": "@{coalesce(triggerBody()?['requestId'], guid())}",
+ "receivedAtUtc": "@{utcNow()}",
+ "completedAtUtc": "@{utcNow()}",
+ "durationMs": @{div(sub(ticks(utcNow()), variables('varStartTicks')), 10000)},
+ "requestedBy": "@{coalesce(triggerBody()?['userEmail'], triggerBody()?['NewActivityTask']?['CreatedBy'], 'unknown@domain')}",
+ "assignedTo": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedTo'], '')}",
+ "assignedToTitle": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedToTitle'], '')}",
+ "Category": "@{coalesce(triggerBody()?['NewActivityTask']?['Category'], '')}",
+ "SubCategory": "@{coalesce(triggerBody()?['NewActivityTask']?['SubCategory'], '')}",
+ "PrimaryDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['PrimaryDSU'], '')}",
+ "AssignedDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['AssignedDSU'], '')}",
+ "SupportDSU": "@{coalesce(triggerBody()?['NewActivityTask']?['SupportDSU'], '')}",
+ "Priority": "@{coalesce(triggerBody()?['NewActivityTask']?['Priority'], 'Normal')}",
+ "AckDue": "@{coalesce(triggerBody()?['NewActivityTask']?['AckDue'], triggerBody()?['NewActivityTask']?['AcknolwedgementDueBy'], '')}",
+ "TaskDue": "@{coalesce(triggerBody()?['NewActivityTask']?['TaskDue'], triggerBody()?['NewActivityTask']?['TaskDueDate'], '')}",
+ "CopyTo": "@{coalesce(triggerBody()?['NewActivityTask']?['CopyTo'], '')}",
+ "selected": @{length(coalesce(triggerBody()?['SelectedItems'], createArray()))},
+ "tasksCreated": @{variables('varTasksCreated')},
+ "docsUpdated": @{variables('varDocsUpdated')},
+ "notificationsSent": @{variables('varNotificationsSent')},
+ "failed": @{variables('varFailed')},
+ "results": @{coalesce(variables('varResults'), createArray())},
+ "errors": @{coalesce(variables('varErrors'), createArray())},
+ "Email": {
+   "id": "@{coalesce(string(outputs('cNormalized')?['emailId']), '')}",
+   "subject": "@{coalesce(string(outputs('cNormalized')?['emailSubject']), '')}",
+   "webLink": "@{coalesce(string(outputs('cNormalized')?['emailWebLink']), '')}",
+   "emailFetchFailed": @{variables('varEmailFetchFailed')},
+   "conversationId": "@{coalesce(string(outputs('Get_Email')?['body/conversationId']), '')}",
+   "internetMessageId": "@{coalesce(string(outputs('Get_Email')?['body/internetMessageId']), '')}",
+   "from": "@{coalesce(string(outputs('Get_Email')?['body/from/emailAddress/address']), '')}",
+   "fromName": "@{coalesce(string(outputs('Get_Email')?['body/from/emailAddress/name']), '')}",
+   "receivedDateTime": "@{coalesce(string(outputs('Get_Email')?['body/receivedDateTime']), '')}",
+   "bodyPreview": "@{coalesce(string(outputs('Get_Email')?['body/bodyPreview']), '')}"
+ },
+ "CreatedTask": {
+   "ID": @{int(coalesce(
+     variables('varExistingTaskId'),
+     outputs('Create_Task')?['body/ID'],
+     outputs('Create_Task')?['body/id'],
+     0
+   ))},
+   "Title": "@{coalesce(
+     variables('varExistingTaskTitle'),
+     string(outputs('Create_Task')?['body/Title']),
+     string(outputs('Create_Task')?['body/title']),
+     string(outputs('cNormalized')?['title']),
+     ''
+   )}",
+   "Priority": "@{coalesce(string(outputs('Create_Task')?['body/Priority/Value']), string(outputs('Create_Task')?['body/priority']), '')}",
+   "StartDate": "@{coalesce(string(outputs('Create_Task')?['body/StartDate']), string(outputs('Create_Task')?['body/startDate']), string(outputs('cNormalized')?['startDate']))}",
+   "AttachmentLink": "@{coalesce(string(outputs('Create_Task')?['body/AttachmentLink']), string(outputs('Create_Task')?['body/attachmentLink']), string(outputs('cNormalized')?['emailWebLink']), '')}",
+   "ExternalKey": "@{outputs('cIdempotencyKey')}"
+ },
+ "summaryText": "@{concat(
+   'Bulk assignment completed: ',
+   string(length(coalesce(triggerBody()?['SelectedItems'], createArray()))), ' selected, ',
+   string(variables('varTasksCreated')), ' tasks created, ',
+   string(variables('varDocsUpdated')), ' docs updated, ',
+   string(variables('varFailed')), ' failed. Notification(s) sent: ',
+   string(variables('varNotificationsSent')), '. ',
+   'EmailToTask: emailId=',
+   coalesce(string(outputs('cNormalized')?['emailId']), ''),
+   ', externalKey=',
+   outputs('cIdempotencyKey'),
+   ', taskId=',
+   string(int(coalesce(
+     variables('varExistingTaskId'),
+     outputs('Create_Task')?['body/ID'],
+     outputs('Create_Task')?['body/id'],
+     0
+   ))),
+   ', deduped=',
+   if(greater(variables('varExistingTaskId'), 0), 'true', 'false'),
+   '.'
+ )}"
+}

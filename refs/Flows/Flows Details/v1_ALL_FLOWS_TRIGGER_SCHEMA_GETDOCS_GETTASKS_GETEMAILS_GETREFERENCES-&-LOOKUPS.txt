@@ -1,0 +1,4495 @@
+GET DOCS FLOW TRIGGER SCHEMA:
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "fetch_docs Trigger Contract",
+  "description": "Standardized HTTP trigger schema for the fetch_docs flow. Supports SharePoint-backed document retrieval using an OData filter.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The high-level action to perform.",
+      "minLength": 1
+    },{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "fetch_docs Trigger Contract",
+  "description": "Standardized HTTP trigger schema for the fetch_docs flow. Supports SharePoint-backed document retrieval using an OData filter.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The high-level action to perform.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The specific operation name.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode for the request."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The initiating user's email address.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Primary identifier associated with the request."
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Device information related to the request.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "odataFilter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "SharePoint OData filter expression used to build a Get items filter query.",
+      "minLength": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "sharepoint-fetch",
+  "x-compatibility-mode": "backward-compatible"
+}
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The specific operation name.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode for the request."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The initiating user's email address.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Primary identifier associated with the request."
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Device information related to the request.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "odataFilter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "SharePoint OData filter expression used to build a Get items filter query.",
+      "minLength": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "sharepoint-fetch",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+GET REFERENCES/LOOKUP SCHEMA:
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Fetch_References_and_Lookups_Data Trigger Contract",
+  "description": "Standardized HTTP trigger schema for the Fetch_References_and_Lookups_Data flow. Supports SharePoint-backed reference and lookup retrieval using an OData filter.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The high-level action to perform.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The specific operation name.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode for the request."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The initiating user's email address.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Primary identifier associated with the request."
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Device information related to the request.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "odataFilter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "SharePoint OData filter expression used to build a Get items filter query.",
+      "minLength": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "sharepoint-fetch",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+GET EMAILS FLOW TRIGGED SCHEMA:
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "fetch_emails Trigger Contract",
+  "description": "Standardized HTTP trigger schema for the fetch_emails flow. Supports mailbox email retrieval with optional paging and unread filtering.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The high-level action to perform.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The specific operation name.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode for the request."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The initiating user's email address.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Primary identifier associated with the request."
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Device information related to the request.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "folderPath": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Mailbox folder path to fetch emails from.",
+      "minLength": 1
+    },
+    "top": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "description": "Maximum number of emails to return."
+    },
+    "skip": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "description": "Number of emails to skip for paging."
+    },
+    "fetchOnlyUnread": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Whether to fetch only unread emails."
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "email-fetch",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+GET TASKS FLOW SCHEMA:
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "fetch_tasks Trigger Contract",
+  "description": "Standardized HTTP trigger schema for the fetch_tasks flow. Supports SharePoint-backed item retrieval using an OData filter.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The high-level action to perform.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The specific operation name.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode for the request."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The initiating user's email address.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Primary identifier associated with the request."
+    },
+    "device": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Device information related to the request.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "odataFilter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "SharePoint OData filter expression used to build a Get items filter query.",
+      "minLength": 1
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "sharepoint-fetch",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+EXTENDED DYNAMIC ACTIONS FLOW TRIGGER SCHEMA:
+
+"{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PrimaryDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSUKey": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AckDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AcknolwedgementDueBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Timeline": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PreReferenceID": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Categorization": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CreatedBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "device": {
+            "type": [
+                "string",
+                "object",
+                "null"
+            ],
+            "additionalProperties": true
+        },
+        "Email": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subject": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "webLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "SelectedItems": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "ID": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "RefIDD": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "Title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "client": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "app": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "submittedAt": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "emailId": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "payload": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "email": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "subject": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "receivedDateTime": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "fromAddress": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": true
+                        },
+                        "webLink": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "conversationId": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "internetMessageId": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "bodyPreview": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "bodyContent": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "task": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "category": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "categoryCode": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "priority": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "assignee": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": true,
+                            "properties": {
+                                "name": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "email": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "directiveHtml": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "ai": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "summary": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "actionRequired": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "recommendedAction": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedCategoryCode": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedPriority": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedAssigneeEmail": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}"
+
+SUBSIDIARY FLOW TRIGGER SCHEMA:
+
+"{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PrimaryDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSUKey": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AckDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AcknolwedgementDueBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Timeline": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PreReferenceID": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Categorization": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CreatedBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "device": {
+            "type": [
+                "string",
+                "object",
+                "null"
+            ],
+            "additionalProperties": true
+        },
+        "Email": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subject": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "webLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "SelectedItems": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "ID": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "RefIDD": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "Title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
+"
+
+
+
+CREATE_EMAIL_TASK _ASSIGNMENT_TRIGGER_SCHEMA:
+
+" {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Email Related Task Create Trigger Contract",
+  "description": "Standardized HTTP trigger schema for flows that create or route tasks from email context.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "High-level action family, for example task, assignment, emailtask, or globalaction.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Specific operation, for example create, reassign, bulkCreate, acknowledge, close, or route.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode, such as single, bulk, batch, or dynamic."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Email address of the initiating user.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Optional request or primary entity identifier."
+    },
+    "device": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ],
+      "description": "Device information related to the request. Canonical form is an object; string support is preserved for compatibility.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "payload": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "email": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Email/message identifier."
+            },
+            "subject": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Email subject."
+            },
+            "webLink": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Deep link to the email."
+            },
+            "receivedDateTime": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Received timestamp if available."
+            },
+            "fromAddress": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": true,
+              "description": "Sender details if available."
+            },
+            "conversationId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Conversation identifier if available."
+            },
+            "internetMessageId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Internet message identifier if available."
+            },
+            "bodyPreview": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Body preview if available."
+            },
+            "bodyContent": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Full body content if available."
+            }
+          }
+        },
+        "task": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "StartDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ActivityID": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ]
+            },
+            "AttachmentLink": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategory": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PrimaryDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSUKey": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AckDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AcknolwedgementDueBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDueDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Timeline": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CopyTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Priority": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PreReferenceID": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Categorization": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Comments": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CreatedBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "selection": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "single": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "additionalProperties": true,
+              "properties": {
+                "ID": {
+                  "type": [
+                    "string",
+                    "integer",
+                    "null"
+                  ]
+                },
+                "RefIDD": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "Title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "items": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "ID": {
+                    "type": [
+                      "string",
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "RefIDD": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "Title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "assignment": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Assignment routing type.",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "Email": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Legacy compatibility alias. Prefer payload.email.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Email/message identifier."
+        },
+        "subject": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Email subject."
+        },
+        "webLink": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Deep link to the email."
+        }
+      }
+    },
+    "AssignmentType": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.assignment.type.",
+      "minLength": 1
+    },
+    "NewActivityTask": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Legacy compatibility alias. Prefer payload.task.",
+      "properties": {
+        "StartDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ActivityID": {
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
+        },
+        "AttachmentLink": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PrimaryDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supportingAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSUKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AckDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AcknolwedgementDueBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDueDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Timeline": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CopyTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Priority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PreReferenceID": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Categorization": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Comments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CreatedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Selected": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Legacy compatibility alias. Prefer payload.selection.single.",
+      "properties": {
+        "ID": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ]
+        },
+        "RefIDD": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SelectedItems": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.selection.items.",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "ID": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "RefIDD": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "action-orchestration",
+  "x-flow-variant": "email-related-task-create",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+
+BULK_TASK_ASSIGNMENT_FLOW_TRIGGER_SCHEMA:
+
+
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Bulk Task Assignment Create Trigger Contract",
+  "description": "Standardized HTTP trigger schema for bulk task assignment creation flows.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "High-level action family, for example task, assignment, emailtask, or globalaction.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Specific operation, for example create, reassign, bulkCreate, acknowledge, close, or route.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode, such as single, bulk, batch, or dynamic."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Email address of the initiating user.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Optional request or primary entity identifier."
+    },
+    "device": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ],
+      "description": "Device information related to the request. Canonical form is an object; string support is preserved for compatibility.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "payload": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "task": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "StartDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ActivityID": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ]
+            },
+            "AttachmentLink": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategory": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PrimaryDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSUKey": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AckDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AcknolwedgementDueBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDueDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Timeline": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CopyTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Priority": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PreReferenceID": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Categorization": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Comments": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CreatedBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "selection": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "items": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "ID": {
+                    "type": [
+                      "string",
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "RefIDD": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "Title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "assignment": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Assignment routing type, for example bulkassignment.",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Optional generalized batch alias for bulk processing.",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "AssignmentType": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.assignment.type.",
+      "minLength": 1
+    },
+    "NewActivityTask": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Legacy compatibility alias. Prefer payload.task.",
+      "properties": {
+        "StartDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ActivityID": {
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
+        },
+        "AttachmentLink": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PrimaryDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supportingAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSUKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AckDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AcknolwedgementDueBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDueDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Timeline": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CopyTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Priority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PreReferenceID": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Categorization": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Comments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CreatedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SelectedItems": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.selection.items.",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "ID": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "RefIDD": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "action-orchestration",
+  "x-flow-variant": "bulk-task-assignment-create",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+
+
+
+
+SINGLE_TASK_ASSIGNMENT_FLOW_TRIGGER_SCHEMA:
+
+
+
+"{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Bulk Task Assignment Create Trigger Contract",
+  "description": "Standardized HTTP trigger schema for bulk task assignment creation flows.",
+  "properties": {
+    "action": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "High-level action family, for example task, assignment, emailtask, or globalaction.",
+      "minLength": 1
+    },
+    "operation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Specific operation, for example create, reassign, bulkCreate, acknowledge, close, or route.",
+      "minLength": 1
+    },
+    "mode": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Execution mode, such as single, bulk, batch, or dynamic."
+    },
+    "source": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Source system initiating the request."
+    },
+    "userEmail": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Email address of the initiating user.",
+      "format": "email"
+    },
+    "method": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Request or execution method."
+    },
+    "id": {
+      "type": [
+        "string",
+        "integer",
+        "null"
+      ],
+      "description": "Optional request or primary entity identifier."
+    },
+    "device": {
+      "type": [
+        "object",
+        "string",
+        "null"
+      ],
+      "description": "Device information related to the request. Canonical form is an object; string support is preserved for compatibility.",
+      "properties": {
+        "id": {
+          "type": [
+            "string",
+            "integer",
+            "null"
+          ],
+          "description": "Device identifier."
+        }
+      },
+      "additionalProperties": true
+    },
+    "payload": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "task": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "StartDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ActivityID": {
+              "type": [
+                "integer",
+                "string",
+                "null"
+              ]
+            },
+            "AttachmentLink": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Category": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategory": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SubCategoryCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PrimaryDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AssignedDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "supportingAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportAssignedToTitle": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSU": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SupportDSUKey": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AckDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AcknolwedgementDueBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDue": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TaskDueDate": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Timeline": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CopyTo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Priority": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PreReferenceID": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Categorization": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Comments": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "CreatedBy": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "selection": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "items": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "ID": {
+                    "type": [
+                      "string",
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "RefIDD": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "Title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "assignment": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "type": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Assignment routing type, for example bulkassignment.",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "items": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Optional generalized batch alias for bulk processing.",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "AssignmentType": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.assignment.type.",
+      "minLength": 1
+    },
+    "NewActivityTask": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": true,
+      "description": "Legacy compatibility alias. Prefer payload.task.",
+      "properties": {
+        "StartDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ActivityID": {
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
+        },
+        "AttachmentLink": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Category": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategory": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SubCategoryCode": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PrimaryDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssignedDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supportingAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportAssignedToTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSU": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SupportDSUKey": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AckDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AcknolwedgementDueBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDue": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TaskDueDate": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Timeline": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CopyTo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Priority": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PreReferenceID": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Categorization": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Comments": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CreatedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SelectedItems": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Legacy compatibility alias. Prefer payload.selection.items.",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "ID": {
+            "type": [
+              "string",
+              "integer",
+              "null"
+            ]
+          },
+          "RefIDD": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "Title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": [],
+  "additionalProperties": true,
+  "x-contract-version": "2.0.0",
+  "x-schema-family": "action-orchestration",
+  "x-flow-variant": "bulk-task-assignment-create",
+  "x-compatibility-mode": "backward-compatible"
+}"
+
+^DYNAMIC_GLOBALACTIONS_FLOW_TRIGGER_SCHEMA:
+"{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PrimaryDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSUKey": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AckDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AcknolwedgementDueBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Timeline": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PreReferenceID": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Categorization": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CreatedBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "device": {
+            "type": [
+                "string",
+                "object",
+                "null"
+            ],
+            "additionalProperties": true
+        },
+        "Email": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subject": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "webLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "SelectedItems": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "ID": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "RefIDD": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "Title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        },
+        "client": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "app": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "version": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "submittedAt": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "emailId": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "payload": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "email": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "id": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "subject": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "receivedDateTime": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "fromAddress": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": true
+                        },
+                        "webLink": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "conversationId": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "internetMessageId": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "bodyPreview": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "bodyContent": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "task": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "category": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "categoryCode": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "priority": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "assignee": {
+                            "type": [
+                                "object",
+                                "null"
+                            ],
+                            "additionalProperties": true,
+                            "properties": {
+                                "name": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                },
+                                "email": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        },
+                        "directiveHtml": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                },
+                "ai": {
+                    "type": [
+                        "object",
+                        "null"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "summary": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "actionRequired": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "recommendedAction": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedCategoryCode": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedPriority": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        },
+                        "suggestedAssigneeEmail": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+"
+
+SUPPLEMENTARY_FLOW_TRIGGER_SCHEMA:
+
+"{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PrimaryDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSUKey": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AckDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AcknolwedgementDueBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Timeline": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PreReferenceID": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Categorization": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CreatedBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "device": {
+            "type": [
+                "string",
+                "object",
+                "null"
+            ],
+            "additionalProperties": true
+        },
+        "Email": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subject": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "webLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "SelectedItems": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "ID": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "RefIDD": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "Title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
+"

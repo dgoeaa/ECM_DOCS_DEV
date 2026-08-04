@@ -1,0 +1,54 @@
+DOCUMENT SUBMISSION PORTAL POWER AUTOMATE FLOW
+
+
+Endpoint_URL:"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ff7714c11a74fa4a876f8f6a79b64d2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jVUOseIHw17BG3tMiZfBMCEVSN1a65vOSLtsKURgr98"
+
+
+
+Trigger_Schema:
+
+"{
+    "type": "object",
+    "properties": {
+        "UserId": {
+            "type": "string"
+        },
+        "SubmitterName": {
+            "type": "string"
+        },
+        "EmailAddress": {
+            "type": "string"
+        },
+        "CompanyName": {
+            "type": "string"
+        },
+        "DocumentType": {
+            "type": "string"
+        },
+        "FileName": {
+            "type": "string"
+        },
+        "FileContentBase64": {
+            "type": "string"
+        }
+    }
+}"
+
+
+
+HTTP Response:"{
+    "statusCode": "200",
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": {
+        "trackingId": "NITDA-2026-217",
+        "status": "success",
+        "createdAt": "2026-07-28T18:52:18.2006842Z",
+        "message": "Submission received successfully",
+        "submittedBy": "",
+        "submittedAt": "2026-07-28T18:52:18.7971508Z",
+        "attachmentsCount": "0",
+        "referenceId": "NITDA-2026-217"
+    }
+}"

@@ -1,0 +1,3 @@
+import { AppConfig } from '../config/app.config.js';
+const handlers = new Map();
+export const Router = { register:(id,f)=>handlers.set(id,f), known:()=>[...handlers.keys()], path:()=>location.hash.replace(/^#\/?/,'')||AppConfig.defaultRoute, go:p=>location.hash='#/'+p, start(){addEventListener('hashchange',()=>this.render());this.render()}, async render(){const p=this.path(), out=document.querySelector('[data-outlet]'), fn=handlers.get(p)||handlers.get(AppConfig.defaultRoute); try{out.innerHTML=''; await fn(out); document.querySelector('dgo-shell')?.active(p);}catch(e){console.error(e); out.innerHTML=`<div class="empty"><h2>Module failed</h2><p>${e.message}</p></div>`}} };

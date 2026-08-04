@@ -1,0 +1,849 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Tracking - NITDA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #05583B 0%, #00A69D 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h2 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #05583B;
+            font-size: 13px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #00A69D;
+            box-shadow: 0 0 0 3px rgba(0, 166, 157, 0.1);
+        }
+
+        .btn-search {
+            padding: 10px 20px;
+            background: #05583B;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-search:hover {
+            background: #044530;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #00A69D;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #00897F;
+        }
+        
+        .sync-btn {
+            padding: 6px 12px;
+            background: #c9a227; /* NITDA Gold */
+            color: #111;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .response-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #05583B;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #00A69D;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-acknowledged, .status-treated, .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending, .status-notstarted, .status-assigned {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .action-btn-primary {
+            background: #00A69D;
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: #00897F;
+        }
+
+        .action-btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .action-btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .empty-state, .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 15px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 4px;
+            display: none;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 600;
+        }
+
+        .notification.show { display: block; }
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .notification.info { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal Base */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-content.large {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #05583B;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #05583B;
+            font-size: 14px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Matrix Detail Styles */
+        .matrix-section {
+            background: #f9f9f9;
+            border: 1px solid #eaecf0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .matrix-section h3 {
+            font-size: 15px;
+            color: #05583B;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .matrix-meta { font-size: 13px; margin-bottom: 6px; color: #444; }
+        .matrix-meta strong { color: #222; }
+        .email-thread {
+            background: white; border: 1px solid #eee; border-radius: 4px; padding: 10px; margin-top: 10px;
+        }
+        .email-thread h4 { font-size: 13px; margin-bottom: 4px;}
+        .email-preview { font-size: 12px; color: #666; margin-top: 6px; max-height: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        @media (max-width: 768px) {
+            .filter-bar { flex-direction: column; }
+            .filter-group { width: 100%; min-width: unset; }
+            .navbar { flex-direction: column; gap: 15px; text-align: center; }
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>📈 Response Tracking & Matrix</h2>
+        <div class="navbar-user">
+            <button class="sync-btn" onclick="syncData()">⟳ Sync Live Data</button>
+            <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+            <div class="avatar" id="avatar" title="Current User" onclick="promptUserEmail()">U</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="filterAckStatus">Status</label>
+                <select id="filterAckStatus">
+                    <option value="">All Statuses</option>
+                    <option value="Completed">Completed / Treated</option>
+                    <option value="Pending">Pending / Assigned</option>
+                    <option value="Not started">Not Started</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterCategory">Category</label>
+                <select id="filterCategory">
+                    <option value="">All Categories</option>
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            <div class="filter-group" style="flex-grow: 1;">
+                <label for="filterSearch">Global Search</label>
+                <input type="text" id="filterSearch" placeholder="Search by title, ID, or assignee...">
+            </div>
+            <button class="btn-search" onclick="applyFilters()">Filter Data</button>
+        </div>
+
+        <div class="response-table">
+            <div class="table-wrapper">
+                <table id="responseTable">
+                    <thead>
+                        <tr>
+                            <th>Reference ID</th>
+                            <th style="width: 35%;">Activity / Title</th>
+                            <th>Assigned To</th>
+                            <th>Category</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Click "Sync Live Data" to fetch Enterprise records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acknowledgment Modal -->
+    <div class="modal" id="ackModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Acknowledge Task Receipt</h2>
+                <button class="modal-close" onclick="closeAckModal()">&times;</button>
+            </div>
+            <form id="ackForm" onsubmit="handleAckSubmit(event)">
+                <div class="form-group">
+                    <label for="ackEmail">Your Email</label>
+                    <input type="email" id="ackEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="ackNotes">Acknowledgment Notes</label>
+                    <textarea id="ackNotes" placeholder="Add any notes... "></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-search" style="flex: 1;">Acknowledge</button>
+                    <button type="button" class="back-btn" style="flex: 1;" onclick="closeAckModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Matrix Details Modal -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 class="modal-title">Matrix View: Task Lineage</h2>
+                <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+            </div>
+            <div id="detailsContent">
+                <!-- Dynamically injected -->
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // 1. CONFIGURATION & STATE
+        const CONFIG = {
+            ackPostUrl: 'https://prod-xxx.logic.azure.com:443/workflows/xxx', // Retained from user's mock code
+            flows: {
+                docs: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50',
+                tasks: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4',
+                emails: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U'
+            }
+        };
+
+        const state = {
+            userEmail: 'dgsregistry@nitda.gov.ng',
+            rawTasks: [],
+            rawDocs: [],
+            rawEmails: [],
+            matrix: [], // Tasks enriched with parent Docs and sibling Emails
+            selectedTask: null
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto sync on load
+            syncData();
+            document.getElementById('filterAckStatus').addEventListener('change', applyFilters);
+            document.getElementById('filterCategory').addEventListener('change', applyFilters);
+            document.getElementById('filterSearch').addEventListener('keyup', applyFilters);
+            updateAvatar();
+        });
+
+        // 2. UTILITIES
+        function safeText(str) { return str == null ? '' : String(str); }
+        function safeDate(str) { const d = new Date(str); return isNaN(d) ? null : d; }
+        function escapeHtml(str) {
+            return safeText(str).replace(/[&<>'"]/g, 
+                tag => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[tag])
+            );
+        }
+        function formatDate(dateObj) {
+            if (!dateObj) return 'N/A';
+            return new Date(dateObj).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        function getStatusClass(status) {
+            const s = safeText(status).toLowerCase().replace(/\s+/g, '');
+            if (s.includes('treated') || s.includes('completed') || s.includes('acknowledged')) return 'status-completed';
+            if (s.includes('overdue')) return 'status-overdue';
+            return 'status-pending'; // Default for Pending, Not Started, Assigned
+        }
+
+        function promptUserEmail() {
+            const email = prompt("Set active user context (Email):", state.userEmail);
+            if (email) {
+                state.userEmail = email.trim();
+                updateAvatar();
+                syncData();
+            }
+        }
+        
+        function updateAvatar() {
+            document.getElementById('avatar').innerText = state.userEmail.charAt(0).toUpperCase();
+        }
+
+        // 3. API FETCHING
+        async function apiCall(url, actionDef) {
+            const payload = {
+                action: actionDef,
+                operation: 'read',
+                mode: 'read',
+                source: 'SPA_Direct',
+                userEmail: state.userEmail,
+                method: 'POST',
+                device: { id: 'browser' },
+                folderPath: 'Inbox', top: 50, skip: 0
+            };
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+            const json = await res.json();
+            return json.data || json;
+        }
+
+        async function syncData() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="loading">Orchestrating Live Enterprise Data...</td></tr>';
+            showNotification('Syncing from Power Automate flows...', 'info');
+
+            try {
+                const [docsData, tasksData, emailsData] = await Promise.all([
+                    apiCall(CONFIG.flows.docs, 'getDocs'),
+                    apiCall(CONFIG.flows.tasks, 'fetch_tasks'),
+                    apiCall(CONFIG.flows.emails, 'emailsfetch')
+                ]);
+
+                // Normalize incoming data structure
+                state.rawDocs = (docsData.docs || []).map(d => ({
+                    id: d.ID, title: d.Title, category: d.Category, status: d.Status || d.AssignmentStatus, link: d.AttachmentLink
+                }));
+                
+                state.rawTasks = (tasksData.tasks || []).map(t => ({
+                    id: t.ID, 
+                    refID: safeText(t.Reference_ID || t.RefIDD),
+                    refIDD: safeText(t.RefIDD), // Raw polymorphic key
+                    activity: safeText(t.Title),
+                    description: safeText(t.Description !== true ? t.Description : ''),
+                    assignedTo: safeText(t.AssignedTo || t.Assigned || 'Unassigned'),
+                    category: safeText(t.Classification || 'Unclassified'),
+                    dueDate: safeDate(t.DueDate),
+                    status: safeText(t.Progress || t.Status || 'Pending'),
+                    priority: safeText(t.Priority),
+                    routing: safeText(t.GDSUROUT)
+                }));
+
+                state.rawEmails = (emailsData.emails || []).map(e => ({
+                    id: e.id, 
+                    subject: e.subject, 
+                    body: safeText(e.bodyPreview || (e.body && e.body.content)), 
+                    from: safeText(e.fromAddress || (e.from && e.from.emailAddress && e.from.emailAddress.address)),
+                    received: safeDate(e.receivedDateTime)
+                }));
+
+                buildPolymorphicMatrix();
+                populateCategoryFilter();
+                applyFilters();
+                showNotification('Sync Completed Successfully', 'success');
+
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state" style="color: #d32f2f;">Failed to sync data. Check network or endpoints.</td></tr>';
+                showNotification('Sync Failed', 'error');
+            }
+        }
+
+        // 4. POLYMORPHIC MATRIX ENGINE
+        function buildPolymorphicMatrix() {
+            // Transform Tasks into an enriched Matrix by resolving RefIDD
+            state.matrix = state.rawTasks.map(task => {
+                const refKey = String(task.refIDD);
+                
+                // Find parent Document
+                const parentDoc = state.rawDocs.find(d => String(d.id) === refKey);
+                
+                // Find related Emails
+                let relatedEmails = [];
+                if (parentDoc) {
+                    relatedEmails = state.rawEmails.filter(e => 
+                        (e.subject && e.subject.includes(String(parentDoc.id))) || 
+                        (e.body && e.body.includes(parentDoc.title))
+                    );
+                } else {
+                    // Try direct matching against Task properties
+                    relatedEmails = state.rawEmails.filter(e => 
+                        (e.subject && e.subject.includes(refKey)) || 
+                        (e.subject && e.subject.includes(task.activity))
+                    );
+                }
+
+                // Add overdue logic
+                const isOverdue = task.status !== 'Treated' && task.status !== 'Completed' && task.dueDate && task.dueDate < new Date();
+                const displayStatus = isOverdue ? 'Overdue' : task.status;
+
+                return {
+                    ...task,
+                    displayStatus,
+                    parentDoc: parentDoc || null,
+                    relatedEmails: relatedEmails
+                };
+            });
+            
+            // Sort by due date (newest first) or ID
+            state.matrix.sort((a,b) => (b.dueDate || 0) - (a.dueDate || 0));
+        }
+
+        function populateCategoryFilter() {
+            const select = document.getElementById('filterCategory');
+            const categories = [...new Set(state.matrix.map(m => m.category).filter(Boolean))].sort();
+            select.innerHTML = '<option value="">All Categories</option>' + 
+                categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+        }
+
+        // 5. RENDERING & FILTERING
+        function applyFilters() {
+            const statusFilter = document.getElementById('filterAckStatus').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const searchStr = document.getElementById('filterSearch').value.toLowerCase();
+
+            let filtered = state.matrix;
+
+            if (statusFilter) {
+                if (statusFilter === 'completed') filtered = filtered.filter(r => r.displayStatus.toLowerCase().includes('treated') || r.displayStatus.toLowerCase().includes('completed'));
+                else if (statusFilter === 'pending') filtered = filtered.filter(r => !r.displayStatus.toLowerCase().includes('treated') && !r.displayStatus.toLowerCase().includes('completed') && r.displayStatus.toLowerCase() !== 'overdue');
+                else filtered = filtered.filter(r => r.displayStatus.toLowerCase().includes(statusFilter));
+            }
+
+            if (categoryFilter) {
+                filtered = filtered.filter(r => r.category === categoryFilter);
+            }
+
+            if (searchStr) {
+                filtered = filtered.filter(r =>
+                    r.refID.toLowerCase().includes(searchStr) ||
+                    r.activity.toLowerCase().includes(searchStr) ||
+                    r.assignedTo.toLowerCase().includes(searchStr)
+                );
+            }
+
+            renderTable(filtered);
+        }
+
+        function renderTable(responses) {
+            const tbody = document.getElementById('tableBody');
+
+            if (responses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No matching tasks found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = responses.map(r => `
+                <tr>
+                    <td><strong>${escapeHtml(r.refID)}</strong></td>
+                    <td>
+                        <div style="font-weight: 600; color: #111; margin-bottom: 3px;">${escapeHtml(r.activity)}</div>
+                        ${r.parentDoc ? `<span style="font-size:11px; background:#e6f2ed; color:#0b5f3c; padding:2px 6px; border-radius:4px;">📎 Linked Doc</span>` : ''}
+                        ${r.relatedEmails.length > 0 ? `<span style="font-size:11px; background:#fff3cd; color:#856404; padding:2px 6px; border-radius:4px;">📧 ${r.relatedEmails.length} Emails</span>` : ''}
+                    </td>
+                    <td>${escapeHtml(r.assignedTo)}</td>
+                    <td>${escapeHtml(r.category)}</td>
+                    <td>${formatDate(r.dueDate)}</td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(r.displayStatus)}">
+                            ${escapeHtml(r.displayStatus)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            ${(r.displayStatus === 'Pending' || r.displayStatus === 'Overdue' || r.displayStatus === 'Not started') ? 
+                                `<button class="action-btn action-btn-primary" onclick="openAckModal(${r.id})">Acknowledge</button>` : 
+                                `<button class="action-btn action-btn-secondary" disabled>Treated</button>`
+                            }
+                            <button class="action-btn action-btn-secondary" onclick="viewDetails(${r.id})">Matrix View</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 6. MODALS & ACTIONS
+        function openAckModal(taskId) {
+            state.selectedTask = state.matrix.find(r => r.id === taskId);
+            if (!state.selectedTask) return;
+
+            document.getElementById('ackEmail').value = state.userEmail;
+            document.getElementById('ackNotes').value = '';
+            document.getElementById('ackModal').classList.add('active');
+        }
+
+        function closeAckModal() {
+            document.getElementById('ackModal').classList.remove('active');
+            state.selectedTask = null;
+        }
+
+        async function handleAckSubmit(event) {
+            event.preventDefault();
+            if (!state.selectedTask) return;
+
+            const email = document.getElementById('ackEmail').value;
+            const notes = document.getElementById('ackNotes').value;
+            const btn = event.target.querySelector('button[type="submit"]');
+            
+            btn.textContent = 'Processing...';
+            btn.disabled = true;
+
+            try {
+                // In a real environment, this POSTs to the Power Automate endpoint
+                /*
+                const response = await fetch(CONFIG.ackPostUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'acknowledge_task', taskId: state.selectedTask.id, email, notes })
+                });
+                */
+                // Simulating network delay for SPA demonstration
+                await new Promise(r => setTimeout(r, 800));
+
+                // Optimistic UI Update
+                state.selectedTask.status = 'Acknowledged';
+                state.selectedTask.displayStatus = 'Acknowledged';
+                
+                showNotification('Task acknowledged successfully', 'success');
+                closeAckModal();
+                applyFilters(); // Re-render table
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Failed to acknowledge response', 'error');
+            } finally {
+                btn.textContent = 'Acknowledge';
+                btn.disabled = false;
+            }
+        }
+
+        function viewDetails(taskId) {
+            const task = state.matrix.find(r => r.id === taskId);
+            if (!task) return;
+
+            const content = document.getElementById('detailsContent');
+            
+            content.innerHTML = `
+                <div class="matrix-section" style="background: #fff; border-left: 4px solid #00A69D;">
+                    <h3><span style="font-size: 18px;">📌</span> Task Origin Node</h3>
+                    <div class="matrix-meta"><strong>Title:</strong> ${escapeHtml(task.activity)}</div>
+                    <div class="matrix-meta"><strong>Description:</strong> ${escapeHtml(task.description || 'No specific description provided.')}</div>
+                    <div style="display:flex; gap: 15px; margin-top: 10px; flex-wrap: wrap;">
+                        <span class="matrix-meta"><strong>Ref ID:</strong> <span style="background: #e0e0e0; padding: 2px 6px; border-radius: 4px;">${escapeHtml(task.refID)}</span></span>
+                        <span class="matrix-meta"><strong>Priority:</strong> ${escapeHtml(task.priority)}</span>
+                        <span class="matrix-meta"><strong>Assigned:</strong> ${escapeHtml(task.assignedTo)}</span>
+                        <span class="matrix-meta"><strong>DSU Routing:</strong> ${escapeHtml(task.routing)}</span>
+                    </div>
+                </div>
+
+                <div class="matrix-section">
+                    <h3><span style="font-size: 18px;">📄</span> Ancestor Document Lineage</h3>
+                    ${task.parentDoc ? `
+                        <div class="matrix-meta"><strong>Title:</strong> ${escapeHtml(task.parentDoc.title)}</div>
+                        <div class="matrix-meta"><strong>Category:</strong> ${escapeHtml(task.parentDoc.category)}</div>
+                        <div class="matrix-meta"><strong>Global Status:</strong> ${escapeHtml(task.parentDoc.status)}</div>
+                        ${task.parentDoc.link ? `<a href="${task.parentDoc.link}" target="_blank" style="display:inline-block; margin-top:10px; color:#05583B; font-weight:600; text-decoration:none;">🔗 Open Original Document in SharePoint</a>` : ''}
+                    ` : `
+                        <div class="matrix-meta" style="color: #666; font-style: italic;">No primary parent document explicitly mapped to this RefIDD (${escapeHtml(task.refIDD)}). This task may have originated independently.</div>
+                    `}
+                </div>
+
+                <div class="matrix-section">
+                    <h3><span style="font-size: 18px;">📧</span> Communication Sibling Threads (${task.relatedEmails.length})</h3>
+                    ${task.relatedEmails.length > 0 ? task.relatedEmails.map(e => `
+                        <div class="email-thread">
+                            <h4>${escapeHtml(e.subject)}</h4>
+                            <div class="matrix-meta" style="font-size: 11px;"><strong>From:</strong> ${escapeHtml(e.from)} &bull; <strong>Received:</strong> ${formatDate(e.received)}</div>
+                            <div class="email-preview">${escapeHtml(e.body)}</div>
+                        </div>
+                    `).join('') : `
+                        <div class="matrix-meta" style="color: #666; font-style: italic;">No active email threads correlate with this execution node.</div>
+                    `}
+                </div>
+            `;
+
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        // 7. GLOBAL UI HANDLERS
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            setTimeout(() => notification.classList.remove('show'), 5000);
+        }
+
+        function goBack() {
+            // Originally `window.location.href = 'Dashboard.html';`
+            // Replaced with alert to keep user in SPA context for preview
+            alert("This operates as the root SPA view. Navigation back requires external routing.");
+        }
+    </script>
+</body>
+</html>
+
+
+```

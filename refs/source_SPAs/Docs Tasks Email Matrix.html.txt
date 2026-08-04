@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Document Task Email Matrix</title>
+
+<!-- ===========================================================
+     AUTO THEME (LIGHT / DARK BASED ON USER OS SETTINGS)
+     =========================================================== -->
+<style>
+
+/* ---------- COLOR VARIABLES (AUTO THEME) ---------- */
+:root {
+  --brand-primary: #00a69d;
+  --brand-secondary: #ffb400;
+  --error: #ff4d4d;
+  --warning: #ffcc00;
+  --success: #4caf50;
+
+  /* Light theme defaults */
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-alt: #f0f0f0;
+  --text: #111;
+  --text-muted: #444;
+  --border: #ccc;
+  --card-bg: #ffffff;
+}
+
+/* ---------- DARK THEME OVERRIDES ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1c1c1c;
+    --surface-alt: #2a2a2a;
+    --text: #f5f5f5;
+    --text-muted: #bbbbbb;
+    --border: rgba(255,255,255,0.14);
+    --card-bg: #1a1a1a;
+  }
+}
+
+/* ===========================================================
+   GLOBAL RESET & BASE
+   =========================================================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  height: 100%;
+}
+
+.container {
+  padding: 20px 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-primary) var(--surface-alt);
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--brand-primary);
+  border-radius: 8px;
+}
+
+/* ===========================================================
+   HEADER
+   =========================================================== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin: 20px 20px 0 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+header .meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+header button {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--brand-primary);
+  background: var(--brand-primary);
+  color: #fff;
+  cursor: pointer;
+}
+header button:hover {
+  opacity: 0.9;
+}
+
+/* ===========================================================
+   COUNTERS SECTION
+   =========================================================== */
+#counters {
+  display: flex;
+  gap: 16px;
+  margin: 20px;
+}
+
+.counter-card {
+  flex: 1;
+  background: var(--surface);
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.counter-card h3 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.counter-card .value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ===========================================================
+   MATRIX LAYOUT
+   =========================================================== */
+.matrix {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+/* LEFT column: Document list */
+.matrix .left {
+  flex: 0 0 36%;
+  max-width: 520px;
+  min-width: 300px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* RIGHT column: Detail panels */
+.matrix .right {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* ===========================================================
+   FILTERS BAR
+   =========================================================== */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--surface);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin: 0 20px 12px 20px;
+}
+
+.filters-bar input[type="text"],
+.filters-bar select {
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  min-width: 160px;
+}
+
+/* ===========================================================
+   DOCUMENT CARDS
+   =========================================================== */
+.doc-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.doc-card.active {
+  outline: 2px solid var(--brand-primary);
+}
+
+.doc-title {
+  margin: 0 0 6px 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===========================================================
+   RIGHT PANE — SECTIONS & TABS
+   =========================================================== */
+.kpis {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.tabs button {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.tabs button.active {
+  background: var(--brand-primary);
+  color: #fff;
+  border-color: var(--brand-primary);
+}
+
+.panel {
+  display: none;
+}
+.panel.active {
+  display: block;
+}
+
+/* ===========================================================
+   GENERIC ROW CARD STYLE
+   =========================================================== */
+.row {
+  display: flex;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card-bg);
+  padding: 12px;
+}
+
+.row h5 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.row p {
+  margin: 2px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.row .actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row .actions button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+}
+.row .actions button.primary {
+  background: var(--brand-primary);
+  color: #fff;
+  border: none;
+}
+.row .actions button.warn {
+  background: var(--error);
+  color: #fff;
+  border: none;
+}
+
+/* ===========================================================
+   INLINE CONTROLS (search, sort)
+   =========================================================== */
+.inline-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.inline-controls input[type="text"],
+.inline-controls select {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.radio {
+  display: flex;
+  gap: 14px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.radio label {
+  cursor: pointer;
+}
+
+/* ===========================================================
+   LIST AREA (generic)
+   =========================================================== */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===========================================================
+   TELEMETRY PANEL
+   =========================================================== */
+#telemetryPanel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 20px 30px 20px;
+}
+
+#telemetryPanel strong {
+  color: var(--text);
+}
+
+#telemetrySummary {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ===========================================================
+   BUTTONS / UTILITIES
+   =========================================================== */
+.btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn.primary {
+  background: var(--brand-primary);
+  color: #fff;
+  border-color: var(--brand-primary);
+}
+
+.btn.danger {
+  background: var(--error);
+  color: #fff;
+  border: none;
+}
+
+/* Toast message styling */
+#toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: var(--brand-primary);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+#toast.show {
+  opacity: 1;
+}
+
+/* ===========================================================
+   END OF CSS
+   =========================================================== */
+
+</style>
+</head>
+<body>
+
+<!-- ======================================================
+     HEADER WITH TITLE + REFRESH BUTTON
+     ====================================================== -->
+<header>
+  <h1>Document Task Email Matrix</h1>
+  <div class="meta">
+    <span id="userInfo">User: —</span>
+    <span id="dateChip">Date: —</span>
+    <button id="btnRefresh">Refresh</button>
+  </div>
+</header>
+
+<!-- ======================================================
+     COUNTERS (Docs, Tasks, Emails, Pairs, Matched)
+     ====================================================== -->
+<section id="counters">
+  <div class="counter-card">
+    <h3>Documents</h3>
+    <div class="value" id="docCount">0</div>
+  </div>
+  <div class="counter-card">
+    <h3>Tasks</h3>
+    <div class="value" id="taskCount">0</div>
+  </div>
+  <div class="counter-card">
+    <h3>Emails</h3>
+    <div class="value" id="emailCount">0</div>
+  </div>
+  <div class="counter-card">
+    <h3>Doc/Email Pairs</h3>
+    <div class="value" id="pairCount">0</div>
+  </div>
+  <div class="counter-card">
+    <h3>Matched Docs</h3>
+    <div class="value" id="matchedCount">0</div>
+  </div>
+</section>
+
+<!-- ======================================================
+     MAIN MATRIX AREA (Left = Docs, Right = Details/Tabs)
+     ====================================================== -->
+<main class="container">
+
+  <!-- ---------------------- FILTERS ---------------------- -->
+  <div class="filters-bar">
+    <input type="text" id="fltSearch" placeholder="Search title or assignee" />
+
+    <select id="fltCategory">
+      <option value="">All Categories</option>
+    </select>
+
+    <select id="fltStatus">
+      <option value="">All Statuses</option>
+    </select>
+
+    <select id="fltAssignee">
+      <option value="">All Assignees</option>
+    </select>
+
+    <select id="fltSortBy">
+      <option value="Created_desc">Created ⬇</option>
+      <option value="Created_asc">Created ⬆</option>
+      <option value="Title_asc">Title A–Z</option>
+      <option value="AssignedTo_asc">Assignee A–Z</option>
+      <option value="Status_asc">Status A–Z</option>
+    </select>
+  </div>
+
+  <!-- ---------------------- MATRIX LAYOUT ---------------------- -->
+  <div class="matrix">
+
+    <!-- LEFT SIDE: DOCUMENT LIST -->
+    <aside class="left">
+      <div id="docsList" class="list">
+        <!-- dynamically injected doc cards -->
+      </div>
+    </aside>
+
+    <!-- RIGHT SIDE: TABS + PANELS -->
+    <section class="right">
+
+      <!-- Document header -->
+      <h3 id="docHeader" style="margin:0 0 6px 0;">Select a document</h3>
+
+      <!-- KPIs -->
+      <div class="kpis" id="docKpis"></div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button id="tabDetails" class="active">Details</button>
+        <button id="tabTasks">Tasks</button>
+        <button id="tabEmails">Emails</button>
+        <button id="tabFiles">Attachments</button>
+      </div>
+
+      <!--   DETAILS PANEL   -->
+      <div id="panelDetails" class="panel active">
+        <div id="docDetails"></div>
+
+        <div style="margin-top:10px;">
+          <button class="btn" id="btnOpenSP">Open in SharePoint</button>
+        </div>
+      </div>
+
+      <!--   TASKS PANEL   -->
+      <div id="panelTasks" class="panel">
+        <div class="inline-controls">
+          <select id="taskSort">
+            <option value="DueDate_asc">Due Soonest</option>
+            <option value="AssignedTo_asc">Owner</option>
+            <option value="Status_asc">Status</option>
+          </select>
+
+          <button id="btnAddTask" class="btn">Add Task</button>
+        </div>
+
+        <div id="tasksList" class="list"></div>
+      </div>
+
+      <!--   EMAILS PANEL   -->
+      <div id="panelEmails" class="panel">
+        <div class="inline-controls">
+          <input type="text" id="emailSearch" placeholder="Search emails" />
+
+          <span class="radio">
+            <label><input type="radio" name="emailMode" value="subjectBody" checked /> Subject + Body</label>
+            <label><input type="radio" name="emailMode" value="subjectOnly" /> Subject Only</label>
+          </span>
+        </div>
+
+        <div id="emailsList" class="list"></div>
+
+        <!-- Load More + Unread filter -->
+        <div class="inline-controls">
+          <button id="btnLoadMoreEmails" class="btn">Load more emails</button>
+          <label style="font-size:12px;color:var(--text-muted);">
+            <input type="checkbox" id="chkUnreadOnly" /> Unread only
+          </label>
+        </div>
+      </div>
+
+      <!--   ATTACHMENTS PANEL   -->
+      <div id="panelFiles" class="panel">
+        <!-- Attachments inserted dynamically -->
+      </div>
+
+    </section><!-- END RIGHT -->
+  </div><!-- END MATRIX -->
+
+</main>
+
+<!-- ======================================================
+     TELEMETRY PANEL (AT BOTTOM)
+     ====================================================== -->
+<section id="telemetryPanel">
+  <div class="filters-bar">
+    <strong>Action Telemetry</strong>
+    <button id="btnTelemetryRefresh" class="btn">Refresh</button>
+    <button id="btnTelemetrySend" class="btn">Send to Flow</button>
+  </div>
+
+  <div id="telemetrySummary"></div>
+  <div id="telemetryList" class="list"></div>
+</section>
+
+<!-- ======================================================
+     TOAST CONTAINER
+     ====================================================== -->
+<div id="toast"></div>
+
+<!-- ================================================================
+   BATCH 3 / 6
+   API CLIENT + GLOBAL STATE + UTILITIES + MATCHING ENGINE
+   ================================================================= -->
+<script>
+/* ---------------------------------------------------------------
+   FLOW URL PLACEHOLDERS  (Option 1)
+   Replace <<<INSERT_YOUR_FLOW_URL_HERE>>> with your real Flow URLs
+---------------------------------------------------------------- */
+const FLOW_URL_GET_DOCS             = "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+const FLOW_URL_GET_TASKS            = "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+const FLOW_URL_CREATE_TASK          = "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+const FLOW_URL_GET_EMAILS           = "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+const FLOW_URL_GET_EMAIL_ATTACHMENTS= "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+const FLOW_URL_SUPPLEMENTARY        = "<<<INSERT_YOUR_FLOW_URL_HERE>>>";
+
+/* ================================================================
+   UTILITY: Toast Notifications
+   ================================================================ */
+let toastTimer = null;
+function showToast(message, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  if (type === "error") {
+    toast.style.background = "var(--error)";
+  } else if (type === "warning") {
+    toast.style.background = "var(--warning)";
+  } else {
+    toast.style.background = "var(--brand-primary)";
+  }
+  toast.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2800);
+}
+
+/* ================================================================
+   UTILITY: Safe POST JSON (with timeout)
+   ================================================================ */
+async function postJson(url, body, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body || {}),
+      signal: controller.signal
+    });
+    const text = await res.text();
+    if (!res.ok) throw new Error(text || res.statusText);
+    return text ? JSON.parse(text) : {};
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* ================================================================
+   API CLIENT for DIRECT FLOW CALLS
+   ================================================================ */
+const FlowClient = {
+  async getDocs(userEmail) {
+    return await postJson(FLOW_URL_GET_DOCS, { action: "docsfetch", userEmail });
+  },
+  async getTasks(userEmail) {
+    return await postJson(FLOW_URL_GET_TASKS, { action: "fetchtasks", userEmail });
+  },
+  async createTask(payload) {
+    return await postJson(FLOW_URL_CREATE_TASK, payload);
+  },
+  async supplementary(payload) {
+    return await postJson(FLOW_URL_SUPPLEMENTARY, payload);
+  },
+  async getEmails({ folderPath = "Inbox", top = 100, skip = 0, fetchOnlyUnread = false } = {}) {
+    return await postJson(FLOW_URL_GET_EMAILS, { folderPath, top, skip, fetchOnlyUnread });
+  },
+  async getEmailAttachments(emailId) {
+    return await postJson(FLOW_URL_GET_EMAIL_ATTACHMENTS, { emailId });
+  }
+};
+
+/* ================================================================
+   GLOBAL APP STATE
+   ================================================================ */
+window.__state = {
+  colDocsTracking: [],
+  colTasksTracking: [],
+  colEmailsTracking: [],
+  colAttachmentsTracking: [],
+  colDocEmailPairs: [],
+  colDocTaskEmailMatrix: [],
+  telemetry: [],
+  user: { FullName: "Dashboard User", email: "user@example.com" }
+};
+/* Email paging */
+window.__paging = {
+  emails: { folderPath: "Inbox", top: 100, skip: 0, unreadOnly: false, nextBatchAvailable: true }
+};
+
+/* ================================================================
+   HELPER: Date formatting
+   ================================================================ */
+function formatDate(dateStr) {
+  const dt = new Date(dateStr);
+  if (isNaN(dt.getTime())) return dateStr;
+  return dt.toLocaleString();
+}
+
+/* ================================================================
+   MATCHING MODE — RELAXED LOCKED
+   ================================================================ */
+const MatchingMode = { strict: "strict", relaxed: "relaxed", extended: "extended" };
+const DEFAULT_MATCHING_MODE = MatchingMode.relaxed;
+
+/* RELAXED MATCHING: Subject = Title OR Title appears in Subject OR Body */
+function relaxedMatch(doc, email) {
+  if (!doc || !email) return false;
+  const title = (doc.Title || "").trim().toLowerCase();
+  if (!title) return false;
+  const subject = (email.Subject || "").toLowerCase();
+  const body = (email.Body || "").toLowerCase();
+  return subject === title || subject.includes(title) || body.includes(title);
+}
+
+/* Optional (not used directly, but available) */
+function computeDocEmailPairs(docs, emails) {
+  const pairs = [];
+  for (const d of docs) {
+    for (const e of emails) {
+      if (relaxedMatch(d, e)) {
+        pairs.push({ DocID: d.ID, EmailID: e.id || e.ID, Subject: e.Subject, Title: d.Title });
+      }
+    }
+  }
+  return pairs;
+}
+
+/* ================================================================
+   TELEMETRY LOGGER
+   ================================================================ */
+function logTelemetry(action, step, status, durationMs, message="") {
+  const entry = {
+    Action: action, Step: step, Status: status,
+    Duration_ms: durationMs, Timestamp: new Date().toISOString(), Message: message
+  };
+  window.__state.telemetry.push(entry);
+}
+</script>
+
+<!-- ================================================================
+   BATCH 4 / 6
+   RE-CALC ENGINE + MATRIX BUILDERS + ALL RENDERERS
+   ================================================================= -->
+<script>
+/* Polyfill for CSS.escape if needed */
+if (!window.CSS || !CSS.escape) {
+  window.CSS = window.CSS || {};
+  CSS.escape = (s) => String(s).replace(/[^a-zA-Z0-9_\-]/g, (ch) => `\\${ch.charCodeAt(0).toString(16)} `);
+}
+function groupBy(arr, keyFn) {
+  const map = new Map();
+  for (const item of arr || []) {
+    const k = String(keyFn(item) ?? "");
+    if (!map.has(k)) map.set(k, []);
+    map.get(k).push(item);
+  }
+  return map;
+}
+
+/* Normalizers */
+function toDoc(d) {
+  return {
+    ID: d.ID ?? d.id ?? d.Id,
+    Title: d.Title ?? d.title ?? "",
+    Category: d.Category ?? d.category ?? "",
+    Status: d.Status ?? d.status ?? "",
+    AssignedTo: d.AssignedTo ?? d.assignedTo ?? "",
+    StartDate: d.StartDate ?? d.startDate ?? null,
+    Created: d.Created ?? d.created ?? null,
+    SharePointLink: d.SharePointLink ?? d.sharePointLink ?? null
+  };
+}
+function toTask(t) {
+  return {
+    ID: t.ID ?? t.id ?? t.Id,
+    RefIDD: t.RefIDD ?? t.Reference_ID ?? t.reference_id ?? t.docId ?? null,
+    Title: t.Title ?? t.title ?? "",
+    Description: t.Description ?? t.description ?? "",
+    Status: t.Status ?? t.Progress ?? t.status ?? "",
+    Priority: t.Priority ?? t.priority ?? "",
+    StartDate: t.StartDate ?? null,
+    DueDate: t.DueDate ?? null,
+    AssignedTo: t.AssignedTo ?? t.assignedTo ?? ""
+  };
+}
+function toEmail(e) {
+  return {
+    id: e.id ?? e.ID ?? e.Id,
+    Subject: e.Subject ?? e.subject ?? "",
+    Body: e.Body ?? e.body ?? "",
+    DateTimeReceived: e.DateTimeReceived ?? e.receivedDateTime ?? e.dateTimeReceived ?? null,
+    From: e.From ?? e.from ?? "",
+    To: e.To ?? e.toRecipients ?? "",
+    Cc: e.Cc ?? e.ccRecipients ?? "",
+    Bcc: e.Bcc ?? e.bccRecipients ?? ""
+  };
+}
+
+/* Builders */
+function buildCollections(raw) {
+  const docs   = (raw?.data?.docs   || raw?.docs   || []).map(toDoc);
+  const tasks  = (raw?.data?.tasks  || raw?.tasks  || []).map(toTask);
+  const emails = (raw?.data?.emails || raw?.emails || []).map(toEmail);
+  return { docs, tasks, emails };
+}
+function buildMatchedDocs(docs, emails) {
+  const colMatchedDocs = [];
+  const colDocEmailPairs = [];
+  for (const d of docs) {
+    const matches = emails.filter(e => relaxedMatch(d, e));
+    if (matches.length > 0) {
+      colMatchedDocs.push({
+        ID: d.ID,
+        Created: d.StartDate ?? d.Created ?? null,
+        Title: d.Title,
+        Category: d.Category,
+        AssignmentStatus: d.Status,
+        Status: d.Status,
+        AssignedTo: d.AssignedTo,
+        AttachmentLink: null,
+        MatchingEmails: matches
+      });
+      for (const e of matches) {
+        colDocEmailPairs.push({
+          DocID: d.ID, DocTitle: d.Title, DocCategory: d.Category, DocStatus: d.Status,
+          EmailSubject: e.Subject, EmailBody: e.Body, EmailFrom: e.From, EmailReceived: e.DateTimeReceived
+        });
+      }
+    }
+  }
+  return { colMatchedDocs, colDocEmailPairs };
+}
+function buildDocTaskEmailMatrix(docs, tasks, emails) {
+  const tasksByDoc = groupBy(tasks, t => t.RefIDD ?? "");
+  const rows = [];
+  for (const d of docs) {
+    const relatedTasks  = tasksByDoc.get(String(d.ID)) || [];
+    const relatedEmails = emails.filter(e => relaxedMatch(d, e));
+    rows.push({
+      Created: d.Created, ID: d.ID, Title: d.Title, Category: d.Category, Status: d.Status,
+      AssignedTo: d.AssignedTo, SharePointLink: d.SharePointLink || null,
+      Tasks: relatedTasks, Responses: relatedEmails,
+      TaskCount: relatedTasks.length, ResponseCount: relatedEmails.length
+    });
+  }
+  return rows;
+}
+function computeCounters(docs, tasks, emails, pairs, matched) {
+  return { docs: docs.length, tasks: tasks.length, emails: emails.length, pairs: pairs.length, matched: matched.length };
+}
+
+/* Recalc engine */
+async function clientRecalc(raw, matchingMode = DEFAULT_MATCHING_MODE) {
+  const t0 = performance.now();
+  const action = "ReloadAll";
+  try {
+    const parseStart = performance.now();
+    const { docs, tasks, emails } = buildCollections(raw);
+    logTelemetry(action, "Data_Parse_All", "Success", Math.round(performance.now() - parseStart),
+      `Docs:${docs.length} Tasks:${tasks.length} Emails:${emails.length}`);
+
+    const shapeStart = performance.now();
+    const matrix = buildDocTaskEmailMatrix(docs, tasks, emails);
+    logTelemetry(action, "Data_Shape_Matrix", "Success", Math.round(performance.now() - shapeStart),
+      `Matrix rows:${matrix.length}`);
+
+    const dashStart = performance.now();
+    const { colMatchedDocs, colDocEmailPairs } = buildMatchedDocs(docs, emails);
+    logTelemetry(action, "Dashboard_Recalculate", "Success", Math.round(performance.now() - dashStart),
+      `Matched:${colMatchedDocs.length} Pairs:${colDocEmailPairs.length}`);
+
+    const counts = computeCounters(docs, tasks, emails, colDocEmailPairs, colMatchedDocs);
+    const total = Math.round(performance.now() - t0);
+    logTelemetry(action, "Action_End", "Success", total, "Total execution time");
+
+    return {
+      counts,
+      colDocsTracking: docs,
+      colTasksTracking: tasks,
+      colEmailsTracking: emails,
+      colDocTaskEmailMatrix: matrix,
+      colMatchedDocs, colDocEmailPairs,
+      telemetry: window.__state.telemetry,
+      user: raw?.user || window.__state.user,
+      timestamp: raw?.timestamp || new Date().toISOString()
+    };
+  } catch (err) {
+    const total = Math.round(performance.now() - t0);
+    logTelemetry(action, "Action_End", "Error", total, String(err));
+    return { error: err, telemetry: window.__state.telemetry };
+  }
+}
+
+/* UI state */
+const ui = {
+  selectedDocId: null,
+  activeTab: 'Details',
+  filters: {
+    search: '',
+    category: '',
+    status: '',
+    assignee: '',
+    sortBy: 'Created_desc',
+    emailMode: 'subjectBody',
+    emailSearch: '',
+    taskSort: 'DueDate_asc'
+  }
+};
+
+/* Sorting + Filtering helpers */
+function sortDocs(rows, key) {
+  const [field, dir] = key.split('_'); const mul = (dir === 'desc' ? -1 : 1);
+  const get = (r) => {
+    switch (field) {
+      case 'Title': return (r.Title || '').toLowerCase();
+      case 'AssignedTo': return (r.AssignedTo || '').toLowerCase();
+      case 'Status': return (r.Status || '').toLowerCase();
+      case 'Created': default: return r.Created ? new Date(r.Created).getTime() : 0;
+    }
+  };
+  return rows.slice().sort((a,b) => (get(a) > get(b) ? 1 : (get(a) < get(b) ? -1 : 0)) * mul);
+}
+function sortTasks(rows, key) {
+  const [field, dir] = key.split('_'); const mul = (dir === 'desc' ? -1 : 1);
+  const get = (r) => {
+    switch (field) {
+      case 'AssignedTo': return (r.AssignedTo || '').toLowerCase();
+      case 'Status': return (r.Status || '').toLowerCase();
+      case 'DueDate': default: return r.DueDate ? new Date(r.DueDate).getTime() : Number.MAX_SAFE_INTEGER;
+    }
+  };
+  return rows.slice().sort((a,b) => (get(a) > get(b) ? 1 : (get(a) < get(b) ? -1 : 0)) * mul);
+}
+function filterDocRow(row) {
+  const f = ui.filters;
+  const text = (f.search || '').toLowerCase();
+  const passText = !text || (row.Title?.toLowerCase().includes(text) || (row.AssignedTo||'').toLowerCase().includes(text));
+  const passCat = !f.category || row.Category === f.category;
+  const passStatus = !f.status || row.Status === f.status;
+  const passAssignee = !f.assignee || row.AssignedTo === f.assignee;
+  return passText && passCat && passStatus && passAssignee;
+}
+function fillSelectFromSet(selectId, valuesSet, placeholder) {
+  const el = document.getElementById(selectId);
+  const prev = el.value;
+  const options = [`<option value="">${placeholder}</option>`]
+    .concat(Array.from(valuesSet).sort((a,b)=>String(a).localeCompare(String(b))).map(v => `<option value="${String(v)}">${String(v)}</option>`));
+  el.innerHTML = options.join('');
+  if (valuesSet.has(prev)) el.value = prev;
+}
+
+/* Left pane (docs) */
+function renderDocsList() {
+  const list = document.getElementById('docsList');
+  list.innerHTML = '';
+  const rowsAll = window.__state?.colDocTaskEmailMatrix || [];
+
+  const cats = new Set(), sts = new Set(), asg = new Set();
+  for (const r of rowsAll) { if (r.Category) cats.add(r.Category); if (r.Status) sts.add(r.Status); if (r.AssignedTo) asg.add(r.AssignedTo); }
+  fillSelectFromSet('fltCategory', cats, 'All Categories');
+  fillSelectFromSet('fltStatus',   sts,  'All Statuses');
+  fillSelectFromSet('fltAssignee', asg,  'All Assignees');
+
+  let rows = rowsAll.filter(filterDocRow);
+  rows = sortDocs(rows, ui.filters.sortBy);
+
+  if (!rows.length) { list.innerHTML = `<p class="row" style="justify-content:center;">No documents match the current filters.</p>`; return; }
+
+  for (const r of rows) {
+    const card = document.createElement('div');
+    card.className = 'doc-card' + (r.ID === ui.selectedDocId ? ' active' : '');
+    card.setAttribute('tabindex', '0');
+
+    const h = document.createElement('h4'); h.className = 'doc-title'; h.textContent = r.Title || '(Untitled)';
+    const meta = document.createElement('div'); meta.className = 'doc-meta';
+    meta.innerHTML = `
+      <span><strong>Category:</strong> ${r.Category || '—'}</span>
+      <span><strong>Status:</strong> ${r.Status || 'Unknown'}</span>
+      <span><strong>Assigned:</strong> ${r.AssignedTo || 'Unassigned'}</span>
+      <span><strong>Created:</strong> ${r.Created ? new Date(r.Created).toLocaleDateString() : '—'}</span>
+    `;
+    const kpis = document.createElement('div'); kpis.className = 'kpis';
+    kpis.innerHTML = `<span>Tasks: <strong>${r.TaskCount}</strong></span><span>Emails: <strong>${r.ResponseCount}</strong></span>`;
+
+    card.appendChild(h); card.appendChild(meta); card.appendChild(kpis);
+    card.addEventListener('click', () => selectDoc(r.ID));
+    list.appendChild(card);
+  }
+
+  if (!ui.selectedDocId && rows.length) selectDoc(rows[0].ID);
+}
+
+/* Right pane wrapper */
+function getSelectedRow() {
+  return (window.__state?.colDocTaskEmailMatrix || []).find(r => String(r.ID) === String(ui.selectedDocId)) || null;
+}
+function selectDoc(docId) { ui.selectedDocId = docId; renderRightPane(); renderDocsList(); }
+function setActiveTab(tabKey) {
+  ui.activeTab = tabKey;
+  const panels = { Details: 'panelDetails', Tasks: 'panelTasks', Emails: 'panelEmails', Files: 'panelFiles' };
+  const tabs   = { Details: 'tabDetails',  Tasks: 'tabTasks',  Emails: 'tabEmails',  Files: 'tabFiles' };
+  for (const k in panels) document.getElementById(panels[k]).classList.toggle('active', k === tabKey);
+  for (const k in tabs)   document.getElementById(tabs[k]).classList.toggle('active',   k === tabKey);
+}
+function renderRightPane() {
+  const row = getSelectedRow();
+  const docHeader = document.getElementById('docHeader');
+  const docKpis = document.getElementById('docKpis');
+  const btnOpenSP = document.getElementById('btnOpenSP');
+
+  if (!row) {
+    docHeader.textContent = 'Select a document'; docKpis.innerHTML = ''; btnOpenSP.disabled = true; document.getElementById('docDetails').innerHTML = ''; return;
+  }
+
+  docHeader.textContent = row.Title || '(Untitled)';
+  docKpis.innerHTML = `
+    <span>Tasks: <strong>${row.TaskCount}</strong></span>
+    <span>Emails: <strong>${row.ResponseCount}</strong></span>
+    <span>Category: <strong>${row.Category || '—'}</strong></span>
+  `;
+  document.getElementById('docDetails').innerHTML = `
+    <div class="row" style="gap:18px;">
+      <div>
+        <h5>Metadata</h5>
+        <p><strong>Status:</strong> ${row.Status || 'Unknown'}</p>
+        <p><strong>Assigned To:</strong> ${row.AssignedTo || 'Unassigned'}</p>
+        <p><strong>Created:</strong> ${row.Created ? new Date(row.Created).toLocaleString() : '—'}</p>
+      </div>
+    </div>
+  `;
+  btnOpenSP.disabled = !row.SharePointLink;
+  btnOpenSP.onclick = () => { if (row.SharePointLink) window.open(row.SharePointLink, '_blank', 'noopener'); };
+
+  if (ui.activeTab === 'Tasks') renderTasks();
+  if (ui.activeTab === 'Emails') renderEmails();
+  if (ui.activeTab === 'Files')  renderFiles();
+}
+
+/* Tasks */
+function renderTasks() {
+  const list = document.getElementById('tasksList');
+  list.innerHTML = '';
+  const row = getSelectedRow();
+  if (!row) { list.innerHTML = `<p class="row" style="justify-content:center;">No document selected.</p>`; return; }
+
+  const sorted = sortTasks(row.Tasks || [], ui.filters.taskSort);
+  if (!sorted.length) { list.innerHTML = `<p class="row" style="justify-content:center;">No tasks.</p>`; return; }
+
+  for (const t of sorted) {
+    const el = document.createElement('div'); el.className = 'row';
+    el.innerHTML = `
+      <div>
+        <h5>${t.Title || '(Untitled task)'}</h5>
+        <p>Owner: ${t.AssignedTo || '—'} • Due: ${t.DueDate ? new Date(t.DueDate).toLocaleDateString() : '—'} • Status: ${t.Status || '—'} • Priority: ${t.Priority || '—'}</p>
+        <p>${t.Description || ''}</p>
+      </div>
+      <div class="actions">
+        ${((t.Status || '').toLowerCase() === 'not started') ? `startStart</button>` : ''}
+        ${((t.Status || '').toLowerCase() !== 'complete') ? `completeMark Complete</button>` : ''}
+        deleteDelete</button>
+      </div>
+    `;
+    list.appendChild(el);
+  }
+}
+
+/* Email attachments (on-demand) */
+async function loadEmailAttachmentsInto(elContainer, email) {
+  try {
+    const res = await FlowClient.getEmailAttachments(email.id);
+    const atts = res?.attachments || [];
+    if (!atts.length) { elContainer.innerHTML = `<p class="row" style="justify-content:center;">No attachments.</p>`; return; }
+    const list = document.createElement('div'); list.className = 'list';
+    for (const a of atts) {
+      const row = document.createElement('div'); row.className='row';
+      const name = a.name || a.FileName || 'Attachment';
+      const size = a.size || a.Size || 0;
+      const href = a.contentBytes ? `data:application/octet-stream;base64,${a.contentBytes}` : (a.FileUrl || a.url || '');
+      row.innerHTML = `
+        <div><h5>${name}</h5><p>${size} bytes</p></div>
+        <div class="actions"><button ${href ? '' : 'disabled'}>Download</button></div>
+      `;
+      const dl = row.querySelector('button');
+      dl.onclick = () => { if (href) window.open(href, '_blank', 'noopener'); };
+      list.appendChild(row);
+    }
+    elContainer.innerHTML = ''; elContainer.appendChild(list);
+  } catch (e) {
+    console.error(e);
+    elContainer.innerHTML = `<p class="row" style="justify-content:center;">Failed to load attachments.</p>`;
+  }
+}
+
+/* Emails */
+function renderEmails() {
+  const list = document.getElementById('emailsList');
+  list.innerHTML = '';
+  const row = getSelectedRow();
+  if (!row) { list.innerHTML = `<p class="row" style="justify-content:center;">No document selected.</p>`; return; }
+
+  const text = (ui.filters.emailSearch || '').toLowerCase();
+  const mode = ui.filters.emailMode; // 'subjectBody' | 'subjectOnly'
+  const filtered = (row.Responses || []).filter(e => {
+    if (!text) return true;
+    const s = (e.Subject || '').toLowerCase();
+    const b = (e.Body || '').toLowerCase();
+    return mode === 'subjectOnly' ? s.includes(text) : (s.includes(text) || b.includes(text));
+  });
+
+  if (!filtered.length) { list.innerHTML = `<p class="row" style="justify-content:center;">No emails.</p>`; return; }
+
+  for (const e of filtered) {
+    const el = document.createElement('div'); el.className = 'row';
+    const dt = e.DateTimeReceived ? new Date(e.DateTimeReceived).toLocaleString() : '—';
+    const attContainerId = `attContainer_${CSS.escape(e.id)}`;
+
+    el.innerHTML = `
+      <div style="flex:1;">
+        <h5>${e.Subject || '(No subject)'}</h5>
+        <p>From: ${e.From || '—'} • Date: ${dt}</p>
+        <p>${(e.Body || '').slice(0, 240)}${(e.Body || '').length > 240 ? '…' : ''}</p>
+        <div class="muted" id="${attContainerId}" style="margin-top:8px;"></div>
+      </div>
+      <div class="actions">
+        openOpen</button>
+        copyCopy Subject</button>
+        loadAttLoad Attachments</button>
+      </div>
+    `;
+    list.appendChild(el);
+  }
+}
+
+/* Files (document attachments via colAttachmentsTracking) */
+function renderFiles() {
+  const panel = document.getElementById('panelFiles');
+  panel.innerHTML = '';
+  const row = getSelectedRow();
+  if (!row) { panel.innerHTML = `<p class="row" style="justify-content:center;">No document selected.</p>`; return; }
+  const all = window.__state?.colAttachmentsTracking || [];
+  const files = all.filter(a => String(a.RefIDD) === String(row.ID));
+  if (!files.length) { panel.innerHTML = `<p class="row" style="justify-content:center;">No document attachments.</p>`; return; }
+
+  const list = document.createElement('div'); list.className = 'list';
+  for (const f of files) {
+    const el = document.createElement('div'); el.className = 'row';
+    el.innerHTML = `
+      <div><h5>${f.FileName || 'Attachment'}</h5><p>By ${f.UploadedBy || '—'} • ${f.UploadedOn ? new Date(f.UploadedOn).toLocaleString() : '—'}</p></div>
+      <div class="actions">
+        openFileOpen</button>
+        copyFileCopy Link</button>
+      </div>
+    `;
+    list.appendChild(el);
+  }
+  panel.appendChild(list);
+}
+</script>
+
+<!-- ================================================================
+   BATCH 5 / 6
+   EVENT BINDINGS + FLOW PERSISTENCE + BATCHING + INITIAL BOOTSTRAP
+   ================================================================= -->
+<script>
+/* Task actions (persisted via Flow) */
+async function updateTaskStatusPersist(taskId, newStatus) {
+  try {
+    await FlowClient.supplementary({
+      action: "UpdateTaskStatus", operation: "TaskStatus", method: "PATCH",
+      taskId: String(taskId), status: newStatus,
+      userEmail: window.__state?.user?.email || "user@example.com"
+    });
+    const tasks = window.__state.colTasksTracking;
+    const idx = tasks.findIndex(t => String(t.ID) === String(taskId));
+    if (idx >= 0) tasks[idx].Status = newStatus;
+    await recalcFromCurrent("TaskStatusUpdate");
+    showToast(`Task ${taskId} → ${newStatus}`, "success");
+  } catch (err) { console.error(err); showToast("Failed to update task.", "error"); }
+}
+async function deleteTaskPersist(taskId) {
+  try {
+    await FlowClient.supplementary({
+      action: "DeleteTask", operation: "Delete", method: "DELETE",
+      taskId: String(taskId), userEmail: window.__state?.user?.email || "user@example.com"
+    });
+    const tasks = window.__state.colTasksTracking;
+    const idx = tasks.findIndex(t => String(t.ID) === String(taskId));
+    if (idx >= 0) tasks.splice(idx, 1);
+    await recalcFromCurrent("TaskDelete");
+    showToast(`Task ${taskId} deleted`, "success");
+  } catch (err) { console.error(err); showToast("Failed to delete task.", "error"); }
+}
+async function addTaskPersist() {
+  const row = getSelectedRow();
+  if (!row) return showToast("Select a document first.", "error");
+  const title = prompt("Task title");
+  if (!title) return;
+  try {
+    const payload = {
+      AssignmentType: "Primary",
+      NewActivityTask: {
+        StartDate: new Date().toISOString(),
+        ActivityID: Number(row.ID),
+        AttachmentLink: "",
+        Title: title, Description: "", Status: "Not Started",
+        Category: row.Category || "", CategoryCode: "", SubCategory: "", SubCategoryCode: "",
+        AssignedTo: row.AssignedTo || "", AssignedToTitle: row.AssignedTo || "",
+        AssignedDSU: "", supportingAssignedTo: "", SupportAssignedToTitle: "", SupportDSU: "",
+        AcknolwedgementDueBy: "", TaskDueDate: "", CopyTo: "", Priority: "P3 (Normal)",
+        PreReferenceID: `WEB-${Date.now()}`, Categorization: "", Comments: ""
+      },
+      Selected: { ID: Number(row.ID), RefIDD: String(row.ID) }
+    };
+    const res = await FlowClient.createTask(payload);
+    const newId = res?.patchId ?? `T-${Date.now()}`;
+    window.__state.colTasksTracking.push({
+      ID: newId, RefIDD: row.ID, Title: title, Description: "",
+      Status: "Not Started", Priority: "P3 (Normal)", DueDate: null, AssignedTo: row.AssignedTo || ""
+    });
+    await recalcFromCurrent("TaskCreated");
+    showToast("Task added.", "success");
+  } catch (err) { console.error(err); showToast("Failed to add task.", "error"); }
+}
+
+/* Email batching (Load More) */
+async function loadMoreEmails() {
+  const p = window.__paging.emails;
+  if (!p.nextBatchAvailable) { showToast("No more emails.", "success"); return; }
+  try {
+    const res = await FlowClient.getEmails({
+      folderPath: p.folderPath, top: p.top, skip: p.skip, fetchOnlyUnread: p.unreadOnly
+    });
+    const mergedEmails = [...window.__state.colEmailsTracking, ...(res.emails || [])];
+    const raw = {
+      data: { docs: window.__state.colDocsTracking, tasks: window.__state.colTasksTracking, emails: mergedEmails },
+      user: window.__state.user, timestamp: new Date().toISOString()
+    };
+    const result = await clientRecalc(raw, DEFAULT_MATCHING_MODE);
+    window.__state = { ...window.__state, ...result };
+    p.skip += (res.emails || []).length;
+    p.nextBatchAvailable = !!res.nextBatchAvailable;
+    document.getElementById("emailCount").textContent = result.counts.emails;
+    renderEmails(); renderDocsList(); renderRightPane(); renderTelemetry();
+    showToast("Loaded more emails.", "success");
+  } catch (err) { console.error(err); showToast("Failed to load more emails.", "error"); }
+}
+
+/* Recalc from current state */
+async function recalcFromCurrent(reason = "Recalc") {
+  const raw = {
+    data: { docs: window.__state.colDocsTracking, tasks: window.__state.colTasksTracking, emails: window.__state.colEmailsTracking },
+    user: window.__state.user, timestamp: new Date().toISOString()
+  };
+  const result = await clientRecalc(raw, DEFAULT_MATCHING_MODE);
+  if (result.error) { console.error(result.error); showToast("Recalculation failed.", "error"); return; }
+  window.__state = { ...window.__state, ...result };
+  document.getElementById("docCount").textContent = result.counts.docs;
+  document.getElementById("taskCount").textContent = result.counts.tasks;
+  document.getElementById("emailCount").textContent = result.counts.emails;
+  document.getElementById("pairCount").textContent = result.counts.pairs;
+  document.getElementById("matchedCount").textContent = result.counts.matched;
+  renderDocsList(); renderRightPane(); renderTelemetry();
+}
+
+/* Refresh all (initial and manual) */
+async function refreshAll() {
+  const btn = document.getElementById("btnRefresh");
+  btn.disabled = true;
+  try {
+    const email = window.__state.user.email;
+    window.__paging.emails.skip = 0;
+    const [docsRes, tasksRes, emailsRes] = await Promise.all([
+      FlowClient.getDocs(email),
+      FlowClient.getTasks(email),
+      FlowClient.getEmails({ folderPath: window.__paging.emails.folderPath, top: window.__paging.emails.top, skip: 0, fetchOnlyUnread: window.__paging.emails.unreadOnly })
+    ]);
+    const raw = { data: { docs: docsRes.docs || [], tasks: tasksRes.tasks || [], emails: emailsRes.emails || [] },
+                  user: window.__state.user, timestamp: new Date().toISOString() };
+    const result = await clientRecalc(raw, DEFAULT_MATCHING_MODE);
+    window.__state = { ...window.__state, ...result };
+    window.__paging.emails.skip = (emailsRes.emails || []).length;
+    window.__paging.emails.nextBatchAvailable = !!emailsRes.nextBatchAvailable;
+    document.getElementById("docCount").textContent = result.counts.docs;
+    document.getElementById("taskCount").textContent = result.counts.tasks;
+    document.getElementById("emailCount").textContent = result.counts.emails;
+    document.getElementById("pairCount").textContent = result.counts.pairs;
+    document.getElementById("matchedCount").textContent = result.counts.matched;
+    document.getElementById("userInfo").textContent = `User: ${window.__state.user.FullName}`;
+    document.getElementById("dateChip").textContent = `Date: ${formatDate(raw.timestamp)}`;
+    renderDocsList(); renderRightPane(); renderTelemetry();
+    showToast("Data refreshed.", "success");
+  } catch (err) {
+    console.error(err); showToast("Failed to refresh data.", "error");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* Telemetry panel */
+function renderTelemetry() {
+  const tel = window.__state.telemetry;
+  const summary = document.getElementById("telemetrySummary");
+  const list = document.getElementById("telemetryList");
+  list.innerHTML = "";
+  if (!tel.length) { summary.textContent = "No telemetry recorded."; return; }
+  const ok = tel.filter(t => t.Status === "Success").length;
+  const er = tel.filter(t => t.Status === "Error").length;
+  const totalMs = tel.reduce((s,t) => s + (Number(t.Duration_ms)||0), 0);
+  summary.textContent = `Steps: ${tel.length} • Success: ${ok} • Errors: ${er} • Total: ${(totalMs/1000).toFixed(2)}s`;
+  for (const t of tel) {
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = `<div><h5>${t.Action} · ${t.Step}</h5><p>${t.Timestamp}</p><p>${t.Message || ""}</p></div>
+                     <div class="actions"><span class="muted">${t.Status} • ${t.Duration_ms}ms</span></div>`;
+    list.appendChild(row);
+  }
+}
+async function sendTelemetryToFlow() {
+  const tel = window.__state.telemetry;
+  if (!tel.length) { showToast("No telemetry to send.", "error"); return; }
+  try {
+    await FlowClient.supplementary({
+      action: "Telemetry", operation: "LogBatch", method: "POST",
+      userEmail: window.__state.user.email, contextId: "DGO-Dashboard", contextType: "Web",
+      payload: { entries: tel }
+    });
+    showToast("Telemetry sent to Flow.", "success");
+  } catch (err) { console.error(err); showToast("Failed to send telemetry.", "error"); }
+}
+
+/* Event wiring */
+function wireEvents() {
+  /* Header */
+  document.getElementById("btnRefresh").onclick = refreshAll;
+
+  /* Filters */
+  document.getElementById("fltSearch").oninput   = e => { ui.filters.search   = e.target.value; renderDocsList(); };
+  document.getElementById("fltCategory").onchange= e => { ui.filters.category = e.target.value; renderDocsList(); };
+  document.getElementById("fltStatus").onchange  = e => { ui.filters.status   = e.target.value; renderDocsList(); };
+  document.getElementById("fltAssignee").onchange= e => { ui.filters.assignee = e.target.value; renderDocsList(); };
+  document.getElementById("fltSortBy").onchange  = e => { ui.filters.sortBy   = e.target.value; renderDocsList(); };
+
+  /* Tabs */
+  document.getElementById("tabDetails").onclick = () => { setActiveTab("Details"); renderRightPane(); };
+  document.getElementById("tabTasks").onclick   = () => { setActiveTab("Tasks");   renderTasks(); };
+  document.getElementById("tabEmails").onclick  = () => { setActiveTab("Emails");  renderEmails(); };
+  document.getElementById("tabFiles").onclick   = () => { setActiveTab("Files");   renderFiles(); };
+
+  /* Task toolbar */
+  document.getElementById("taskSort").onchange  = e => { ui.filters.taskSort = e.target.value; renderTasks(); };
+  document.getElementById("btnAddTask").onclick = addTaskPersist;
+
+  /* Email toolbar */
+  document.getElementById("emailSearch").oninput = e => { ui.filters.emailSearch = e.target.value; renderEmails(); };
+  document.querySelectorAll('input[name="emailMode"]').forEach(r =>
+    r.onchange = () => { ui.filters.emailMode = document.querySelector('input[name="emailMode"]:checked').value; renderEmails(); }
+  );
+
+  /* Load more emails + Unread */
+  document.getElementById("btnLoadMoreEmails").onclick = loadMoreEmails;
+  document.getElementById("chkUnreadOnly").onchange = e => { window.__paging.emails.unreadOnly = e.target.checked; refreshAll(); };
+
+  /* Delegated actions for Tasks, Emails, Attachments */
+  document.body.addEventListener("click", async (ev) => {
+    const btn = ev.target; if (!btn.dataset) return;
+
+    /* Task actions */
+    if (btn.dataset.action === "start")    await updateTaskStatusPersist(btn.dataset.id, "In Progress");
+    if (btn.dataset.action === "complete") await updateTaskStatusPersist(btn.dataset.id, "Complete");
+    if (btn.dataset.action === "delete")   await deleteTaskPersist(btn.dataset.id);
+
+    /* Email actions */
+    if (btn.dataset.action === "open") {
+      const id = btn.dataset.id;
+      window.open(`https://outlook.office.com/mail/search?q=${encodeURIComponent(id)}`, "_blank");
+    }
+    if (btn.dataset.action === "copy") {
+      const id = btn.dataset.id;
+      const em = (window.__state.colEmailsTracking || []).find(e => String(e.id) === String(id));
+      if (em) {
+        try { await navigator.clipboard.writeText(em.Subject || ""); showToast("Subject copied.", "success"); }
+        catch { showToast("Copy failed.", "error"); }
+      }
+    }
+    if (btn.dataset.action === "loadAtt") {
+      const id = btn.dataset.id;
+      const email = (window.__state.colEmailsTracking || []).find(e => String(e.id) === String(id));
+      if (email) {
+        const container = document.getElementById(`attContainer_${CSS.escape(id)}`);
+        if (container) { container.innerHTML = "<p class='muted'>Loading attachments…</p>"; await loadEmailAttachmentsInto(container, email); }
+      }
+    }
+
+    /* Document attachment actions */
+    if (btn.dataset.action === "openFile") {
+      const url = btn.dataset.url; if (url) window.open(url, "_blank");
+    }
+    if (btn.dataset.action === "copyFile") {
+      const url = btn.dataset.url;
+      if (url) {
+        try { await navigator.clipboard.writeText(url); showToast("Link copied.", "success"); }
+        catch { showToast("Copy failed.", "error"); }
+      }
+    }
+  });
+
+  /* Telemetry */
+  document.getElementById("btnTelemetryRefresh").onclick = renderTelemetry;
+  document.getElementById("btnTelemetrySend").onclick    = sendTelemetryToFlow;
+}
+
+/* Startup */
+document.addEventListener("DOMContentLoaded", async () => { wireEvents(); await refreshAll(); });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NITDA DGO – Unified Smart Orchestrator</title>
+  
+  <style>
+    /* ============================================================
+       1. GLOBAL DESIGN TOKENS & VARIABLES
+       ============================================================ */
+    :root {
+      /* NITDA Default Theme (Light/Corporate) */
+      --brand-primary: #008751;
+      --brand-secondary: #00A69D;
+      --brand-tertiary: #373435;
+      --brand-gold: #FFB400;
+      
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F3F4F6;
+      --bg-dark: #050505;
+      
+      --text-primary: #2D3748;
+      --text-secondary: #6B7280;
+      --text-light: #ffffff;
+      
+      --success: #107C10;
+      --warning: #E05606;
+      --error: #A92323;
+      --important: #05583B;
+      
+      --input-fill: #E6F7F9;
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      
+      --radius: 10px;
+      --radius-lg: 14px;
+      --shadow: 0 10px 22px rgba(0,0,0,.08);
+      
+      /* System Font Stack (Replaces Google Fonts for Zero-Dependency) */
+      --font-default: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    }
+
+    /* ============================================================
+       2. BASE RESET & GLOBAL STYLES
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-default);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       3. SPA VIEW CONTRACT (PHASE 2.2)
+       ============================================================ */
+    .spa-view { display: none; }
+    .spa-view.active { display: block; animation: fadeIn 0.3s ease; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       4. COMPONENT STYLES (From Legacy Files)
+       ============================================================ */
+    .navbar {
+      background: linear-gradient(135deg, var(--important) 0%, var(--brand-secondary) 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .nav-btn:hover { background: rgba(255,255,255,0.2); }
+
+    .matrix-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #eaecf0;
+    }
+    
+    .matrix-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    
+    /* Notifications */
+    .notification {
+      position: fixed; top: 20px; right: 20px;
+      padding: 15px 25px; border-radius: 8px; color: white;
+      transform: translateX(150%); transition: transform 0.3s ease-out;
+      z-index: 9999; font-weight: 500;
+    }
+    .notification.show { transform: translateX(0); }
+    .notification.info { background: var(--brand-secondary); }
+    .notification.error { background: var(--error); }
+    .notification.success { background: var(--success); }
+
+    /* ============================================================
+       5. TAILWIND POLYFILLS (Zero External CDN Requirement)
+       Translating Group C Dashboard Classes to Vanilla CSS
+       ============================================================ */
+    .theme-dark {
+      background: radial-gradient(circle at 0% 0%, #111 0%, #050505 100%);
+      color: #ffffff;
+      min-height: 100vh;
+    }
+    .glass {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+    }
+    .grid { display: grid; }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 1024px) { .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 768px) { .grid-cols-4 { grid-template-columns: repeat(1, minmax(0, 1fr)); } .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); } }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mb-8 { margin-bottom: 2rem; }
+    .mt-4 { margin-top: 1rem; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .w-full { width: 100%; }
+    .w-6 { width: 1.5rem; }
+    .h-6 { height: 1.5rem; }
+    .font-bold { font-weight: 700; }
+    .text-sm { font-size: 0.875rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-gray-400 { color: #9ca3af; }
+    .text-gray-500 { color: #6b7280; }
+    .text-white { color: #ffffff; }
+    .text-teal-400 { color: #2dd4bf; }
+    .text-red-500 { color: #ef4444; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .cursor-pointer { cursor: pointer; }
+    .hover\:bg-white\/5:hover { background-color: rgba(255, 255, 255, 0.05); }
+    .transition-colors { transition: all 0.2s ease-in-out; }
+    
+    .animate-spin-slow { animation: spin 3s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
+    /* Table specific tailwind replacements */
+    .overflow-x-auto { overflow-x: auto; }
+    .min-w-full { min-width: 100%; text-align: left; border-collapse: collapse; }
+    .min-w-full th { padding: 1rem 1.5rem; border-bottom: 1px solid var(--glass-border); color: #9ca3af; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .min-w-full td { padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.02); }
+  </style>
+</head>
+<body>
+
+  <div id="notification" class="notification"></div>
+
+  <section id="view-dashboard" class="spa-view active">
+    <div class="navbar">
+      <h2>NITDA DGO – Smart Orchestrator</h2>
+      <div class="navbar-nav">
+        <a href="#decision-hub" class="nav-btn">Decision Hub</a>
+        <a href="#response-tracking" class="nav-btn">Response Tracking</a>
+        <a href="#dgo-track" class="nav-btn">Intelligence Dashboard</a>
+      </div>
+    </div>
+    <div style="padding: 30px;">
+      <h3 style="margin-bottom: 20px;">System Diagnostics & Telemetry</h3>
+      <div id="telemetryOutput" class="matrix-card" style="background: #1e1e1e; color: #00ff00; font-family: monospace; height: 300px; overflow-y: auto;">
+        > System Initialized.<br>> Awaiting execution command...
+      </div>
+      <button id="btnRunReload" class="nav-btn" style="background: var(--brand-primary); margin-top: 10px;">Execute Flow: Reload All</button>
+      <button id="btnClearTelemetry" class="nav-btn" style="background: var(--brand-tertiary); margin-top: 10px;">Clear Telemetry</button>
+    </div>
+  </section>
+
+  <section id="view-decision-hub" class="spa-view hidden">
+    <div class="navbar">
+      <h2>Correspondence & Decision Hub</h2>
+      <div class="navbar-nav">
+        <button id="btnSyncDecisions" class="nav-btn" style="background: var(--brand-gold); color: #000; border: none;">Sync Hub</button>
+        <a href="#dashboard" class="nav-btn">Back to Orchestrator</a>
+      </div>
+    </div>
+    <div style="padding: 30px;" id="hubBody">
+      <p style="color: var(--text-secondary);">Initializing document lineage and routing metrics...</p>
+      </div>
+  </section>
+
+  <section id="view-response-tracking" class="spa-view hidden">
+    <div class="navbar">
+      <h2>Response Tracking & Matrix</h2>
+      <div class="navbar-nav">
+        <a href="#dashboard" class="nav-btn">Home</a>
+        <a href="#dgo-track" class="nav-btn">Switch to Modern UI</a>
+      </div>
+    </div>
+    <div style="padding: 30px;">
+      <div class="matrix-card">
+        <h3 style="margin-bottom: 15px;">Active Tracking Nodes</h3>
+        <div id="trackingNodesContainer">
+          <p style="color: var(--text-secondary);">No active responses loaded. Execute sync to fetch latest vectors.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-dgo-track" class="spa-view hidden theme-dark">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h1 class="text-2xl font-bold">DGO Enterprise Intelligence</h1>
+          <p class="text-sm text-gray-400">Client-Side Operation Dashboard</p>
+        </div>
+        <div class="flex gap-4 items-center">
+          <a href="#dashboard" class="nav-btn" style="border-color: rgba(255,255,255,0.2);">Classic View</a>
+          <button id="btnSyncModern" class="glass p-4 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-white/5 transition-colors">
+            <svg id="refreshIconModern" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span class="text-sm font-bold">Sync Data</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-6 mb-8" id="modernStatsCards">
+        </div>
+
+      <div class="glass p-6 rounded-xl overflow-x-auto">
+        <table class="min-w-full" id="modernTable">
+          <thead>
+            <tr id="modernTableHead">
+              <th>Progress</th><th>Reference ID</th><th>Assigned To</th><th>Priority</th>
+            </tr>
+          </thead>
+          <tbody id="modernTableBody">
+            <tr><td colspan="4" class="text-center p-6 text-gray-500">Awaiting data fetch...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+
+  <script>
+    // ============================================================
+    // PHASE 6: GLOBAL UTILITIES (DEFINED EXACTLY ONCE)
+    // ============================================================
+    const $ = (s, p = document) => p.querySelector(s);
+    const $$ = (s, p = document) => [...p.querySelectorAll(s)];
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification show ${type}`;
+      setTimeout(() => notification.classList.remove('show'), 5000);
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '--';
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    // ============================================================
+    // PHASE 5: SINGLE GLOBAL STATE OBJECT & CONFIGURATION
+    // ============================================================
+    window.DGO_CONFIG = {
+      endpoints: {
+        E01_LOOKUPS: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU",
+        E02_DOCS: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50",
+        E03_TASKS: "https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4"
+      }
+    };
+    window.DGO_STATE = {
+      user: "dgsregistry@nitda.gov.ng",
+      activeView: "dashboard",
+      data: {
+        tasks: [],
+        docs: [],
+        metrics: { total: 0, critical: 0, resolved: 0, efficiency: "0%" }
+      },
+      settings: {}
+    };
+
+    // ============================================================
+    // PHASE 7: STORAGE & SETTINGS PRESERVATION
+    // ============================================================
+    let telemetryBuffer = [];
+    let telemetryDebounceTimer = null;
+    function telemetryLog(msg, type = 'INFO') {
+      const stamp = new Date().toISOString().split('T')[1].substring(0,8);
+      const logLine = `[${stamp}] [${type}] ${msg}`;
+      console.log(logLine);
+      const el = $('#telemetryOutput');
+      if (el) { el.innerHTML += `<br>> ${escapeHtml(logLine)}`; el.scrollTop = el.scrollHeight; }
+      
+      telemetryBuffer.push(logLine);
+      if (telemetryDebounceTimer) clearTimeout(telemetryDebounceTimer);
+      telemetryDebounceTimer = setTimeout(() => {
+        let logs = [];
+        try { logs = JSON.parse(localStorage.getItem('nitda_dgo_telemetry') || '[]'); } catch(e){}
+        logs = logs.concat(telemetryBuffer);
+        if (logs.length > 100) logs = logs.slice(logs.length - 100);
+        localStorage.setItem('nitda_dgo_telemetry', JSON.stringify(logs));
+        telemetryBuffer = []; 
+      }, 1000);
+    }
+
+    // ============================================================
+    // PHASE 4: UNIFIED POWER AUTOMATE EXECUTION ENGINE
+    // ============================================================
+    async function executeUnifiedFlow({ endpoint, method = 'POST', payload }) {
+      // Rule 4.2: 115-second timeout, AbortController, HTTP 429 Retry
+      const timeoutMs = 115000; 
+      const maxRetries = 2;
+      let retries = 0;
+
+      telemetryLog(`Executing Flow -> Endpoint configured`, 'REQ');
+
+      // Mock protection: If no endpoint provided, simulate execution for prototype safety
+      if (!endpoint || endpoint === '') {
+          telemetryLog(`No live endpoint provided. Simulating execution for demonstration.`, 'WARN');
+          await new Promise(r => setTimeout(r, 800));
+          return { ok: true, data: { status: "Simulated Success", mockData: true } };
+      }
+
+      while (retries <= maxRetries) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+          const response = await fetch(endpoint, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+
+          if (response.status === 429) {
+            retries++;
+            let delayMs = 5000;
+            const retryAfter = response.headers.get('Retry-After');
+            if (retryAfter && !isNaN(parseInt(retryAfter, 10))) delayMs = parseInt(retryAfter, 10) * 1000;
+            else delayMs = Math.min((Math.pow(2, retries) * 1000), 10000);
+            telemetryLog(`HTTP 429 Rate Limit hit. Retrying ${retries}/${maxRetries} in ${delayMs}ms...`, 'WARN');
+            await new Promise(r => setTimeout(r, delayMs));
+            continue;
+          }
+
+          if (!response.ok) {
+            throw new Error(`Flow HTTP Error: ${response.status} ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          telemetryLog(`Flow Execution Successful.`, 'SUCCESS');
+          return { ok: true, data };
+
+        } catch (err) {
+          clearTimeout(timeoutId);
+          
+          if (err.name === 'AbortError') {
+            telemetryLog(`Flow Timeout: Operation exceeded 115s limit.`, 'ERROR');
+            throw new Error('Flow Timeout: The Power Automate flow did not respond in time.');
+          }
+          
+          if (retries >= maxRetries) {
+            telemetryLog(`Execution failed after max retries: ${err.message}`, 'ERROR');
+            return { ok: false, error: err.message };
+          }
+          
+          retries++;
+          telemetryLog(`Network fault. Retrying ${retries}/${maxRetries}...`, 'WARN');
+          await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+    }
+
+    // ============================================================
+    // PHASE 3: CENTRAL ROUTING ENGINE (HASH-BASED, SAFE)
+    // ============================================================
+    function syncRouteFromHash() {
+      let hash = window.location.hash;
+      if (!hash) hash = '#dashboard';
+      
+      const viewId = 'view-' + hash.substring(1);
+      let targetView = document.getElementById(viewId);
+
+      // Fallback route
+      if (!targetView) {
+        telemetryLog(`Route ${hash} not found. Falling back to #dashboard.`, 'WARN');
+        window.location.hash = '#dashboard';
+        return;
+      }
+
+      // Deactivate all views
+      $$('.spa-view').forEach(el => {
+        el.classList.remove('active');
+        el.classList.add('hidden');
+      });
+
+      // Activate target view
+      targetView.classList.remove('hidden');
+      targetView.classList.add('active');
+      window.DGO_STATE.activeView = hash.substring(1);
+      
+      telemetryLog(`Mapsd to view: ${window.DGO_STATE.activeView}`, 'SYS');
+
+      // Trigger respective renderer based on active view
+      triggerViewRenderer(window.DGO_STATE.activeView);
+    }
+
+    // ============================================================
+    // PHASE 5.2: RENDER CONTRACTS (Using safe escapeHtml)
+    // ============================================================
+    function triggerViewRenderer(viewName) {
+      if (viewName === 'decision-hub') renderDecisionHub();
+      if (viewName === 'dgo-track') renderModernDashboard();
+    }
+
+    function renderDecisionHub() {
+      const container = $('#hubBody');
+      if (!container) return;
+      const data = window.DGO_STATE.data.docs || [];
+      if (data.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-secondary);">No correlated tasks detected. Ensure data is synced.</p>`;
+        return;
+      }
+      container.innerHTML = data.map(doc => `
+        <div class="matrix-card">
+          <h4 style="color: var(--brand-primary); margin-bottom:8px;">${escapeHtml(doc.Title)}</h4>
+          <div class="matrix-meta"><strong>Assigned:</strong> ${escapeHtml(doc.AssignedTo)}</div>
+          <div class="matrix-meta"><strong>Status:</strong> ${escapeHtml(doc.AssignmentStatus)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderModernDashboard() {
+      const tableContainer = $('#modernTableBody');
+      const statsContainer = $('#modernStatsCards');
+      const data = window.DGO_STATE.data.tasks || [];
+      if (tableContainer) {
+        if (data.length === 0) {
+          tableContainer.innerHTML = `<tr><td colspan="4" class="text-center p-6 text-gray-500">Ready for Intelligence Sync. Click 'Sync Data'.</td></tr>`;
+        } else {
+          tableContainer.innerHTML = data.map(item => `
+            <tr class="hover:bg-white/5 transition-colors">
+              <td class="px-6 py-4"><span class="${item.Progress === 'Completed' ? 'text-teal-400 font-bold' : 'text-gray-400'}">${escapeHtml(item.Progress)}</span></td>
+              <td class="px-6 py-4">${escapeHtml(item.Reference_ID)}</td>
+              <td class="px-6 py-4">${escapeHtml(item.AssignedTo)}</td>
+              <td class="px-6 py-4 font-bold ${item.Priority === 'High' ? 'text-red-500' : 'text-gray-400'}">${escapeHtml(item.Priority)}</td>
+            </tr>
+          `).join('');
+        }
+      }
+      if (statsContainer) {
+        const metrics = window.DGO_STATE.data.metrics;
+        statsContainer.innerHTML = `
+          <div class="glass p-6 rounded-xl"><p class="text-gray-400 text-sm mb-1">Total Operations</p><h3 class="text-2xl font-bold">${escapeHtml(metrics.total)}</h3></div>
+          <div class="glass p-6 rounded-xl border-l-4" style="border-left-color: var(--error);"><p class="text-gray-400 text-sm mb-1">Critical Tasks</p><h3 class="text-2xl font-bold text-red-500">${escapeHtml(metrics.critical)}</h3></div>
+          <div class="glass p-6 rounded-xl border-l-4" style="border-left-color: var(--success);"><p class="text-gray-400 text-sm mb-1">Resolved</p><h3 class="text-2xl font-bold text-teal-400">${escapeHtml(metrics.resolved)}</h3></div>
+          <div class="glass p-6 rounded-xl"><p class="text-gray-400 text-sm mb-1">System Efficiency</p><h3 class="text-2xl font-bold">${escapeHtml(metrics.efficiency)}</h3></div>
+        `;
+      }
+    }
+
+    // ============================================================
+    // PHASE 8: SCRIPT BINDING & EVENT LISTENERS
+    // ============================================================
+    window.addEventListener("hashchange", syncRouteFromHash);
+    window.addEventListener("DOMContentLoaded", () => {
+      
+      // Initialize Router
+      syncRouteFromHash();
+
+      const basePayload = { operation: "read", mode: "read", source: "DGO_FAST_Track_WEB_OPS", userEmail: window.DGO_STATE.user };
+      const btnReload = $('#btnRunReload');
+      if (btnReload) {
+        btnReload.onclick = async () => {
+          showNotification('Initiating Connectivity Check...', 'info');
+          const res = await executeUnifiedFlow({ endpoint: window.DGO_CONFIG.endpoints.E01_LOOKUPS, payload: { ...basePayload, action: "getReferences" } });
+          if (res.ok) showNotification('Connectivity Verified.', 'success'); else showNotification(res.error, 'error');
+        };
+      }
+      const btnClear = $('#btnClearTelemetry');
+      if (btnClear) {
+        btnClear.onclick = () => {
+          $('#telemetryOutput').innerHTML = '> Telemetry cleared.';
+          localStorage.removeItem('nitda_dgo_telemetry');
+          telemetryBuffer = []; if (telemetryDebounceTimer) clearTimeout(telemetryDebounceTimer);
+        };
+      }
+      const btnSyncDecisions = $('#btnSyncDecisions');
+      if (btnSyncDecisions) {
+        btnSyncDecisions.onclick = async () => {
+          showNotification('Fetching Decision Docs...', 'info');
+          const res = await executeUnifiedFlow({ endpoint: window.DGO_CONFIG.endpoints.E02_DOCS, payload: { ...basePayload, action: "getDocs" } });
+          if (res.ok && res.data) {
+            window.DGO_STATE.data.docs = res.data.docs || [];
+            renderDecisionHub();
+            showNotification('Docs Synchronized.', 'success');
+          } else showNotification(res.error || 'Failed to map response', 'error');
+        };
+      }
+      const btnSyncModern = $('#btnSyncModern');
+      if (btnSyncModern) {
+        btnSyncModern.onclick = async () => {
+          $('#refreshIconModern').classList.add('animate-spin-slow');
+          showNotification('Fetching Task Intelligence...', 'info');
+          const res = await executeUnifiedFlow({ endpoint: window.DGO_CONFIG.endpoints.E03_TASKS, payload: { ...basePayload, action: "getTasks" } });
+          $('#refreshIconModern').classList.remove('animate-spin-slow');
+          if (res.ok && res.data) {
+            const tasks = res.data.tasks || [];
+            window.DGO_STATE.data.tasks = tasks;
+            window.DGO_STATE.data.metrics = {
+              total: tasks.length,
+              critical: tasks.filter(t => t.Priority === 'High').length,
+              resolved: tasks.filter(t => t.Progress === 'Completed').length,
+              efficiency: tasks.length > 0 ? Math.round((tasks.filter(t => t.Progress === 'Completed').length / tasks.length) * 100) + '%' : '0%'
+            };
+            renderModernDashboard();
+            showNotification('Intelligence synchronized.', 'success');
+          } else showNotification(res.error || 'Failed to map response', 'error');
+        };
+      }
+      telemetryLog('System Operational. Architecture aligned to strict schemas.', 'SYS');
+    });
+
+  </script>
+</body>
+</html>

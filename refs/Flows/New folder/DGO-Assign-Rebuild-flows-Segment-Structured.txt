@@ -1,0 +1,83 @@
+// 1. REPLACEMENT FOR App.refreshData()
+// This segment calls your 'getDocs', 'getTasks', and 'referenceData' flows.
+async refreshData() {
+    this.setLoading(true, "Synchronizing with NITDA Cloud...");
+    try {
+        const payload = { 
+            action: "docsfetch", 
+            userEmail: this.state.userEmail 
+        };
+
+        // Fetch Tasks/Docs
+        const taskRes = await fetch(FLOW_ENDPOINTS.getTasks, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const taskData = await taskRes.json();
+        this.state.tasks = taskData.tasks || [];
+
+        // Fetch Reference Data (Users, Categories, Departments)
+        const refRes = await fetch(FLOW_ENDPOINTS.getRefData, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+        });
+        const refData = await refRes.json();
+        this.state.refData = {
+            categories: refData.categories || [],
+            users: refData.users || [],
+            departments: refData.departments || []
+        };
+        
+        this.renderFilters();
+        this.renderTasks();
+    } catch (err) {
+        console.error("Flow Error:", err);
+        // Custom modal instead of alert
+        this.showNotification("Connection Error: Could not reach Power Automate.", "error");
+    } finally {
+        this.setLoading(false);
+    }
+}
+
+// 2. REPLACEMENT FOR App.submitAssignment()
+// This maps to your 'createTask' or 'updateTask' flows seen in the Canvas logic.
+async submitAssignment() {
+    const asn = {
+        type: "newassignment",
+        category: document.getElementById('asnCategory').value,
+        categoryCode: "", // Map from refData if needed
+        assignedTo: document.getElementById('asnUser').value,
+        primaryDSU: document.getElementById('asnDSU').value,
+        priority: "Normal", // Or get from UI state
+        comments: document.getElementById('asnComments').value,
+        originalId: this.state.selectedTask?.id,
+        userEmail: this.state.userEmail
+    };
+
+    if (!asn.category || !asn.assignedTo) {
+        return this.showNotification("Please select Category and Assignee", "error");
+    }
+
+    this.setLoading(true, "Triggering Flow: createTask...");
+    try {
+        const response = await fetch(FLOW_ENDPOINTS.submitAsn, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(asn)
+        });
+
+        if (response.ok) {
+            this.showNotification("Assignment Submitted Successfully", "success");
+            this.switchView('tasks');
+            await this.refreshData();
+        } else {
+            throw new Error("Flow execution failed");
+        }
+    } catch (err) {
+        this.showNotification("Submission Failed: Check Flow History", "error");
+    } finally {
+        this.setLoading(false);
+    }
+}

@@ -1,0 +1,2738 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NITDA DGO – Smart Orchestrator (Merged Launcher)</title>
+  <style>
+    :root {
+      --brand-primary: #008751; --brand-secondary: #00A69D; --brand-dark: #05583B;
+      --bg-main: #f0f2f5; --panel-bg: #ffffff; --border-color: #e1e4e8;
+      --text-main: #1a202c; --text-muted: #718096;
+      --success: #107c10; --warning: #d97706; --danger: #dc2626; --info: #2563eb;
+      --radius-lg: 14px; --radius-md: 10px; --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-md: 0 10px 18px -8px rgba(0,0,0,0.25);
+      --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --focus: #93c5fd;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-main: #0f172a; --panel-bg: #1e293b; --border-color: #334155;
+        --text-main: #f1f5f9; --text-muted: #94a3b8;
+      }
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: var(--font-family); background: var(--bg-main);
+      color: var(--text-main); line-height: 1.5; overflow-x: hidden;
+    }
+
+    a { color: var(--brand-primary); }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 10px; }
+
+    /* Shell */
+    .app-container { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-dark));
+      color: white; padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      gap: 12px;
+    }
+
+    .brand-group { display: flex; align-items: center; gap: 12px; min-width: 240px; }
+    .brand-text h1 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+    .brand-text p { margin: 0; font-size: 11px; opacity: 0.88; }
+
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+    main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color);
+      background: var(--panel-bg); color: var(--text-main); font-size: 13px; font-weight: 800;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+      user-select: none;
+    }
+    .btn-primary { background: var(--brand-primary); color: white; border-color: var(--brand-dark); }
+    .btn-danger { background: var(--danger); color: white; border-color: #7f1d1d; }
+    .btn:active { transform: translateY(1px); }
+    .btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+    /* Cards */
+    .glass-card {
+      background: var(--panel-bg); border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); overflow: hidden; display: flex;
+      flex-direction: column; box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border-color);
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(0,0,0,0.02);
+      gap: 10px;
+    }
+
+    .card-header h2 { margin: 0; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px; }
+
+    .scroll-area { flex: 1; overflow-y: auto; }
+
+    /* Pills, badges */
+    .badge {
+      padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 900;
+      text-transform: uppercase; display: inline-block;
+      line-height: 1.6;
+    }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      font-size: 12px; font-weight: 800;
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+    /* Launcher */
+    .launcher {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .launcher { grid-template-columns: 1fr; }
+    }
+
+    .hero {
+      padding: 18px;
+      border-radius: 18px;
+      background: radial-gradient(1200px 450px at 0% 0%, rgba(0,166,157,0.24), transparent 55%),
+                  radial-gradient(900px 420px at 95% 25%, rgba(0,135,81,0.22), transparent 55%),
+                  var(--panel-bg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+    }
+
+    .hero h1 { margin: 0; font-size: 22px; font-weight: 950; }
+    .hero p { margin: 8px 0 0 0; color: var(--text-muted); font-weight: 600; }
+
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+
+    .quick {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.01);
+    }
+
+    .quick .title { font-weight: 950; }
+    .quick .desc { margin-top: 4px; font-size: 12px; color: var(--text-muted); font-weight: 650; }
+    .quick .actions { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(100,116,139,0.35);
+      font-size: 12px;
+    }
+    .kv:last-child { border-bottom: none; }
+    .kv .k { color: var(--text-muted); font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; }
+    .kv .v { font-weight: 700; }
+
+    /* App (Enhanced SPA) */
+    .hidden { display: none !important; }
+
+    .tabs {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 6px; border-radius: 14px;
+    }
+    .tab {
+      border: 1px solid transparent;
+      background: transparent; color: white;
+      padding: 8px 10px; border-radius: 10px;
+      font-weight: 900; font-size: 12px;
+      cursor: pointer;
+    }
+    .tab[aria-selected="true"] {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .action-bar {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+      align-items: center;
+    }
+    @media (max-width: 900px) { .action-bar { grid-template-columns: 1fr; } }
+
+    .search-input {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); background: var(--panel-bg); color: var(--text-main);
+      font-size: 14px; font-weight: 650;
+    }
+
+    select.select {
+      padding: 10px 12px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); background: var(--panel-bg); color: var(--text-main);
+      font-size: 13px; font-weight: 800;
+    }
+
+    input[type="date"].date {
+      padding: 9px 10px; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); background: var(--panel-bg); color: var(--text-main);
+      font-size: 13px; font-weight: 700;
+    }
+
+    .dashboard-grid {
+      display: grid; grid-template-columns: 350px 1fr; gap: 20px; height: 100%;
+    }
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    .data-item {
+      padding: 12px 16px; border-bottom: 1px solid var(--border-color);
+      cursor: pointer; transition: all 0.15s ease; position: relative;
+    }
+    .data-item:hover { background: rgba(0, 135, 81, 0.05); }
+    .data-item.active { background: rgba(0, 135, 81, 0.1); border-left: 4px solid var(--brand-primary); }
+
+    .item-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; display: block; }
+    .item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .matrix-view { display: flex; flex-direction: column; gap: 12px; }
+    .matrix-section { background: rgba(0,0,0,0.01); border-radius: var(--radius-md); padding: 12px; border: 1px solid var(--border-color); }
+    .matrix-label { font-size: 11px; font-weight: 950; color: var(--brand-primary); margin-bottom: 8px; display: block; }
+
+    /* Toasts */
+    #toast-host {
+      position: fixed; right: 16px; bottom: 16px; z-index: 1200;
+      display: flex; flex-direction: column; gap: 10px;
+      max-width: min(420px, calc(100vw - 32px));
+    }
+    .toast {
+      background: var(--panel-bg); border: 1px solid var(--border-color);
+      border-left: 5px solid var(--info);
+      border-radius: 12px; box-shadow: var(--shadow-md);
+      padding: 10px 12px;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 10px;
+    }
+    .toast.success { border-left-color: var(--success); }
+    .toast.warn { border-left-color: var(--warning); }
+    .toast.danger { border-left-color: var(--danger); }
+    .toast .title { font-weight: 950; font-size: 13px; }
+    .toast .msg { font-size: 12px; color: var(--text-muted); }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      z-index: 1100; display: flex; align-items: center; justify-content: center;
+      padding: 14px;
+    }
+    .modal {
+      width: min(760px, 100%);
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .modal .mhead {
+      color: var(--text-main);
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.02);
+    }
+    .modal .mhead h3 { margin: 0; font-size: 14px; font-weight: 950; letter-spacing: 0.3px; }
+    .modal .mbody { padding: 14px 16px; }
+    .modal .mfoot { padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .field label { font-size: 12px; font-weight: 900; color: var(--text-muted); }
+    .field input, .field textarea {
+      padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--panel-bg); color: var(--text-main); font-size: 13px;
+    }
+    .field textarea { min-height: 86px; resize: vertical; font-family: var(--font-family); }
+
+    /* Loading */
+    #loading-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+    }
+    .spinner {
+      width: 44px; height: 44px; border: 4px solid #fff; border-top-color: var(--brand-secondary);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Tables */
+    .table-wrap { overflow: auto; border: 1px solid var(--border-color); border-radius: 12px; }
+    table.data-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    table.data-table th, table.data-table td { padding: 10px 10px; border-bottom: 1px solid var(--border-color); font-size: 12px; }
+    table.data-table th { text-align: left; font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); background: rgba(0,0,0,0.02); position: sticky; top: 0; }
+    table.data-table tr:hover td { background: rgba(0, 135, 81, 0.04); }
+
+    /* Charts */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 12px; }
+    @media (max-width: 1000px) { .kpi-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); } }
+    @media (max-width: 520px) { .kpi-grid { grid-template-columns: 1fr; } }
+    .kpi {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+    .kpi .label { font-size: 11px; font-weight: 950; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi .value { font-size: 26px; font-weight: 950; margin-top: 6px; }
+    .kpi .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    canvas.chart { width: 100%; height: 260px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--panel-bg); }
+
+    /* Matrix grid */
+    .matrix-grid-wrap { overflow: auto; border: 1px solid var(--border-color); border-radius: 14px; }
+    table.matrix-grid { border-collapse: collapse; width: 100%; min-width: 820px; }
+    table.matrix-grid th, table.matrix-grid td { border-bottom: 1px solid var(--border-color); border-right: 1px solid var(--border-color); padding: 8px; font-size: 12px; }
+    table.matrix-grid th { background: rgba(0,0,0,0.02); position: sticky; top: 0; z-index: 2; }
+    table.matrix-grid th:first-child { left: 0; z-index: 3; position: sticky; }
+    table.matrix-grid td:first-child { left: 0; z-index: 1; position: sticky; background: var(--panel-bg); }
+    .matrix-cell { cursor: pointer; text-align: center; }
+    .matrix-cell:hover { background: rgba(0, 166, 157, 0.08); }
+    .chip { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; padding: 2px 8px; border-radius: 999px; font-weight: 950; }
+    .chip.c0 { background: rgba(148, 163, 184, 0.18); border: 1px solid rgba(148, 163, 184, 0.35); }
+    .chip.c3 { background: rgba(217, 119, 6, 0.12); border: 1px solid rgba(217, 119, 6, 0.28); }
+    .chip.c5 { background: rgba(16, 124, 16, 0.14); border: 1px solid rgba(16, 124, 16, 0.28); }
+
+    /* Diagnostics */
+    .log {
+      font-family: var(--mono);
+      font-size: 11px;
+      white-space: pre-wrap;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(0,0,0,0.02);
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    /* Print */
+    @media print {
+      header, #toast-host, #loading-overlay, .action-bar, .tabs, #view-launcher { display: none !important; }
+      body { background: white; }
+      .glass-card { box-shadow: none; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <header>
+      <div class="brand-group" aria-label="Brand">
+        <div class="brand-text">
+          <h1>NITDA SMART ORCHESTRATOR</h1>
+          <p id="system-status" aria-live="polite">Launcher • Ready</p>
+        </div>
+      </div>
+
+      <!-- App tabs are hidden until the user launches the app -->
+      <nav class="tabs hidden" id="app-tabs" role="tablist" aria-label="Primary navigation">
+        <button class="tab" role="tab" aria-selected="true" data-view="explorer">Explorer</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="matrix">Matrix</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="timeline">Timeline</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="reports">Reports</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="trends">Trends</button>
+        <button class="tab" role="tab" aria-selected="false" data-view="dashboard">Dashboard</button>
+      </nav>
+
+      <div class="header-actions" aria-label="Header actions">
+        <button class="btn" id="btn-home" aria-label="Go to launcher home">🏠 HOME</button>
+        <button class="btn btn-primary" id="btn-run-sync" aria-label="Run sync" disabled>▶ RUN SYNC</button>
+        <button class="btn" id="btn-settings" aria-label="Open settings" disabled>⚙ SETTINGS</button>
+        <button class="btn" id="btn-diagnostics" aria-label="Toggle diagnostics">🧾 LOG</button>
+      </div>
+    </header>
+
+    <main role="main">
+
+      <!-- LAUNCHER VIEW -->
+      <section id="view-launcher" class="launcher" aria-label="Launcher">
+        <div class="hero">
+          <h1>Merged Launcher</h1>
+          <p>Single-file operational console: direct Power Automate flows + full interactive product UI (Explorer, Matrix, Timeline, Reports, Trends, Dashboard). No external dependencies.</p>
+
+          <div class="grid2">
+            <div class="quick">
+              <div class="title">Start Live (Flows)</div>
+              <div class="desc">Uses the embedded flow endpoints with direct POST calls.</div>
+              <div class="actions">
+                <button class="btn btn-primary" id="btn-launch-live">🚀 Launch Live</button>
+                <button class="btn" id="btn-quick-sync">⚡ Launch + Sync</button>
+              </div>
+            </div>
+
+            <div class="quick">
+              <div class="title">Start Demo (Offline)</div>
+              <div class="desc">Loads complete sample dataset so every view is usable without network access.</div>
+              <div class="actions">
+                <button class="btn btn-primary" id="btn-launch-demo">🧪 Launch Demo</button>
+                <button class="btn" id="btn-reset-local">🧹 Reset Local Data</button>
+              </div>
+            </div>
+
+            <div class="quick">
+              <div class="title">Data Tools</div>
+              <div class="desc">Export/import relationships and download a snapshot of current in-memory state.</div>
+              <div class="actions">
+                <button class="btn" id="btn-export-edges">⬇ Export Edges</button>
+                <button class="btn" id="btn-import-edges">⬆ Import Edges</button>
+                <button class="btn" id="btn-export-state">⬇ Export State</button>
+              </div>
+            </div>
+
+            <div class="quick">
+              <div class="title">Self-Check</div>
+              <div class="desc">Runs an in-browser validation of required DOM nodes and core functions.</div>
+              <div class="actions">
+                <button class="btn" id="btn-selfcheck">✅ Run Self-Check</button>
+                <span class="pill"><span class="dot" id="self-dot" style="background: var(--info)"></span><span id="self-status">Not run</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="glass-card" aria-label="Launcher details">
+          <div class="card-header">
+            <h2>Runtime Details</h2>
+            <span class="badge" id="runtime-badge" style="background: var(--info)">READY</span>
+          </div>
+          <div class="scroll-area" style="padding: 14px;">
+            <div class="kv"><div class="k">Mode</div><div class="v" id="kv-mode">Launcher</div></div>
+            <div class="kv"><div class="k">User Email</div><div class="v" id="kv-email">dgsregistry@nitda.gov.ng</div></div>
+            <div class="kv"><div class="k">Device ID</div><div class="v" id="kv-device">spa-browser</div></div>
+            <div class="kv"><div class="k">Data</div><div class="v" id="kv-data">Docs: 0 • Tasks: 0 • Emails: 0 • Edges: 0</div></div>
+            <div class="kv"><div class="k">Last Sync</div><div class="v" id="kv-sync">Never</div></div>
+            <div class="kv"><div class="k">Local Storage</div><div class="v" id="kv-storage">Edges + Timeline events (front-end only)</div></div>
+            <div class="kv"><div class="k">Build</div><div class="v">Single-file merged launcher (v6.0)</div></div>
+            <div class="kv"><div class="k">Notes</div><div class="v">If the browser blocks cross-site calls due to policy/CORS, use Demo mode to validate UI and state logic.</div></div>
+          </div>
+        </section>
+      </section>
+
+      <!-- APP FILTERS (GLOBAL) -->
+      <div id="app-filters" class="action-bar hidden" role="region" aria-label="Filters and actions">
+        <input type="text" class="search-input" id="global-search" placeholder="Search Docs, Tasks, or Emails (ID / Title / Subject)..." aria-label="Global search" />
+        <select class="select" id="category-filter" aria-label="Category filter">
+          <option value="All">All Categories</option>
+        </select>
+        <select class="select" id="status-filter" aria-label="Status filter">
+          <option value="All">All Status</option>
+          <option value="Treated">Treated</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+
+      <!-- APP VIEWS -->
+      <section id="view-explorer" class="dashboard-grid hidden" aria-label="Explorer view">
+        <section class="glass-card" aria-label="Source documents">
+          <div class="card-header">
+            <h2>Source Documents</h2>
+            <div class="pill" title="Sync sources status"><span class="dot" id="src-dot" style="background: var(--info)"></span><span id="src-status">Idle</span></div>
+            <span class="badge" style="background: var(--brand-dark)" id="doc-count">0</span>
+          </div>
+          <div class="scroll-area" id="doc-list" role="listbox" aria-label="Document list">
+            <div style="padding: 30px; text-align: center; color: var(--text-muted);">No data. Use RUN SYNC or Demo mode.</div>
+          </div>
+        </section>
+
+        <section class="glass-card" aria-label="Detail panel">
+          <div class="card-header">
+            <h2 id="detail-title">Relational Matrix Explorer</h2>
+            <div class="flex-row" id="detail-actions" aria-label="Context actions"></div>
+          </div>
+          <div class="scroll-area" style="padding: 16px;" id="detail-view" role="region" aria-label="Detail view">
+            <div style="padding: 30px; text-align: center; color: var(--text-muted);">Select a document to view related items and telemetry.</div>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-matrix" class="glass-card hidden" aria-label="Matrix view">
+        <div class="card-header">
+          <h2>Relationship Matrix</h2>
+          <div class="flex-row">
+            <select class="select" id="matrix-mode" aria-label="Matrix mode">
+              <option value="doc-email">Docs × Emails</option>
+              <option value="doc-task">Docs × Tasks</option>
+            </select>
+            <button class="btn" id="btn-matrix-refresh" aria-label="Recompute matrix">↻ Recompute</button>
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 16px;">
+          <div class="matrix-grid-wrap" id="matrix-grid-wrap">
+            <div style="padding: 30px; text-align: center; color: var(--text-muted);">No data. RUN SYNC or Demo mode.</div>
+          </div>
+          <p style="margin: 10px 0 0 0; color: var(--text-muted); font-weight: 650; font-size: 12px;">Tip: Click a matrix cell to add/edit a relationship edge (stored locally).</p>
+        </div>
+      </section>
+
+      <section id="view-timeline" class="glass-card hidden" aria-label="Timeline view">
+        <div class="card-header">
+          <h2>Tracking & Tracing Timeline</h2>
+          <div class="flex-row">
+            <select class="select" id="timeline-type" aria-label="Timeline entity type">
+              <option value="doc">Document</option>
+              <option value="task">Task</option>
+              <option value="email">Email</option>
+            </select>
+            <input type="text" class="search-input" id="timeline-search" placeholder="Filter timeline..." aria-label="Filter timeline" style="max-width: 320px;" />
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 16px;" id="timeline-view">
+          <div style="padding: 30px; text-align: center; color: var(--text-muted);">RUN SYNC and select an entity to view timeline.</div>
+        </div>
+      </section>
+
+      <section id="view-reports" class="glass-card hidden" aria-label="Reports view">
+        <div class="card-header">
+          <h2>Reporting</h2>
+          <div class="flex-row" style="flex-wrap: wrap;">
+            <select class="select" id="report-dataset" aria-label="Report dataset">
+              <option value="docs">Documents</option>
+              <option value="tasks">Tasks</option>
+              <option value="emails">Emails</option>
+              <option value="edges">Relationships (Edges)</option>
+            </select>
+            <select class="select" id="report-group" aria-label="Group by">
+              <option value="none">No Group</option>
+              <option value="status">Group by Status</option>
+              <option value="category">Group by Category</option>
+              <option value="owner">Group by Owner</option>
+              <option value="type">Group by Type</option>
+            </select>
+            <button class="btn" id="btn-export-csv">⬇ CSV</button>
+            <button class="btn" id="btn-export-json">⬇ JSON</button>
+            <button class="btn" id="btn-print">🖨 Print</button>
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 16px;" id="reports-view">
+          <div style="padding: 30px; text-align: center; color: var(--text-muted);">RUN SYNC or Demo mode to generate reports.</div>
+        </div>
+      </section>
+
+      <section id="view-trends" class="glass-card hidden" aria-label="Trends view">
+        <div class="card-header">
+          <h2>Trends</h2>
+          <div class="flex-row" style="flex-wrap: wrap;">
+            <select class="select" id="trend-source" aria-label="Trend source">
+              <option value="docs">Documents (Created)</option>
+              <option value="emails">Emails (Received)</option>
+            </select>
+            <select class="select" id="trend-bucket" aria-label="Bucket">
+              <option value="day">Daily</option>
+              <option value="week">Weekly</option>
+              <option value="month">Monthly</option>
+            </select>
+            <input type="date" class="date" id="trend-from" aria-label="From date" />
+            <input type="date" class="date" id="trend-to" aria-label="To date" />
+            <button class="btn" id="btn-trend-run">▶ Run</button>
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 16px;">
+          <canvas class="chart" id="trend-chart" width="1200" height="520" aria-label="Trend chart" role="img"></canvas>
+          <div class="flex-row" style="justify-content: space-between; margin-top: 10px;">
+            <div style="color: var(--text-muted); font-weight: 650; font-size: 12px;" id="trend-summary">No trend computed.</div>
+            <button class="btn" id="btn-trend-drill">🔎 Drilldown</button>
+          </div>
+          <div id="trend-table" style="margin-top: 12px;"></div>
+        </div>
+      </section>
+
+      <section id="view-dashboard" class="glass-card hidden" aria-label="Dashboard view">
+        <div class="card-header">
+          <h2>Dashboard</h2>
+          <div class="flex-row">
+            <button class="btn" id="btn-dashboard-refresh">↻ Recompute KPIs</button>
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 16px;">
+          <div class="kpi-grid" id="kpi-grid"></div>
+          <div style="margin-top: 12px; display:flex; flex-direction:column; gap: 10px;">
+            <canvas class="chart" id="dash-chart" width="1200" height="520" aria-label="Dashboard chart" role="img"></canvas>
+            <div style="color: var(--text-muted); font-weight: 650; font-size: 12px;" id="dash-summary">KPIs not computed.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="diagnostics-panel" class="glass-card hidden" aria-label="Diagnostics panel" style="position: sticky; bottom: 0; z-index: 50;">
+        <div class="card-header">
+          <h2>Diagnostics</h2>
+          <div class="flex-row">
+            <button class="btn" id="btn-copy-log">Copy</button>
+            <button class="btn btn-danger" id="btn-clear-log">Clear</button>
+          </div>
+        </div>
+        <div class="scroll-area" style="padding: 12px;">
+          <div class="log" id="diag-log" aria-label="Log output"></div>
+          <div style="margin-top: 10px; color: var(--text-muted); font-size: 12px; font-weight: 650;">Logs are stored in-memory only. Local storage persists edges + events if enabled.</div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Global Components -->
+    <div id="loading-overlay" class="hidden" role="alert" aria-live="assertive">
+      <div style="text-align: center; color: white;">
+        <div class="spinner" aria-hidden="true"></div>
+        <p style="margin-top: 15px; font-weight: 950;">Processing Direct Flows...</p>
+        <p id="loading-sub" style="margin-top: 4px; font-weight: 700; opacity: 0.88;">Initializing</p>
+      </div>
+    </div>
+
+    <div id="toast-host" aria-live="polite" aria-relevant="additions"></div>
+    <div id="modal-host" class="hidden"></div>
+
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* =====================
+       Utilities
+    ====================== */
+    const $ = (id) => document.getElementById(id);
+    const qs = (sel, root=document) => root.querySelector(sel);
+    const qsa = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    const nowMs = () => Date.now();
+
+    function esc(s='') {
+      return String(s)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function safeStr(s, fallback='') {
+      if (s === null || s === undefined) return fallback;
+      return String(s);
+    }
+
+    function safeLower(s) { return safeStr(s,'').toLowerCase(); }
+
+    function parseDateToMs(v) {
+      if (!v) return null;
+      let d = new Date(v);
+      let t = d.getTime();
+      if (!Number.isFinite(t) && typeof v === 'string') {
+        const parts = v.split(/[-/]/);
+        if (parts.length === 3) {
+          d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T00:00:00Z`);
+          t = d.getTime();
+        }
+      }
+      return Number.isFinite(t) ? t : null;
+    }
+
+    function fmtDateTime(v) {
+      const ms = parseDateToMs(v);
+      return ms ? new Date(ms).toLocaleString() : 'Unknown';
+    }
+
+    function debounce(fn, ms=180) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    function uid(prefix='id') {
+      return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+    }
+
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+    function downloadBlob(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    /* =====================
+       Toasts + Diagnostics
+    ====================== */
+
+    function toast(title, msg, type='info', ttl=4200) {
+      const host = $('toast-host');
+      const el = document.createElement('div');
+      el.className = `toast ${type}`;
+      el.innerHTML = `
+        <div>
+          <div class="title">${esc(title)}</div>
+          <div class="msg">${esc(msg)}</div>
+        </div>
+        <button class="btn" style="padding:6px 10px;" aria-label="Dismiss toast">✕</button>
+      `;
+      el.querySelector('button').addEventListener('click', () => el.remove());
+      host.appendChild(el);
+      setTimeout(() => { if (el.isConnected) el.remove(); }, ttl);
+    }
+
+    const diag = {
+      lines: [],
+      max: 600,
+      log(...args) {
+        const ts = new Date().toISOString();
+        const msg = args.map(a => {
+          if (typeof a === 'string') return a;
+          try { return JSON.stringify(a); } catch { return String(a); }
+        }).join(' ');
+        this.lines.push(`[${ts}] ${msg}`);
+        if (this.lines.length > this.max) this.lines.splice(0, this.lines.length - this.max);
+        $('diag-log').textContent = this.lines.join('\n');
+      },
+      clear() {
+        this.lines = [];
+        $('diag-log').textContent = '';
+      },
+      copy() {
+        const text = this.lines.join('\n');
+        navigator.clipboard?.writeText(text).then(() => toast('Copied', 'Diagnostics copied', 'success')).catch(() => toast('Copy failed', 'Clipboard not available', 'warn'));
+      }
+    };
+
+    /* =====================
+       Storage
+    ====================== */
+
+    const STORAGE = {
+      config: 'nitda_orch_config_v2',
+      edges: 'nitda_orch_edges_v2',
+      events: 'nitda_orch_events_v2',
+      cache:  'nitda_orch_cache_v2'
+    };
+
+    function loadJson(key, fallback=null) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch { return fallback; }
+    }
+
+    function saveJson(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        if (e.name === 'QuotaExceededError' || e.code === 22) {
+          diag.log('Storage quota exceeded. Pruning events.', e.name);
+          if (key !== STORAGE.events) {
+            try { 
+              localStorage.removeItem(STORAGE.events); 
+              localStorage.setItem(key, JSON.stringify(val)); 
+            } catch {}
+          }
+        }
+      }
+    }
+
+    function withTTLSet(key, value, ttlMs) {
+      saveJson(key, { value, expiresAt: nowMs() + ttlMs });
+    }
+
+    function withTTLGet(key) {
+      const obj = loadJson(key, null);
+      if (!obj || !obj.expiresAt) return null;
+      if (nowMs() > obj.expiresAt) {
+        try { localStorage.removeItem(key); } catch {}
+        return null;
+      }
+      return obj.value;
+    }
+
+    /* =====================
+       State
+    ====================== */
+
+    const state = {
+      mode: 'launcher', // launcher | live | demo
+      data: {
+        docs: [], tasks: [], emails: [],
+        entitiesByKey: new Map(),
+        edgesByKey: new Map(),
+        adjacency: new Map(),
+        indexes: {
+          tasksByRef: new Map(),
+          emailsById: new Map(),
+          emailTokens: new Map(),
+        },
+        lastSyncAt: null,
+        sourceStatus: { docs: 'idle', tasks: 'idle', emails: 'idle' },
+        lastErrors: { docs: null, tasks: null, emails: null }
+      },
+      ui: {
+        view: 'explorer',
+        selected: { type: 'doc', id: null },
+        filters: { q: '', category: 'All', status: 'All' },
+        loading: { sync: false },
+        _report: null,
+        _trend: null
+      },
+      config: {
+        userEmail: 'dgsregistry@nitda.gov.ng',
+        deviceId: 'spa-browser',
+        cacheTtlMin: 15
+      }
+    };
+
+    function keyOf(type, id) { return `${type}:${String(id)}`; }
+
+    function updateRuntimePanel() {
+      $('kv-mode').textContent = state.mode;
+      $('kv-email').textContent = state.config.userEmail;
+      $('kv-device').textContent = state.config.deviceId;
+      $('kv-data').textContent = `Docs: ${state.data.docs.length} • Tasks: ${state.data.tasks.length} • Emails: ${state.data.emails.length} • Edges: ${state.data.edgesByKey.size}`;
+      $('kv-sync').textContent = state.data.lastSyncAt ? new Date(state.data.lastSyncAt).toLocaleString() : 'Never';
+    }
+
+    function setSystemStatus(text, tone='info') {
+      $('system-status').textContent = text;
+      const badge = $('runtime-badge');
+      const map = { info: 'var(--info)', success: 'var(--success)', warn: 'var(--warning)', danger: 'var(--danger)' };
+      if (badge) badge.style.background = map[tone] || map.info;
+      if (badge) badge.textContent = text.toUpperCase().slice(0, 14);
+    }
+
+    function setLoading(on, subtitle='') {
+      const overlay = $('loading-overlay');
+      if (subtitle) $('loading-sub').textContent = subtitle;
+      overlay.classList.toggle('hidden', !on);
+      state.ui.loading.sync = on;
+      $('btn-run-sync').disabled = on || (state.mode === 'launcher');
+    }
+
+    /* =====================
+       Flow endpoints
+    ====================== */
+
+    const FLOWS = {
+      docs: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50',
+      tasks: 'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/37642ba3597f4cf58288cc71b5e6b519/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hklOSh62A6jmQuhX28NYQMaxlVEG8fC05LVsyVz7YX4',
+      emails:'https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3931e2ff995242b6b2c920c8b2209797/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SV7I2t9wmS0sWBGpHoIKg8I3E8ATk1KFrqrjC9Gih0U'
+    };
+
+    async function callFlow({ url, action, timeoutMs=20000 }) {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      const payload = {
+        action,
+        userEmail: state.config.userEmail,
+        operation: 'read',
+        device: { id: state.config.deviceId }
+      };
+      const meta = { url, action, startedAt: nowMs(), timeoutMs };
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('application/json')) {
+          const txt = await res.text().catch(()=>'');
+          throw new Error(`Non-JSON response (${res.status}). ${txt.slice(0,160)}`);
+        }
+        const json = await res.json();
+        meta.endedAt = nowMs();
+        meta.durationMs = meta.endedAt - meta.startedAt;
+        meta.httpOk = res.ok;
+        meta.status = res.status;
+        return { ok: res.ok, data: (json?.data ?? json), error: null, meta };
+      } catch (e) {
+        meta.endedAt = nowMs();
+        meta.durationMs = meta.endedAt - meta.startedAt;
+        const msg = (e && e.name === 'AbortError') ? `Timeout after ${timeoutMs}ms` : (e?.message || String(e));
+        return { ok: false, data: null, error: msg, meta };
+      } finally {
+        clearTimeout(t);
+      }
+    }
+
+    /* =====================
+       Normalization
+    ====================== */
+
+    function normalizeDoc(d) {
+      const id = safeStr(d?.ID ?? d?.Id ?? d?.id, '');
+      return {
+        type: 'doc', id,
+        display: {
+          title: safeStr(d?.Title ?? d?.title, '(Untitled document)'),
+          status: safeStr(d?.Status ?? d?.status, 'Pending'),
+          category: safeStr(d?.Category ?? d?.category, 'Unclassified'),
+          owner: safeStr(d?.AssignedTo ?? d?.owner, 'N/A'),
+          createdAt: parseDateToMs(d?.Created ?? d?.createdAt ?? d?.created)
+        },
+        link: safeStr(d?.AttachmentLink ?? d?.link, ''),
+        raw: d
+      };
+    }
+
+    function normalizeTask(t) {
+      const id = safeStr(t?.ID ?? t?.Id ?? t?.id ?? uid('task'), '');
+      return {
+        type: 'task', id,
+        display: {
+          title: safeStr(t?.Title ?? t?.title, '(Untitled task)'),
+          status: safeStr(t?.Status ?? t?.status, 'Unknown'),
+          category: safeStr(t?.Category ?? t?.category, 'Unclassified'),
+          owner: safeStr(t?.AssignedTo ?? t?.assignedTo, 'N/A'),
+          createdAt: parseDateToMs(t?.Created ?? t?.createdAt ?? t?.created)
+        },
+        ref: safeStr(t?.RefIDD ?? t?.refId ?? t?.ref, ''),
+        priority: safeStr(t?.Priority ?? t?.priority, 'Normal'),
+        raw: t
+      };
+    }
+
+    function normalizeEmail(e) {
+      const id = safeStr(e?.id ?? e?.ID ?? e?.Id ?? uid('email'), '');
+      return {
+        type: 'email', id,
+        display: {
+          title: safeStr(e?.subject ?? e?.Subject ?? '(No subject)'),
+          status: safeStr(e?.status ?? 'Received', 'Received'),
+          category: safeStr(e?.category ?? 'Communication', 'Communication'),
+          owner: safeStr(e?.from ?? e?.sender ?? 'N/A', 'N/A'),
+          createdAt: parseDateToMs(e?.receivedDateTime ?? e?.ReceivedDateTime ?? e?.received)
+        },
+        bodyPreview: safeStr(e?.bodyPreview ?? e?.BodyPreview ?? '', ''),
+        raw: e
+      };
+    }
+
+    function registerEntities(list) {
+      for (const ent of list) state.data.entitiesByKey.set(keyOf(ent.type, ent.id), ent);
+    }
+
+    /* =====================
+       Edges (relationships)
+    ====================== */
+
+    function addOrUpdateEdge(edge) {
+      state.data.edgesByKey.set(edge.id, edge);
+      const sKey = keyOf(edge.source.type, edge.source.id);
+      const tKey = keyOf(edge.target.type, edge.target.id);
+      if (!state.data.adjacency.has(sKey)) state.data.adjacency.set(sKey, new Set());
+      if (!state.data.adjacency.has(tKey)) state.data.adjacency.set(tKey, new Set());
+      state.data.adjacency.get(sKey).add(edge.id);
+      state.data.adjacency.get(tKey).add(edge.id);
+    }
+
+    function removeEdge(edgeId) {
+      const edge = state.data.edgesByKey.get(edgeId);
+      if (!edge) return;
+      const sKey = keyOf(edge.source.type, edge.source.id);
+      const tKey = keyOf(edge.target.type, edge.target.id);
+      state.data.edgesByKey.delete(edgeId);
+      state.data.adjacency.get(sKey)?.delete(edgeId);
+      state.data.adjacency.get(tKey)?.delete(edgeId);
+    }
+
+    function loadPersistedEdges() {
+      const obj = loadJson(STORAGE.edges, { edges: [] });
+      const edges = Array.isArray(obj?.edges) ? obj.edges : [];
+      for (const e of edges) {
+        if (!e?.id || !e?.source || !e?.target) continue;
+        addOrUpdateEdge(e);
+      }
+    }
+
+    function persistEdges() {
+      const edges = Array.from(state.data.edgesByKey.values());
+      saveJson(STORAGE.edges, { edges, updatedAt: nowMs() });
+    }
+
+    function logEvent(eventType, entityKey=null, details={}) {
+      const obj = loadJson(STORAGE.events, { events: [] });
+      const events = Array.isArray(obj?.events) ? obj.events : [];
+      events.push({
+        id: uid('evt'),
+        entityKey,
+        eventType,
+        at: nowMs(),
+        actor: { userEmail: state.config.userEmail, deviceId: state.config.deviceId },
+        details
+      });
+      saveJson(STORAGE.events, { events: events.slice(-1000), updatedAt: nowMs() });
+    }
+
+    function getEvents() {
+      const obj = loadJson(STORAGE.events, { events: [] });
+      return Array.isArray(obj?.events) ? obj.events : [];
+    }
+
+    /* =====================
+       Indexes + heuristic edges
+    ====================== */
+
+    function tokenize(text) {
+      return safeStr(text, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+    }
+
+    function indexData() {
+      const idx = state.data.indexes;
+      idx.tasksByRef = new Map();
+      idx.emailsById = new Map();
+      idx.emailTokens = new Map();
+
+      for (const t of state.data.tasks) {
+        const ref = safeStr(t.RefIDD, '');
+        if (!ref) continue;
+        if (!idx.tasksByRef.has(ref)) idx.tasksByRef.set(ref, []);
+        idx.tasksByRef.get(ref).push(t);
+      }
+
+      for (const e of state.data.emails) {
+        const eid = safeStr(e.id, '');
+        if (eid) idx.emailsById.set(eid, e);
+        const tokens = new Set([ ...tokenize(e.subject), ...tokenize(e.bodyPreview) ]);
+        for (const tok of tokens) {
+          if (!idx.emailTokens.has(tok)) idx.emailTokens.set(tok, new Set());
+          if (eid) idx.emailTokens.get(tok).add(eid);
+        }
+      }
+    }
+
+    function buildHeuristicEdges() {
+      return new Promise((resolve) => {
+        for (const [id, edge] of Array.from(state.data.edgesByKey.entries())) {
+          if (edge.attributes?.source === 'heuristic') removeEdge(id);
+        }
+
+        const tasksByRef = state.data.indexes.tasksByRef;
+        const emailTokens = state.data.indexes.emailTokens;
+        const docs = state.data.docs;
+        const CHUNK_SIZE = 500;
+        let index = 0;
+
+        function processChunk() {
+          const end = Math.min(index + CHUNK_SIZE, docs.length);
+          for (; index < end; index++) {
+            const doc = docs[index];
+            const docId = safeStr(doc.ID, '');
+            const docTitle = safeStr(doc.Title, '');
+
+            const tasks = tasksByRef.get(docId) || [];
+            for (const t of tasks) {
+              const tid = safeStr(t.ID ?? t.id ?? uid('task'), '');
+              addOrUpdateEdge({
+                id: `h:doc:${docId}|task:${tid}|ref`,
+                source: { type: 'doc', id: docId },
+                target: { type: 'task', id: tid },
+                relType: 'references',
+                direction: 'out',
+                attributes: { confidence: 5, matchRule: 'Task.RefIDD == Doc.ID', source: 'heuristic' },
+                timestamps: { createdAt: nowMs(), updatedAt: nowMs() }
+              });
+            }
+
+            const candidates = new Set();
+            const idTok = docId.toLowerCase();
+            if (idTok && emailTokens.has(idTok)) {
+              for (const eid of emailTokens.get(idTok)) candidates.add(eid);
+            }
+            const tks = tokenize(docTitle);
+            for (const tok of tks.slice(0, 8)) {
+              if (tok.length < 3) continue;
+              const set = emailTokens.get(tok);
+              if (set) for (const eid of set) candidates.add(eid);
+            }
+
+            for (const eid of candidates) {
+              const confidence = idTok && emailTokens.get(idTok)?.has(eid) ? 4 : 3;
+              addOrUpdateEdge({
+                id: `h:doc:${docId}|email:${eid}|mentions`,
+                source: { type: 'doc', id: docId },
+                target: { type: 'email', id: eid },
+                relType: 'mentions',
+                direction: 'out',
+                attributes: { confidence, matchRule: confidence === 4 ? 'Email tokens contain Doc.ID' : 'Email tokens overlap Doc.Title', source: 'heuristic' },
+                timestamps: { createdAt: nowMs(), updatedAt: nowMs() }
+              });
+            }
+          }
+
+          if (index < docs.length) {
+            setTimeout(processChunk, 0);
+          } else {
+            persistEdges();
+            resolve();
+          }
+        }
+        processChunk();
+      });
+    }
+
+    function edgesForEntity(entityKey) {
+      const ids = state.data.adjacency.get(entityKey);
+      if (!ids) return [];
+      return Array.from(ids).map(id => state.data.edgesByKey.get(id)).filter(Boolean);
+    }
+
+    function relatedEntitiesForDoc(docId) {
+      const dKey = keyOf('doc', docId);
+      const edges = edgesForEntity(dKey);
+      const tasks = [];
+      const emails = [];
+      for (const e of edges) {
+        const other = (e.source.type === 'doc' && e.source.id === docId) ? e.target : e.source;
+        if (other.type === 'task') tasks.push({ edge: e, id: other.id });
+        if (other.type === 'email') emails.push({ edge: e, id: other.id });
+      }
+      return { tasks, emails, edges };
+    }
+
+    /* =====================
+       View management
+    ====================== */
+
+    const VIEWS = ['explorer','matrix','timeline','reports','trends','dashboard'];
+
+    function showLauncher() {
+      state.mode = 'launcher';
+      $('view-launcher').classList.remove('hidden');
+      $('app-filters').classList.add('hidden');
+      $('app-tabs').classList.add('hidden');
+
+      for (const v of VIEWS) {
+        $(`view-${v}`).classList.add('hidden');
+      }
+
+      $('btn-run-sync').disabled = true;
+      $('btn-settings').disabled = true;
+      setSystemStatus('Launcher • Ready', 'info');
+      updateRuntimePanel();
+    }
+
+    function showApp(mode) {
+      state.mode = mode;
+      $('view-launcher').classList.add('hidden');
+      $('app-filters').classList.remove('hidden');
+      $('app-tabs').classList.remove('hidden');
+
+      $('btn-run-sync').disabled = false;
+      $('btn-settings').disabled = false;
+
+      setView('explorer');
+      setSystemStatus(mode === 'demo' ? 'Demo • Ready' : 'Live • Ready', 'success');
+      updateRuntimePanel();
+    }
+
+    function setView(view) {
+      if (!VIEWS.includes(view)) return;
+      state.ui.view = view;
+
+      // tabs
+      qsa('#app-tabs .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === view)));
+
+      // views
+      for (const v of VIEWS) {
+        $(`view-${v}`).classList.toggle('hidden', v !== view);
+      }
+
+      // render
+      if (view === 'explorer') renderExplorer();
+      else if (view === 'matrix') renderMatrix();
+      else if (view === 'timeline') renderTimeline();
+      else if (view === 'reports') renderReports();
+      else if (view === 'dashboard') renderDashboard();
+
+      logEvent('view', null, { view, mode: state.mode });
+    }
+
+    function populateCategoryFilter() {
+      const sel = $('category-filter');
+      const cats = new Set(['All']);
+      for (const d of state.data.docs) cats.add(safeStr(d.Category, 'Unclassified'));
+      const cur = state.ui.filters.category;
+      sel.innerHTML = '';
+      for (const c of Array.from(cats).sort((a,b)=>a.localeCompare(b))) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c === 'All' ? 'All Categories' : c;
+        if (c === cur) opt.selected = true;
+        sel.appendChild(opt);
+      }
+    }
+
+    function getVisibleDocs() {
+      const q = safeLower(state.ui.filters.q);
+      const cat = state.ui.filters.category;
+      const status = state.ui.filters.status;
+
+      return state.data.docs.filter(d => {
+        const title = safeLower(d.Title);
+        const idStr = safeStr(d.ID);
+        const matchesQ = !q || title.includes(q) || idStr.includes(q);
+        const matchesCat = (cat === 'All') || safeStr(d.Category, 'Unclassified') === cat;
+        const st = safeStr(d.Status, 'Pending');
+        const matchesSt = (status === 'All') || st === status;
+        return matchesQ && matchesCat && matchesSt;
+      });
+    }
+
+    /* =====================
+       Rendering: Explorer
+    ====================== */
+
+    function renderExplorer() {
+      populateCategoryFilter();
+
+      const list = $('doc-list');
+      const docs = getVisibleDocs();
+      $('doc-count').textContent = String(docs.length);
+
+      if (!docs.length) {
+        list.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No records found for current filters.</div>';
+        return;
+      }
+
+      list.innerHTML = '';
+      const frag = document.createDocumentFragment();
+
+      for (const d of docs) {
+        const idStr = safeStr(d.ID);
+        const item = document.createElement('div');
+        item.className = 'data-item' + (state.ui.selected.type === 'doc' && state.ui.selected.id === idStr ? ' active' : '');
+        item.setAttribute('role', 'option');
+        item.setAttribute('tabindex', '0');
+        item.dataset.type = 'doc';
+        item.dataset.id = idStr;
+
+        const title = document.createElement('span');
+        title.className = 'item-title';
+        title.textContent = safeStr(d.Title, '(Untitled document)');
+
+        const meta = document.createElement('div');
+        meta.className = 'item-meta';
+
+        const st = safeStr(d.Status, 'Pending');
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.style.background = (st === 'Treated') ? 'var(--success)' : 'var(--warning)';
+        badge.textContent = st;
+
+        const id = document.createElement('span');
+        id.textContent = `ID: ${idStr}`;
+
+        const cat = document.createElement('span');
+        cat.textContent = safeStr(d.Category, 'Unclassified');
+
+        meta.append(badge, id, cat);
+        item.append(title, meta);
+        frag.appendChild(item);
+      }
+
+      list.appendChild(frag);
+
+      if (state.ui.selected.type === 'doc' && state.ui.selected.id) {
+        renderDocDetail(state.ui.selected.id);
+      }
+
+      updateRuntimePanel();
+    }
+
+    function renderDocDetail(docId) {
+      const detail = $('detail-view');
+      const doc = state.data.docs.find(x => safeStr(x.ID) === safeStr(docId));
+      if (!doc) {
+        detail.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No document selected.</div>';
+        return;
+      }
+
+      const { tasks, emails } = relatedEntitiesForDoc(String(docId));
+
+      detail.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.className = 'matrix-view';
+
+      const h = document.createElement('h1');
+      h.tabIndex = -1;
+      h.setAttribute('aria-live', 'polite');
+      h.style.outline = 'none';
+      h.style.margin = '0 0 10px 0';
+      h.style.fontSize = '20px';
+      h.style.fontWeight = '950';
+      h.textContent = safeStr(doc.Title, '(Untitled document)');
+
+      const sub = document.createElement('div');
+      sub.className = 'item-meta';
+      sub.style.marginBottom = '10px';
+      sub.innerHTML = `
+        <span class="pill"><span class="dot" style="background:${safeStr(doc.Status) === 'Treated' ? 'var(--success)' : 'var(--warning)'}"></span>${esc(safeStr(doc.Status,'Pending'))}</span>
+        <span class="pill"><span style="font-family:var(--mono)">${esc(String(doc.ID))}</span></span>
+        <span class="pill">${esc(safeStr(doc.Category,'Unclassified'))}</span>
+      `;
+
+      wrap.append(h, sub);
+
+      // actions
+      const actions = $('detail-actions');
+      actions.innerHTML = '';
+
+      const btnLink = document.createElement('button');
+      btnLink.className = 'btn';
+      btnLink.textContent = '➕ Link…';
+      btnLink.addEventListener('click', () => openEdgeEditor({
+        source: { type: 'doc', id: String(doc.ID) },
+        target: { type: 'task', id: '' },
+        relType: 'custom',
+        attributes: { confidence: 3 }
+      }));
+
+      const btnTimeline = document.createElement('button');
+      btnTimeline.className = 'btn';
+      btnTimeline.textContent = '🕒 Timeline';
+      btnTimeline.addEventListener('click', () => {
+        state.ui.selected = { type: 'doc', id: String(doc.ID) };
+        setView('timeline');
+      });
+
+      actions.append(btnLink, btnTimeline);
+
+      wrap.appendChild(sectionLinkedTasks(tasks));
+      wrap.appendChild(sectionLinkedEmails(emails));
+      wrap.appendChild(sectionMetadata(doc));
+
+      detail.appendChild(wrap);
+      requestAnimationFrame(() => h.focus());
+
+      logEvent('view', keyOf('doc', String(doc.ID)), { title: safeStr(doc.Title,'') });
+    }
+
+    function sectionLinkedTasks(tasks) {
+      const sec = document.createElement('div');
+      sec.className = 'matrix-section';
+      const label = document.createElement('span');
+      label.className = 'matrix-label';
+      label.textContent = `Linked Tasks (${tasks.length})`;
+      sec.appendChild(label);
+
+      if (!tasks.length) {
+        const p = document.createElement('div');
+        p.className = 'item-meta';
+        p.textContent = 'No linked tasks found.';
+        sec.appendChild(p);
+        return sec;
+      }
+
+      for (const { edge, id } of tasks) {
+        const ent = state.data.entitiesByKey.get(keyOf('task', id));
+        const raw = ent?.raw || {};
+        const box = document.createElement('div');
+        box.style.cssText = 'background:var(--panel-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; margin-bottom: 8px;';
+
+        const t = document.createElement('div');
+        t.style.fontWeight = '950';
+        t.style.fontSize = '13px';
+        t.textContent = safeStr(raw.Title ?? ent?.display?.title, '(Untitled task)');
+
+        const meta = document.createElement('div');
+        meta.className = 'item-meta';
+
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.style.background = 'var(--brand-secondary)';
+        badge.textContent = safeStr(raw.Status ?? ent?.display?.status, 'Unknown');
+
+        const owner = document.createElement('span');
+        owner.textContent = `Owner: ${safeStr(raw.AssignedTo ?? ent?.display?.owner, 'N/A')}`;
+
+        const pri = document.createElement('span');
+        pri.textContent = `Priority: ${safeStr(raw.Priority ?? ent?.priority, 'Normal')}`;
+
+        const conf = document.createElement('span');
+        conf.className = 'pill';
+        conf.innerHTML = `Confidence: <span style="font-family:var(--mono)">${esc(String(edge.attributes?.confidence ?? 0))}</span>`;
+
+        const edit = document.createElement('button');
+        edit.className = 'btn';
+        edit.style.padding = '6px 10px';
+        edit.textContent = 'Edit link';
+        edit.addEventListener('click', () => openEdgeEditor(edge));
+
+        meta.append(badge, owner, pri, conf, edit);
+        box.append(t, meta);
+        sec.appendChild(box);
+      }
+
+      return sec;
+    }
+
+    function sectionLinkedEmails(emails) {
+      const sec = document.createElement('div');
+      sec.className = 'matrix-section';
+      const label = document.createElement('span');
+      label.className = 'matrix-label';
+      label.textContent = `Correlated Communications (${emails.length})`;
+      sec.appendChild(label);
+
+      if (!emails.length) {
+        const p = document.createElement('div');
+        p.className = 'item-meta';
+        p.textContent = 'No matching email correspondence found.';
+        sec.appendChild(p);
+        return sec;
+      }
+
+      for (const { edge, id } of emails) {
+        const ent = state.data.entitiesByKey.get(keyOf('email', id));
+        const raw = ent?.raw || {};
+
+        const box = document.createElement('div');
+        box.style.cssText = 'background:var(--panel-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; margin-bottom: 8px;';
+
+        const t = document.createElement('div');
+        t.style.fontWeight = '950';
+        t.style.fontSize = '13px';
+        t.textContent = safeStr(raw.subject ?? raw.Subject ?? ent?.display?.title, '(No subject)');
+
+        const meta = document.createElement('div');
+        meta.className = 'item-meta';
+
+        const received = document.createElement('span');
+        received.textContent = `Received: ${fmtDateTime(raw.receivedDateTime ?? raw.ReceivedDateTime ?? ent?.display?.createdAt)}`;
+
+        const conf = document.createElement('span');
+        conf.className = 'pill';
+        conf.innerHTML = `Confidence: <span style="font-family:var(--mono)">${esc(String(edge.attributes?.confidence ?? 0))}</span>`;
+
+        const edit = document.createElement('button');
+        edit.className = 'btn';
+        edit.style.padding = '6px 10px';
+        edit.textContent = 'Edit link';
+        edit.addEventListener('click', () => openEdgeEditor(edge));
+
+        meta.append(received, conf, edit);
+
+        const body = document.createElement('div');
+        body.className = 'matrix-section';
+        body.style.padding = '10px';
+        body.style.marginTop = '8px';
+        body.style.borderRadius = '12px';
+        body.style.background = 'rgba(0,0,0,0.02)';
+        body.innerHTML = `<div style="font-family:var(--mono); white-space: pre-wrap; font-size: 12px;">${esc(safeStr(raw.bodyPreview ?? raw.BodyPreview ?? ent?.bodyPreview, 'No content preview available...'))}</div>`;
+
+        box.append(t, meta, body);
+        sec.appendChild(box);
+      }
+
+      return sec;
+    }
+
+    function sectionMetadata(doc) {
+      const sec = document.createElement('div');
+      sec.className = 'matrix-section';
+      const label = document.createElement('span');
+      label.className = 'matrix-label';
+      label.textContent = 'Metadata Artifacts';
+      sec.appendChild(label);
+
+      const meta = document.createElement('div');
+      meta.className = 'item-meta';
+      meta.style.flexDirection = 'column';
+      meta.style.alignItems = 'flex-start';
+      meta.style.gap = '6px';
+
+      meta.innerHTML = `
+        <span><strong>Category:</strong> ${esc(safeStr(doc.Category, 'Unclassified'))}</span>
+        <span><strong>Assigned To:</strong> ${esc(safeStr(doc.AssignedTo, 'N/A'))}</span>
+        <span><strong>Last Modified:</strong> ${esc(safeStr(doc.Created, 'Unknown'))}</span>
+      `;
+
+      const link = safeStr(doc.AttachmentLink, '');
+      if (link) {
+        const a = document.createElement('a');
+        a.href = link;
+        a.target = '_blank';
+        a.rel = 'noreferrer';
+        a.style.cssText = 'color:var(--brand-primary); font-weight:950; text-decoration:none;';
+        a.textContent = 'Open SharePoint File ↗';
+        meta.appendChild(a);
+      }
+
+      sec.appendChild(meta);
+      return sec;
+    }
+
+    /* =====================
+       Matrix
+    ====================== */
+
+    function getConfidenceBetween(aType, aId, bType, bId) {
+      const aKey = keyOf(aType, aId);
+      const edges = edgesForEntity(aKey);
+      let best = 0;
+      for (const e of edges) {
+        const other = (e.source.type === aType && e.source.id === String(aId)) ? e.target : e.source;
+        if (other.type === bType && other.id === String(bId)) {
+          best = Math.max(best, Number(e.attributes?.confidence ?? 0));
+        }
+      }
+      return best;
+    }
+
+    function renderMatrix() {
+      const wrap = $('matrix-grid-wrap');
+      const mode = $('matrix-mode').value;
+
+      if (!state.data.lastSyncAt) {
+        wrap.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No data. RUN SYNC or Demo mode.</div>';
+        return;
+      }
+
+      const docs = getVisibleDocs();
+      let cols = [];
+      let colType = 'email';
+      if (mode === 'doc-email') {
+        cols = state.data.emails.map(e => ({ id: safeStr(e.id), title: safeStr(e.subject, '(No subject)') }));
+        colType = 'email';
+      } else {
+        cols = state.data.tasks.map(t => ({ id: safeStr(t.ID ?? t.id ?? uid('task')), title: safeStr(t.Title, '(Untitled task)') }));
+        colType = 'task';
+      }
+
+      const MAX_COLS = 80;
+      const MAX_ROWS = 250;
+      const rDocs = docs.slice(0, MAX_ROWS);
+      const rCols = cols.slice(0, MAX_COLS);
+
+      wrap.innerHTML = '';
+      const table = document.createElement('table');
+      table.className = 'matrix-grid';
+
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      const th0 = document.createElement('th');
+      th0.textContent = 'Document';
+      trh.appendChild(th0);
+
+      for (const c of rCols) {
+        const th = document.createElement('th');
+        th.title = c.title;
+        th.textContent = c.id.length > 10 ? c.id.slice(0,10) + '…' : c.id;
+        trh.appendChild(th);
+      }
+
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      for (const d of rDocs) {
+        const docId = safeStr(d.ID);
+        const tr = document.createElement('tr');
+
+        const td0 = document.createElement('td');
+        td0.innerHTML = `<div style="font-weight:950;">${esc(safeStr(d.Title,'(Untitled)'))}</div><div style="color:var(--text-muted); font-family:var(--mono); font-size:11px;">${esc(docId)}</div>`;
+        tr.appendChild(td0);
+
+        for (const c of rCols) {
+          const td = document.createElement('td');
+          td.className = 'matrix-cell';
+          td.tabIndex = 0;
+          td.dataset.docId = docId;
+          td.dataset.colType = colType;
+          td.dataset.colId = c.id;
+
+          const conf = getConfidenceBetween('doc', docId, colType, c.id);
+          const chip = document.createElement('span');
+          chip.className = `chip ${conf >= 5 ? 'c5' : conf >= 3 ? 'c3' : 'c0'}`;
+          chip.textContent = conf ? String(conf) : '—';
+          td.appendChild(chip);
+          tr.appendChild(td);
+        }
+
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+
+      const container = document.createElement('div');
+      container.className = 'matrix-grid-wrap';
+      container.appendChild(table);
+
+      const footer = document.createElement('div');
+      footer.style.marginTop = '10px';
+      footer.style.color = 'var(--text-muted)';
+      footer.style.fontSize = '12px';
+      footer.style.fontWeight = '650';
+      let msg = `Rendered rows: ${rDocs.length}/${docs.length}, columns: ${rCols.length}/${cols.length}.`;
+      if (rDocs.length < docs.length || rCols.length < cols.length) {
+        msg += ' ⚠️ Warning: Dataset truncated for performance.';
+        footer.style.color = 'var(--warning)';
+      }
+      footer.textContent = msg;
+
+      wrap.append(container, footer);
+    }
+
+    /* =====================
+       Timeline
+    ====================== */
+
+    function renderTimeline() {
+      const view = $('timeline-view');
+      const type = $('timeline-type').value;
+      const q = safeLower($('timeline-search').value);
+
+      if (!state.data.lastSyncAt) {
+        view.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No data. RUN SYNC or Demo mode.</div>';
+        return;
+      }
+
+      let selKey = null;
+      if (state.ui.selected?.type && state.ui.selected?.id) selKey = keyOf(state.ui.selected.type, state.ui.selected.id);
+
+      const events = getEvents().filter(e => {
+        if (selKey && e.entityKey && e.entityKey !== selKey) return false;
+        if (type && e.entityKey && !e.entityKey.startsWith(type + ':')) return false;
+        const text = JSON.stringify(e).toLowerCase();
+        return !q || text.includes(q);
+      }).sort((a,b) => b.at - a.at);
+
+      const derived = [];
+      if (selKey) {
+        const ent = state.data.entitiesByKey.get(selKey);
+        if (ent?.type === 'doc') {
+          derived.push({ id: uid('drv'), entityKey: selKey, eventType: 'statusObserved', at: parseDateToMs(ent.raw?.Created) ?? nowMs(), actor: {}, details: { status: ent.raw?.Status, source: 'doc.Created' } });
+          const { tasks, emails } = relatedEntitiesForDoc(ent.id);
+          for (const { id } of emails) {
+            const em = state.data.entitiesByKey.get(keyOf('email', id));
+            const at = parseDateToMs(em?.raw?.receivedDateTime) ?? em?.display?.createdAt;
+            if (at) derived.push({ id: uid('drv'), entityKey: selKey, eventType: 'emailObserved', at, actor: {}, details: { emailId: id, subject: em?.display?.title } });
+          }
+          for (const { id } of tasks) {
+            const tk = state.data.entitiesByKey.get(keyOf('task', id));
+            const at = parseDateToMs(tk?.raw?.Created) ?? tk?.display?.createdAt;
+            if (at) derived.push({ id: uid('drv'), entityKey: selKey, eventType: 'taskObserved', at, actor: {}, details: { taskId: id, title: tk?.display?.title, status: tk?.display?.status } });
+          }
+        }
+      }
+
+      const all = derived.concat(events).sort((a,b) => b.at - a.at);
+      if (!all.length) {
+        view.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No timeline events yet.</div>';
+        return;
+      }
+
+      view.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      for (const e of all.slice(0, 500)) {
+        const card = document.createElement('div');
+        card.className = 'matrix-section';
+        const top = document.createElement('div');
+        top.style.display = 'flex';
+        top.style.justifyContent = 'space-between';
+        top.style.gap = '10px';
+
+        const left = document.createElement('div');
+        left.innerHTML = `<div style="font-weight:950;">${esc(e.eventType)}</div><div style="color:var(--text-muted); font-family:var(--mono); font-size:11px;">${esc(e.entityKey || '—')}</div>`;
+
+        const right = document.createElement('div');
+        right.className = 'pill';
+        right.innerHTML = `<span style="font-family:var(--mono)">${esc(new Date(e.at).toLocaleString())}</span>`;
+
+        top.append(left, right);
+
+        const pre = document.createElement('div');
+        pre.className = 'log';
+        pre.style.maxHeight = 'none';
+        pre.textContent = JSON.stringify(e.details || {}, null, 2);
+
+        card.append(top, pre);
+        frag.appendChild(card);
+      }
+      view.appendChild(frag);
+    }
+
+    /* =====================
+       Reports
+    ====================== */
+
+    function datasetRows(name) {
+      if (name === 'docs') {
+        return state.data.docs.map(d => ({
+          type: 'doc', id: safeStr(d.ID), title: safeStr(d.Title), status: safeStr(d.Status,'Pending'), category: safeStr(d.Category,'Unclassified'), owner: safeStr(d.AssignedTo,'N/A'), created: safeStr(d.Created,'')
+        }));
+      }
+      if (name === 'tasks') {
+        return state.data.tasks.map(t => ({
+          type: 'task', id: safeStr(t.ID ?? t.id ?? ''), title: safeStr(t.Title), status: safeStr(t.Status,'Unknown'), category: safeStr(t.Category,'Unclassified'), owner: safeStr(t.AssignedTo,'N/A'), ref: safeStr(t.RefIDD,''), priority: safeStr(t.Priority,'Normal')
+        }));
+      }
+      if (name === 'emails') {
+        return state.data.emails.map(e => ({
+          type: 'email', id: safeStr(e.id), title: safeStr(e.subject,'(No subject)'), status: 'Received', category: 'Communication', owner: safeStr(e.from,'N/A'), received: safeStr(e.receivedDateTime,''), preview: safeStr(e.bodyPreview,'').slice(0,140)
+        }));
+      }
+      return Array.from(state.data.edgesByKey.values()).map(ed => ({
+        type: 'edge', id: ed.id,
+        source: `${ed.source.type}:${ed.source.id}`,
+        target: `${ed.target.type}:${ed.target.id}`,
+        relType: ed.relType,
+        confidence: Number(ed.attributes?.confidence ?? 0),
+        matchRule: safeStr(ed.attributes?.matchRule,''),
+        sourceType: safeStr(ed.attributes?.source,'')
+      }));
+    }
+
+    function groupRows(rows, groupBy) {
+      if (groupBy === 'none') return { groups: null };
+      const keyFn = {
+        status: (r) => safeStr(r.status, 'Unknown'),
+        category: (r) => safeStr(r.category, 'Unclassified'),
+        owner: (r) => safeStr(r.owner, 'N/A'),
+        type: (r) => safeStr(r.type, 'Unknown')
+      }[groupBy];
+      if (!keyFn) return { groups: null };
+      const map = new Map();
+      for (const r of rows) {
+        const k = keyFn(r);
+        if (!map.has(k)) map.set(k, []);
+        map.get(k).push(r);
+      }
+      return { groups: Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0])) };
+    }
+
+    function renderDataTable(rows) {
+      const keys = rows.length ? Object.keys(rows[0]) : [];
+      const wrap = document.createElement('div');
+      wrap.className = 'table-wrap';
+      const table = document.createElement('table');
+      table.className = 'data-table';
+
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      for (const k of keys) {
+        const th = document.createElement('th');
+        th.textContent = k;
+        trh.appendChild(th);
+      }
+      thead.appendChild(trh);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      for (const r of rows.slice(0, 2500)) {
+        const tr = document.createElement('tr');
+        for (const k of keys) {
+          const td = document.createElement('td');
+          const v = r[k];
+          td.textContent = (v === null || v === undefined) ? '' : String(v);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      return wrap;
+    }
+
+    function renderReports() {
+      const host = $('reports-view');
+      const ds = $('report-dataset').value;
+      const groupBy = $('report-group').value;
+
+      if (!state.data.lastSyncAt) {
+        host.innerHTML = '<div style="padding: 30px; text-align: center; color: var(--text-muted);">No data. RUN SYNC or Demo mode.</div>';
+        return;
+      }
+
+      const rows = datasetRows(ds);
+      const { groups } = groupRows(rows, groupBy);
+
+      host.innerHTML = '';
+      const top = document.createElement('div');
+      top.style.color = 'var(--text-muted)';
+      top.style.fontSize = '12px';
+      top.style.fontWeight = '650';
+      top.textContent = `Rows: ${rows.length} • Dataset: ${ds}`;
+      host.appendChild(top);
+
+      if (groups) {
+        for (const [g, list] of groups) {
+          const sec = document.createElement('div');
+          sec.className = 'matrix-section';
+          sec.innerHTML = `<div style="font-weight:950; margin-bottom: 8px;">${esc(g)} <span class="pill"><span style="font-family:var(--mono)">${list.length}</span></span></div>`;
+          sec.appendChild(renderDataTable(list));
+          host.appendChild(sec);
+        }
+      } else {
+        host.appendChild(renderDataTable(rows));
+      }
+
+      state.ui._report = { ds, groupBy, rows };
+    }
+
+    function exportCSV(rows, filename='export.csv') {
+      if (!rows?.length) return toast('Export', 'No rows to export', 'warn');
+      const keys = Object.keys(rows[0]);
+      const escCsv = (v) => {
+        const s = (v === null || v === undefined) ? '' : String(v);
+        const needs = /[\n\r,\"]/g.test(s);
+        const q = s.replaceAll('"', '""');
+        return needs ? `"${q}"` : q;
+      };
+      const lines = [keys.join(',')];
+      for (const r of rows) lines.push(keys.map(k => escCsv(r[k])).join(','));
+      downloadBlob(filename, lines.join('\n'), 'text/csv;charset=utf-8');
+      logEvent('export', null, { type: 'csv', filename, rows: rows.length });
+    }
+
+    function exportJSON(rows, filename='export.json') {
+      downloadBlob(filename, JSON.stringify(rows, null, 2), 'application/json;charset=utf-8');
+      logEvent('export', null, { type: 'json', filename, rows: rows.length });
+    }
+
+    /* =====================
+       Trends
+    ====================== */
+
+    function bucketKey(ms, bucket) {
+      const d = new Date(ms);
+      if (bucket === 'day') return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      if (bucket === 'month') return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      // week
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const dayNum = date.getUTCDay() || 7;
+      date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+      const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+      return `${date.getUTCFullYear()}-W${String(weekNo).padStart(2,'0')}`;
+    }
+
+    function drawLineChart(canvas, labels, values, title='') {
+      const ctx = canvas.getContext('2d');
+      const baseW = 1200;
+      const baseH = 520;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = baseW * dpr;
+      canvas.height = baseH * dpr;
+      ctx.scale(dpr, dpr);
+      const W = baseW;
+      const H = baseH;
+      ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--panel-bg').trim() || '#fff';
+      ctx.fillRect(0,0,W,H);
+
+      const pad = 64;
+      const left = pad, right = W - pad, top = pad, bottom = H - pad;
+      ctx.strokeStyle = 'rgba(100,116,139,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(left, bottom);
+      ctx.lineTo(right, bottom);
+      ctx.stroke();
+
+      ctx.fillStyle = matchMedia('(prefers-color-scheme: dark)').matches ? 'rgba(241,245,249,0.92)' : 'rgba(15, 23, 42, 0.9)';
+      ctx.font = '700 18px Segoe UI';
+      ctx.fillText(title, left, 34);
+
+      const n = values.length;
+      if (!n) {
+        ctx.font = '600 14px Segoe UI';
+        ctx.fillStyle = 'rgba(100,116,139,0.9)';
+        ctx.fillText('No data', left, top + 10);
+        return;
+      }
+
+      const maxV = Math.max(...values, 1);
+      const minV = 0;
+
+      const ticks = 5;
+      ctx.font = '600 12px Segoe UI';
+      ctx.fillStyle = 'rgba(100,116,139,0.9)';
+      for (let i=0;i<=ticks;i++) {
+        const y = top + (bottom-top)*(i/ticks);
+        ctx.strokeStyle = 'rgba(100,116,139,0.18)';
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(right, y);
+        ctx.stroke();
+        const v = Math.round(maxV - (maxV-minV)*(i/ticks));
+        ctx.fillText(String(v), 18, y+4);
+      }
+
+      const xStep = (right-left) / Math.max(n-1, 1);
+      const scaleY = (bottom-top) / (maxV-minV);
+
+      ctx.strokeStyle = 'rgba(0,135,81,0.9)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i=0;i<n;i++) {
+        const x = left + i*xStep;
+        const y = bottom - (values[i]-minV)*scaleY;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(0,166,157,0.95)';
+      for (let i=0;i<n;i++) {
+        const x = left + i*xStep;
+        const y = bottom - (values[i]-minV)*scaleY;
+        ctx.beginPath();
+        ctx.arc(x,y,4,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = 'rgba(100,116,139,0.9)';
+      const step = Math.ceil(n / 10);
+      for (let i=0;i<n;i+=step) {
+        const x = left + i*xStep;
+        const lbl = labels[i];
+        ctx.save();
+        ctx.translate(x, bottom+22);
+        ctx.rotate(-0.45);
+        ctx.fillText(lbl, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    function runTrends() {
+      const source = $('trend-source').value;
+      const bucket = $('trend-bucket').value;
+      const from = parseDateToMs($('trend-from').value);
+      const to = parseDateToMs($('trend-to').value);
+      const fromMs = from ?? (nowMs() - 1000*60*60*24*30);
+      const toMs = to ?? nowMs();
+
+      const records = source === 'docs' ? state.data.docs : state.data.emails;
+      const field = source === 'docs' ? 'Created' : 'receivedDateTime';
+
+      const map = new Map();
+      let included = 0;
+      for (const r of records) {
+        const ms = parseDateToMs(r[field]) || (source === 'emails' ? parseDateToMs(r.ReceivedDateTime) : null);
+        if (!ms) continue;
+        if (ms < fromMs || ms > toMs) continue;
+        const k = bucketKey(ms, bucket);
+        map.set(k, (map.get(k) || 0) + 1);
+        included++;
+      }
+
+      const keys = Array.from(map.keys()).sort((a,b)=>a.localeCompare(b));
+      const values = keys.map(k => map.get(k));
+
+      drawLineChart($('trend-chart'), keys, values, `${source.toUpperCase()} (${bucket})`);
+
+      const total = values.reduce((a,b)=>a+b,0);
+      const max = values.length ? Math.max(...values) : 0;
+      $('trend-summary').textContent = `Buckets: ${keys.length} • Records in range: ${included} • Total: ${total} • Peak bucket: ${max}`;
+
+      const tbl = $('trend-table');
+      tbl.innerHTML = '';
+      if (!keys.length) {
+        tbl.innerHTML = '<div style="padding: 18px; text-align: center; color: var(--text-muted);">No trend data in selected range.</div>';
+      } else {
+        const rows = keys.map((k,i)=>({ bucket: k, count: values[i] }));
+        tbl.appendChild(renderDataTable(rows));
+      }
+
+      state.ui._trend = { source, bucket, fromMs, toMs, keys, values };
+      logEvent('trend', null, { source, bucket, buckets: keys.length, included });
+    }
+
+    /* =====================
+       Dashboard
+    ====================== */
+
+    function computeKPIs() {
+      const docs = state.data.docs;
+      const tasks = state.data.tasks;
+      const emails = state.data.emails;
+
+      const totalDocs = docs.length;
+      const treated = docs.filter(d => safeStr(d.Status) === 'Treated').length;
+      const pending = totalDocs - treated;
+
+      const taskByStatus = new Map();
+      for (const t of tasks) {
+        const s = safeStr(t.Status, 'Unknown');
+        taskByStatus.set(s, (taskByStatus.get(s) || 0) + 1);
+      }
+
+      let docsWithEmail = 0;
+      let taskLinks = 0;
+      for (const d of docs) {
+        const rel = relatedEntitiesForDoc(safeStr(d.ID));
+        if (rel.emails.length) docsWithEmail++;
+        taskLinks += rel.tasks.length;
+      }
+
+      const matchRate = totalDocs ? Math.round((docsWithEmail/totalDocs)*100) : 0;
+      const avgTasks = totalDocs ? (taskLinks / totalDocs) : 0;
+
+      return {
+        totalDocs, treated, pending,
+        totalTasks: tasks.length,
+        totalEmails: emails.length,
+        docsWithEmail,
+        matchRate,
+        avgTasks: Number(avgTasks.toFixed(2)),
+        taskByStatus: Object.fromEntries(taskByStatus)
+      };
+    }
+
+    function renderDashboard() {
+      const grid = $('kpi-grid');
+      if (!state.data.lastSyncAt) {
+        grid.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted); grid-column: 1/-1;">No data. RUN SYNC or Demo mode.</div>';
+        $('dash-summary').textContent = 'KPIs not computed.';
+        $('dash-chart').getContext('2d').clearRect(0,0,$('dash-chart').width,$('dash-chart').height);
+        return;
+      }
+
+      const kpis = computeKPIs();
+      grid.innerHTML = '';
+
+      const items = [
+        { label: 'Total Documents', value: kpis.totalDocs, drill: () => { state.ui.filters.status='All'; setView('explorer'); } },
+        { label: 'Treated', value: kpis.treated, drill: () => { state.ui.filters.status='Treated'; setView('explorer'); } },
+        { label: 'Pending', value: kpis.pending, drill: () => { state.ui.filters.status='Pending'; setView('explorer'); } },
+        { label: 'Email Match Rate', value: `${kpis.matchRate}%`, drill: () => { setView('matrix'); $('matrix-mode').value='doc-email'; renderMatrix(); } },
+        { label: 'Total Tasks', value: kpis.totalTasks, drill: () => { setView('reports'); $('report-dataset').value='tasks'; renderReports(); } },
+        { label: 'Total Emails', value: kpis.totalEmails, drill: () => { setView('reports'); $('report-dataset').value='emails'; renderReports(); } },
+        { label: 'Avg Tasks / Doc', value: kpis.avgTasks, drill: () => { setView('matrix'); $('matrix-mode').value='doc-task'; renderMatrix(); } },
+        { label: 'Docs With Emails', value: kpis.docsWithEmail, drill: () => { setView('explorer'); } },
+      ];
+
+      for (const it of items) {
+        const card = document.createElement('div');
+        card.className = 'kpi';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `${it.label} drilldown`);
+        card.innerHTML = `<div class="label">${esc(it.label)}</div><div class="value">${esc(String(it.value))}</div><div class="sub">Click to drill down</div>`;
+        const go = () => { it.drill?.(); toast('Drilldown', it.label, 'info', 1600); };
+        card.addEventListener('click', go);
+        card.addEventListener('keydown', (e) => { if (e.key==='Enter' || e.key===' ') { e.preventDefault(); go(); } });
+        grid.appendChild(card);
+      }
+
+      const labels = Object.keys(kpis.taskByStatus);
+      const values = labels.map(l => kpis.taskByStatus[l]);
+      drawLineChart($('dash-chart'), labels, values, 'Tasks by Status');
+
+      $('dash-summary').textContent = `Docs: ${kpis.totalDocs} • Treated: ${kpis.treated} • Pending: ${kpis.pending} • Match Rate: ${kpis.matchRate}%`;
+      logEvent('kpi', null, kpis);
+    }
+
+    /* =====================
+       Modal base
+    ====================== */
+
+    function openModal({ title, bodyEl, onClose }) {
+      const host = $('modal-host');
+      host.classList.remove('hidden');
+      host.innerHTML = '';
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'modal-backdrop';
+
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+
+      const head = document.createElement('div');
+      head.className = 'mhead';
+      const h = document.createElement('h3');
+      h.textContent = title;
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'btn';
+      closeBtn.style.padding = '6px 10px';
+      closeBtn.textContent = '✕';
+      closeBtn.setAttribute('aria-label', 'Close');
+      head.append(h, closeBtn);
+
+      const body = document.createElement('div');
+      body.className = 'mbody';
+      body.appendChild(bodyEl);
+
+      modal.append(head, body);
+      backdrop.appendChild(modal);
+      host.appendChild(backdrop);
+
+      const close = () => {
+        host.classList.add('hidden');
+        host.innerHTML = '';
+        onClose?.();
+      };
+
+      closeBtn.addEventListener('click', close);
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+      document.addEventListener('keydown', function escHandler(e) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          document.removeEventListener('keydown', escHandler);
+          close();
+        }
+      });
+
+      requestAnimationFrame(() => {
+        modal.querySelector('input, textarea, select, button')?.focus();
+      });
+
+      return { close };
+    }
+
+    /* =====================
+       Edge editor
+    ====================== */
+
+    function openEdgeEditor(edgeOrDraft) {
+      const existing = edgeOrDraft?.id && state.data.edgesByKey.has(edgeOrDraft.id) ? state.data.edgesByKey.get(edgeOrDraft.id) : null;
+      const edge = existing ? structuredClone(existing) : {
+        id: uid('edge'),
+        source: edgeOrDraft.source,
+        target: edgeOrDraft.target,
+        relType: edgeOrDraft.relType || 'custom',
+        direction: edgeOrDraft.direction || 'bi',
+        attributes: {
+          confidence: Number(edgeOrDraft.attributes?.confidence ?? 3),
+          matchRule: safeStr(edgeOrDraft.attributes?.matchRule, ''),
+          notes: safeStr(edgeOrDraft.attributes?.notes, ''),
+          source: 'user'
+        },
+        timestamps: { createdAt: nowMs(), updatedAt: nowMs() }
+      };
+
+      const body = document.createElement('div');
+      body.innerHTML = `
+        <div class="field">
+          <label>Source (type:id)</label>
+          <input id="edge-source" value="${esc(edge.source.type + ':' + edge.source.id)}" />
+          <div style="color:var(--text-muted); font-size:12px; font-weight:650;">Format: doc:123 or task:ABC or email:XYZ</div>
+        </div>
+        <div class="field">
+          <label>Target (type:id)</label>
+          <input id="edge-target" value="${esc(edge.target.type + ':' + edge.target.id)}" />
+        </div>
+        <div class="field">
+          <label>Relationship Type</label>
+          <select id="edge-type" class="select">
+            <option value="mentions">mentions</option>
+            <option value="references">references</option>
+            <option value="attachedTo">attachedTo</option>
+            <option value="assigned">assigned</option>
+            <option value="custom">custom</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Confidence (0–5)</label>
+          <input id="edge-confidence" type="number" min="0" max="5" value="${esc(String(edge.attributes.confidence ?? 3))}" />
+        </div>
+        <div class="field">
+          <label>Match Rule (optional)</label>
+          <input id="edge-rule" value="${esc(safeStr(edge.attributes.matchRule,''))}" />
+        </div>
+        <div class="field">
+          <label>Notes (optional)</label>
+          <textarea id="edge-notes">${esc(safeStr(edge.attributes.notes,''))}</textarea>
+        </div>
+      `;
+
+      body.querySelector('#edge-type').value = edge.relType;
+
+      const foot = document.createElement('div');
+      foot.className = 'mfoot';
+      foot.innerHTML = `
+        ${existing ? '<button class="btn btn-danger" id="edge-delete">Delete</button>' : ''}
+        <button class="btn" id="edge-cancel">Cancel</button>
+        <button class="btn btn-primary" id="edge-save">Save</button>
+      `;
+
+      const container = document.createElement('div');
+      container.append(body, foot);
+
+      const { close } = openModal({
+        title: 'Relationship Edge Editor',
+        bodyEl: container,
+        onClose: () => {
+          renderExplorer();
+          renderMatrix();
+          renderReports();
+          updateRuntimePanel();
+        }
+      });
+
+      const parseKey = (v) => {
+        const s = safeStr(v,'').trim();
+        const [type, ...rest] = s.split(':');
+        const id = rest.join(':');
+        if (!type || !id) return null;
+        if (!['doc','task','email'].includes(type)) return null;
+        return { type, id };
+      };
+
+      const save = () => {
+        const s = parseKey(qs('#edge-source', body).value);
+        const t = parseKey(qs('#edge-target', body).value);
+        if (!s || !t) {
+          toast('Edge', 'Invalid source/target format', 'danger');
+          return;
+        }
+        edge.source = s;
+        edge.target = t;
+        edge.relType = qs('#edge-type', body).value;
+        edge.attributes.confidence = clamp(Number(qs('#edge-confidence', body).value || 0), 0, 5);
+        edge.attributes.matchRule = safeStr(qs('#edge-rule', body).value, '');
+        edge.attributes.notes = safeStr(qs('#edge-notes', body).value, '');
+        edge.attributes.source = 'user';
+        edge.timestamps.updatedAt = nowMs();
+
+        addOrUpdateEdge(edge);
+        persistEdges();
+        toast('Saved', 'Relationship updated', 'success');
+        logEvent('editEdge', null, { edgeId: edge.id, source: edge.source, target: edge.target, relType: edge.relType, confidence: edge.attributes.confidence });
+        close();
+      };
+
+      const del = () => {
+        removeEdge(edge.id);
+        persistEdges();
+        toast('Deleted', 'Relationship removed', 'warn');
+        logEvent('editEdge', null, { edgeId: edge.id, deleted: true });
+        close();
+      };
+
+      qs('#edge-save', container).addEventListener('click', save);
+      qs('#edge-cancel', container).addEventListener('click', close);
+      if (existing) qs('#edge-delete', container).addEventListener('click', del);
+    }
+
+    /* =====================
+       Settings modal
+    ====================== */
+
+    function openSettings() {
+      const body = document.createElement('div');
+      body.innerHTML = `
+        <div class="field">
+          <label>User Email (sent to flows)</label>
+          <input id="cfg-email" value="${esc(state.config.userEmail)}" placeholder="name@domain" />
+          <div style="color:var(--text-muted); font-size:12px; font-weight:650;">Used in request payload: { userEmail }</div>
+        </div>
+        <div class="field">
+          <label>Device ID</label>
+          <input id="cfg-device" value="${esc(state.config.deviceId)}" />
+        </div>
+        <div class="field">
+          <label>Cache TTL (minutes)</label>
+          <input id="cfg-ttl" type="number" min="0" max="1440" value="${esc(String(state.config.cacheTtlMin ?? 15))}" />
+        </div>
+        <div class="field">
+          <label>Data Safety</label>
+          <div style="color:var(--text-muted); font-size:12px; font-weight:650;">Edges + timeline events are stored in localStorage under keys: ${esc(STORAGE.edges)}, ${esc(STORAGE.events)}.</div>
+        </div>
+      `;
+
+      const foot = document.createElement('div');
+      foot.className = 'mfoot';
+      foot.innerHTML = `
+        <button class="btn" id="cfg-cancel">Cancel</button>
+        <button class="btn" id="cfg-reset">Reset Local Data</button>
+        <button class="btn btn-primary" id="cfg-save">Save</button>
+      `;
+
+      const container = document.createElement('div');
+      container.append(body, foot);
+
+      const { close } = openModal({ title: 'Settings', bodyEl: container });
+
+      qs('#cfg-cancel', container).addEventListener('click', close);
+
+      qs('#cfg-save', container).addEventListener('click', () => {
+        const email = safeStr(qs('#cfg-email', body).value).trim();
+        const dev = safeStr(qs('#cfg-device', body).value).trim() || 'spa-browser';
+        const ttlMin = clamp(Number(qs('#cfg-ttl', body).value || 0), 0, 1440);
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!ok) {
+          toast('Settings', 'Invalid email format', 'danger');
+          return;
+        }
+        state.config.userEmail = email;
+        state.config.deviceId = dev;
+        state.config.cacheTtlMin = ttlMin;
+        saveJson(STORAGE.config, { userEmail: email, deviceId: dev, cacheTtlMin: ttlMin });
+        toast('Saved', 'Settings updated', 'success');
+        updateRuntimePanel();
+        close();
+      });
+
+      qs('#cfg-reset', container).addEventListener('click', () => {
+        resetLocalData();
+        toast('Reset', 'Local edges/events cleared', 'warn');
+        close();
+      });
+    }
+
+    /* =====================
+       Demo dataset
+    ====================== */
+
+    function loadDemoData() {
+      const docs = [
+        { ID: '1001', Title: 'DGO Memo: Digital Inclusion Program', Status: 'Pending', Category: 'Policy', AssignedTo: 'Registry', Created: new Date(Date.now()-86400000*12).toISOString(), AttachmentLink: 'https://example.invalid/doc/1001' },
+        { ID: '1002', Title: 'Procurement: Cloud Services Renewal', Status: 'Treated', Category: 'Procurement', AssignedTo: 'ICT', Created: new Date(Date.now()-86400000*28).toISOString(), AttachmentLink: 'https://example.invalid/doc/1002' },
+        { ID: '1003', Title: 'Project Charter: e-Gov Interop', Status: 'Pending', Category: 'Projects', AssignedTo: 'PMO', Created: new Date(Date.now()-86400000*5).toISOString(), AttachmentLink: 'https://example.invalid/doc/1003' }
+      ];
+      const tasks = [
+        { ID: 'T-01', RefIDD: '1001', Title: 'Draft response letter', Status: 'In Progress', AssignedTo: 'Legal', Priority: 'High', Created: new Date(Date.now()-86400000*10).toISOString() },
+        { ID: 'T-02', RefIDD: '1001', Title: 'Stakeholder review', Status: 'Not Started', AssignedTo: 'DGO Office', Priority: 'Normal', Created: new Date(Date.now()-86400000*9).toISOString() },
+        { ID: 'T-03', RefIDD: '1003', Title: 'Create project plan', Status: 'In Progress', AssignedTo: 'PMO', Priority: 'High', Created: new Date(Date.now()-86400000*4).toISOString() }
+      ];
+      const emails = [
+        { id: 'E-11', subject: 'Re: Document 1001 – Digital Inclusion Program', bodyPreview: 'Please find initial comments. We suggest aligning the memo with the new guidelines...', receivedDateTime: new Date(Date.now()-86400000*11).toISOString() },
+        { id: 'E-12', subject: 'FW: Cloud Services Renewal (1002)', bodyPreview: 'Forwarding the vendor quotation and renewal checklist for record...', receivedDateTime: new Date(Date.now()-86400000*26).toISOString() },
+        { id: 'E-13', subject: 'Project Charter e-Gov Interop (1003)', bodyPreview: 'Attached is the draft charter. Kindly confirm scope and milestones...', receivedDateTime: new Date(Date.now()-86400000*5).toISOString() }
+      ];
+      return { docs, tasks, emails };
+    }
+
+    /* =====================
+       Sync orchestration
+    ====================== */
+
+    async function syncAll() {
+      if (state.mode === 'launcher') return;
+
+      setLoading(true, 'Starting sync…');
+      setSystemStatus('Syncing…', 'info');
+      diag.log('SYNC start', { mode: state.mode });
+
+      state.data.sourceStatus = { docs: 'loading', tasks: 'loading', emails: 'loading' };
+      state.data.lastErrors = { docs: null, tasks: null, emails: null };
+      updateSourcePill();
+
+      if (state.mode === 'demo') {
+        const demo = loadDemoData();
+        state.data.docs = demo.docs;
+        state.data.tasks = demo.tasks;
+        state.data.emails = demo.emails;
+        state.data.lastSyncAt = nowMs();
+        state.data.sourceStatus = { docs: 'ok', tasks: 'ok', emails: 'ok' };
+        await postSyncRebuild('Demo');
+        setLoading(false);
+        setSystemStatus('Demo sync complete', 'success');
+        toast('Sync', 'Demo data loaded', 'success');
+        updateSourcePill();
+        return;
+      }
+
+      const calls = [
+        callFlow({ url: FLOWS.docs, action: 'getDocs' }),
+        callFlow({ url: FLOWS.tasks, action: 'fetch_tasks' }),
+        callFlow({ url: FLOWS.emails, action: 'emailsfetch' }),
+      ];
+
+      const [docsRes, tasksRes, emailsRes] = await Promise.allSettled(calls);
+
+      const unwrap = (s) => s.status === 'fulfilled' ? s.value : ({ ok: false, data: null, error: (s.reason?.message || String(s.reason)), meta: {} });
+      const dr = unwrap(docsRes);
+      const tr = unwrap(tasksRes);
+      const er = unwrap(emailsRes);
+
+      diag.log('docs', dr);
+      diag.log('tasks', tr);
+      diag.log('emails', er);
+
+      if (dr.ok) {
+        state.data.docs = Array.isArray(dr.data?.docs) ? dr.data.docs : (Array.isArray(dr.data) ? dr.data : []);
+        state.data.sourceStatus.docs = 'ok';
+      } else {
+        state.data.sourceStatus.docs = 'err';
+        state.data.lastErrors.docs = dr.error;
+        toast('Docs flow failed', dr.error, 'danger');
+      }
+
+      if (tr.ok) {
+        state.data.tasks = Array.isArray(tr.data?.tasks) ? tr.data.tasks : (Array.isArray(tr.data) ? tr.data : []);
+        state.data.sourceStatus.tasks = 'ok';
+      } else {
+        state.data.sourceStatus.tasks = 'err';
+        state.data.lastErrors.tasks = tr.error;
+        toast('Tasks flow failed', tr.error, 'danger');
+      }
+
+      if (er.ok) {
+        state.data.emails = Array.isArray(er.data?.emails) ? er.data.emails : (Array.isArray(er.data) ? er.data : []);
+        state.data.sourceStatus.emails = 'ok';
+      } else {
+        state.data.sourceStatus.emails = 'err';
+        state.data.lastErrors.emails = er.error;
+        toast('Emails flow failed', er.error, 'danger');
+      }
+
+      state.data.lastSyncAt = nowMs();
+      await postSyncRebuild('Live');
+
+      // cache summary
+      const ttlMin = Number(state.config.cacheTtlMin ?? 0);
+      if (ttlMin > 0) {
+        withTTLSet(STORAGE.cache, {
+          at: state.data.lastSyncAt,
+          counts: { docs: state.data.docs.length, tasks: state.data.tasks.length, emails: state.data.emails.length }
+        }, ttlMin * 60_000);
+      }
+
+      setLoading(false);
+
+      const okAny = Object.values(state.data.sourceStatus).includes('ok');
+      setSystemStatus(okAny ? 'Sync complete' : 'Sync failed', okAny ? 'success' : 'danger');
+      updateSourcePill();
+
+      logEvent('sync', null, { sourceStatus: state.data.sourceStatus, counts: { docs: state.data.docs.length, tasks: state.data.tasks.length, emails: state.data.emails.length } });
+
+      if (okAny) toast('Sync', 'Data updated', 'success');
+
+      updateRuntimePanel();
+    }
+
+    async function postSyncRebuild(label='') {
+      setLoading(true, 'Normalizing data…');
+
+      state.data.entitiesByKey = new Map();
+      state.data.adjacency = new Map();
+
+      // normalize
+      registerEntities(state.data.docs.map(normalizeDoc));
+      registerEntities(state.data.tasks.map(normalizeTask));
+      registerEntities(state.data.emails.map(normalizeEmail));
+
+      // rebuild indexes
+      indexData();
+
+      // rebuild adjacency for existing edges
+      const prev = Array.from(state.data.edgesByKey.values());
+      state.data.edgesByKey = new Map();
+      for (const e of prev) addOrUpdateEdge(e);
+
+      // heuristic edges
+      await buildHeuristicEdges();
+
+      populateCategoryFilter();
+
+      setLoading(false);
+
+      renderExplorer();
+      renderMatrix();
+      renderReports();
+      renderDashboard();
+      renderTimeline();
+
+      updateSourcePill();
+      diag.log('Rebuild complete', { label, counts: { docs: state.data.docs.length, tasks: state.data.tasks.length, emails: state.data.emails.length, edges: state.data.edgesByKey.size } });
+    }
+
+    function updateSourcePill() {
+      const s = state.data.sourceStatus;
+      const text = `docs:${s.docs} • tasks:${s.tasks} • emails:${s.emails}`;
+      $('src-status').textContent = text;
+
+      let tone = 'info';
+      if (Object.values(s).includes('err') && Object.values(s).includes('ok')) tone = 'warn';
+      else if (Object.values(s).every(v => v === 'ok')) tone = 'success';
+      else if (Object.values(s).every(v => v === 'err')) tone = 'danger';
+
+      const map = { info: 'var(--info)', success: 'var(--success)', warn: 'var(--warning)', danger: 'var(--danger)' };
+      $('src-dot').style.background = map[tone];
+    }
+
+    /* =====================
+       Launcher tools
+    ====================== */
+
+    function resetLocalData() {
+      try {
+        localStorage.removeItem(STORAGE.edges);
+        localStorage.removeItem(STORAGE.events);
+        localStorage.removeItem(STORAGE.cache);
+      } catch {}
+      state.data.edgesByKey.clear();
+      state.data.adjacency.clear();
+      loadPersistedEdges();
+      updateRuntimePanel();
+      diag.log('Local data reset');
+    }
+
+    function exportEdges() {
+      const edges = Array.from(state.data.edgesByKey.values());
+      downloadBlob('nitda_edges.json', JSON.stringify({ edges, exportedAt: new Date().toISOString() }, null, 2), 'application/json;charset=utf-8');
+      toast('Export', `Edges exported (${edges.length})`, 'success');
+      logEvent('export', null, { type: 'edges', rows: edges.length });
+    }
+
+    function importEdges() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        try {
+          const txt = await file.text();
+          const json = JSON.parse(txt);
+          const edges = Array.isArray(json?.edges) ? json.edges : [];
+          let count = 0;
+          for (const e of edges) {
+            if (!e?.id || !e?.source || !e?.target) continue;
+            addOrUpdateEdge(e);
+            count++;
+          }
+          persistEdges();
+          toast('Import', `Edges imported (${count})`, 'success');
+          diag.log('Edges imported', { count });
+          renderExplorer(); renderMatrix(); renderReports(); renderDashboard();
+          updateRuntimePanel();
+        } catch (e) {
+          toast('Import failed', e?.message || String(e), 'danger');
+        }
+      };
+      input.click();
+    }
+
+    function exportState() {
+      const snapshot = {
+        exportedAt: new Date().toISOString(),
+        mode: state.mode,
+        config: state.config,
+        counts: { docs: state.data.docs.length, tasks: state.data.tasks.length, emails: state.data.emails.length, edges: state.data.edgesByKey.size },
+        docs: state.data.docs,
+        tasks: state.data.tasks,
+        emails: state.data.emails,
+        edges: Array.from(state.data.edgesByKey.values())
+      };
+      downloadBlob('nitda_state_snapshot.json', JSON.stringify(snapshot, null, 2), 'application/json;charset=utf-8');
+      toast('Export', 'State snapshot downloaded', 'success');
+      logEvent('export', null, { type: 'state', counts: snapshot.counts });
+    }
+
+    function selfCheck() {
+      const requiredIds = [
+        'view-launcher','btn-launch-live','btn-launch-demo','btn-run-sync','btn-settings','btn-diagnostics',
+        'app-tabs','app-filters','view-explorer','view-matrix','view-timeline','view-reports','view-trends','view-dashboard',
+        'doc-list','detail-view','matrix-grid-wrap','timeline-view','reports-view','trend-chart','dash-chart',
+        'toast-host','modal-host','loading-overlay'
+      ];
+
+      const missing = requiredIds.filter(id => !$(id));
+      const ok = missing.length === 0;
+
+      $('self-dot').style.background = ok ? 'var(--success)' : 'var(--danger)';
+      $('self-status').textContent = ok ? 'OK' : `Missing: ${missing.length}`;
+
+      diag.log('Self-check', { ok, missing });
+      toast('Self-Check', ok ? 'All required components present' : `Missing components: ${missing.join(', ')}`, ok ? 'success' : 'danger', 5200);
+
+      return ok;
+    }
+
+    /* =====================
+       Event wiring
+    ====================== */
+
+    function bindEvents() {
+      // Home
+      $('btn-home').addEventListener('click', showLauncher);
+
+      // Launcher start
+      $('btn-launch-live').addEventListener('click', () => {
+        showApp('live');
+        toast('Launcher', 'Live mode activated', 'success');
+      });
+
+      $('btn-quick-sync').addEventListener('click', async () => {
+        showApp('live');
+        await syncAll();
+      });
+
+      $('btn-launch-demo').addEventListener('click', async () => {
+        showApp('demo');
+        await syncAll();
+      });
+
+      $('btn-reset-local').addEventListener('click', () => {
+        resetLocalData();
+        toast('Local', 'Local edges/events cleared', 'warn');
+      });
+
+      $('btn-export-edges').addEventListener('click', exportEdges);
+      $('btn-import-edges').addEventListener('click', importEdges);
+      $('btn-export-state').addEventListener('click', exportState);
+      $('btn-selfcheck').addEventListener('click', selfCheck);
+
+      // App tabs
+      qsa('#app-tabs .tab').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
+
+      // Sync
+      $('btn-run-sync').addEventListener('click', syncAll);
+
+      // Settings
+      $('btn-settings').addEventListener('click', openSettings);
+
+      // Diagnostics
+      $('btn-diagnostics').addEventListener('click', () => $('diagnostics-panel').classList.toggle('hidden'));
+      $('btn-clear-log').addEventListener('click', () => diag.clear());
+      $('btn-copy-log').addEventListener('click', () => diag.copy());
+
+      // Filters
+      $('global-search').addEventListener('input', debounce((e) => {
+        state.ui.filters.q = e.target.value;
+        if (state.ui.view === 'explorer') renderExplorer();
+        if (state.ui.view === 'reports') renderReports();
+      }, 160));
+
+      $('category-filter').addEventListener('change', (e) => {
+        state.ui.filters.category = e.target.value;
+        if (state.ui.view === 'explorer') renderExplorer();
+      });
+
+      $('status-filter').addEventListener('change', (e) => {
+        state.ui.filters.status = e.target.value;
+        if (state.ui.view === 'explorer') renderExplorer();
+      });
+
+      // Explorer selection (delegation)
+      $('doc-list').addEventListener('click', (e) => {
+        const row = e.target.closest('.data-item');
+        if (!row) return;
+        const id = row.dataset.id;
+        state.ui.selected = { type: 'doc', id };
+        renderExplorer();
+        renderDocDetail(id);
+      });
+
+      $('doc-list').addEventListener('keydown', (e) => {
+        const row = e.target.closest('.data-item');
+        if (!row) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const id = row.dataset.id;
+          state.ui.selected = { type: 'doc', id };
+          renderExplorer();
+          renderDocDetail(id);
+        }
+      });
+
+      // Matrix
+      $('btn-matrix-refresh').addEventListener('click', () => { renderMatrix(); toast('Matrix', 'Recomputed', 'info', 1400); });
+      $('matrix-mode').addEventListener('change', renderMatrix);
+      $('matrix-grid-wrap').addEventListener('click', (e) => {
+        const cell = e.target.closest('.matrix-cell');
+        if (!cell) return;
+        const docId = cell.dataset.docId;
+        const colType = cell.dataset.colType;
+        const colId = cell.dataset.colId;
+        openEdgeEditor({
+          source: { type: 'doc', id: docId },
+          target: { type: colType, id: colId },
+          relType: (colType === 'task') ? 'references' : 'mentions',
+          attributes: { confidence: getConfidenceBetween('doc', docId, colType, colId) || 3, matchRule: 'user-edit' }
+        });
+      });
+
+      // Timeline
+      $('timeline-type').addEventListener('change', renderTimeline);
+      $('timeline-search').addEventListener('input', debounce(renderTimeline, 140));
+
+      // Reports
+      $('report-dataset').addEventListener('change', renderReports);
+      $('report-group').addEventListener('change', renderReports);
+      $('btn-export-csv').addEventListener('click', () => exportCSV(state.ui._report?.rows || [], `nitda_report_${state.ui._report?.ds || 'data'}.csv`));
+      $('btn-export-json').addEventListener('click', () => exportJSON(state.ui._report?.rows || [], `nitda_report_${state.ui._report?.ds || 'data'}.json`));
+      $('btn-print').addEventListener('click', () => window.print());
+
+      // Trends
+      $('btn-trend-run').addEventListener('click', runTrends);
+      $('btn-trend-drill').addEventListener('click', () => {
+        const src = state.ui._trend?.source || 'docs';
+        setView('reports');
+        $('report-dataset').value = src;
+        renderReports();
+        toast('Drilldown', `Opened ${src} report`, 'info', 1800);
+      });
+
+      // Dashboard
+      $('btn-dashboard-refresh').addEventListener('click', () => { renderDashboard(); toast('Dashboard', 'KPIs recomputed', 'info', 1400); });
+    }
+
+    /* =====================
+       Boot
+    ====================== */
+
+    function boot() {
+      // Load config
+      const cfg = loadJson(STORAGE.config, null);
+      if (cfg?.userEmail) state.config.userEmail = cfg.userEmail;
+      if (cfg?.deviceId) state.config.deviceId = cfg.deviceId;
+      if (Number.isFinite(cfg?.cacheTtlMin)) state.config.cacheTtlMin = cfg.cacheTtlMin;
+
+      // Load persisted edges
+      loadPersistedEdges();
+
+      // Cache summary
+      const cache = withTTLGet(STORAGE.cache);
+      if (cache?.counts) {
+        toast('Cache', `Recent summary: docs ${cache.counts.docs}, tasks ${cache.counts.tasks}, emails ${cache.counts.emails}`, 'info', 2600);
+      }
+
+      bindEvents();
+
+      updateRuntimePanel();
+      showLauncher();
+
+      diag.log('Boot complete');
+
+      // Run automatic self-check
+      selfCheck();
+    }
+
+    window.addEventListener('load', boot);
+
+  })();
+  </script>
+</body>
+</html>

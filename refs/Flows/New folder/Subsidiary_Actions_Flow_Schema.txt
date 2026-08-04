@@ -1,0 +1,414 @@
+{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PrimaryDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportAssignedToTitle": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SupportDSUKey": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AckDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AcknolwedgementDueBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDue": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Timeline": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "PreReferenceID": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Categorization": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CreatedBy": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "mode": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "device": {
+            "type": [
+                "string",
+                "object",
+                "null"
+            ],
+            "additionalProperties": true
+        },
+        "Email": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "subject": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "webLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "SelectedItems": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "ID": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "RefIDD": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "Title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

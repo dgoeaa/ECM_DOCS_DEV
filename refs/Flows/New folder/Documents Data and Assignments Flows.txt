@@ -1,0 +1,616 @@
+
+
+FLOW: GET REFERENCES(USERS,DEPARTMENTS,CATEGORIES):
+
+METHOD: POST
+
+
+URL:
+
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ff455c68e9ac493e858fb984bcfd01fb/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jajFVxbv67HbcKqvV8h6JBPm9TPG60yDnhRjy9WmpPU"
+
+
+SCHEMA:
+"{
+    "type": "object",
+    "title": "Action Request",
+    "description": "",
+    "properties": {
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "The operation to perform Can be null."
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "email",
+            "description": "The initiating user's email address. Can be null."
+        }
+    },
+    "required": [],
+    "additionalProperties": false
+}"
+
+
+
+
+FIELDS CATEGORIES:
+
+"{
+  "ID": @{item()?['ID']},
+  "Title": @{item()?['Title']},
+  "DSU_KEY": @{item()?['field_3']},
+  "Category": @{item()?['Title']},
+  "Subcategory": @{item()?['field_2']},
+  "Category Code": @{item()?['field_1']},
+  "SubCategory Code": @{item()?['field_3']},
+  "Default Primary Responsible": @{item()?['field_4']},
+  "Default Supporting Department/Unit": @{item()?['field_6']},
+  "DSU_Head Personal_Email": "",
+  "DSU_HeadTitle": "",
+  "INFORMDSU1": "",
+  "INFORMDSU2": "",
+  "INFORMDSU3": "",
+  "Timeline": @{item()?['field_9']},
+  "Priority": @{item()?['field_14']},
+  "Permissions": ""
+}"
+
+FIELDS USERS:
+"{
+  "name": @{coalesce(item()?['DisplayName'], concat(coalesce(item()?['GivenName'],''), ' ', coalesce(item()?['Surname'],'')))},
+  "email": @{coalesce(item()?['Mail'], item()?['UserPrincipalName'])},
+  "department": @{coalesce(item()?['Department'],'')},
+  "jobTitle": @{coalesce(item()?['JobTitle'],'')}
+}"
+
+
+FIELDS DEPARTMENTS:
+
+
+"{
+  "ID": "@{item()?['ID']}",
+  "Title": "@{item()?['Title']}",
+  "DSU_KEY": "@{item()?['field_1']}",
+  "DSU_Email": "@{item()?['field_2']}",
+  "DSU_HeadEmail": "@{item()?['field_3']}",
+  "DSU_HeadTitle": "@{item()?['field_6']}"
+}"
+
+
+
+RESPONSE:
+
+"{
+  "users": @{body('Select_Users')},
+  "categories": @{body('Select_Categories')},
+  "departments": @{body('Select_Departments')}
+}"
+
+
+
+
+
+
+
+FLOW: CREATE TASK:
+
+METHOD: POST
+
+URL
+
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f71397ff3ca145059dc8f78c04923e9f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=q8RUKhOTNluCpoKgid215iBsXVuY3H_l3FjAPxw2NJ0" 
+
+
+SCHEMA: 
+
+
+"{
+    "type": "object",
+    "properties": {
+        "AssignmentType": {
+            "type": "string"
+        },
+        "NewActivityTask": {
+            "type": "object",
+            "properties": {
+                "StartDate": {
+                    "type": "string"
+                },
+                "ActivityID": {
+                    "type": "integer"
+                },
+                "AttachmentLink": {
+                    "type": "string"
+                },
+                "Title": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "Category": {
+                    "type": "string"
+                },
+                "CategoryCode": {
+                    "type": "string"
+                },
+                "SubCategory": {
+                    "type": "string"
+                },
+                "SubCategoryCode": {
+                    "type": "string"
+                },
+                "AssignedTo": {
+                    "type": "string"
+                },
+                "AssignedToTitle": {
+                    "type": "string"
+                },
+                "AssignedDSU": {
+                    "type": "string"
+                },
+                "supportingAssignedTo": {
+                    "type": "string"
+                },
+                "SupportAssignedToTitle": {
+                    "type": "string"
+                },
+                "SupportDSU": {
+                    "type": "string"
+                },
+                "AcknolwedgementDueBy": {
+                    "type": "string"
+                },
+                "TaskDueDate": {
+                    "type": "string"
+                },
+                "CopyTo": {
+                    "type": "string"
+                },
+                "Priority": {
+                    "type": "string"
+                },
+                "PreReferenceID": {
+                    "type": "string"
+                },
+                "Categorization": {
+                    "type": "string"
+                },
+                "Comments": {
+                    "type": "string"
+                }
+            }
+        },
+        "Selected": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "RefIDD": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}"
+
+
+RESPONSE
+
+"{"success": true,
+  "referenceId": "@{triggerBody()?['NewActivityTask']?['PreReferenceID']}",
+  "patchId": "@{outputs('Get_item_2')?['body/ID']}"
+}"
+
+
+
+
+
+
+
+
+
+
+FLOW: GET DOCS:
+
+METHOD: POST
+
+
+
+URL
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/818ec4053f1e4f0b87845114241d8b74/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=MgQUY52IfdIP3MRFR4H1Zz_lNH-lHT6-IJ675Yz5S50"
+
+
+
+SCHEMA:
+
+"{
+    "type": "object",
+    "title": "Action Request",
+    "description": "",
+    "properties": {
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "The operation to perform Can be null."
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "format": "email",
+            "description": "The initiating user's email address. Can be null."
+        }
+    },
+    "required": [],
+    "additionalProperties": false
+}"
+
+
+
+FIELDS:
+
+"{
+  "ID": @{item()?['ID']},
+  "Title": @{coalesce(item()?['Title'], '')},
+  "Created": @{item()?['Created']},
+  "AssignedTo": @{coalesce(item()?['AssignedTo'], '')},
+  "Category": @{coalesce(item()?['Category0'], '')},
+  "AssignmentStatus": @{coalesce(item()?['AssignmentStatus'], '')},
+  "Status": @{coalesce(item()?['Status'], '')},
+  "Routed_x0020_To": @{coalesce(item()?['Routed_x0020_To'], '')},
+  "Description": @{coalesce(item()?['Description'], '')},
+  "CC_x0027_dTo": @{coalesce(item()?['CC_x0027_dTo'], '')},
+  "Assigned": @{coalesce(item()?['Assigned'], '')},
+  "AttachmentLink": @{coalesce(item()?['AttachmentLink'], '')}
+}"
+
+
+RESPONSE:
+
+"{
+  "docs": @{body('Select')}
+}"
+
+
+
+
+
+
+
+
+FLOW: SUPPORTING ACTIONS:
+
+METHOD: POST
+
+
+URL:
+
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/85c556f10b8244ba9d839a2ebe240b91/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=8ikbMhXrOn_L4QRUBF94wiq2swh7GlNVY_GZ5BD5jK0"
+
+
+SCHEMA:
+
+"{
+    "$id": "https://example.com/schemas/subsidiary-actions-extended.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Subsidiary Actions - Extended (Merged) Schema",
+    "description": "Merged superset schema covering all fields from provided templates and schemas (no fields removed).",
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {
+        "name": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "id": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "method": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Action": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Operation": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "userEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "UserEmail": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "docId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "DocId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "taskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "TaskId": {
+            "type": [
+                "string",
+                "integer",
+                "null"
+            ]
+        },
+        "acknowledgedBy": {},
+        "status": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "trackingID": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "source": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "AssignmentType": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "Selected": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "ID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "RefIDD": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        },
+        "NewActivityTask": {
+            "type": [
+                "object",
+                "null"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "StartDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "ActivityID": {
+                    "type": [
+                        "string",
+                        "integer",
+                        "null"
+                    ]
+                },
+                "Title": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Description": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Category": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategory": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "SubCategoryCode": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AssignedDSU": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "supportingAssignedTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "TaskDueDate": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Priority": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "CopyTo": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "AttachmentLink": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "Comments": {
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                }
+            }
+        }
+    }
+}"
+
+
+FLOW: EVENT PROCESSING:
+
+METHOD: POST
+
+URL:
+"https://defaultca6a4b3f912349bcbcb927085ebbf1.a1.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/5b29edc84b5d4a8db3c885d8441aa977/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=C_qVMrcigwXBW1zt6g9LMGEmGGKURAj1en5BKB7QcwM"
+
+
+SCHEMA:
+
+"{
+    "type": "object",
+    "properties": {
+        "DocId": {
+            "type": "string"
+        },
+        "TaskId": {
+            "type": "string"
+        }
+    }
+}"
+
+
+FIELDS:
+"{
+  "current_date": "@{body('Parse_JSON')?['current_date']}",
+  "event_name": "@{body('Parse_JSON')?['event_name']}",
+  "inviting_organization": "@{body('Parse_JSON')?['inviting_organization']}",
+  "event_date": "@{body('Parse_JSON')?['event_date']}",
+  "event_time": "@{body('Parse_JSON')?['event_time']}",
+  "location": "@{body('Parse_JSON')?['location']}",
+  "invitee_role": "@{body('Parse_JSON')?['invitee_role']}",
+  "ai_summary": "@{body('Parse_JSON')?['ai_summary']}",
+  "strategic_value": "@{body('Parse_JSON')?['strategic_value']}",
+  "justification": "@{body('Parse_JSON')?['justification']}",
+  "accept_url": "@{body('Parse_JSON')?['accept_url']}",
+  "decline_url": "@{body('Parse_JSON')?['decline_url']}",
+  "delegate_url": "@{body('Parse_JSON')?['delegate_url']}"
+}"
+
+RESPONSE:
+
+"{
+  "event": @{variables('varResponse')}
+}"
+
+
+
+
+
