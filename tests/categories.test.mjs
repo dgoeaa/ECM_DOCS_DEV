@@ -177,15 +177,26 @@ t('every portal category routes somewhere other than the executive queue', () =>
   }
 });
 
-t('the proxy derives its allow-list rather than keeping a fourth copy', async () => {
+t('the public channel offers exactly the shared public subset', () => {
   // This list HAD drifted: it carried 'Invitation' where the platform used
   // 'Event Invitation', so every portal invitation arrived with a category no routing rule
-  // and no report would match. Importing is what stops that recurring.
-  const { INTAKE_CATEGORIES } = await import('../proxy/src/intake.js');
-  assert.equal(INTAKE_CATEGORIES, PUBLIC_DOCUMENT_KINDS,
-    'the proxy must import the shared list, not restate it');
-  const src = read('proxy/src/intake.js');
-  assert.ok(!/'Invitation'/.test(src), "the drifted value must not survive anywhere");
+  // and no report would match. The portal is now the only place the public vocabulary is
+  // presented, so the whole allow-list is compared, not merely spot-checked.
+  const data = read('document-portal/js/data.js');
+  const block = (data.match(/PF\.CORRESPONDENCE_TYPES = \[([\s\S]*?)\n\];/) || [, ''])[1];
+  const offered = [...new Set([...block.matchAll(/category:\s*'([^']+)'/g)].map(m => m[1]))].sort();
+  assert.deepEqual(offered, [...PUBLIC_DOCUMENT_KINDS].sort(),
+    'the portal must offer the shared public subset, not a private copy of it');
+  assert.ok(!/'Invitation'/.test(data), 'the drifted value must not survive anywhere');
+});
+
+t('the flow that receives a public submission is told to enforce the same allow-list', () => {
+  // Nothing stands between the public and the intake flow any more, so the allow-list is
+  // only a control if the flow applies it. A portal that merely declines to OFFER a
+  // category stops nobody who posts to the endpoint directly.
+  const contract = read('document-portal/README.md');
+  assert.match(contract, /restrict `category` to the public subset/i,
+    'the intake contract must require the flow to enforce the public subset');
 });
 
 t('the public subset is narrower than the full vocabulary', () => {

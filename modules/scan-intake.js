@@ -112,10 +112,11 @@ function render(el) {
       <div class="eyebrow panel-eyebrow">Deposited this session</div>
       <ul class="timeline">${deposited.map(t => `<li>
         <div class="when">${esc(fmtDateTime(t.result.depositedAt))}</div>
-        <b>${esc(t.result.referenceId)} · ${esc(t.file.name)}</b>
+        <b>${esc(t.result.referenceId)} · ${esc(t.result.filename || t.file.name)}</b>
         <p>${t.result.attachmentLink
               ? `<a href="${esc(t.result.attachmentLink)}" target="_blank" rel="noopener noreferrer">Open in the document library</a>`
               : 'Accepted and verified, but the library did not confirm a link.'}</p>
+        ${t.result.renamed ? `<p class="meta">Filed as ${esc(t.result.renamed.to)} — you deposited ${esc(t.result.declaredName)}. Renamed by the ${esc(t.result.renamed.policy)} (${esc(t.result.renamed.reasons.join(', '))}).</p>` : ''}
         <div class="meta">Deposited by ${esc(t.result.depositedBy || 'the signed-in officer')} · ${esc(bytes(t.result.bytes))} · sha256 ${esc(String(t.result.sha256).slice(0, 16))}…</div>
       </li>`).join('')}</ul>
     </section>` : ''}
@@ -265,7 +266,10 @@ function recordFor(res, entry, d) {
     depositedBy: res.depositedBy,
     depositedAt: res.depositedAt,
     documentSha256: res.sha256,
-    documentName: entry.file.name,
+    // The policy-compliant name the library holds, and — when they differ — the name the
+    // officer actually deposited. Keeping only the first would quietly rewrite the deposit.
+    documentName: res.filename || entry.file.name,
+    ...(res.declaredName ? { documentDeclaredName: res.declaredName, documentRenamed: res.renamed } : {}),
     documentBytes: res.bytes,
     createdAt: now,
     updatedAt: now,

@@ -4,18 +4,23 @@
  *
  * The defect being guarded: `NITDA-${Date.now().toString().slice(-6)}` in
  * modules/correspondence.js. The last six digits of a millisecond timestamp cycle every
- * ~16.7 minutes, so it collides; and it is a different shape from the reference the proxy
- * issues, so the registry held two key formats at once.
+ * ~16.7 minutes, so it collides; and it is a different shape from the reference the
+ * registry issues, so the registry held two key formats at once.
  *
  * Run: node tests/reference-minter.test.mjs
  */
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import {
   mintReference, highestSequence, sequenceOf, isReference,
-  REFERENCE_PATTERN, REFERENCE_PREFIX,
+  REFERENCE_PATTERN, REFERENCE_PREFIX, SEQUENCE_WIDTH,
 } from '../core/reference-minter.js';
-import { createReferenceMinter } from '../proxy/src/intake.js';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = p => readFileSync(path.join(ROOT, p), 'utf8');
 
 let passed = 0, failed = 0;
 /* Async-aware. A sync helper silently PASSES an async test whose assertion rejects — the
@@ -39,15 +44,24 @@ await t('a minted reference has the registry shape', () => {
   assert.equal(reference, 'NITDA-2026-000001');
 });
 
-await t('it is the SAME shape the proxy issues', async () => {
+await t('it is the SAME shape the registry issues', () => {
   // The whole point of F-031's second half. If these diverge the registry holds two key
   // formats again, and this is the assertion that catches it.
-  // The proxy minter became async when its sequence moved to a durable store — the format
-  // is what this compares, and that is unchanged by where the number comes from.
-  const server = await createReferenceMinter({ seed: 1, clock: at(2026) }).mint();
-  const client = mintReference([], { now: at(2026) }).reference;
-  assert.match(server, REFERENCE_PATTERN);
-  assert.equal(server, client, 'server and client minters must produce identical shapes');
+  //
+  // The server-side minter is a Power Automate flow now, so it cannot be imported and
+  // compared directly. What CAN be pinned inside this repository is the format itself and
+  // the contract the flow author reads — so both are asserted, and a change to either
+  // without the other fails here.
+  assert.equal(REFERENCE_PREFIX, 'NITDA');
+  assert.equal(SEQUENCE_WIDTH, 6);
+  assert.equal(mintReference([], { now: at(2026) }).reference, 'NITDA-2026-000001');
+
+  const contract = read('document-portal/README.md');
+  const stated = (contract.match(/`(NITDA-YYYY-N+)`/) || [, ''])[1];
+  assert.ok(stated, 'the intake contract must state the reference format the flow must mint');
+  const sample = stated.replace('YYYY', '2026').replace(/N+$/, '1'.padStart(SEQUENCE_WIDTH, '0'));
+  assert.match(sample, REFERENCE_PATTERN,
+    `the documented format ${stated} does not match the one this module implements`);
 });
 
 await t('the retired shape is not produced', () => {

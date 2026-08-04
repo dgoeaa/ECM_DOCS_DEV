@@ -15,26 +15,31 @@ PF.ORG = {
 };
 
 /* ---------------------------------------------------------------
-   Backend.
+   Backend — the configured Power Automate flow endpoints, called directly.
 
    This replaced PF.ENDPOINTS, which held three SAS-signed Power Automate
-   URLs. A signed URL is a bearer credential: possession alone authorises
-   invoking the flow, and these were delivered to every browser that opened
-   any page of this portal, cached by the service worker, and readable by
-   anyone who could fetch a static asset.
+   URLs hardcoded in this committed file. That is the part that was wrong:
+   a signed URL is a bearer credential, and committing one publishes it to
+   everyone who can read the repository, permanently, with no way to revoke
+   it other than regenerating the signature.
 
-   The portal now holds NO credential. It talks to the authenticating proxy,
-   which is the only component that holds one (see proxy/README.md and
-   docs/architecture/TARGET_ARCHITECTURE.md §3.1). That is what retires the
-   problem class rather than rotating it: there is no signature left in any
-   shipped asset to leak.
+   Nothing is hardcoded here now. Endpoint URLs arrive at deploy time by
+   copying config.example.js to config.local.js — which is git-ignored — or
+   by injecting window.PF_CONFIG before this file loads. There is no proxy
+   to stand up, deploy or keep running between this portal and the flows.
 
-   Set at deploy time by copying config.example.js to config.local.js — which
-   is git-ignored — or by injecting window.PF_CONFIG before this file loads.
+   ⚠  Understand the consequence and design the flows for it. This is a PUBLIC
+   portal, so every URL configured below is delivered to every visitor's
+   browser and is readable by anyone who can fetch a static asset. Each flow
+   must therefore be built to be safe when invoked by an anonymous stranger:
+   validate its own input, enforce its own rate limits, return only what that
+   caller is entitled to see, and be rotatable on a schedule. Never configure
+   an endpoint here that does anything the public may not do.
+
    Empty means DEMO MODE: everything stays local and nothing is transmitted,
    which is the safe failure for a public channel.
    --------------------------------------------------------------- */
-PF.CONFIG = Object.assign({ proxyBaseUrl: '' },
+PF.CONFIG = Object.assign({ endpoints: {} },
   (typeof window !== 'undefined' && window.PF_CONFIG) || {});
 
 /* ---------------------------------------------------------------
@@ -104,7 +109,7 @@ PF.STATES = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Be
 
 /* Names used only to make the shipped demonstration records read plausibly. Nothing in the
    portal assigns work — the registry does that on receipt, and a submission dispatched to
-   the proxy carries no officer at all. */
+   the intake flow carries no officer at all. */
 PF.OFFICERS = ['A. Bello', 'C. Okonkwo', 'F. Danjuma', 'H. Yusuf', 'M. Adeyemi', 'T. Eze'];
 
 /* PF.STAFF is deleted, not moved.

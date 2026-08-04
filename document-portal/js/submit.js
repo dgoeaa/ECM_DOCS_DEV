@@ -328,12 +328,12 @@ PF.page = function () {
     });
   }
 
-  /* Hands the submission to the registry through the authenticating proxy.
+  /* Hands the submission to the registry by calling the configured intake flow directly.
 
      TWO PHASES (TARGET_ARCHITECTURE.md §3.3):
-       1. POST /intake/submission — metadata only. The registry validates it, mints a
+       1. POST to the SUBMISSION endpoint — metadata only. The flow validates it, mints a
           reference and returns one short-lived upload ticket per declared attachment.
-       2. PUT /intake/upload per ticket — the raw file.
+       2. PUT to the UPLOAD endpoint per ticket — the raw file.
 
      What this replaced, and why it matters: attachments used to be base64-encoded into a
      JSON workflow payload. Base64 inflates by a third, so a transport limit became a
@@ -341,7 +341,9 @@ PF.page = function () {
      above 4 MB while the submission still reported success (F-028). Bytes no longer
      travel inside the payload, so neither limit exists.
 
-     The portal holds no credential. The proxy does. */
+     Nothing here is a credential and nothing is hardcoded: both endpoints are supplied
+     at deploy time through PF.CONFIG.endpoints, and both flows are responsible for
+     validating and authorising their own callers. */
 
   function digestOf(file) {
     if (!(window.crypto && crypto.subtle && file)) return Promise.resolve('');
@@ -361,7 +363,7 @@ PF.page = function () {
       return;
     }
 
-    /* Declare a digest per attachment so the proxy can verify that what arrives is what
+    /* Declare a digest per attachment so the upload flow can verify that what arrives is what
        was described. Files restored from a draft have no bytes and are declared without
        one — they are reported as undelivered below rather than silently skipped. */
     var withBytes = files.filter(function (f) { return f && f.file; });

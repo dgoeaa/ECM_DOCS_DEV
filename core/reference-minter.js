@@ -9,22 +9,23 @@
 //      reference, and two clerks logging in the same millisecond collide outright. A
 //      registry reference that repeats is not a reference.
 //
-//   2. IT IS A DIFFERENT SHAPE FROM THE SERVER'S. proxy/src/intake.js mints
-//      `NITDA-YYYY-NNNNNN`. After step 7 the registry holds both shapes depending on which
-//      channel a record arrived through — `NITDA-2026-000318` from the portal and the
-//      counter, `NITDA-483920` from manual logging. One registry, two key formats.
+//   2. IT IS A DIFFERENT SHAPE FROM THE SERVER'S. The registry issues `NITDA-YYYY-NNNNNN`.
+//      After step 7 the registry holds both shapes depending on which channel a record
+//      arrived through — `NITDA-2026-000318` from the portal and the counter,
+//      `NITDA-483920` from manual logging. One registry, two key formats.
 //
 // PROVISIONAL VERSUS ISSUED
 // A reference minted here is derived from the records this browser can see, which is not
 // the whole registry. It is therefore PROVISIONAL, and records carrying one are flagged so
-// a later reconciliation can find them. A reference minted by the proxy is ISSUED: the
-// server holds the sequence and no client can collide with it.
+// a later reconciliation can find them. A reference minted by the intake flow is ISSUED:
+// the server holds the sequence and no client can collide with it.
 //
-// The durable answer is that every creation path goes through the proxy, as scan intake
-// already does. Until then this makes local minting correct within its own scope and
-// honest about where that scope ends, rather than quietly wrong everywhere.
+// The durable answer is that every creation path is served by a flow that holds the
+// sequence, as scan intake already is. Until then this makes local minting correct within
+// its own scope and honest about where that scope ends, rather than quietly wrong
+// everywhere.
 
-/** The one format. Matches proxy/src/intake.js createReferenceMinter. */
+/** The one format. Every flow that issues a reference must mint this same shape. */
 export const REFERENCE_PREFIX = 'NITDA';
 export const REFERENCE_PATTERN = /^([A-Z]+)-(\d{4})-(\d{6})$/;
 export const SEQUENCE_WIDTH = 6;

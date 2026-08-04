@@ -177,17 +177,18 @@ test.describe('document portal', () => {
     expect(out, 'the retired service vocabulary must not be back').not.toMatch(/<dt>Service<\/dt>/);
   });
 
-  /* Step 6: the tracking page reads status back from the registry through the proxy.
+  /* Step 6: the tracking page reads status back from the registry.
    * Before this it read localStorage and nothing else, so it could not report a decision
    * the registry had taken, and a submission made on a phone did not exist on a laptop.
    *
-   * The proxy is stubbed at the network boundary. What is under test is the client's three
+   * The status flow is stubbed at the network boundary — the portal calls it directly, so
+   * the stub is the configured endpoint itself. What is under test is the client's three
    * resolutions and — the part that matters — that device data is never presented as
    * though it came from the registry. */
-  const PROXY = 'http://proxy.test';
-  async function withProxy(page, fulfil) {
-    await page.addInitScript(base => { window.PF_CONFIG = { proxyBaseUrl: base }; }, PROXY);
-    await page.route(`${PROXY}/intake/status`, fulfil);
+  const STATUS_ENDPOINT = 'http://flow.test/intake-status';
+  async function withStatusEndpoint(page, fulfil) {
+    await page.addInitScript(url => { window.PF_CONFIG = { endpoints: { STATUS: url } }; }, STATUS_ENDPOINT);
+    await page.route(STATUS_ENDPOINT, fulfil);
   }
   const seedOf = page => page.evaluate(() => {
     const r = PF.store.all().find(x => x.seeded);
@@ -195,7 +196,7 @@ test.describe('document portal', () => {
   });
 
   test('a match is rendered from the registry and labelled as such', async ({ page }) => {
-    await withProxy(page, route => route.fulfill({
+    await withStatusEndpoint(page, route => route.fulfill({
       status: 200, contentType: 'application/json',
       body: JSON.stringify({ ok: true, record: {
         referenceId: 'NITDA-2026-000318', status: 'review', statusLabel: 'Under review by the registry',
@@ -224,7 +225,7 @@ test.describe('document portal', () => {
   });
 
   test('a denial is one message that does not say which half was wrong', async ({ page }) => {
-    await withProxy(page, route => route.fulfill({
+    await withStatusEndpoint(page, route => route.fulfill({
       status: 404, contentType: 'application/json', body: JSON.stringify({ ok: false, error: 'not_found' }),
     }));
     await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
@@ -245,7 +246,7 @@ test.describe('document portal', () => {
   });
 
   test('an unreachable registry falls back to device data and says so', async ({ page }) => {
-    await withProxy(page, route => route.abort('connectionrefused'));
+    await withStatusEndpoint(page, route => route.abort('connectionrefused'));
     await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
     const seed = await seedOf(page);
     await page.fill('#trackId', seed.id);
@@ -260,7 +261,7 @@ test.describe('document portal', () => {
   });
 
   test('an unreachable registry with no device copy reports unavailable, not not-found', async ({ page }) => {
-    await withProxy(page, route => route.abort('connectionrefused'));
+    await withStatusEndpoint(page, route => route.abort('connectionrefused'));
     await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
     await page.fill('#trackId', 'NITDA-2026-000999');
     await page.fill('#trackEmail', 'nobody@example.org');
