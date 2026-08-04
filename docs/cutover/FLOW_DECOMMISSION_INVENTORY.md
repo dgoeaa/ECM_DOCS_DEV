@@ -16,9 +16,12 @@ platform's endpoint configuration and list what it calls.
 it and the real values now live in `config/config.local.js`, which is git-ignored. The
 working configuration therefore wires 8 workflows. The other 17 are not absent because
 they were retired; they are absent because nothing in the current tree happens to reference
-them. They remain deployed in the Power Platform environment, their trigger URLs remain
-valid, and their signed URLs are published in `ECM_DOCS_DEV.zip`, which is tracked in this
-repository.
+them. They remain deployed in the Power Platform environment and their trigger URLs remain
+valid.
+
+Their signed URLs *were* published in `ECM_DOCS_DEV.zip`. That file has since been removed
+from the tree — which changed nothing about the flows. The URLs are still in git history and
+every one of them still works. Only regenerating or deleting the trigger changes that.
 
 A signed Power Automate trigger URL is a bearer credential: possession is authorisation.
 Deleting the file that contains one does not revoke it and neither does rewriting history.

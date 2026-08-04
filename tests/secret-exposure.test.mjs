@@ -9,17 +9,18 @@
  * not re-implement it — two checkers failing on the same finding is noise, and noise is how
  * a control stops being read.
  *
- * What this adds is a different UNIT of measurement, and the unit turns out to matter.
- * `check-secrets.mjs` counts signatures: 31 in `ECM_DOCS_DEV.zip`. A decommission checklist
- * cannot be built from that number, because the thing an administrator deletes or
- * regenerates is a flow, not a signature. Counting by workflow gives 25 — and the gap is
- * not noise: six workflows carry TWO signatures each, which is a trigger that was
- * regenerated at some point with the superseded signature still published beside the
- * replacement. Rotating one of the pair and stopping would leave the flow reachable.
+ * What this adds is a different UNIT of measurement. `check-secrets.mjs` counts signatures;
+ * this counts WORKFLOWS, because the thing an administrator deletes or regenerates is a flow,
+ * not a signature. That distinction produced the two findings that shaped the cutover: only 8
+ * of 25 workflows were reachable from the working configuration, so a checklist built by
+ * reading `config/` would have missed 17; and six of them carry TWO valid signatures, so
+ * regenerating once leaves the older one live.
  *
- * The workflow view is also what produced the finding in
- * docs/cutover/FLOW_DECOMMISSION_INVENTORY.md: only 8 of the 25 are reachable from the
- * working configuration, so a checklist derived from `config/` covers 8 of 25.
+ * Both counts are now ZERO. `ECM_DOCS_DEV.zip` held every one of them and has been removed
+ * from the tree, its irreplaceable content extracted to docs/reference/. This suite now
+ * asserts that nothing has come back — see docs/cutover/FLOW_DECOMMISSION_INVENTORY.md for
+ * the 25 flows that still need their triggers regenerated in Power Automate, which removing
+ * the file did not do.
  *
  * WHAT NEITHER SUITE CAN ASSERT
  * That any of this is revoked. A signed trigger URL is a bearer credential; deleting the
@@ -48,13 +49,14 @@ const section = s => console.log(`\n${s}`);
  * now stale. Neither should pass silently.
  */
 const ALLOWED = [
-  {
-    file: 'ECM_DOCS_DEV.zip',
-    workflows: 25,
-    signatures: 31,
-    why: 'Reference archive; sole custodian of the BRD/FRD baseline and the flow contracts. '
-       + 'Disposition open — see docs/cutover/ARCHIVE_DISPOSITION.md.',
-  },
+  /* Empty, and that is the finding.
+     ECM_DOCS_DEV.zip held signed trigger URLs for 25 workflows — the whole of this
+     repository's plaintext credential exposure. Its irreplaceable content was extracted to
+     docs/reference/ and the archive was removed from the working tree.
+     Removing it does NOT revoke anything: the blob is still in git history, and a signed
+     trigger URL stays valid until the trigger is regenerated in Power Automate. That work is
+     docs/deployment/MINIMAL-PILOT.md §3a. This list going empty means HEAD stopped
+     publishing them, not that they stopped working. */
 ];
 
 const rows = inventory({ trackedOnly: true });
@@ -84,29 +86,16 @@ t('every tracked file carrying a signed URL is on the allow-list', () => {
     'Power Automate — the published one stays valid until you do.');
 });
 
-for (const a of ALLOWED) {
-  t(`${a.file}: exactly ${a.workflows} workflows`, () => {
-    const found = byContainer.get(a.file);
-    assert.ok(found, `${a.file} is allow-listed but carries no signed URL — ` +
-      'if its disposition was settled, delete this entry rather than leave a stale debt.');
-    assert.equal(found.workflows.size, a.workflows);
-  });
+t('no tracked file carries a signed trigger URL at all', () => {
+  assert.equal(byContainer.size, 0,
+    `still carrying credentials: ${[...byContainer.keys()].join(', ')}`);
+});
 
-  t(`${a.file}: exactly ${a.signatures} signatures across those workflows`, () => {
-    /* The two numbers differ because six triggers were regenerated and BOTH signatures are
-       published. Pinning only the workflow count would let a fresh signature be added to an
-       already-listed flow without anything noticing. */
-    assert.equal(byContainer.get(a.file).signatures, a.signatures);
-  });
-
-  t(`${a.file}: the workflow/signature gap is still the six regenerated triggers`, () => {
-    const multi = rows.filter(r => r.sigCount > 1);
-    assert.equal(multi.length, 6,
-      'a flow with two live signatures needs BOTH regenerated; rotating one leaves it reachable');
-    assert.equal(multi.reduce((n, r) => n + r.sigCount, 0) - multi.length,
-      a.signatures - a.workflows, 'the surplus must be fully explained by those flows');
-  });
-}
+t('the allow-list is empty, and must stay that way', () => {
+  /* An entry appearing here again means a credential was committed and then accepted rather
+     than removed. Accepting one is how a repository ends up with twenty-five. */
+  assert.deepEqual(ALLOWED, []);
+});
 
 section('The source tree itself stays clean');
 

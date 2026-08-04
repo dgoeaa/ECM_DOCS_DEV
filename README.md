@@ -40,7 +40,7 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 | Path | Contents |
 |---|---|
-| `ECM_DOCS_DEV.zip` | **Archive of record.** Contains the full platform snapshot plus every reference artefact: Power Automate flow exports, the BRD/FRD, the DGCEO data model, the SharePoint provisioning extraction, the HTML ops email templates, and nested archives of the Bespoke welcome-experience prototypes and the client-proxy template. Loose copies were removed from the tree in favour of this single archive. |
+| `docs/reference/` | **Reference material of record.** The BRD/FRD hybrid, the platform architecture pack, the DGCEO data model, the SharePoint provisioning specification (10 lists, 97 fields), the flow trigger contracts, and the operations manifest with its signed URLs redacted. Extracted from `ECM_DOCS_DEV.zip`, which was removed from the tree — it carried signed Power Automate trigger URLs for 25 workflows and its irreplaceable content is now readable and diffable. The archive remains in git history. |
 
 ---
 
@@ -66,9 +66,10 @@ npm install && npm run go
 
 `npm run go` wires the pilot endpoints and starts the server. Nothing else to configure.
 
-It recovers the Power Automate endpoints from the archived operations manifest in
-`ECM_DOCS_DEV.zip` and writes `config/config.local.js` and
-git-ignored, so nothing is committed.
+Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints —
+or, once the proxy is deployed, set `auth.enabled: true` and `proxyBaseUrl` and leave
+`endpoints` empty, so the browser holds no credential at all. See
+`docs/deployment/MINIMAL-PILOT.md`.
 It never overwrites an existing config unless you pass `--force`.
 
 Authentication stays **inert** for local testing: no sign-in, no token, identity from the

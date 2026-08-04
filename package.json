@@ -9,8 +9,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "go": "node scripts/setup-local.mjs && npm start",
-    "setup": "node scripts/setup-local.mjs",
     "start": "http-server . -p 8080 --cors -c-1 --silent",
     "start:proxy": "node proxy/src/server.js",
     "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:register && npm run test:architecture && npm run test:auth && npm run test:proxy && npm run test:intake && npm run test:upload && npm run test:status && npm run test:scan && npm run test:verify && npm run test:worker && npm run test:refstore && npm run test:smoke",

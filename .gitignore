@@ -20,3 +20,7 @@ blob-report/
 .DS_Store
 Thumbs.db
 *.swp
+
+# The 17MB reference archive. Extracted to docs/reference/ and removed from the
+# working tree — see docs/cutover/ARCHIVE_DISPOSITION.md. Still in git history.
+ECM_DOCS_DEV.zip

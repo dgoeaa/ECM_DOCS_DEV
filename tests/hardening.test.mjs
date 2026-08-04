@@ -48,9 +48,18 @@ console.log('F-023 / F-024 / D6(b) · the ECM Activity Hub is retired, not merel
 
   // Nothing may still point at it.
   for (const f of ['package.json', 'core/boot.js', 'tests/check-imports.mjs',
-                   'scripts/check-links.mjs', 'scripts/setup-local.mjs', '.gitignore']) {
+                   'scripts/check-links.mjs', '.gitignore']) {
     ok(`${f} no longer references the retired tree`, !/ECM_ActivityHub/.test(read(f)));
   }
+
+  /* scripts/setup-local.mjs was in that list until the archive was removed. Its whole job was
+     recovering the PILOT Power Automate endpoints out of ECM_DOCS_DEV.zip and writing them
+     into config.local.js — which is precisely the credential exposure the cutover exists to
+     end. A convenience that restores revoked credentials is not a convenience. */
+  ok('setup-local.mjs is retired, not merely unused',
+     !existsSync(path.join(ROOT, 'scripts/setup-local.mjs')));
+  ok('and npm no longer offers a command that would run it',
+     !/setup-local/.test(read('package.json')));
 
   // Its three unique capabilities are the reason the retirement is a merge, not a drop.
   for (const f of ['core/executive-register.js', 'modules/briefs.js',
