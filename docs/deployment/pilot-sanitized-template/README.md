@@ -74,4 +74,4 @@ Use placeholders such as `<TEAM-DOMAIN>`, `<AUD-TAG>`, `<WORKER-HOSTNAME>`, `<PA
 
 ## Authoritative sequence
 
-The authoritative §0–§9 implementation order remains [`docs/deployment/CLOUDFLARE.md`](./CLOUDFLARE.md).
+The authoritative Part A–Part I implementation order remains [`docs/deployment/CLOUDFLARE.md`](./CLOUDFLARE.md).

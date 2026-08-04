@@ -5,4 +5,4 @@ WRANGLER_VERSION=null
 PLAYWRIGHT_VERSION=null
 PLATFORM=REDACTED
 BROWSER_TEST_HOST=REDACTED
-NOTES=Record exact local environment used for §1 prerequisite verification.
+NOTES=Record exact local environment used for Part A prerequisite verification.

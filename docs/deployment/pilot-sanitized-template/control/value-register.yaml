@@ -18,7 +18,7 @@ values:
     value: <AUD-TAG>
   V4:
     name: Access group names
-    source: docs/deployment/CLOUDFLARE.md §3.2
+    source: docs/deployment/CLOUDFLARE.md D3
     stored_in_repository: true
     value:
       - DGO-SystemAdmin
