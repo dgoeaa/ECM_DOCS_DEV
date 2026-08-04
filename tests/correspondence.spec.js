@@ -3,7 +3,7 @@
  *
  * `modules/correspondence.js` used `NITDA-${Date.now().toString().slice(-6)}`. The last six
  * digits of a millisecond timestamp cycle every ~16.7 minutes, so it collided, and it was a
- * different shape from the reference the proxy issues — so after step 7 the registry held
+ * different shape from the reference the intake flow issues — so after step 7 the registry held
  * `NITDA-2026-000318` from the portal and the counter alongside `NITDA-483920` from manual
  * logging. These exercise the real form, because the unit tests cover the minter and not
  * the wiring.
@@ -71,20 +71,20 @@ test.describe('manual correspondence logging', () => {
 
     const recs = await logged(page);
     expect(recs.length).toBe(1);
-    expect(recs[0].referenceId, 'NITDA-YYYY-NNNNNN, as the proxy issues')
+    expect(recs[0].referenceId, 'NITDA-YYYY-NNNNNN, as the intake flow issues')
       .toMatch(/^NITDA-\d{4}-\d{6}$/);
     expect(recs[0].referenceId, 'the retired six-digit timestamp form must not return')
       .not.toMatch(/^NITDA-\d{6}$/);
     expect(recs[0].id).toBe(recs[0].referenceId);
   });
 
-  test('it matches the format the proxy mints, exactly', async ({ page }) => {
+  test('it matches the format the intake flow mints, exactly', async ({ page }) => {
     await openWorkspace(page);
     await logOne(page, 'Counter test format');
     const [rec] = await logged(page);
 
-    // Same regex the proxy's own suite asserts against. If the two shapes drift apart the
-    // registry goes back to holding two key formats, which is half of F-031.
+    // The same shape document-portal/README.md requires of the SUBMISSION flow. If the two
+    // drift apart the registry goes back to holding two key formats, which is half of F-031.
     const year = new Date().getFullYear();
     expect(rec.referenceId).toMatch(new RegExp(`^NITDA-${year}-\\d{6}$`));
   });

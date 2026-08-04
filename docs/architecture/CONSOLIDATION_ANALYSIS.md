@@ -14,8 +14,8 @@ re-derived by script after drafting; four were wrong on the first pass and are c
 routes that appear as mapped in §2).
 
 **Scope.** `ECM_ActivityHub_Portal/` (54 files) against the root platform (26 modules,
-26 routes). The document portal and the proxy are out of scope — their dispositions are
-settled and executed.
+26 routes). The document portal is out of scope — its disposition is settled and executed.
+So was `proxy/`, which has since been removed entirely; nothing in this analysis depends on it.
 
 ---
 

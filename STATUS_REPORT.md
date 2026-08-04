@@ -5,6 +5,17 @@
 
 ---
 
+> **Amendment, 4 August 2026.** The authenticating proxy this report treats as the server half of
+> G-04 has been **removed**, not deployed. Both clients now call each Power Automate flow directly,
+> with the signed trigger URL configured into them at deploy time. The rows below that read
+> "implemented in `proxy/`" describe code that no longer exists, and every obligation it discharged —
+> token validation, role derivation, per-action authorisation, rate limiting, reference minting,
+> upload ticketing, the filename policy — now belongs to the flow itself. **G-04's server half is
+> therefore not implemented anywhere in this repository, and cannot be: it lives in Power Automate.**
+> See `AUTHENTICATION_CONTRACT.md` §2 and `document-portal/README.md`.
+
+---
+
 ## 1. Position
 
 **The platform is healthy and in development. Nothing is broken. Two things are unfinished, and both are security enforcement rather than function.**
@@ -19,7 +30,7 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 | CI | **Did not exist** | Green on every run |
 | Tracked files / size | 400 · 51 MB | 266 · 19 MB |
 | Broken references | 1 | **0** |
-| Authentication | Absent, undocumented | Provisioned on both apps; server enforcement implemented in `proxy/` |
+| Authentication | Absent, undocumented | Provisioned on both apps; server enforcement is the flows' obligation, and unverified |
 | ECM Portal identity | Hardcoded, role switchable in-browser | Closed — F-001 … F-005 |
 | Repository visibility | **Public** | **Private** |
 
@@ -37,7 +48,6 @@ npm test
   secrets      2 baselined files · no new signatures         ✅
   governance   63/63 ownership, RBAC, idempotency, audit     ✅
   auth         38/38 across both postures, both apps         ✅
-  proxy        66/66 incl. token-forgery attack cases        ✅
   smoke        6/6 boot, a11y, 25 routes, themes, portal     ✅
 CI          green on all runs
 ```
@@ -65,8 +75,8 @@ CI          green on all runs
 | ID | Finding | Done | Outstanding |
 |---|---|---|---|
 | **G-03** | 22 SAS signatures in tracked files | Reduced to 4 signatures in 2 files; ratchet blocks new ones | **Rotate all 22 in Power Automate.** Deleting files revoked nothing |
-| **G-04** | No authentication; privilege escalation demonstrated | Client half complete on both apps; **server half implemented and tested in `proxy/`** (66 assertions) | **Deployment** — stand up the proxy, register the Entra app, point the clients at it |
-| **G-08** | Quality gate | Imports, secrets, governance, auth, proxy, smoke — 6 suites | **No rendered-appearance coverage**; the `overrides` cascade debt stays unmeasured |
+| **G-04** | No authentication; privilege escalation demonstrated | Client half complete on both apps | **The whole server half.** The proxy that implemented it has been removed; each flow must now validate the token, derive the role and authorise the action itself |
+| **G-08** | Quality gate | Imports, secrets, governance, auth, smoke — 5 suites | **No rendered-appearance coverage**; the `overrides` cascade debt stays unmeasured |
 
 ### Open — 0
 
@@ -76,7 +86,7 @@ The three ECM Activity Hub Portal findings open since the first audit are closed
 |---|---|---|
 | **F-001** | Production identity hardcoded in client state | Neutral development placeholder; ignored entirely once enforced |
 | **F-002** | In-browser role switch | Refused when enforced |
-| **F-003** | Request envelope trusts browser claims | `user`/`role` dropped; Bearer attached; routed via proxy |
+| **F-003** | Request envelope trusts browser claims | `user`/`role` dropped; Bearer attached |
 | **F-004** | Privileged navigation rendered unconditionally | Filtered by `canOpen()`; empty sections omitted |
 | **F-005** | Router had no authorization predicate | `ROUTE_ROLES` + explicit denial page |
 
@@ -86,7 +96,7 @@ The three ECM Activity Hub Portal findings open since the first audit are closed
 
 | Risk | Severity | Standing |
 |---|---|---|
-| No server-side enforcement **running** | **High** | Implementation complete in `proxy/`; every control stays advisory until it is deployed. |
+| No server-side enforcement **running** | **High** | No implementation exists. Every control stays advisory until each flow enforces its own callers. |
 | 22 pilot signatures unrotated | **Low** | Pilot-only endpoints, repository private. Rotate at convenience. |
 | Governance spine untested | — | **Closed.** 63 assertions, verified by negative control. |
 | ECM Portal identity client-controlled | — | **Closed.** F-001 … F-005. |
@@ -103,7 +113,7 @@ The three ECM Activity Hub Portal findings open since the first audit are closed
 | **PR #1** `ff6122c` | Runtime repair (13 configs), theming fix, boot watchdog, welcome params, quality gate, CI, structural remediation |
 | **PR #2** `84318cc` | Dormant authentication: config, service, request wiring, server-authoritative identity, contract, Diagnostics panel, 25 assertions |
 | **PR #3** `aa94f2a` | ECM Portal auth parity (F-001 … F-005), governance spine coverage (63 assertions), accessibility verified |
-| *pending* | Authenticating proxy — the server half of G-04, 66 assertions |
+| *withdrawn* | Authenticating proxy — built (66 assertions), then removed rather than deployed. The obligation moved to the flows; see the amendment above |
 
 **Three audits produced:** runtime capability assessment (G-nn), repository security and data audit (R-nn), forensic structural audit with a four-tier disposition register.
 
@@ -130,10 +140,10 @@ Ordered so each step de-risks the next.
 | 3 | ~~Accessibility~~ — **verified clean**, no change required | — |
 | 4 | **Rotate 22 pilot signatures** | Power Automate |
 | 5 | **Register Entra ID application** — six app roles | Tenant administration |
-| 6 | **Deploy the authenticating proxy** — implementation ready in `proxy/`, needs a host and the signed URLs moved into its environment | Infrastructure |
+| 6 | **Make each flow enforce its own callers** — token validation, role derivation, per-action authorisation, rate limiting, reference minting, upload ticketing, filename policy | Power Automate |
 | 7 | **Activate** — set `auth.enabled`, supply tenant config, verify | Configuration |
 
-Steps 1–3 are complete. Steps 4–6 need decisions and infrastructure outside the repository; the proxy's **code** is done, only its deployment remains. **Step 7 is a configuration event, not a development one** — that was the point of provisioning authentication dormant.
+Steps 1–3 are complete. Steps 4–6 need decisions and work outside this repository. Step 6 no longer has code waiting for a host: removing the proxy moved that work into Power Automate, where it has not been done. **Step 7 is a configuration event, not a development one** — that was the point of provisioning authentication dormant.
 
 ---
 
@@ -143,4 +153,4 @@ The engineering substance is real: action ownership that throws rather than warn
 
 Their single weakness is that every one is enforced in the browser. The RBAC model was never the problem — **its input was**. That is now provisioned to change with one flag, and the change is guarded by tests that fail if the old path returns.
 
-**The repair phase is complete. What remains is enforcement, and enforcement needs infrastructure rather than more code in this repository.**
+**The repair phase is complete. What remains is enforcement, and enforcement now needs work in the flows rather than more code in this repository.**

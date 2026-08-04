@@ -66,9 +66,9 @@ npm install && npm run go
 
 `npm run go` wires the pilot endpoints and starts the server. Nothing else to configure.
 
-Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints —
-or, once the proxy is deployed, set `auth.enabled: true` and `proxyBaseUrl` and leave
-`endpoints` empty, so the browser holds no credential at all. See
+Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints. The
+browser calls each Power Automate flow directly, so those URLs are the credential — the file
+is git-ignored, and every flow behind it must authenticate and authorise its own callers. See
 `docs/deployment/MINIMAL-PILOT.md`.
 It never overwrites an existing config unless you pass `--force`.
 
