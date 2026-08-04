@@ -168,3 +168,93 @@ as weak that **is** genuinely weak. It needs a mapping decision, not an adapter.
    agreement with `RefIDD` where both exist), corroborated by `RefIDD` and the parsed
    `Reference_ID`. Never from `Reference_ID` alone — it is 3% populated in recent records.
 4. **Escalate the 200 shell tasks** to whoever owns the task-creation pipeline.
+
+---
+
+# Part II — Sheets 02 (Field Matrix) and 07 (JSON Paths)
+
+The two sheets the adapters consume directly. Re-run: `verification/sheets_02_07.py`.
+
+**These are in far better shape than sheets 03 and 06** — the structural facts are sound.
+The same sentinel flaw corrupts one column of sheet 02, and there are two encoding traps.
+
+## Sheet 02 — Field Matrix (82 rows)
+
+| column | confirmed | differs |
+|---|---|---|
+| Observed JSON type | **79** | **0** |
+| Present count | 75 | 4 |
+| Non-empty count | 48 | **31** |
+
+**Types are perfect — 79/79.** Use this column with confidence; it is the most reliable
+thing in the whole workbook.
+
+**Non-empty is corrupted by sentinels in 23 rows**, and the damage is not merely a count:
+the *recommended SharePoint column type* was inferred from placeholder-bearing values.
+
+| field | claimed non-empty | real | recommended column type | hazard |
+|---|---|---|---|---|
+| `tasks.RefIDD` | 300 | **0** | Single line of text | it is a **numeric document ID** — typing it as text is what makes the join fail |
+| `tasks.Reference_ID` | 300 | **0** | Single line of text | composite key; needs parsing, not free text |
+| `tasks.Priority` | 300 | **0** | Choice / Lookup | **no real values exist to derive the choice set from** |
+| `tasks.DueDate` / `StartDate` | 300 | **0** | Date and time | correct by inference from the name, not from data |
+| `tasks.AssignedTo` / `Assigned` / `AssignedToDSU` / `EditorEmail` / `AuthorTitle` | 300 | **0** | Person or Group | no addresses present to validate against |
+| `docs.AssignedTo` | 300 | **70** | Person or Group | 230 are `'N/A'` |
+| **all three `taskComments` text fields** | 2 | **0** | various | the entire 2-record dataset is placeholders — the **TaskComment target entity rests on no data at all** |
+
+## Sheet 07 — JSON Paths (130 rows)
+
+| result | count |
+|---|---|
+| resolve with the claimed occurrence count | **122** |
+| resolve with a different count | 5 |
+| do not resolve | 2 |
+
+**Correction to this report's own method.** The first run of the harness tested against a
+reconstructed root `{ok, data}` and reported 22 envelope paths as unresolvable. That was the
+harness's fault, not the sheet's. Against the genuine `body_sent` they all resolve. The
+script now loads the real envelope; the numbers above are the corrected ones.
+
+That correction surfaced something architecturally important — **there is a versioned
+response contract**:
+
+```
+ok · status{http,code,message} · request{requestId,trackingId,action,operation,mode,
+requestedBy,source} · timing{receivedAtUtc,completedAtUtc,durationMs} · data{…} ·
+errors[] · meta{ts,runId,flowName,contractVersion}
+```
+
+with `meta.contractVersion = "2026-03-23.5"` and `request.source = "DGO_FAST_Track_WEB_OPS"`.
+The platform's `core/contracts.js` should be validated against this envelope, and
+`contractVersion` gives a real compatibility handle.
+
+### The two genuine failures — SharePoint internal-name encoding
+
+| sheet says | payload actually has |
+|---|---|
+| `$.data.docs[].CC'dTo` | `CC_x0027_dTo` |
+| `$.data.tasks[].3rdAssigned` | `_x0033_rdAssigned` |
+
+SharePoint encodes apostrophes and leading digits into internal names. The sheet used
+display names throughout. **Any adapter written from these paths silently returns nothing
+for those two fields** — and `CC'dTo` is one of the strongest person joins in the data
+(137/137). A decoder for `_x00XX_` sequences belongs in the normalising layer.
+
+### The users discrepancy, now settled
+
+Five paths claim 794 users; the payload holds **785**. The literal `794` appears **nowhere**
+in the source file. The matrix's user count therefore did not come from this export — it is
+from another capture. Not reconcilable from the corpus; verify against the live directory.
+
+## Net position on the workbook
+
+| sheet | verdict |
+|---|---|
+| 01 Dataset Matrix | Sound except the users count |
+| 02 Field Matrix — types | **Sound. 79/79. Use it.** |
+| 02 Field Matrix — non-empty & recommended types | **Corrupted for 23 fields by sentinels** |
+| 03 Relationships | **Headline verdict refuted**; confidence column unusable |
+| 04 Target Model | Structurally reasonable; `TaskComment` rests on zero real data |
+| 05 Mapping Blueprint | **Field pairs sound** — the workbook's most usable output |
+| 06 Data Quality | 8 of 14 confirmed; 6 wrong via sentinels |
+| 07 JSON Paths | **122/130 sound**; two encoding traps; users count unexplained |
