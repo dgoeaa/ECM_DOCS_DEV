@@ -42,6 +42,15 @@ jobs:
       - name: Check hardening
         run: node tests/hardening.test.mjs
 
+      # The architecture sheets and the Platform Atlas must describe the code that is
+      # actually here. Both are generated from the source tree and asserted against the
+      # live configuration, so a route added without regenerating fails the build instead
+      # of leaving a document that is confidently, invisibly wrong.
+      - name: Check architecture sheets
+        run: node tests/architecture.test.mjs
+      - name: Check the Platform Atlas
+        run: node tests/visual-docs.test.mjs
+
       # Asserts the auth layer is inert (development unchanged) AND that the enforced
       # posture blocks anonymous requests and ignores local role tampering.
       - name: Check authentication postures

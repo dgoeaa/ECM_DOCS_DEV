@@ -8,13 +8,11 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 ## ⚠️ Security status — read before publishing this repository
 
-**This repository must not be made public in its current state.**
+**This repository must not be made public until the historical credentials are rotated.**
 
-1. **4 live Power Automate SAS signatures remain in 2 tracked files** — `document-portal/js/data.js` (3) and `newack/config.js` (1) — both client-delivered. A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow.
+1. **Zero live Power Automate SAS signatures remain in tracked files at this HEAD** — `npm run test:secrets` verifies it, and `tests/secrets-baseline.txt` is deliberately empty. The cleanup that got here removed `newack/`, the retired portal copies, and `ECM_DOCS_DEV.zip` (which alone carried signed trigger URLs for 25 workflows).
 
-   **22 distinct signatures were public before the structural cleanup.** Removing the files did not revoke them. **All 22 must be rotated**, not only the 4 still present.
-
-   **Rotate every one of them in Power Automate.** Deleting the files revokes nothing, and neither does rewriting history. Rotation must come first. `npm run test:secrets` lists the affected files; `tests/secrets-baseline.txt` tracks them.
+   **But the signatures that were ever committed remain valid until rotated.** They live in git history on every branch, and removal revokes nothing. **Every previously published signature must be rotated in Power Automate** before this repository is shared beyond its current audience. `docs/cutover/FLOW_DECOMMISSION_INVENTORY.md` is the register of what was exposed.
 
 2. **Authentication is provisioned but INERT.** The platform is in development; the auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
@@ -30,9 +28,9 @@ Both items are open. See G-03 and G-04 of the capability assessment.
 
 | App | Entry point | Description |
 |-----|------------|-------------|
-| **DGO R11.6 Runtime** | `index.html` | Obsidian Harmonized Design System runtime — platform shell with routing, client-side RBAC, state, module boundaries, accessibility and theming. 25 routes. |
+| **DGO R11.6 Runtime** | `index.html` | Obsidian Harmonized Design System runtime — platform shell with routing, client-side RBAC, state, module boundaries, accessibility and theming. 29 routes. |
 | **Document Portal** | `document-portal/index.html` | Public document submission and tracking portal (PWA — service worker, manifest, offline). |
-| **Acknowledgement flow** | `newack/index.html` | Acknowledgement / unified hub prototype. |
+| **Authenticating proxy** | `proxy/` | The enforcement tier — Cloudflare Worker and node:http hosts of the same handler. Complete and tested; governance is advisory until it is deployed. |
 
 All are zero-build: no bundler, no transpilation, no server-side rendering. They need a real HTTP server (not `file://`) because browsers block ES-module imports across origins.
 
@@ -40,6 +38,7 @@ All are zero-build: no bundler, no transpilation, no server-side rendering. They
 
 | Path | Contents |
 |---|---|
+| `docs/visual/` | **The Platform Atlas — start here.** Complete interactive visual documentation of the platform: architecture, trust zones, the document's journey, front-end layering, all 29 workspaces, the core service catalogue, the design system, the authenticating proxy, the public portal, the data model, security and RBAC, the governed lifecycle, quality and deployment. Every figure is derived from the source tree by `scripts/visual-docs-data.mjs` and asserted against the live configuration by `tests/visual-docs.test.mjs`, so it cannot quietly go stale. Has an audience lens (executive / architect / developer / operations), full-text search, and a print stylesheet that produces a real handout. See [`docs/visual/README.md`](docs/visual/README.md). |
 | `docs/reference/` | **Reference material of record.** The BRD/FRD hybrid, the platform architecture pack, the DGCEO data model, the SharePoint provisioning specification (10 lists, 97 fields), the flow trigger contracts, and the operations manifest with its signed URLs redacted. Extracted from `ECM_DOCS_DEV.zip`, which was removed from the tree — it carried signed Power Automate trigger URLs for 25 workflows and its irreplaceable content is now readable and diffable. The archive remains in git history. |
 
 ---
@@ -127,10 +126,18 @@ npm run test:imports    # static ES-module graph check (no browser, ~1s)
 npm run test:secrets    # fails on a NEW SAS signature in a tracked file
 npm run test:auth       # asserts both authentication postures
 npm run test:proxy      # the authenticating proxy, against real RSA tokens
+npm run test:visual     # asserts the Platform Atlas against the live configuration
 npm run test:devserver  # the local dev backend answers in the real shapes
 npm run test:endpoints  # the endpoint wiring tools never invoke a write flow
 npm run test:smoke      # Playwright smoke suite
 npm run test:links      # linkinator crawl of both entry points
+```
+
+Documentation that is generated rather than written is regenerated with one command each:
+
+```bash
+npm run visual        # re-derive docs/visual/platform-data.js from the source tree
+npm run architecture  # re-derive docs/architecture/architecture-data.json
 ```
 
 `npm run test:imports` is the cheapest and the most load-bearing: it verifies every relative import resolves on disk. The runtime once shipped with 12 config modules that were imported but never committed, and because those are *static* imports the failure happened before `core/boot.js` could run its `try/catch` — nothing threw, nothing logged, and the app simply hung on its boot spinner. `index.html` now also carries a 15-second boot watchdog that surfaces the failing URLs instead of hanging.
@@ -177,31 +184,41 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 .
 ├── index.html                          Root runtime entry (+ boot watchdog)
 ├── assets/                             Shared SVG assets
-├── config/                             Platform configuration modules (31 files)
+├── config/                             Platform configuration modules (32 files)
 │   ├── auth.config.js                  Auth switch — inert until release
 │   ├── config.example.js               Documents the endpoint key structure
 │   ├── endpoints.config.js             Reads from window.DGO_CONFIG.endpoints
+│   ├── module-boundaries.config.js     What each workspace owns, views and must not own
 │   ├── rbac.config.js                  Roles, permissions, route access
-│   ├── routes.config.js                The 25 declared routes
+│   ├── routes.config.js                The 29 declared routes
 │   └── workflow-clarity.config.js      Visible workspaces vs guided internal routes
-├── core/                               Boot, router, state, services (57 files)
-│   └── auth.js                         Token acquisition, identity, request gating
-├── modules/                            Route modules, lazy-loaded (25 files)
-├── shared/                             Shell, components, design-system adapter
+├── core/                               Boot, router, state, services (60 files)
+│   ├── auth.js                         Token acquisition, identity, request gating
+│   └── lifecycle.js                     The governed state machine and its gates
+├── modules/                            Route modules, lazy-loaded (29 files)
+├── shared/                             Shell, components, design-system adapter (8 files)
 ├── styles/                             CSS @layer cascade
 │   └── dgo-design-system/              Self-hosted design tokens + fonts
 ├── document-portal/                    Public document portal (PWA)
-├── newack/                             Acknowledgement flow prototype
+├── proxy/                              The authenticating proxy — Worker and node:http hosts
+├── docs/
+│   ├── visual/                         The Platform Atlas — generated visual documentation
+│   ├── architecture/                   Drift-tested architecture sheets and the target design
+│   ├── deployment/                     Cloudflare walkthrough and the minimal pilot path
+│   └── reference/                      BRD/FRD, data model, provisioning spec, flow contracts
 ├── tests/
 │   ├── README.md                       Suite design and the secrets ratchet
 │   ├── auth-posture.test.mjs           Inert + enforced posture assertions
 │   ├── check-imports.mjs               Static module-graph check
 │   ├── check-secrets.mjs               SAS signature ratchet
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
+│   ├── visual-docs.test.mjs            Asserts the Platform Atlas against the live config
 │   ├── smoke.spec.js                   Playwright smoke suite
 │   ├── dev-server.test.mjs             Dev-server contract shapes (38 assertions)
 │   └── endpoint-tooling.test.mjs       Wiring tools never invoke a write flow
 ├── scripts/
+│   ├── visual-docs-data.mjs            Derives the atlas dataset from the source tree
+│   ├── architecture-data.mjs           Derives the architecture dataset
 │   ├── check-links.mjs                 Link / asset checker
 │   ├── check-endpoints.mjs             Verifies your flows answer (never runs a write)
 │   ├── setup-endpoints.mjs             Wires the platform to your Power Automate URLs
