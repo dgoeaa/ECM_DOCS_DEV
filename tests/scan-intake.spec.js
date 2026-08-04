@@ -1,20 +1,20 @@
 /**
  * Registry Scan Intake — channel C behaviour. TARGET_ARCHITECTURE.md §3.2, step 7.
  *
- * The proxy is stubbed at the network boundary. What is under test is the workspace's two
- * governing rules, both written as negative controls:
+ * The scan flow is stubbed at the network boundary. The workspace calls it directly, so the
+ * stub is the configured SCAN_INTAKE endpoint itself. What is under test is the workspace's
+ * two governing rules, both written as negative controls:
  *
  *   1. NO RECORD WITHOUT A DEPOSIT. A correspondence record must not appear unless the
  *      document actually reached the library. A record pointing at an unfiled document is
  *      a broken custody record — the F-028 silent-loss failure, internally.
- *   2. CUSTODY IS ATTRIBUTED BY THE SERVER. `depositedBy` comes from the proxy's response,
- *      which read it from the verified token, never from anything the page supplies.
+ *   2. CUSTODY IS ATTRIBUTED BY THE SERVER. `depositedBy` comes from the flow's response,
+ *      which established it server-side, never from anything the page supplies.
  */
 
 import { test, expect } from '@playwright/test';
 
-const PROXY = 'http://proxy.test';
-const SCAN_URL = `${PROXY}/documents/scan`;
+const SCAN_URL = 'http://flow.test/documents-scan';
 
 /**
  * Supply deploy-time config by serving `config/config.local.js`, which is what index.html
@@ -31,12 +31,12 @@ function serveConfig(page, cfg) {
   }));
 }
 
-async function withProxy(page, fulfil) {
-  await serveConfig(page, { auth: { proxyBaseUrl: PROXY } });
+async function withScanEndpoint(page, fulfil) {
+  await serveConfig(page, { endpoints: { SCAN_INTAKE: SCAN_URL } });
   if (fulfil) await page.route(SCAN_URL, fulfil);
 }
 
-const withoutProxy = page => serveConfig(page, {});
+const withoutScanEndpoint = page => serveConfig(page, {});
 
 const okDeposit = (over = {}) => route => route.fulfill({
   status: 201, contentType: 'application/json',
@@ -99,8 +99,8 @@ async function submitDeposit(page) {
 }
 
 test.describe('registry scan intake', () => {
-  test('without a proxy it says so and does not offer a deposit', async ({ page }) => {
-    await withoutProxy(page);
+  test('without a scan endpoint it says so and does not offer a deposit', async ({ page }) => {
+    await withoutScanEndpoint(page);
     await openWorkspace(page);
     const text = await page.textContent('.workspace');
     expect(text).toMatch(/Deposit unavailable/);
@@ -109,7 +109,7 @@ test.describe('registry scan intake', () => {
   });
 
   test('a successful deposit creates a record carrying the link and the channel', async ({ page }) => {
-    await withProxy(page, okDeposit());
+    await withScanEndpoint(page, okDeposit());
     await openWorkspace(page);
     await stageFile(page);
     await fillForm(page);
@@ -119,7 +119,7 @@ test.describe('registry scan intake', () => {
     const recs = await records(page);
     expect(recs.length).toBe(1);
     const r = recs[0];
-    expect(r.referenceId, 'the reference is the one the proxy minted').toBe('NITDA-2026-000318');
+    expect(r.referenceId, 'the reference is the one the flow minted').toBe('NITDA-2026-000318');
     expect(r.channel, 'channel C is what distinguishes a counter deposit').toBe('Registry');
     expect(r.correspondenceType).toBe('Incoming');
     expect(r.attachmentLink).toBe('https://sharepoint.invalid/library/counter-scan.pdf');
@@ -128,7 +128,7 @@ test.describe('registry scan intake', () => {
   });
 
   test('the depositing officer comes from the server, not the page', async ({ page }) => {
-    await withProxy(page, okDeposit({ depositedBy: 'the.actual.clerk@nitda.gov.ng' }));
+    await withScanEndpoint(page, okDeposit({ depositedBy: 'the.actual.clerk@nitda.gov.ng' }));
     await openWorkspace(page);
     await stageFile(page);
     await fillForm(page);
@@ -145,7 +145,7 @@ test.describe('registry scan intake', () => {
   /* ── rule 1, three ways it can be broken ─────────────────────────────────── */
 
   test('a refused deposit creates no record and says why', async ({ page }) => {
-    await withProxy(page, route => route.fulfill({
+    await withScanEndpoint(page, route => route.fulfill({
       status: 403, contentType: 'application/json',
       body: JSON.stringify({ ok: false, error: 'forbidden' }),
     }));
@@ -159,8 +159,8 @@ test.describe('registry scan intake', () => {
     expect(await page.textContent('[data-tray]')).toMatch(/role may not deposit/);
   });
 
-  test('an unreachable proxy creates no record', async ({ page }) => {
-    await withProxy(page, route => route.abort('connectionrefused'));
+  test('an unreachable scan endpoint creates no record', async ({ page }) => {
+    await withScanEndpoint(page, route => route.abort('connectionrefused'));
     await openWorkspace(page);
     await stageFile(page);
     await fillForm(page);
@@ -172,9 +172,9 @@ test.describe('registry scan intake', () => {
   });
 
   test('accepted-but-not-filed creates no record — verified is not stored', async ({ page }) => {
-    // The subtle one. The proxy verified the bytes and audited the deposit, but the
+    // The subtle one. The flow verified the bytes and audited the deposit, but the
     // library did not confirm the write. ok:true is not enough; stored must also be true.
-    await withProxy(page, okDeposit({ stored: false, attachmentLink: '' }));
+    await withScanEndpoint(page, okDeposit({ stored: false, attachmentLink: '' }));
     await openWorkspace(page);
     await stageFile(page);
     await fillForm(page);
@@ -186,7 +186,7 @@ test.describe('registry scan intake', () => {
   });
 
   test('a failed deposit stays in the tray for retry rather than vanishing', async ({ page }) => {
-    await withProxy(page, route => route.abort('connectionrefused'));
+    await withScanEndpoint(page, route => route.abort('connectionrefused'));
     await openWorkspace(page);
     await stageFile(page);
     await fillForm(page);
@@ -199,9 +199,9 @@ test.describe('registry scan intake', () => {
     await expect(page.locator('[data-drop]')).toHaveCount(1);
   });
 
-  test('an oversize file is refused locally and never reaches the proxy', async ({ page }) => {
+  test('an oversize file is refused locally and never reaches the endpoint', async ({ page }) => {
     let called = false;
-    await withProxy(page, route => { called = true; return route.abort('connectionrefused'); });
+    await withScanEndpoint(page, route => { called = true; return route.abort('connectionrefused'); });
     await openWorkspace(page);
     await page.setInputFiles('[data-files]', {
       name: 'huge.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(26 * 1024 * 1024),

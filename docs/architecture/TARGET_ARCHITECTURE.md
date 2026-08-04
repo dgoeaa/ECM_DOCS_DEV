@@ -5,6 +5,40 @@
 
 ---
 
+> ## Amendment — the enforcement zone was built, and has since been removed
+>
+> §3.1 through §3.6 below propose a `proxy/` that holds every signed trigger URL server-side,
+> mints registry references, brokers uploads, rate-limits intake and validates every token.
+> It was built, it passed 66 assertions, and it has since been **deleted** — a platform that
+> needs a runtime deployed and kept alive before it can be used is a platform that mostly is
+> not used.
+>
+> **What is true now.** Both clients call each Power Automate flow **directly**, with the
+> signed trigger URL configured into them at deploy time
+> (`config/config.local.js` → `window.DGO_CONFIG.endpoints`;
+> `document-portal/config.local.js` → `window.PF_CONFIG.endpoints`). There is no enforcement
+> zone, no credential boundary, and nothing between the browser and the flow.
+>
+> **What that costs, stated rather than absorbed.** The rule this document calls "the rule
+> that makes this an architecture" — *no client holds a credential for the systems of
+> record* — is **not met**, and cannot be while a browser calls a signed URL. The credential
+> is rotated rather than retired. "Restrict flows to proxy egress" is no longer available as
+> a control, so steps 8 and 11 below have lost their mechanism. Every obligation §3.6 assigns
+> to the proxy — anonymous intake, upload brokering, reference minting, and with them token
+> validation, role derivation, per-action authorisation, idempotency, rate limiting and the
+> Universal Filename Policy — now belongs to **the flow itself**, which is the only remaining
+> place any of them can be enforced.
+>
+> The per-endpoint contract each flow must satisfy is `document-portal/README.md`; the server
+> obligations are `AUTHENTICATION_CONTRACT.md` §2; the current zone model is
+> `components.html`. The proposal below is left as drawn, because a design edited to match its
+> own outcome stops being evidence of what was decided. Only two kinds of line are touched:
+> the zone table and the rule in §3.1, which asserted a present-tense fact that is no longer
+> true, and the two still-open build-sequence steps (8 and 11), which named a control that no
+> longer exists. Everything struck through is kept as the historical record.
+
+---
+
 ## 1. The two sentences that decide everything
 
 > **The root platform is the internal operations system and the single system of record.**
@@ -72,11 +106,11 @@ An externally submitted document today cannot be assigned, tracked, acknowledged
 | Zone | Contains | Reachable by | Authentication |
 |---|---|---|---|
 | **Public** | `document-portal/` | Anyone on the internet | None — anonymous submission is the point |
-| **Enforcement** | `proxy/` | Public zone + internal zone | Validates every request; the only path onward |
+| ~~**Enforcement**~~ | ~~`proxy/`~~ — **removed**, see the amendment | — | — |
 | **Internal** | root platform — the only internal application, since **D6(b)** | NITDA staff | Entra ID, mandatory |
-| **Systems of record** | SharePoint lists + document library, Power Automate | **Enforcement zone only** | Private endpoint / IP-restricted |
+| **Systems of record** | SharePoint lists + document library, Power Automate | **Both clients, directly** | Each flow authenticates, authorises and validates its own callers — nothing else can |
 
-**The rule that makes this an architecture rather than a diagram: no client, internal or external, holds a credential for the systems of record.** The proxy is the only component that does. That single rule retires the entire SAS-in-client-code problem class instead of rotating it.
+**The rule that makes this an architecture rather than a diagram: no client, internal or external, holds a credential for the systems of record.** The proxy was the only component that did, and it has been removed — so the rule is currently **unmet**, and the SAS-in-client-code problem class is rotated rather than retired. That is a stated cost, not an oversight; see the amendment.
 
 ### 3.2 Intake channels — four, converging on one record
 
@@ -179,9 +213,14 @@ Two things are deliberately **not** done at step 6 and remain open:
 
 **POST, not GET** — the email must not land in an access log, a `Referer` header or browser history. **The projection is an allow-list**, so a field the registry adds later cannot leak by omission from a blocklist. A timeline `note` is carried only when the upstream marks the entry `public: true`; internal deliberation shares that timeline in most case systems and the default for anything unmarked must be to withhold it. The proxy **re-checks the email itself** rather than trusting the upstream to have honoured the parameter. See §3.8 for what this design does not solve.
 
-### 3.6 What the proxy must add
+### 3.6 What the proxy must add — ~~the proxy~~ **each flow**
 
 It already does token validation, role derivation, per-action authorization, identity stripping, idempotency and audit — correctly, with 66 passing assertions. Intake needs three additions:
+
+> **Amended.** The proxy is gone, so none of the six controls in the sentence above exists any
+> more, and the three additions below have no component to be added *to*. All nine are now
+> obligations of the flow being invoked — see `AUTHENTICATION_CONTRACT.md` §2 for the server
+> obligations and `document-portal/README.md` for the per-endpoint contract.
 
 | Need | Why |
 |---|---|
@@ -195,14 +234,17 @@ It already does token validation, role derivation, per-action authorization, ide
 (`systemAdmin · userAdmin · executive · director · operator · viewer`, imported by
 `proxy/src/authorize.js:10`) and the ECM Activity Hub's disjoint
 `SystemAdmin · DGCEO · COS`. That second vocabulary lived in the Hub's router, which is
-deleted, so there is now **one role model** and the proxy already imports it rather than
-restating it.
+deleted, so there is now **one role model**. `proxy/src/authorize.js` has since been deleted
+too, along with the rest of that tree; `config/rbac.config.js` remains the single vocabulary.
 
 What remains is not a reconciliation but a mapping, and it is **owner-side**: the six roles
-must exist as Entra app roles, and `DGO_ROLE_MAP` must map the claim values onto them. The
-proxy refuses to start without that map and denies any principal whose claim is unmapped —
-`tests/auth-posture.test.mjs` asserts both, so an incomplete mapping fails closed rather than
-falling back to a local role.
+must exist as Entra app roles, and each flow must map the claim values in the bearer token
+onto them, denying any principal whose claim is unmapped. The client half of that is done and
+asserted — `config/auth.config.js` carries `roleClaimMap`, and `tests/auth-posture.test.mjs`
+proves an unmapped claim is denied rather than defaulted to a local role. The server half used
+to be the proxy refusing to start without a complete map; with the proxy removed there is no
+start-up gate left, so an unmapped principal now has to fail closed inside every flow, and a
+client-side denial is a usability affordance rather than a control.
 
 `DGCEO` and `COS` were positions, not roles. If they are wanted as claim values they map onto
 `executive` and `director` in `DGO_ROLE_MAP`; nothing in the platform needs to know about them.
@@ -286,7 +328,7 @@ document-portal ─────────►  A U T H E N T I C A T I N G   P 
               documents + lists                     orchestration
 ```
 
-Compare with today, where all four clients hold signed URLs and reach Power Automate directly, and the proxy stands beside the path rather than on it.
+**Amended — this is not what was built.** The proxy in the diagram above was built and then removed. Today both remaining clients hold signed URLs and reach Power Automate directly; there is no box in the middle, so the two arrows run straight from `document-portal` and the root platform to Power Automate, and every control the box was drawn to apply has to be applied by the flow at the far end.
 
 ---
 
@@ -303,14 +345,14 @@ Each step is independently deployable and leaves the platform working.
 | ~~**5**~~ | ~~Point the portal at the proxy~~ — **DONE**: `PF.ENDPOINTS` deleted, `PF.flow` replaced by `PF.intake`, portal holds no credential | **F-013**, **F-001** (portal) | — | — |
 | ~~**6**~~ | ~~Portal reads status back; retire `admin.html` and `PF.STAFF`~~ — **DONE**: `/intake/status` with uniform denial and an allow-listed projection; console deleted with its three hardcoded credentials; three step-2 render defects fixed along the way | **D-C2**, **F-029**, F-010, F-020 | — | — |
 | ~~**7**~~ | ~~Registry scan-intake workspace~~ — **DONE**: authenticated `PUT /documents/scan`, server-attributed custody, and no correspondence record unless the document actually reached the library | Channel C | — | — |
-| **8** | Reconcile role vocabulary; enable auth; restrict flows to proxy egress | **F-012**, **F-025** | ~1 week | steps 3–6 |
+| **8** | Reconcile role vocabulary; enable auth; make each flow validate the token and authorise the action itself — ~~restrict flows to proxy egress~~, no longer available | **F-012**, **F-025** | ~1 week | steps 3–6 |
 | **10** | High-entropy lookup token issued at submission, replacing the guessable reference as the status credential | **F-030** | ~2 days | step 6 |
 | ~~**12**~~ | ~~One reference minter, one reference format~~ — **DONE**: `core/reference-minter.js`; the browser no longer mints a colliding six-digit timestamp | **F-031** | — | — |
 | ~~**13**~~ | ~~Separate document kind from routing domain~~ — **DONE**: unmatched categories no longer default to the executive queue at urgent priority | **F-032** | — | — |
 | **14** | Confirm the provisional document-kind → routing-domain mapping against registry reference data | **F-032** (owner half) | owner-side | — |
 | ~~**9**~~ | ~~Retire `newack/`~~ — **DONE**: tree deleted, credential recorded in `ROTATION_REGISTER.md` first | **F-009** | — | — |
 | ~~**15**~~ | ~~Retire the ECM Activity Hub~~ — **DONE** at D6(b): 3 capabilities ported, 53 files deleted, one auth surface left instead of two | **F-023**, **F-024**, F-025 (half) | — | — |
-| **11** | **Cutover** — decommission all 25 development/pilot workflows, provision replacements behind proxy egress only | **F-001** | owner-side | steps 8, 10 |
+| **11** | **Cutover** — decommission all 25 development/pilot workflows, provision replacements that authenticate their own callers. ~~Behind proxy egress only~~ is no longer available; a browser-called flow is reachable by anyone holding its URL, so rotation and in-flow enforcement are the whole control | **F-001** | owner-side | steps 8, 10 |
 
 **Steps 1 and 2 are worth doing regardless of everything else** — step 1 stops losing citizens' documents today, and step 2 is the model correction you asked for. Neither depends on any infrastructure decision.
 
@@ -333,8 +375,7 @@ Each step is independently deployable and leaves the platform working.
 
 - **The correspondence record model.** It was already right; it gains one `channel` value.
 - **Attachment-by-link.** Already correct and matches the SharePoint provisioning package.
-- **The proxy's authorization core.** Verified sound; intake is additive.
 - **The root platform's module and route structure.** 25 routes, clean boundaries, ownership assertions that throw.
 - **The ECM Activity Hub's layering.** `actions → services → Store → pages` is cleaner than the root platform's own.
 
-The architecture is not a rewrite. **Most of it already exists and is correct.** What is missing is the connective tissue between the external channel and the record, and the enforcement point sitting beside the request path instead of on it.
+The architecture is not a rewrite. **Most of it already exists and is correct.** What is missing is the connective tissue between the external channel and the record — and, since the proxy was removed, an enforcement point at all. There is no longer one beside the request path; there must now be one at the end of it, inside each flow.

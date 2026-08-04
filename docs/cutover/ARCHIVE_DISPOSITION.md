@@ -147,7 +147,10 @@ Whichever is chosen, the sequence that actually closes the exposure is:
 
 1. Reconcile the 25 workflows against the Power Platform admin centre.
 2. Regenerate or delete each trigger. **This is the step that revokes.**
-3. Re-provision replacements behind the proxy, so no browser ever holds a flow credential
-   again — the posture `AUTHENTICATION_CONTRACT.md` already describes.
+3. Re-provision replacements that authenticate, authorise and validate their own callers.
+   Putting them behind a proxy is no longer an option — that tree has been removed, and both
+   clients call each flow directly — so a browser *does* hold each replacement credential and
+   the flow is the only place a control can live. See `AUTHENTICATION_CONTRACT.md` §2, and
+   put every replacement on a rotation schedule from the day it is created.
 4. Re-run `node scripts/flow-inventory.mjs`; update or delete the allow-list entry in
    `tests/secret-exposure.test.mjs` to match.

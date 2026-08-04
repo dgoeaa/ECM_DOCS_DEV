@@ -177,7 +177,7 @@ Complete on the client side and **switched off**. The platform is in development
 | `Authorization` header | absent | `Bearer <token>` |
 | `userEmail` in body | sent | **not sent** |
 | Role resolution | `state.users` lookup | `roleClaimMap[claim]` |
-| Endpoint target | signed flow URL | authenticating proxy |
+| Endpoint target | signed flow URL | the same signed flow URL, plus a bearer token |
 | **Local tampering** | **changes effective role** | **no effect** |
 
 ### Components
@@ -186,9 +186,11 @@ Complete on the client side and **switched off**. The platform is in development
 - **`core/current-user.js`** — a server-authoritative path that reads role from claims. This is what closes the escalation: the role is no longer read from local state, so tampering cannot change it.
 - **`AUTHENTICATION_CONTRACT.md`** — the seven server obligations. **The client can only decline to send a request, never prevent one.** Until the backend validates tokens and derives roles itself, nothing is enforced.
 
-### Why a proxy
+### Why there is no proxy
 
-Power Automate HTTP triggers cannot validate a JWT properly. `proxyBaseUrl` provisions for an APIM or Function front-end, so activation needs no endpoint re-plumbing — and signed URLs stop reaching the browser entirely, which **retires the credential-in-client-code problem class rather than merely rotating it**.
+An authenticating proxy was built — `proxy/`, a Cloudflare Worker holding every signed trigger URL server-side — and then removed, because a platform that needs a runtime deployed and kept alive before it can be used is a platform that mostly is not used. Every request now goes **directly** to the configured flow URL.
+
+The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
 
 ### Regression guarantees
 

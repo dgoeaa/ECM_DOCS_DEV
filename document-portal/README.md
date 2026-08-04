@@ -24,7 +24,7 @@ web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Ap
 ds/                 DGO Design System v2.1 (tokens, reset, base, layout, components, fonts, logos, icons)
 portal.css          Portal layer — every class namespaced .pf-*, consumes only --dgo-* tokens
 js/icons.js         46-symbol icon sprite, injected at runtime
-js/data.js          Correspondence taxonomy, status model, FAQ, seed records, proxy base URL
+js/data.js          Correspondence taxonomy, status model, FAQ, seed records, endpoint configuration
 js/core.js          Store, metrics, themes, toasts, dialogs, command palette, outbox, shell
 js/home.js          Home page behaviour
 js/submit.js        Submission wizard
@@ -38,34 +38,71 @@ manifest.webmanifest, favicon.svg, robots.txt, sitemap.xml
 
 **Backend** — `config.example.js` → `config.local.js`, which is git-ignored.
 
-The portal holds **no credential**. It previously carried three SAS-signed Power Automate
-URLs in `js/data.js`; a signed URL is a bearer credential, and those were delivered to every
-browser that opened any page, cached by the service worker, and readable by anyone who could
-fetch a static asset. They are gone.
+The portal calls its Power Automate flows **directly**. There is no proxy, worker or broker
+to deploy, run or keep alive, and nothing to operate between this static site and the flows.
 
-It now talks only to the **authenticating proxy**, which is the one component that holds a
-credential. Two routes:
-
-| Route | Purpose |
-| --- | --- |
-| `POST /intake/submission` | Registers the correspondence, returns a registry reference and one short-lived upload ticket per attachment |
-| `PUT /intake/upload` | Redeems one ticket with the raw file. Bytes never travel base64-encoded inside a JSON payload |
-| `POST /intake/support` | Opens a helpdesk case. A create, but not correspondence — it gets a `CASE-` reference and never enters the registry |
+Nothing is hardcoded. `js/data.js` previously carried three SAS-signed Power Automate URLs;
+committing a signed URL publishes a bearer credential to everyone who can read the
+repository, permanently. Every URL now arrives at deploy time instead:
 
 ```js
-window.PF_CONFIG = { proxyBaseUrl: "https://dgo-proxy.nitda.gov.ng" };
+window.PF_CONFIG = {
+  endpoints: {
+    SUBMISSION:     "https://YOUR_ENV.api.powerplatform.com/powerautomate/.../invoke?sig=...",
+    UPLOAD:         "...",
+    SUPPORT:        "...",
+    VERIFY:         "...",
+    VERIFY_CONFIRM: "...",
+    STATUS:         ""
+  }
+};
 ```
 
-Leaving `proxyBaseUrl` empty puts the portal in **demo mode**: everything stays local and
+Leaving `SUBMISSION` empty puts the portal in **demo mode**: everything stays local and
 nothing is transmitted. That is the safe failure for a public channel — it degrades to
-visibly doing nothing rather than quietly reaching an unintended host.
+visibly doing nothing rather than quietly reaching an unintended host. Any other endpoint
+left empty disables just the feature it serves, which reports itself as unconfigured.
 
-**Status tracking reads back from the registry.** `POST /intake/status` takes the tracking
-reference and the email it was submitted under. Unknown reference and wrong email return a
-byte-identical `404` — telling a caller which it was would answer "does this reference
-exist?" for anybody who asks — and the response is an allow-listed projection carrying
-status, dates and the public timeline, never the description, the attachments, the assigned
-officer or the handling unit.
+### ⚠ What direct operation means for these flows
+
+This is a public site. Every URL configured above is delivered to every visitor's browser
+and can be read by anyone who fetches `config.local.js`. Nothing stands between a stranger
+and the flow, so **each flow is the only place any control can exist**. Build each one to be
+safe when invoked by an anonymous caller, and configure nothing here that does something the
+public may not do. Rotate the signatures on a schedule; regenerating a signature is the only
+way to revoke one.
+
+### The contract each flow must satisfy
+
+| Endpoint | Method | Request | Response | What the flow must enforce |
+| --- | --- | --- | --- | --- |
+| `SUBMISSION` | POST | The submission record, plus `verification` when the wizard holds a proof | `{ referenceId, uploads: [ticket, …] }` | Validate every field; restrict `category` to the public subset; apply the Universal Filename Policy to every declared attachment name, keeping what the submitter sent as `originalName`; mint the registry reference; issue one short-lived upload ticket per declared attachment; rate-limit by source. Answer `403 {"error":"verification_required"}` to demand email verification |
+| `UPLOAD` | PUT | Raw file bytes, ticket in `X-Upload-Ticket` | `{ stored, attachmentLink, reason }` | Redeem the ticket once and only once; check the bytes against the size and SHA-256 the submission declared; refuse anything oversize or unmatched. Bytes never travel base64-encoded inside a JSON payload — that is what forced the 4 MB ceiling this replaced |
+| `SUPPORT` | POST | The helpdesk case | `{ caseRef }` | Validate and rate-limit. A `CASE-` reference; never enters the registry |
+| `VERIFY` | POST | `{ email }` | `{ sent, expiresAt }` | Mail a one-time code; rate-limit per address and per source. Report `sent:false` honestly when the mail could not be delivered rather than telling the submitter to check an inbox |
+| `VERIFY_CONFIRM` | POST | `{ email, code }` | `{ verification, expiresAt }` | Compare in constant time; expire and single-use the code; return a proof `SUBMISSION` will accept |
+| `STATUS` | POST | `{ referenceId, email }` | `{ record }` | See below |
+
+**Reference format.** Every reference the `SUBMISSION` flow issues must have the registry
+shape `NITDA-YYYY-NNNNNN` — the agency prefix, the four-digit year, and a six-digit sequence
+the flow holds and never restarts within a year. The workspace mints provisional references
+in the same shape (`core/reference-minter.js`); a flow that issues any other shape leaves the
+registry holding two key formats at once, which is the defect F-031 closed.
+
+**Filenames.** The agency's Universal Filename Policy
+(`universal_filename_policy_deliverables/`, implemented in
+`config/filename-policy.config.js`) applies to every file that enters the registry. The
+`SUBMISSION` flow must normalise each declared attachment name rather than reject it — a
+citizen must not be turned away because their phone named the scan `IMG_20260101(1).jpg` —
+and must keep what they sent as `originalName`, because storing only the normalised name
+quietly rewrites their submission. The registry counter route applies the same policy in
+`core/scan-intake-service.js`; the two must not drift.
+
+**Status read-back.** `STATUS` takes the tracking reference and the email it was submitted
+under. Unknown reference and wrong email must return a byte-identical `404` — telling a
+caller which it was would answer "does this reference exist?" for anybody who asks — and the
+response must be an allow-listed projection carrying status, dates and the public timeline,
+never the description, the attachments, the assigned officer or the handling unit.
 
 When the registry cannot be reached the page falls back to the copy this browser saved at
 submission **and says so on the record**. Presenting device data as the registry's answer is
@@ -96,7 +133,7 @@ Demonstration records, the device history, the draft and the offline outbox live
 `localStorage` under `nitda.portal.*`. A fresh browser installs sixteen seed records dated
 relative to the day of first load, so a new deployment always looks current.
 
-With a proxy configured, the registry is authoritative: `PF.store` serves the demonstration
+With endpoints configured, the registry is authoritative: `PF.store` serves the demonstration
 set and the offline fallback, not the truth about a live submission.
 
 ## Built in
@@ -132,7 +169,7 @@ platform, which implements them against the system of record.
 2. Serve over HTTPS; the service worker and clipboard both require a secure context.
 3. Set `Cache-Control: no-cache` on `sw.js`, long-lived caching on `ds/` and `js/`.
 4. Point `sitemap.xml` at the live host.
-5. Set `proxyBaseUrl` in `config.local.js` and confirm the proxy allows this origin (CORS).
-   Leave it empty to run the portal standalone in demo mode.
+5. Set the endpoint URLs in `config.local.js` and confirm each flow allows this origin
+   (CORS). Leave them empty to run the portal standalone in demo mode.
 6. Bump `CACHE` in `sw.js` on every release — asset requests are cache-first, so a stale
    entry survives a redeploy.

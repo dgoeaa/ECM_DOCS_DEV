@@ -1,33 +1,33 @@
 # Deployment documentation
 
-**Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — about 90 minutes, gets
+**Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — about 75 minutes, gets
 correspondence flowing end to end. Every governed write in the platform goes through one
-endpoint, so a pilot needs 6 flows rather than 23; the rest are features you add later, one
-command each, with no redeploy.
+endpoint, so a pilot needs 6 flows rather than 24; the rest are features you add later, one
+config line and a redeploy each.
 
 Then:
 
 - **[`CLOUDFLARE.md`](./CLOUDFLARE.md)** — the full deployment, and the reference for the
   parts the minimal path points at. What to DO. A click-by-click walkthrough in nine
-  parts (A to I), 273 numbered steps, from checking Node.js to reading the logs after
+  parts (A to I), 229 numbered steps, from checking Node.js to reading the logs after
   go-live. Follow it top to bottom.
 - **[`pilot-sanitized-template/`](./pilot-sanitized-template/README.md)** — what to RECORD.
-  Registers for each flow regenerated, deleted or rebuilt, the value register, secret status
-  and verification results. Fill these in as you work through CLOUDFLARE.md so the cutover
-  leaves evidence rather than only an outcome.
+  Registers for each flow regenerated, deleted or rebuilt, the value register, endpoint
+  configuration status and verification results. Fill these in as you work through
+  CLOUDFLARE.md so the cutover leaves evidence rather than only an outcome.
 
-Scripts that replace the most tedious parts:
+The one script that replaces a tedious part:
 
 | Script | Replaces | Time saved |
 |---|---|---|
 | `scripts/setup-sharepoint.ps1` | Part B — 33 columns clicked one at a time | ~1 hour |
-| `scripts/set-worker-secrets.sh` | Part E — 31 interactive paste prompts | ~20 minutes |
 
-Fill in `scripts/worker-secrets.example.env` (copied outside the repository) and the secrets
-script sets everything in one run, refusing values of the wrong shape before they become a
-deployment that fails with no useful error.
+There is no Worker any more, so there are no secrets to set: the flow trigger URLs are pasted
+straight into the two git-ignored config files in Part E (`config/config.local.js` and
+`document-portal/config.local.js`). Because those files are delivered to every visitor's
+browser, treat every URL in them as a public bearer credential and rotate it on a schedule.
 
-The value register uses the same V1–V9 numbering as Part A of the walkthrough, and the flow
+The value register uses the same V1–V7 numbering as Part A of the walkthrough, and the flow
 registers use the same workflow IDs as Part C.
 
 The committed template tree contains placeholders only. Copy it outside the repository before entering any operational, internal, or personal data.

@@ -82,22 +82,28 @@ is required **before the replacement set carries anything real**.
    signature — the old trigger keeps answering until it is removed or re-signed. This is the
    step the register exists for, and the nine archive-only signatures are why working from the
    source tree is not sufficient.
-2. **Provision the replacement flows behind the proxy's egress only.** Private endpoint or
-   IP restriction, so a leaked URL is not sufficient to invoke them even if one escapes again.
-   See `TARGET_ARCHITECTURE.md` §3.1 — this is what makes the replacement durable rather than
-   a one-time cleanup.
-3. **Supply the new URLs server-side only** — the proxy's `DGO_ENDPOINT_*` environment. They
-   must not enter `config/config.local.js` for any component that ships to a browser.
-4. **Confirm no client holds one.** The document portal already holds no credential (step 5);
-   the root platform and the ECM Activity Hub route through the proxy once auth is enabled
-   (step 8). `npm run test:secrets` and `tests/auth-posture.test.mjs` are the checks.
+2. **Build each replacement flow to enforce its own callers.** Private endpoint or IP
+   restriction is no longer available: the proxy that would have been the only egress has been
+   removed, and both clients now invoke each flow directly from a browser. A leaked URL is
+   therefore sufficient to invoke a flow, so the flow must authenticate, authorise, validate
+   and rate-limit for itself. See the amendment at the top of `TARGET_ARCHITECTURE.md`,
+   `AUTHENTICATION_CONTRACT.md` §2, and the per-endpoint contract in
+   `document-portal/README.md`.
+3. **Supply the new URLs at deploy time, never in a commit** — `config/config.local.js` and
+   `document-portal/config.local.js`, both git-ignored. They ship to the browser, so treat
+   every one of them as published the moment it is deployed.
+4. **Put every replacement on a rotation schedule.** This is the part that changed. Because a
+   client now holds each URL, regenerating the signature is the only way to revoke it, and it
+   has to happen on a calendar rather than once at cutover. `npm run test:secrets` and
+   `tests/auth-posture.test.mjs` remain the checks that none reaches a commit.
 5. **Leave the archive out of the replacement set.** `ECM_DOCS_DEV.zip` is a reference archive,
    not source. Its nine unique signatures name flows to decommission; the archive itself should
    move out of the repository (decision **D5**).
 
-**What is already true, and is why this can wait.** The architecture no longer depends on any
-of these URLs staying secret. The portal holds none. The proxy holds them in server-side
-configuration and hands out none. Every route added in steps 3–7 was built so that a credential
-never reaches a client. That is what turns "replace the URLs" from a recurring chore into a
-one-time decommission — this register should never need a second edition.
+**Why this register now needs a second edition after all.** The earlier version of this section
+said the architecture no longer depended on these URLs staying secret, because the proxy held
+them server-side and handed out none. The proxy has been removed. Every signed trigger URL is
+delivered to a browser again, which makes decommission necessary but not sufficient: the
+replacement set has the same exposure the pilot set has, and only regular rotation plus
+in-flow enforcement contains it.
 

@@ -263,7 +263,7 @@
       "modules": 29
     },
     "edges": {
-      "core->config": 38,
+      "core->config": 37,
       "shared->core": 13,
       "shared->config": 8,
       "modules->core": 235,
@@ -291,19 +291,7 @@
         {
           "name": "document-portal/",
           "detail": "39 files · 5 pages · service worker",
-          "note": "Holds no credential"
-        }
-      ]
-    },
-    {
-      "id": "enforcement",
-      "label": "Enforcement",
-      "auth": "Validates every request; the only path onward",
-      "components": [
-        {
-          "name": "proxy/",
-          "detail": "7 modules · 19 contract keys",
-          "note": "The only component holding a credential"
+          "note": "Carries the signed URLs it calls, in a file every visitor can read"
         }
       ]
     },
@@ -322,17 +310,17 @@
     {
       "id": "record",
       "label": "Systems of record",
-      "auth": "Enforcement zone only — private endpoint / IP-restricted",
+      "auth": "Each flow authenticates, authorises and validates its own callers — nothing else can",
       "components": [
+        {
+          "name": "Power Automate",
+          "detail": "25 workflows (dev/pilot, to be decommissioned) · 19 contract keys",
+          "note": "Invoked directly by the browser · F-001 · cutover scope"
+        },
         {
           "name": "SharePoint",
           "detail": "Lists + document library",
-          "note": "Holds the bytes"
-        },
-        {
-          "name": "Power Automate",
-          "detail": "25 workflows (dev/pilot, to be decommissioned)",
-          "note": "F-001 · cutover scope"
+          "note": "Holds the bytes; reached through the flows"
         }
       ]
     }
@@ -343,8 +331,8 @@
       "label": "Document portal",
       "origin": "External submitter",
       "channel": "Portal",
-      "route": "proxy /intake/submission",
-      "status": "step 5"
+      "route": "PF_CONFIG.endpoints.SUBMISSION",
+      "status": "implemented"
     },
     {
       "id": "B",
@@ -359,8 +347,8 @@
       "label": "Scan / physical",
       "origin": "Registry counter",
       "channel": "Registry",
-      "route": "proxy /documents/scan",
-      "status": "step 7"
+      "route": "DGO_CONFIG.endpoints.SCAN_INTAKE",
+      "status": "implemented"
     },
     {
       "id": "D",

@@ -44,24 +44,9 @@ jobs:
 
       # Asserts the auth layer is inert (development unchanged) AND that the enforced
       # posture blocks anonymous requests and ignores local role tampering.
+      # Also verifies direct endpoint routing (no proxy required) in both postures.
       - name: Check authentication postures
         run: node tests/auth-posture.test.mjs
-
-      # The authenticating proxy: token validation, role derivation, per-action
-      # authorization, identity stripping, idempotency and audit. Signs real RSA
-      # tokens at run time — the verification path is exercised, not mocked.
-      - name: Check authenticating proxy
-        run: node proxy/test/proxy.test.mjs
-
-      # The anonymous intake route: validation, rate limiting, reference minting and the
-      # route isolation that keeps /intake/* from becoming a way around the auth gate.
-      - name: Check anonymous intake
-        run: node proxy/test/intake.test.mjs
-
-      # Upload brokering: ticket forgery, replay, expiry and byte verification. These are
-      # the properties that keep a write grant from becoming a general one.
-      - name: Check upload brokering
-        run: node proxy/test/upload.test.mjs
 
   smoke:
     name: Smoke tests

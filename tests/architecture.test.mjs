@@ -98,7 +98,9 @@ for (const [label, expected, re] of claims) {
 }
 
 t('the module and file counts in sheet 5 are real', () => {
-  const dirCount = d => readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.js')).length;
+  // `.json` counts as well as `.js`: config/ declares product-definition.config.json alongside
+  // its modules, and the sheet counts declaration files, not only the executable ones.
+  const dirCount = d => readdirSync(path.join(ROOT, d)).filter(f => /\.(js|json)$/.test(f)).length;
   for (const [dir, re] of [['config', /(\d+)\s+declaration files/], ['core', /(\d+)\s+files\s+—\s+state, auth/],
                            ['shared', /(\d+)\s+files\s+—\s+app shell/], ['modules', /(\d+)\s+workspaces, one per route/]]) {
     const m = text.match(re);
@@ -197,8 +199,8 @@ t('the edge counts drawn on sheet 2 are the measured ones', () => {
 /* ── the retirements stay retired ──────────────────────────────────────────── */
 section('Retired components are recorded, not erased');
 
-t('all three retired trees are named on the inventory sheet', () => {
-  for (const tree of ['newack/', 'document-portal_Central_NITDA_/', 'ECM_ActivityHub_Portal/']) {
+t('all four retired trees are named on the inventory sheet', () => {
+  for (const tree of ['newack/', 'document-portal_Central_NITDA_/', 'ECM_ActivityHub_Portal/', 'proxy/']) {
     assert.ok(text.includes(tree), `${tree} is missing from the retired list`);
   }
 });
@@ -206,7 +208,7 @@ t('all three retired trees are named on the inventory sheet', () => {
 t('the page does not describe a retired tree as present', () => {
   // It must appear only in the retired paragraph, never as a live component row.
   const inventory = html.slice(html.indexOf('<tbody>'), html.indexOf('</tbody>'));
-  for (const tree of ['newack', 'ECM_ActivityHub_Portal']) {
+  for (const tree of ['newack', 'ECM_ActivityHub_Portal', 'proxy']) {
     assert.ok(!inventory.includes(tree), `${tree} is listed as a live component`);
   }
 });

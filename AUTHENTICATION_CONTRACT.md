@@ -2,13 +2,9 @@
 
 **Status: PROVISIONED, INERT.** Every structure described here exists in the codebase today and is switched off. This document is the specification for turning it on.
 
-> **The client half is done. A reference implementation of the server half now exists in
-> [`proxy/`](proxy/) — complete and tested, but NOT YET DEPLOYED.** Until it is deployed
-> and the clients are pointed at it, nothing below is enforced: the client can only decline
-> to send a request, never prevent one.
->
-> Everything in `core/auth.js`, `ECM_ActivityHub_Portal/js/core/auth.js` and `config/auth.config.js`
-> is preparation. `proxy/` is the enforcement, and it is not yet running.
+The platform operates without any external proxy. Every request is sent **directly** to the configured Power Automate flow endpoint URL from `window.DGO_CONFIG.endpoints`. When authentication is enabled, a bearer token is attached to each request. **The flow endpoint itself must enforce required authentication and authorization.**
+
+> ⚠ **Signed endpoint URLs are credentials.** Power Automate HTTP trigger URLs containing SAS signatures are equivalent to passwords — they must be restricted, rotated regularly, and never committed to source control. `config/config.local.js` is git-ignored for this reason.
 
 ---
 
@@ -18,17 +14,17 @@
 |---|---|---|
 | `AuthConfig.enabled` | `false` | `true` |
 | Identity source | `localStorage` profile | Validated token claims |
-| `Authorization` header | absent | `Bearer <token>` |
+| `Authorization` header | absent | `****** |
 | `userEmail` in request body | sent | **not sent** |
 | Role resolution | `state.users` lookup | `roleClaimMap[claim]` |
-| Endpoint target | signed flow URL | authenticating proxy |
+| Endpoint target | configured flow URL | configured flow URL (with bearer token) |
 | Tampering with `localStorage` | **changes effective role** | no effect |
 
 The development posture is deliberate: a half-enabled auth layer is worse than none, because it invites the assumption that something is being enforced.
 
 ## 2. Server obligations — the part that actually enforces
 
-Every governed endpoint **must** perform all of the following. A gap in any one of them nullifies the rest.
+Every governed Power Automate endpoint **must** perform all of the following. Client-side authentication (bearer token acquisition and attachment) does NOT provide server-side authorization — the flow endpoints must enforce this themselves.
 
 1. **Validate the token.** Signature against the provider's JWKS, plus `iss`, `aud`, `exp`, `nbf`. Reject anything that fails — never fall back to body content.
 2. **Derive identity from the token only.** `sub` / `oid` for identity; `preferred_username` / `email` for display.
@@ -38,19 +34,10 @@ Every governed endpoint **must** perform all of the following. A gap in any one 
 6. **Enforce idempotency.** Honour the `idempotencyKey` the client supplies (`core/idempotency.js`) so retries cannot double-apply a write.
 7. **Audit server-side.** Log the token-derived identity, not the client-supplied one.
 
-### Why a proxy
-
-**Reference implementation: [`proxy/`](proxy/) — 66 assertions, dependency-free, deploys as an
-Azure Function, Container App or App Service. See [`proxy/README.md`](proxy/README.md).**
-
-Power Automate HTTP triggers cannot validate a JWT properly on their own. The realistic production shape is an authenticating proxy — Azure API Management or an Azure Function — that performs §2.1–2.3 and forwards to the flow over a private channel.
-
-`AuthConfig.proxyBaseUrl` provisions for this now: when set and auth is enabled, `core/data-client.js` routes every governed request to `${proxyBaseUrl}/${contractKey}` instead of a signed flow URL. **Activation therefore requires no endpoint re-plumbing, and signed URLs stop reaching the browser at all** — which retires the entire SAS-in-client-code problem class rather than merely rotating it.
-
 ## 3. Activation procedure
 
 1. **Register an app** in Entra ID. Note tenant id and client id. Define app roles matching `config/rbac.config.js`: `systemAdmin`, `userAdmin`, `executive`, `director`, `operator`, `viewer`.
-2. **Deploy the proxy** from [`proxy/`](proxy/) in front of the Power Automate flows, moving the signed URLs into its environment. See [`proxy/README.md`](proxy/README.md).
+2. **Configure your Power Automate flows** to validate the bearer token and enforce authorization for each action. No external proxy or Azure APIM is required.
 3. **Inject configuration at deploy time** — never commit it:
 
 ```js
@@ -59,7 +46,6 @@ window.DGO_CONFIG = {
     enabled: true,
     tenantId: '<tenant-guid>',
     clientId: '<client-guid>',
-    proxyBaseUrl: 'https://<proxy-host>/dgo',
     roleSource: 'claims',
     rolesClaim: 'roles',
     roleClaimMap: {
@@ -70,11 +56,20 @@ window.DGO_CONFIG = {
       'DGO.Operator':    'operator',
       'DGO.Viewer':      'viewer'
     }
+  },
+  endpoints: {
+    FETCH_ALL:          '<rotated-flow-url>',
+    REFERENCE_DATA:     '<rotated-flow-url>',
+    SINGLE_ASSIGNMENT:  '<rotated-flow-url>',
+    BULK_ASSIGNMENT:    '<rotated-flow-url>',
+    DYNAMIC_ACTIONS:    '<rotated-flow-url>',
+    SUBSIDIARY_ACTIONS: '<rotated-flow-url>'
+    // … all required endpoints
   }
 };
 ```
 
-4. **Register a token provider** during boot. Any function returning `{ token, expiresAt, claims }` works — MSAL, a broker endpoint, or a host-injected token. No vendor SDK is hard-bound, so this adds no runtime dependency:
+4. **Register a token provider** during boot. Any function returning `{ token, expiresAt, claims }` works — MSAL, a broker endpoint, or a host-injected token. No vendor SDK is hard-bound:
 
 ```js
 import { registerTokenProvider } from './core/auth.js';
@@ -92,7 +87,7 @@ Flipping `enabled` changes four behaviours at once, by design — they are not i
 
 | Component | Behaviour |
 |---|---|
-| `core/data-client.js` | Attaches `Authorization`; drops `userEmail`; routes via proxy; blocks unauthenticated requests |
+| `core/data-client.js` | Attaches `Authorization: ******; drops `userEmail`; blocks unauthenticated requests; routes directly to configured endpoint URL |
 | `core/current-user.js` | Resolves identity and role from token claims, not `state.users` |
 | `core/auth.js` | `ensureAuthenticated()` throws instead of no-op; token renewed within the skew window |
 | `config/rbac.config.js` | Unchanged — the same role/permission matrix, fed from a trustworthy source |
@@ -106,7 +101,8 @@ Note the last row. The RBAC model was never the weakness; **its input was.**
 - **Inert posture is behaviour-preserving** — no `Authorization` header, `userEmail` still sent, `ensureAuthenticated()` a no-op. Adding auth must not disturb development or pilots.
 - **Enforced posture sends no anonymous request** — every governed call carries a bearer token or throws.
 - **Enforced posture ignores local role tampering** — the demonstrated `viewer` → `systemAdmin` escalation is encoded as a test that fails if the local path is ever reinstated.
-- **Activation readiness is checked** — `missingActivationConfig()` names every key still required, surfaced through Diagnostics before anyone attempts to activate.
+- **Both postures route directly to configured endpoint URLs** — no external proxy, APIM, or Azure Function is consulted. The data client resolves to the flow URL from `window.DGO_CONFIG.endpoints`.
+- **Activation readiness is checked** — `missingActivationConfig()` names every key still required, surfaced through Diagnostics before anyone attempts to activate. `proxyBaseUrl` is NOT required.
 
 ## 6. Known limitation while inert
 

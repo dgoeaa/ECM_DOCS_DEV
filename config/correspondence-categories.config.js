@@ -65,9 +65,11 @@ export const DocumentKinds = Object.freeze([
  *
  * Narrower than DocumentKinds on purpose: an anonymous caller must not be able to label
  * their own letter a "Ministerial Directive" and route it to the Director-General. The
- * proxy imports this as its intake allow-list, so the public vocabulary is derived from the
- * canonical one rather than being a fourth copy of it — which is how "Invitation" and
- * "Event Invitation" came to be two names for one thing.
+ * portal derives its offered vocabulary from this list rather than keeping a fourth copy of
+ * it — which is how "Invitation" and "Event Invitation" came to be two names for one thing.
+ * Nothing stands between the public and the intake flow, so declining to OFFER a category
+ * stops nobody who posts to the endpoint directly: the SUBMISSION flow must enforce this
+ * same subset server-side, as `document-portal/README.md` requires of it.
  */
 export const PUBLIC_DOCUMENT_KINDS = Object.freeze([
   'General Correspondence', 'Application', 'Proposal', 'Report',

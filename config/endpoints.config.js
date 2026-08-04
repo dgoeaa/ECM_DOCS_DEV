@@ -15,6 +15,12 @@
 // At runtime this module reads from window.DGO_CONFIG.endpoints first.
 // If that is absent, all URLs are empty strings and API calls will
 // fail gracefully (the platform degrades to offline/demo mode).
+//
+// DIRECT OPERATION
+// Every URL below is invoked directly by the browser. There is no proxy, broker or
+// other intermediary in the request path, and none is required to run or deploy the
+// platform. The flow behind each URL is therefore the only place authentication,
+// authorisation and validation can be enforced — it must enforce them itself.
 
 const _cfg = (typeof window !== 'undefined' && window.DGO_CONFIG?.endpoints) || {};
 
@@ -39,6 +45,17 @@ export const EndpointUrls = Object.freeze({
   OTP_GENERATE:           _url('OTP_GENERATE'),
   OTP_VERIFY:             _url('OTP_VERIFY'),
   SUBSIDIARY_ACTIONS:     _url('SUBSIDIARY_ACTIONS'),
+
+  /**
+   * Registry scan deposit. Not a JSON contract like the keys above: core/scan-intake-service.js
+   * PUTs the raw bytes of a scanned document to this URL with the filename, size and SHA-256
+   * in headers, because base64-in-JSON is what produced the 4 MB ceiling this replaced.
+   * It is therefore resolved through the endpoint registry but carries no EndpointContracts
+   * entry — DataClient.request() cannot and must not be used for it.
+   * Leave it unset and Registry Scan Intake reports itself unconfigured rather than
+   * pretending a deposit succeeded.
+   */
+  SCAN_INTAKE:            _url('SCAN_INTAKE'),
 });
 export const DefaultEndpointSettings = Object.freeze({ ...EndpointUrls });
 export const EndpointContracts = Object.freeze({

@@ -39,6 +39,7 @@
 
 /** The written policy, quoted so the code and the SOP cannot drift apart silently. */
 export const FilenamePolicy = Object.freeze({
+  id: 'universal-filename-policy-v1.0',
   version: 'v1.0',
   effective: '2026-06-16',
   owner: 'Document Control / Operations',
@@ -194,4 +195,21 @@ export function advisoriesFor(name) {
   if (tokens.length && tokens.length < 3) out.push({ rule: 5, note: 'fewer than 3 tokens' });
   if (tokens.length > 8) out.push({ rule: 5, note: `${tokens.length} tokens; 3–8 preferred` });
   return out;
+}
+
+/**
+ * The receipt half of the policy: what was renamed, and why.
+ *
+ * Renaming silently is the failure this prevents. Somebody who deposits
+ * `Ministry Reply FINAL.pdf` and gets back a receipt saying `ministry_reply_final.pdf`
+ * with no explanation reasonably concludes the system is unreliable; one who is told the
+ * policy normalised it learns the standard. Returns `{}` when nothing changed, so a
+ * compliant name produces no noise.
+ */
+export function renameNotice(policy) {
+  if (!policy?.changed) return {};
+  return {
+    declaredName: policy.original,
+    renamed: { to: policy.name, reasons: policy.reasons, policy: FilenamePolicy.id },
+  };
 }

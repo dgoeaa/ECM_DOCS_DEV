@@ -7,8 +7,10 @@
 ## Why this file exists
 
 Task #9 of the remediation plan is "decommission all 25 dev/pilot workflows and provision
-replacements behind proxy egress". The obvious way to build that checklist is to read the
-platform's endpoint configuration and list what it calls.
+replacements behind proxy egress". The egress half of that is no longer achievable — the
+proxy has been removed and both clients call each flow directly — but the decommission half
+is unchanged and is now the more important of the two. The obvious way to build that
+checklist is to read the platform's endpoint configuration and list what it calls.
 
 **That method covers 8 of the 25.**
 
@@ -94,9 +96,11 @@ dead code or an undocumented dependency.
    flow still exists and is enabled. Expect some to be already-deleted.
 2. **Rotate or delete, do not merely unwire.** Removing an endpoint from configuration leaves
    the flow running and its published URL valid.
-3. **Re-provision behind the proxy.** Per `AUTHENTICATION_CONTRACT.md`, replacement flows
-   should not be callable from a browser at all: the proxy holds the credential and the
-   browser holds a token.
+3. **Re-provision flows that defend themselves.** Per `AUTHENTICATION_CONTRACT.md` §2, every
+   replacement is callable from a browser — there is no longer anything in front of it — so
+   each must validate the token, derive the role, authorise the action, validate its input and
+   rate-limit its callers itself. Rotate its signature on a schedule; regenerating is the only
+   way to revoke.
 4. **Re-run `scripts/flow-inventory.mjs`** afterwards. It should report zero.
 
 ## Verification

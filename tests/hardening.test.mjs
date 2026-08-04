@@ -147,23 +147,32 @@ console.log('\nF-028 · every attachment is transmitted, and not inside a JSON p
 }
 
 /* ---------------------------------------------------------------- F-013 / F-001
-   The portal held three SAS-signed Power Automate URLs and posted to them
-   directly, with no code path to the proxy at all. It now holds no credential
-   and talks only to the proxy. */
-console.log('\nF-013 / F-001 · document portal holds no credential');
+   The portal held three SAS-signed Power Automate URLs COMMITTED in its bundle.
+   It calls the flows directly again, with no proxy in the path — but nothing is
+   hardcoded: every URL is supplied at deploy time through PF.CONFIG.endpoints. */
+console.log('\nF-013 / F-001 · document portal commits no credential');
 {
   const data = read('document-portal/js/data.js');
   ok('no SAS signature remains in the portal bundle', !/sig=[A-Za-z0-9_-]{20,}/.test(data));
   ok('PF.ENDPOINTS is gone', !/PF\.ENDPOINTS\s*=/.test(data));
-  ok('the portal reads a proxy base URL instead', /proxyBaseUrl/.test(data));
+  ok('the portal reads its endpoints from deployment configuration instead',
+     /PF\.CONFIG = Object\.assign\(\{ endpoints: \{\} \}/.test(data));
+  ok('the committed default is empty, so an unconfigured portal transmits nothing',
+     !/endpoints:\s*\{\s*[A-Z]/.test(data));
+  ok('the public exposure of a configured URL is stated where it is configured',
+     /PUBLIC\s+portal/.test(data) && /anonymous\s+stranger/.test(data),
+     'a signed URL served to a public browser is readable by anyone who fetches it');
 
   const core = read('document-portal/js/core.js');
   ok('PF.flow is gone', !/PF\.flow\s*=\s*function/.test(core));
   ok('PF.intake replaces it', /PF\.intake\s*=/.test(core));
-  ok('submission targets the proxy intake route', /\/intake\/submission/.test(core));
-  ok('uploads target the proxy upload route', /\/intake\/upload/.test(core));
-  ok('an unconfigured proxy yields no URL rather than a default host',
-     /if \(!base\) return ''/.test(core));
+  ok('submission targets the configured submission endpoint',
+     /endpointUrl\('SUBMISSION'\)/.test(core));
+  ok('uploads target the configured upload endpoint', /endpointUrl\('UPLOAD'\)/.test(core));
+  ok('no proxy base URL is joined to a path any more', !/proxyBaseUrl/.test(core),
+     'a base URL plus a path is what required an intermediary to exist');
+  ok('an unconfigured endpoint yields no URL rather than a default host',
+     /return String\(endpoints\[name\] \|\| ''\)\.trim\(\);/.test(core));
 
   for (const f of ['submit.js', 'support.js', 'track.js', 'home.js']) {
     const src = read(`document-portal/js/${f}`);
@@ -175,7 +184,7 @@ console.log('\nF-013 / F-001 · document portal holds no credential');
   ok('attachments are no longer base64-encoded into a payload',
      !/FileContentBase64/.test(submit),
      'bytes must travel as bytes, not inside JSON');
-  ok('a per-attachment digest is declared so the proxy can verify it',
+  ok('a per-attachment digest is declared so the upload flow can verify it',
      /crypto\.subtle\.digest/.test(submit));
 
   // Comment lines explain why the portal was removed, so only entries count.
@@ -224,7 +233,7 @@ console.log('\nD-C2 · the portal reads status back from the registry');
 {
   const core = read('document-portal/js/core.js');
   ok('PF.intake.status exists', /status:\s*function\s*\(referenceId, email\)/.test(core));
-  ok('it targets the proxy status route', /\/intake\/status/.test(core));
+  ok('it targets the configured status endpoint', /endpointUrl\('STATUS'\)/.test(core));
   ok('a 404 is treated as authoritative, not as a reason to fall back',
      /r\.status === 404/.test(core));
 
@@ -236,8 +245,8 @@ console.log('\nD-C2 · the portal reads status back from the registry');
      /Status is unavailable right now/.test(track));
 
   // The enumeration oracle: the old page told a caller that a reference existed but
-  // belonged to someone else. The proxy returns one uniform denial; the page must not
-  // put the distinction back.
+  // belonged to someone else. The status flow returns one uniform denial; the page must
+  // not put the distinction back.
   ok('no separate wrong-email message remains',
      !/does not match this request|registered to a different address/.test(track));
 

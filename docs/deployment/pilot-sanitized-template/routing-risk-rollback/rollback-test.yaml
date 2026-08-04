@@ -3,7 +3,7 @@ sanitized: true
 checks:
   rollback_command_executed: null
   target_deployment_recorded: null
-  secrets_still_present: null
+  endpoint_config_still_present: null
   intake_submission_stopped_if_required: null
   post_rollback_verification_complete: null
 notes:

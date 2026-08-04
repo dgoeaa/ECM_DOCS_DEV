@@ -274,25 +274,31 @@
   };
 
   /* ============================================================
-     Backend — the authenticating proxy.
+     Backend — the configured Power Automate flow endpoints, called directly.
 
-     This replaced PF.flow(), which posted directly to a SAS-signed Power
-     Automate URL held in this bundle. Two things changed.
+     This replaced PF.flow(), which posted to a SAS-signed Power Automate URL
+     hardcoded in this bundle. Two things changed.
 
-     First, the portal no longer holds a credential: the proxy does. Second,
-     PF.flow never read a response body — only r.ok — so nothing here was ever
-     genuinely two-way. These calls are, so a submission now comes back with a
-     registry reference the submitter can actually use.
+     First, no URL is committed any more: each one is supplied at deploy time
+     through PF.CONFIG.endpoints (see js/data.js), so nothing in the repository
+     is a credential. Second, PF.flow never read a response body — only r.ok —
+     so nothing here was ever genuinely two-way. These calls are, so a
+     submission now comes back with a registry reference the submitter can
+     actually use.
+
+     There is no intermediary. Each call below goes straight to the flow that
+     serves it, which means the flow is the only place validation, rate
+     limiting, verification and authorisation can happen — see the contract in
+     document-portal/README.md.
 
      Failure is never silent. A call that cannot be delivered is queued in the
      outbox and written to the audit trail, exactly as before.
      ============================================================ */
-  function proxyUrl(path) {
-    var base = (PF.CONFIG && PF.CONFIG.proxyBaseUrl) || '';
-    if (!base) return '';
-    return String(base).replace(/\/+$/, '') + path;
+  function endpointUrl(name) {
+    var endpoints = (PF.CONFIG && PF.CONFIG.endpoints) || {};
+    return String(endpoints[name] || '').trim();
   }
-  PF.backendConfigured = function () { return !!proxyUrl('/intake/submission'); };
+  PF.backendConfigured = function () { return !!endpointUrl('SUBMISSION'); };
 
   function readJson(r) {
     return r.text().then(function (t) {
@@ -307,7 +313,7 @@
        upload ticket per declared attachment. */
     submit: function (record, opts) {
       opts = opts || {};
-      var url = proxyUrl('/intake/submission');
+      var url = endpointUrl('SUBMISSION');
       if (!url) return Promise.resolve({ delivered: false, reason: 'not-configured' });
       if (!navigator.onLine) {
         if (opts.queue !== false) PF.outbox.queue('submission', record, record.localId || '');
@@ -345,7 +351,7 @@
        base64-encoded inside a JSON payload, which is what forced the 4 MB
        ceiling and the silent truncation this replaced. */
     upload: function (ticket, file) {
-      var url = proxyUrl('/intake/upload');
+      var url = endpointUrl('UPLOAD');
       if (!url) return Promise.resolve({ ok: false, stored: false, reason: 'not-configured' });
       return fetch(url, {
         method: 'PUT',
@@ -362,7 +368,7 @@
     /* A helpdesk case. A create, like a submission, but not correspondence —
        it gets a CASE- reference and never enters the registry. */
     support: function (payload) {
-      var url = proxyUrl('/intake/support');
+      var url = endpointUrl('SUPPORT');
       if (!url) return Promise.resolve({ delivered: false, reason: 'not-configured' });
       if (!navigator.onLine) {
         PF.outbox.queue('support', payload, '');
@@ -384,15 +390,15 @@
 
     /* D4 · email verification.
 
-       Two calls: `verifyRequest` asks the proxy to mail a code to an address, and
+       Two calls: `verifyRequest` asks the verification flow to mail a code to an address, and
        `verifyConfirm` exchanges the code for a single-use proof that `submit` passes along.
 
-       The proxy decides whether verification is REQUIRED — the portal cannot know, and
+       The intake flow decides whether verification is REQUIRED — the portal cannot know, and
        should not guess. When it is not required these are simply never called; when it is,
        a submission without a proof comes back 403 and the wizard asks for the code. That
-       keeps one source of truth for the posture, which is the proxy. */
+       keeps one source of truth for the posture, which is the flow. */
     verifyRequest: function (email) {
-      var url = proxyUrl('/intake/verify');
+      var url = endpointUrl('VERIFY');
       if (!url) return Promise.resolve({ ok: false, reason: 'not-configured' });
       return fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -401,7 +407,7 @@
         return readJson(r).then(function (data) {
           if (r.status === 429) return { ok: false, reason: 'too-many-requests' };
           if (!r.ok) return { ok: false, reason: data.error || 'refused' };
-          // `sent:false` means the proxy issued a challenge it could not deliver. Telling the
+          // `sent:false` means the flow issued a challenge it could not deliver. Telling the
           // submitter to check their inbox would be a lie.
           return { ok: true, sent: data.sent === true, expiresAt: data.expiresAt };
         });
@@ -409,7 +415,7 @@
     },
 
     verifyConfirm: function (email, code) {
-      var url = proxyUrl('/intake/verify-confirm');
+      var url = endpointUrl('VERIFY_CONFIRM');
       if (!url) return Promise.resolve({ ok: false, reason: 'not-configured' });
       return fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -437,7 +443,7 @@
          unavailable  no read-back configured, offline, or the registry could not be
                     reached. NOT a denial: the caller may show device data, labelled. */
     status: function (referenceId, email) {
-      var url = proxyUrl('/intake/status');
+      var url = endpointUrl('STATUS');
       if (!url) return Promise.resolve({ resolution: 'unavailable', reason: 'not-configured' });
       if (!navigator.onLine) return Promise.resolve({ resolution: 'unavailable', reason: 'offline' });
       return fetch(url, {

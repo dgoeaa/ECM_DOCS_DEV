@@ -108,23 +108,27 @@ const countFiles = (dir, ext) => {
   return n;
 };
 
+/* Three zones, not four. The enforcement zone used to hold `proxy/`, which was the one
+   component with a credential and the only path onward. It has been removed: both clients
+   now call each Power Automate flow directly with the signed trigger URL configured into
+   them at deploy time. There is therefore no intermediate zone left to draw, and no
+   credential boundary — the flow endpoint is the only remaining place any control can be
+   enforced, which is why every zone below names what it can and cannot enforce. */
 const zones = [
   { id: 'public', label: 'Public', auth: 'None — anonymous submission is the point',
-    components: [{ name: 'document-portal/', detail: `${countFiles('document-portal')} files · 5 pages · service worker`, note: 'Holds no credential' }] },
-  { id: 'enforcement', label: 'Enforcement', auth: 'Validates every request; the only path onward',
-    components: [{ name: 'proxy/', detail: `${countFiles('proxy/src', '.js')} modules · ${EndpointKeys.length} contract keys`, note: 'The only component holding a credential' }] },
+    components: [{ name: 'document-portal/', detail: `${countFiles('document-portal')} files · 5 pages · service worker`, note: 'Carries the signed URLs it calls, in a file every visitor can read' }] },
   { id: 'internal', label: 'Internal', auth: 'Entra ID, mandatory (provisioned, inert until step 8)',
     components: [{ name: 'root platform', detail: `${Routes.length} routes · ${countFiles('modules', '.js')} modules · ${countFiles('core', '.js')} core`, note: 'The single system of record, since D6(b)' }] },
-  { id: 'record', label: 'Systems of record', auth: 'Enforcement zone only — private endpoint / IP-restricted',
-    components: [{ name: 'SharePoint', detail: 'Lists + document library', note: 'Holds the bytes' },
-                 { name: 'Power Automate', detail: '25 workflows (dev/pilot, to be decommissioned)', note: 'F-001 · cutover scope' }] },
+  { id: 'record', label: 'Systems of record', auth: 'Each flow authenticates, authorises and validates its own callers — nothing else can',
+    components: [{ name: 'Power Automate', detail: `25 workflows (dev/pilot, to be decommissioned) · ${EndpointKeys.length} contract keys`, note: 'Invoked directly by the browser · F-001 · cutover scope' },
+                 { name: 'SharePoint', detail: 'Lists + document library', note: 'Holds the bytes; reached through the flows' }] },
 ];
 
 /* ── intake channels ───────────────────────────────────────────────────────── */
 const channels = [
-  { id: 'A', label: 'Document portal', origin: 'External submitter', channel: 'Portal', route: 'proxy /intake/submission', status: 'step 5' },
+  { id: 'A', label: 'Document portal', origin: 'External submitter', channel: 'Portal', route: 'PF_CONFIG.endpoints.SUBMISSION', status: 'implemented' },
   { id: 'B', label: 'Email', origin: 'Mailbox', channel: 'Email', route: 'FETCH_ALL → correspondence-email', status: 'implemented' },
-  { id: 'C', label: 'Scan / physical', origin: 'Registry counter', channel: 'Registry', route: 'proxy /documents/scan', status: 'step 7' },
+  { id: 'C', label: 'Scan / physical', origin: 'Registry counter', channel: 'Registry', route: 'DGO_CONFIG.endpoints.SCAN_INTAKE', status: 'implemented' },
   { id: 'D', label: 'Internal origination', origin: 'NITDA staff', channel: 'Document', route: 'modules/correspondence.js', status: 'implemented' },
 ];
 

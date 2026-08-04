@@ -7,11 +7,14 @@
 // ACTIVATION AT RELEASE
 // --------------------
 //   1. Set `enabled: true` (or inject `window.DGO_CONFIG.auth.enabled = true`).
-//   2. Supply `tenantId`, `clientId` and `proxyBaseUrl` at deploy time — never commit them.
-//   3. Implement the server side per AUTHENTICATION_CONTRACT.md.
+//   2. Supply `tenantId` and `clientId` at deploy time — never commit them.
+//   3. Ensure flow endpoints in window.DGO_CONFIG.endpoints enforce required auth/authz.
+//      ⚠  Signed Power Automate endpoint URLs are credentials — restrict, rotate, and
+//      handle them accordingly. Do not expose them unnecessarily.
+//   4. Implement the server side per AUTHENTICATION_CONTRACT.md.
 //
 // Flipping `enabled` changes four behaviours at once, by design:
-//   · every request carries `Authorization: Bearer <token>`
+//   · every request carries `Authorization: ******
 //   · the client-asserted `userEmail` field is no longer sent
 //   · role/permission decisions read token claims instead of local state
 //   · unauthenticated callers cannot reach a governed action at all
@@ -19,6 +22,11 @@
 // Until then the runtime behaves exactly as it does today: local profile, local RBAC,
 // no token. That is deliberate — a half-enabled auth layer is worse than none, because
 // it invites the assumption that something is being enforced.
+//
+// NOTE ON AUTHORIZATION
+// Client-side authentication (bearer token acquisition and attachment) does NOT provide
+// server-side authorization. Each configured Power Automate flow endpoint must enforce
+// its own authentication and authorization requirements.
 
 const _runtime = (typeof window !== 'undefined' && window.DGO_CONFIG?.auth) || {};
 const _pick = (key, fallback) => (key in _runtime ? _runtime[key] : fallback);
@@ -37,14 +45,6 @@ export const AuthConfig = Object.freeze({
 
   /** Scopes requested for the platform API. */
   scopes: Object.freeze(_pick('scopes', ['openid', 'profile', 'email'])),
-
-  /**
-   * Power Automate HTTP triggers cannot validate a JWT properly on their own. The
-   * production shape is an authenticating proxy (Azure APIM or a Function) in front of
-   * the flows. When set, every governed request is routed here instead of hitting a
-   * signed flow URL directly, so activation needs no endpoint re-plumbing.
-   */
-  proxyBaseUrl: _pick('proxyBaseUrl', ''),
 
   /**
    * While false-y auth is off, the runtime trusts `State.profile` and sends `userEmail`.
@@ -85,7 +85,6 @@ export function isAuthEnforced() {
 export function missingActivationConfig() {
   const required = ['tenantId', 'clientId'];
   const missing = required.filter(k => !String(AuthConfig[k] || '').trim());
-  if (!AuthConfig.proxyBaseUrl) missing.push('proxyBaseUrl');
   if (AuthConfig.roleSource === 'claims' && !Object.keys(AuthConfig.roleClaimMap).length) {
     missing.push('roleClaimMap');
   }
