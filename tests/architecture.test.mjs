@@ -98,15 +98,19 @@ for (const [label, expected, re] of claims) {
 }
 
 t('the module and file counts in sheet 5 are real', () => {
-  /* Committed files only.
-     `config/config.local.js` is git-ignored and is created by ordinary local setup, so a
-     plain directory listing counts 32 on a clean checkout and 33 the moment anyone wires
-     an endpoint — the same assertion passing or failing depending on a file that is not
-     part of the repository. Excluding the ignored names keeps this measuring the tree it
-     is describing. */
+  /* Two corrections, and the count is only right with both.
+
+     COMMITTED FILES ONLY. `config/config.local.js` is git-ignored and is created by
+     ordinary local setup, so a plain listing counts one more the moment anyone wires an
+     endpoint — the same assertion passing or failing on a file that is not part of the
+     repository.
+
+     DECLARATIONS, NOT ONLY MODULES. config/ declares product-definition.config.json
+     alongside its .js modules, and the sheet's own word is "declaration files". Counting
+     only .js undercounts what the row actually claims. */
   const IGNORED = new Set(['config.local.js']);
   const dirCount = d => readdirSync(path.join(ROOT, d))
-    .filter(f => f.endsWith('.js') && !IGNORED.has(f)).length;
+    .filter(f => /\.(js|json)$/.test(f) && !IGNORED.has(f)).length;
   for (const [dir, re] of [['config', /(\d+)\s+declaration files/], ['core', /(\d+)\s+files\s+—\s+state, auth/],
                            ['shared', /(\d+)\s+files\s+—\s+app shell/], ['modules', /(\d+)\s+workspaces, one per route/]]) {
     const m = text.match(re);
