@@ -1,0 +1,40 @@
+%% Diagram 5 — Sanitized Cloudflare / Power Automate pilot architecture
+%% Placeholders only. Do not replace them inside the repository.
+
+graph TB
+  USER[Officer or public user]
+  PAGES[Cloudflare Pages
+<PAGES-HOSTNAME>]
+  ACCESS[Cloudflare Access
+<TEAM-DOMAIN>
+AUD <AUD-TAG>]
+  WORKER[Cloudflare Worker proxy
+<WORKER-HOSTNAME>]
+  KV[Worker secrets
+DGO_UPLOAD_SECRET
+DGO_VERIFY_SECRET
+endpoint secrets]
+  PA[Power Automate flows
+<POWER-AUTOMATE-ENDPOINT>]
+  SP[SharePoint / records store
+REDACTED]
+  EVIDENCE[External private deployment records
+ECM_DOCS_DEV-deployment-private/pilot-YYYY-MM/]
+
+  USER --> PAGES
+  USER --> ACCESS
+  ACCESS --> PAGES
+  PAGES --> WORKER
+  ACCESS --> WORKER
+  WORKER --> KV
+  WORKER --> PA
+  PA --> SP
+  WORKER -. sanitized evidence only .-> EVIDENCE
+  PA -. operational evidence outside Git .-> EVIDENCE
+
+  classDef edge fill:#1c2733,stroke:#5b7a99,color:#fff
+  classDef secure fill:#0d3b26,stroke:#17b255,color:#fff
+  classDef secret fill:#4a1420,stroke:#c8102e,color:#fff
+  class PAGES,ACCESS,WORKER,PA edge
+  class KV,EVIDENCE secret
+  class SP secure

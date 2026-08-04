@@ -1,0 +1,7 @@
+group_name,platform_role,member_reference,count_verified,notes
+DGO-SystemAdmin,systemAdmin,OUTSIDE_GIT,null,
+DGO-UserAdmin,userAdmin,OUTSIDE_GIT,null,
+DGO-Executive,executive,OUTSIDE_GIT,null,
+DGO-Director,director,OUTSIDE_GIT,null,
+DGO-Operator,operator,OUTSIDE_GIT,null,
+DGO-Viewer,viewer,OUTSIDE_GIT,null,

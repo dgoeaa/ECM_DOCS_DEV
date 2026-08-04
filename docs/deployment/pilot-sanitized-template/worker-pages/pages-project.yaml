@@ -1,0 +1,9 @@
+template_name: pages-project
+sanitized: true
+project:
+  hostname: <PAGES-HOSTNAME>
+  custom_domain: null
+  branch: null
+  deployment_id: null
+notes:
+  - Record live Cloudflare deployment identifiers only outside Git.

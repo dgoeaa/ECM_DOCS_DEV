@@ -1,0 +1,5 @@
+attempt_order,reference_id,expected_consecutive,verified,notes
+1,NITDA-YYYY-000001,true,null,Use real year and values only outside Git
+2,NITDA-YYYY-000002,true,null,
+3,NITDA-YYYY-000003,true,null,
+4,NITDA-YYYY-000004,true,null,

@@ -1,0 +1,2 @@
+workflow_id,endpoint_key,old_url_revoked,new_url_vault_reference,operator_ref,completed_at_utc,notes
+1154b50e1d17420dadb3b012e7e2a02c,BULK_ASSIGNMENT,null,vault://pilot/endpoints/BULK_ASSIGNMENT,OP-001,null,Do not write URL here
