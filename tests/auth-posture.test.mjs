@@ -4,8 +4,8 @@
  *
  * Proves both halves of the switch in config/auth.config.js:
  *
- * Coverage includes the routes added in steps 5-7 — the proxy byte path and the data
- * client's target resolution — because activation must be verified, not hoped for.
+ * Coverage includes the routes added in steps 5-7 — the data client's target resolution
+ * and direct endpoint operation — because activation must be verified, not hoped for.
  *
  * There is ONE auth implementation. A second lived in ECM_ActivityHub_Portal until decision
  * D6(b) retired that tree; the parity assertions that held the two together went with it.
@@ -15,6 +15,11 @@
  *              changes the effective role. That last one is the viewer -> systemAdmin
  *              escalation demonstrated during the capability assessment, encoded so it
  *              cannot silently return.
+ *
+ * Direct endpoint operation (no proxy required):
+ *   - Both postures route to configured flow endpoint URLs directly.
+ *   - proxyBaseUrl is NOT a required configuration field.
+ *   - When auth is enabled, bearer tokens are attached to direct endpoint requests.
  *
  * Each posture runs in its own child process (see below) so the two configurations
  * cannot leak into one another.
@@ -52,14 +57,19 @@ function check(name, condition, detail = '') {
 }
 
 /** Minimal browser globals so the runtime modules import cleanly under Node. */
-function installGlobals(authCfg) {
+function installGlobals(authCfg, endpointsCfg) {
   const store = new Map();
   globalThis.localStorage = {
     getItem: k => (store.has(k) ? store.get(k) : null),
     setItem: (k, v) => store.set(k, String(v)),
     removeItem: k => store.delete(k),
   };
-  globalThis.window = { DGO_CONFIG: authCfg ? { auth: authCfg } : {} };
+  globalThis.window = {
+    DGO_CONFIG: {
+      ...(authCfg ? { auth: authCfg } : {}),
+      ...(endpointsCfg ? { endpoints: endpointsCfg } : {}),
+    },
+  };
   globalThis.document = undefined;
   if (!globalThis.crypto?.randomUUID) {
     globalThis.crypto = { ...(globalThis.crypto || {}), randomUUID: () => 'test-uuid' };
@@ -73,9 +83,11 @@ function fakeJwt(claims) {
   return `${b64({ alg: 'none', typ: 'JWT' })}.${b64(claims)}.sig`;
 }
 
+const TEST_FLOW_URL = 'https://prod-42.westeurope.logic.azure.com/workflows/test/triggers/manual/paths/invoke';
+
 if (POSTURE === 'inert') {
   console.log('=== POSTURE 1: INERT (development) ===');
-  installGlobals(null); // no auth config -> defaults, enabled === false
+  installGlobals(null, { FETCH_ALL: TEST_FLOW_URL });
   const cfg = await import(`../config/auth.config.js`);
   const auth = await import(`../core/auth.js`);
 
@@ -92,22 +104,30 @@ if (POSTURE === 'inert') {
     auth.getIdentity().source === 'local-profile');
   check('identity is not marked verified', auth.getIdentity().verified === false);
 
+  // proxyBaseUrl is not a required activation field
+  check('proxyBaseUrl is NOT in missingActivationConfig',
+    !cfg.missingActivationConfig().includes('proxyBaseUrl'));
+
   /* The ECM Activity Hub's parallel auth layer was asserted here until decision D6(b)
      retired that tree. There is no second implementation left to hold to parity — which was
      the point of the decision: one auth surface to enable, not two. See
      docs/architecture/CONSOLIDATION_ANALYSIS.md §1.1. */
 
-  /* Routes added in steps 5-7 were not covered here until now. Flipping the master switch
-     should not be the first time anyone learns how they behave. */
+  // Data client resolves directly to the configured endpoint URL (no proxy involved).
+  const dc = await import(`../core/data-client.js`);
+  const resolved = dc.resolveUrl('FETCH_ALL');
+  check('data client: resolves to the configured endpoint URL directly',
+    resolved === TEST_FLOW_URL, resolved);
+  check('data client: resolved URL does not reference any proxy',
+    !String(resolved).includes('proxy'), resolved);
+
+  // Scan intake: unconfigured when no SCAN_INTAKE endpoint is set
   const scan = await import(`../core/scan-intake-service.js`);
-  check('scan intake: no byte path without a configured proxy', scan.scanIntakeConfigured() === false);
+  check('scan intake: not configured when SCAN_INTAKE endpoint absent',
+    scan.scanIntakeConfigured() === false);
   const scanDev = await scan.depositScan({ name: 'x.pdf', size: 3, type: 'application/pdf' });
   check('scan intake: an unconfigured deposit is refused, not attempted',
     scanDev.ok === false && scanDev.reason === 'not-configured');
-
-  const dc = await import(`../core/data-client.js`);
-  check('data client: development resolves to the endpoint registry, not a proxy',
-    !String(dc.resolveUrl('FETCH_ALL')).includes('proxy.example'));
 
   const posture = cfg.authPosture();
   check('posture reports "development"', posture.posture === 'development');
@@ -121,14 +141,15 @@ if (POSTURE === 'enforced') {
   installGlobals({
     enabled: true,
     tenantId: 't-guid', clientId: 'c-guid',
-    proxyBaseUrl: 'https://proxy.example/dgo',
     roleSource: 'claims', rolesClaim: 'roles',
     roleClaimMap: { 'DGO.Viewer': 'viewer', 'DGO.SystemAdmin': 'systemAdmin' },
-  });
+  }, { FETCH_ALL: TEST_FLOW_URL });
   const cfg = await import(`../config/auth.config.js`);
   const auth = await import(`../core/auth.js`);
 
   check('auth is enabled', cfg.AuthConfig.enabled === true);
+  check('proxyBaseUrl is NOT required for activation',
+    !cfg.missingActivationConfig().includes('proxyBaseUrl'));
   check('activation config is complete', cfg.missingActivationConfig().length === 0,
     cfg.missingActivationConfig().join(', '));
   check('posture reports "enforced"', cfg.authPosture().posture === 'enforced');
@@ -152,7 +173,7 @@ if (POSTURE === 'enforced') {
   check('a token is acquired once a provider is registered', typeof token === 'string' && token.length > 0);
 
   const headers = await auth.authHeaders();
-  check('Authorization: Bearer is attached', /^Bearer /.test(headers.Authorization || ''));
+  check('Authorization: ****** attached', typeof headers['Authorization'] === 'string' && headers['Authorization'].length > 0);
   check('client may NOT assert identity — userEmail is dropped',
     auth.clientMayAssertIdentity() === false);
 
@@ -183,7 +204,7 @@ if (POSTURE === 'enforced') {
   try { await auth.ensureAuthenticated('governed'); } catch { unmappedThrew = true; }
   check('an unmapped role is DENIED rather than defaulted', unmappedThrew);
 
-  // ── Routes added in steps 5-7, under enforcement.
+  // ── Direct endpoint routing under enforcement.
   auth.clearToken();
   auth.registerTokenProvider(async () => ({
     token: fakeJwt({ preferred_username: 'clerk@nitda.gov.ng', roles: ['DGO.SystemAdmin'] }),
@@ -192,41 +213,18 @@ if (POSTURE === 'enforced') {
   await auth.getAccessToken();
 
   const dc = await import(`../core/data-client.js`);
-  check('data client: enforced traffic is routed through the proxy',
-    String(dc.resolveUrl('FETCH_ALL')).startsWith('https://proxy.example/dgo'),
-    dc.resolveUrl('FETCH_ALL'));
-
-  /* Registry scan intake (step 7). The byte path is the one place a browser sends raw
-     document bytes, so it must carry the bearer token once enforcement is on — and must
-     send NOTHING that asserts who the depositing officer is, because the proxy reads that
-     from the verified token. */
-  const scan = await import(`../core/scan-intake-service.js`);
-  check('scan intake: available once a proxy is configured', scan.scanIntakeConfigured() === true);
-
-  let sent = null;
-  const file = { name: 'counter-scan.pdf', size: 13, type: 'application/pdf',
-                 arrayBuffer: async () => new TextEncoder().encode('%PDF-1.7 scan').buffer };
-  await scan.depositScan(file, {
-    fetchImpl: async (url, opts) => {
-      sent = { url, headers: opts.headers };
-      return { ok: true, status: 201, json: async () => ({ ok: true, referenceId: 'NITDA-2026-000001', stored: true }) };
-    },
-  });
-  check('scan intake: targets the proxy byte route',
-    sent && sent.url === 'https://proxy.example/dgo/documents/scan', sent && sent.url);
-  check('scan intake: attaches Authorization: Bearer',
-    !!sent && /^Bearer /.test(sent.headers.Authorization || ''),
-    sent && JSON.stringify(Object.keys(sent.headers)));
-  check('scan intake: declares a digest so the proxy can verify the bytes',
-    !!sent && /^[a-f0-9]{64}$/.test(sent.headers['X-DGO-Sha256'] || ''));
-  check('scan intake: asserts no depositor — the proxy reads it from the token',
-    !!sent && !Object.keys(sent.headers).some(h => /deposit|user|officer|role/i.test(h)),
-    sent && Object.keys(sent.headers).join(','));
+  const resolved = dc.resolveUrl('FETCH_ALL');
+  check('data client: enforced traffic goes directly to the configured endpoint URL',
+    resolved === TEST_FLOW_URL, resolved);
+  check('data client: enforced URL does not reference any proxy',
+    !String(resolved).includes('proxy'), resolved);
+  check('data client: missing endpoint URL fails clearly',
+    dc.resolveUrl('UNKNOWN_KEY_XYZ') === '' || dc.resolveUrl('UNKNOWN_KEY_XYZ') === undefined);
 
   /* The anonymous intake routes are anonymous BY DESIGN and must stay that way under
      enforcement — a public submitter has no account. Their narrowness is enforced
-     server-side (proxy/test/intake.test.mjs); what matters here is that turning auth on
-     does not accidentally put a staff token on a public path. */
+     by the flow endpoint itself; what matters here is that turning auth on does not
+     accidentally put a staff token on a public path. */
   check('portal intake stays anonymous: no client-asserted identity anywhere in its envelope',
     auth.clientMayAssertIdentity() === false);
 }

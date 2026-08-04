@@ -8,21 +8,17 @@ import { PerformanceMonitor } from './performance-monitor.js';
 import { PendingQueue } from './pending-queue.js';
 import { confirmFlowExecution } from './flow-confirmation.js';
 import { authHeaders, clientMayAssertIdentity, ensureAuthenticated } from './auth.js';
-import { AuthConfig, isAuthEnforced } from '../config/auth.config.js';
 export const DataClient=Object.freeze({request,resolveUrl});
 /**
  * Resolve the runtime target for a contract key.
  *
- * When authentication is enforced and a proxy is configured, governed traffic is routed
- * through the authenticating proxy rather than at a signed flow URL directly. Power
- * Automate HTTP triggers cannot validate a bearer token themselves, so the proxy is what
- * makes enforcement real. Provisioned now so activation is configuration, not re-plumbing.
+ * Every request is sent directly to the configured Power Automate flow endpoint from
+ * config/endpoints.config.js / runtime window.DGO_CONFIG.endpoints. No external proxy
+ * is required or consulted. When authentication is enabled the bearer token is attached
+ * via authHeaders(); the flow endpoint itself must enforce required authorization.
  */
 export function resolveUrl(key){
   const st=State.get();
-  if(isAuthEnforced() && AuthConfig.proxyBaseUrl){
-    return `${String(AuthConfig.proxyBaseUrl).replace(/\/+$/,'')}/${encodeURIComponent(key)}`;
-  }
   return EndpointRegistry.url(key,{overrides:st.settings?.endpoints||{}});
 }
 export async function request(key,payload={},options={}){ const contract=EndpointContracts[key]; if(!contract) throw new Error('Unknown endpoint '+key); /* Enforced posture: no governed request leaves unauthenticated. No-op while inert. */ await ensureAuthenticated(`endpoint:${key}`); const url=resolveUrl(key); if(!url) throw new Error('Endpoint '+key+' is not configured'); const policy={...fetchPolicyFor(key),...options}; if(!(await confirmFlowExecution({key,contract,payload,options}))) throw new Error('Endpoint execution cancelled by user'); const id=crypto.randomUUID(); const started=Date.now(); LoadingState.start(contract.write?'action':'data',key,{source:'network'}); return PerformanceMonitor.measure('fetch',key,async()=>{ let attempt=0,lastError; while(attempt<=policy.retry){ const ctl=new AbortController(); const timer=setTimeout(()=>ctl.abort(),policy.timeoutMs||contract.timeoutMs||45000); try{ /* Identity. While auth is inert the client asserts `userEmail` from local state, exactly

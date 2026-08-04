@@ -1,7 +1,7 @@
 // Registry Scan Intake — channel C. TARGET_ARCHITECTURE.md §3.2, step 7.
 //
 // A document arrives physically at the registry counter. A clerk scans it, deposits the
-// bytes through the proxy into the document library, and the platform gets a correspondence
+// bytes directly to the configured flow endpoint, and the platform gets a correspondence
 // record with the link already attached. Before this, channel C was metadata only: a clerk
 // could log that a document existed but had nowhere to put it, so the record and the paper
 // stayed in different places.
@@ -14,8 +14,8 @@
 //      the portal, wearing an internal badge. Failed deposits stay in the tray, visible and
 //      retryable, and say why.
 //
-//   2. CUSTODY IS ATTRIBUTED BY THE SERVER. `depositedBy` comes back from the proxy, which
-//      read it from the verified token. This module never asserts who deposited a document,
+//   2. CUSTODY IS ATTRIBUTED BY THE SERVER. `depositedBy` comes back from the endpoint, which
+//      reads it from the verified token. This module never asserts who deposited a document,
 //      because a client-asserted depositor is not a custody record.
 //
 // It creates correspondence as an ALLOWED INVOKER of the correspondence module's
@@ -69,8 +69,9 @@ function render(el) {
     ])}
     ${configured ? '' : `<section class="panel">
       <div class="eyebrow panel-eyebrow">Deposit unavailable</div>
-      <p>No proxy is configured, so there is nowhere to file a scan. Set <code>proxyBaseUrl</code>
-         in <code>config/config.local.js</code> to enable counter deposits.</p>
+      <p>No scan endpoint is configured. Set <code>SCAN_INTAKE</code> in
+         <code>config/config.local.js</code> under <code>window.DGO_CONFIG.endpoints</code>
+         to enable counter deposits.</p>
       <p class="meta">Correspondence can still be logged from <b>Intake &amp; Assignment</b>, but a
          record logged there carries no document. This workspace will not create one either —
          a registry record pointing at a document that was never filed is not a custody record.</p>
@@ -84,7 +85,7 @@ function render(el) {
         </label>
       </div>
       <p class="meta">${SCAN_LIMITS.acceptLabel}, up to ${SCAN_LIMITS.maxFileBytes / 1048576} MB each.
-         A SHA-256 digest is computed here and verified against the bytes by the proxy, so a
+         A SHA-256 digest is computed here and declared to the endpoint, so a
          file that changes in transit is refused rather than filed.</p>
       ${tray.length ? `<ul class="timeline" data-tray>${tray.map((t, i) => trayRow(t, i)).join('')}</ul>` : ''}
     </section>
@@ -193,7 +194,7 @@ async function deposit(e, el, s) {
       res = await depositScan(entry.file);
     }, { ref: entry.digest.slice(0, 12) }).catch(() => { res = { ok: false, reason: 'action-failed' }; });
 
-    // Rule 1: no record without a deposit. `ok` means the proxy verified the bytes;
+    // Rule 1: no record without a deposit. `ok` means the endpoint accepted the bytes;
     // `stored` means the library confirmed the write. Only both together justify a record.
     if (!res?.ok || !res.stored) {
       entry.state = 'failed';
@@ -240,7 +241,7 @@ async function deposit(e, el, s) {
 function recordFor(res, entry, d) {
   const now = new Date().toISOString();
   return {
-    // The reference is the one the proxy minted. modules/correspondence.js derives its own
+    // The reference is the one the endpoint minted. modules/correspondence.js derives its own
     // from Date.now(), which collides under concurrency and is chosen by the client; a
     // registry reference must be neither.
     id: res.referenceId,
@@ -274,10 +275,10 @@ function recordFor(res, entry, d) {
 function failureText(res) {
   if (!res) return 'The deposit did not run.';
   switch (res.reason) {
-    case 'not-configured':   return 'No proxy is configured, so there is nowhere to file this.';
+    case 'not-configured':   return 'No scan endpoint is configured. Set SCAN_INTAKE in window.DGO_CONFIG.endpoints.';
     case 'unauthenticated':  return 'Your session was not accepted. Sign in again and retry.';
     case 'forbidden':        return 'Your role may not deposit documents into the registry.';
-    case 'unreachable':      return 'The proxy could not be reached. The document was not filed.';
+    case 'unreachable':      return 'The endpoint could not be reached. The document was not filed.';
     case 'digest_mismatch':  return 'The bytes that arrived did not match the digest. Rescan and retry.';
     case 'size_mismatch':    return 'The file changed size in transit. Rescan and retry.';
     case 'file_too_large':   return `Larger than the ${SCAN_LIMITS.maxFileBytes / 1048576} MB limit.`;

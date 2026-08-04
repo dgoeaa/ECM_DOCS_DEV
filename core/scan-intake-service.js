@@ -6,20 +6,19 @@
 // thing this architecture is emphatic about is that bytes must not travel base64-encoded
 // inside a JSON payload — that is what produced the 4 MB ceiling and the silent truncation
 // behind F-028 on the portal side. So this is a PUT of the file itself, with the metadata
-// in headers, against `PUT {proxyBaseUrl}/documents/scan`.
+// in headers, against the configured SCAN_INTAKE endpoint URL.
 //
-// WHAT THE PLATFORM NEVER HOLDS
-// The document library credential. The proxy holds it and relays the bytes; nothing here
-// ever sees a SharePoint URL it could write to. That is the same rule that governs the
-// portal, applied to the internal channel.
+// DIRECT ENDPOINT OPERATION
+// Scan deposits are sent directly to the configured flow endpoint URL. No external proxy
+// is required. The endpoint itself must enforce required authentication and authorization.
 //
 // FAILING HONESTLY
-// With no proxy configured this returns `{ok:false, reason:'not-configured'}` and the
+// With no endpoint configured this returns `{ok:false, reason:'not-configured'}` and the
 // workspace does NOT create a correspondence record. A registry record pointing at a
 // document that was never filed is a broken custody record — it is the silent-loss failure
 // wearing an internal badge, and the registry is the one place that cannot tolerate it.
 
-import { AuthConfig } from '../config/auth.config.js';
+import { EndpointRegistry } from './endpoint-registry.js';
 import { authHeaders } from './auth.js';
 
 export const SCAN_LIMITS = Object.freeze({
@@ -30,18 +29,16 @@ export const SCAN_LIMITS = Object.freeze({
   acceptLabel: 'PDF, PNG, JPG, TIFF, DOC or DOCX',
 });
 
-/** Is a byte path available at all? False means demo mode, and the caller must say so. */
+/** Is a scan endpoint available at all? False means demo mode, and the caller must say so. */
 export function scanIntakeConfigured() {
-  return !!AuthConfig.proxyBaseUrl;
+  return !!EndpointRegistry.url('SCAN_INTAKE');
 }
 
 function scanUrl() {
-  const base = AuthConfig.proxyBaseUrl;
-  if (!base) return '';
-  return `${String(base).replace(/\/+$/, '')}/documents/scan`;
+  return EndpointRegistry.url('SCAN_INTAKE') || '';
 }
 
-/** SHA-256 of the file, hex. Declared to the proxy, which verifies it against the bytes. */
+/** SHA-256 of the file, hex. */
 export async function digestOf(file) {
   const buf = await file.arrayBuffer();
   const hash = await crypto.subtle.digest('SHA-256', buf);
@@ -55,8 +52,7 @@ export function validateScan(file, { limits = SCAN_LIMITS } = {}) {
   if (file.size > limits.maxFileBytes) {
     return `That file is ${(file.size / 1048576).toFixed(1)} MB. The limit is ${limits.maxFileBytes / 1048576} MB.`;
   }
-  // Advisory only: the extension and the declared type are both caller-supplied, so this
-  // catches mistakes, not attacks. The proxy and the library are what actually decide.
+  // Advisory only: the extension and the declared type are both caller-supplied.
   if (file.type && !limits.accept.includes(file.type)) {
     return `${limits.acceptLabel} only. That file reports as ${file.type}.`;
   }
@@ -64,11 +60,11 @@ export function validateScan(file, { limits = SCAN_LIMITS } = {}) {
 }
 
 /**
- * Deposit one scanned document.
+ * Deposit one scanned document directly to the configured flow endpoint.
  *
  * Returns `{ok, referenceId, attachmentLink, stored, depositedBy, sha256, bytes, reason}`.
  *
- * `stored:false` with `ok:true` means the proxy accepted and verified the bytes but could
+ * `stored:false` with `ok:true` means the endpoint accepted and verified the bytes but could
  * not file them — a real distinction the caller must not flatten, because the deposit
  * happened and is audited even though the document is not yet in the library.
  */
@@ -118,7 +114,6 @@ export async function depositScan(file, { fetchImpl = fetch } = {}) {
     referenceId: data.referenceId || '',
     attachmentLink: data.attachmentLink || '',
     stored: data.stored === true,
-    // From the verified token, not from anything this client asserted.
     depositedBy: data.depositedBy || '',
     depositedAt: data.depositedAt || new Date().toISOString(),
     sha256: data.sha256 || sha256,
