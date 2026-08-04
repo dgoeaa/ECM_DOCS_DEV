@@ -24,6 +24,11 @@ The corpus was originally assembled under a Phase A/B/C fidelity programme
 | `canvas/` | The Power Apps Canvas application: screen definitions (Power Fx) and its endpoint bindings. |
 | `lineage/` | Runtime ancestry: R11.1.3 Content-Governance and Viewport-Compliant runtimes (SHA-summed), Obsidian Pro v7, the Obsidian consolidated design-system reference, and the R11.6 canvas-parity implementation. |
 
+**Verification:** `verification/FINDINGS.md` re-tests every relationship and data-quality
+claim in the Data Structure Matrix against the payload it was built from. Its headline
+verdict is refuted and its census method is unsound — read it before using the matrix as a
+design input.
+
 Curation notes: one of two byte-identical R11.1 copies kept; `desktop.ini` and
 `.js.map` litter dropped; the image-only Implementation Plan PDF removed on
 instruction (no text layer; superseded by the decision register below).
