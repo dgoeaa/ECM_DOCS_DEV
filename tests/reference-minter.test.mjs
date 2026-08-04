@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import {
   mintReference, highestSequence, sequenceOf, isReference,
-  REFERENCE_PATTERN, REFERENCE_PREFIX, SEQUENCE_WIDTH,
+  REFERENCE_PATTERN, REFERENCE_PREFIX, LEGACY_SEQUENCE_WIDTH,
 } from '../core/reference-minter.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -41,7 +41,7 @@ section('One format, shared with the server');
 await t('a minted reference has the registry shape', () => {
   const { reference } = mintReference([], { now: at(2026) });
   assert.match(reference, REFERENCE_PATTERN);
-  assert.equal(reference, 'NITDA-2026-000001');
+  assert.equal(reference, 'NITDA-2026-1');
 });
 
 await t('it is the SAME shape the registry issues', () => {
@@ -53,13 +53,13 @@ await t('it is the SAME shape the registry issues', () => {
   // the contract the flow author reads — so both are asserted, and a change to either
   // without the other fails here.
   assert.equal(REFERENCE_PREFIX, 'NITDA');
-  assert.equal(SEQUENCE_WIDTH, 6);
-  assert.equal(mintReference([], { now: at(2026) }).reference, 'NITDA-2026-000001');
+  assert.equal(LEGACY_SEQUENCE_WIDTH, 6);
+  assert.equal(mintReference([], { now: at(2026) }).reference, 'NITDA-2026-1');
 
   const contract = read('document-portal/README.md');
   const stated = (contract.match(/`(NITDA-YYYY-N+)`/) || [, ''])[1];
   assert.ok(stated, 'the intake contract must state the reference format the flow must mint');
-  const sample = stated.replace('YYYY', '2026').replace(/N+$/, '1'.padStart(SEQUENCE_WIDTH, '0'));
+  const sample = stated.replace('YYYY', '2026').replace(/N+$/, '1');
   assert.match(sample, REFERENCE_PATTERN,
     `the documented format ${stated} does not match the one this module implements`);
 });
@@ -70,7 +70,7 @@ await t('the retired shape is not produced', () => {
 });
 
 await t('the year comes from the clock', () => {
-  assert.equal(mintReference([], { now: at(2031) }).reference, 'NITDA-2031-000001');
+  assert.equal(mintReference([], { now: at(2031) }).reference, 'NITDA-2031-1');
 });
 
 /* ── it does not collide ───────────────────────────────────────────────────── */
@@ -103,21 +103,21 @@ await t('minting many times inside one millisecond does not repeat', () => {
 
 await t('it advances past a reference that is already present', () => {
   const records = [{ id: 'NITDA-2026-000004', referenceId: 'NITDA-2026-000004' }];
-  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000005');
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-5');
 });
 
 await t('it reads the id field as well as referenceId', () => {
   // A record carrying the reference in only one field would otherwise let the other mint
   // a duplicate.
   assert.equal(mintReference([{ id: 'NITDA-2026-000009' }], { now: at(2026) }).reference,
-    'NITDA-2026-000010');
+    'NITDA-2026-10');
   assert.equal(mintReference([{ referenceId: 'NITDA-2026-000009' }], { now: at(2026) }).reference,
-    'NITDA-2026-000010');
+    'NITDA-2026-10');
 });
 
 await t('a gap in the sequence is not reused', () => {
   const records = [{ referenceId: 'NITDA-2026-000001' }, { referenceId: 'NITDA-2026-000007' }];
-  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000008');
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-8');
 });
 
 /* ── year boundaries and foreign values ────────────────────────────────────── */
@@ -125,7 +125,7 @@ section('Years and foreign values');
 
 await t('last year\'s sequence does not carry into this one', () => {
   const records = [{ referenceId: 'NITDA-2025-000900' }];
-  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-000001');
+  assert.equal(mintReference(records, { now: at(2026) }).reference, 'NITDA-2026-1');
 });
 
 await t('a reference from another year is still recognised as a reference', () => {
@@ -142,7 +142,7 @@ await t('non-reference identifiers are ignored rather than parsed', () => {
     null, undefined,
   ];
   assert.equal(highestSequence(junk, { year: 2026 }), 0);
-  assert.equal(mintReference(junk, { now: at(2026) }).reference, 'NITDA-2026-000001');
+  assert.equal(mintReference(junk, { now: at(2026) }).reference, 'NITDA-2026-1');
 });
 
 await t('a foreign prefix does not raise our sequence', () => {

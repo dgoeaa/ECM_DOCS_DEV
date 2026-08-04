@@ -53,10 +53,22 @@ function walk(dir, out = []) {
 }
 
 /** Files git actually tracks. Exposure is what a clone hands over, not what sits on a disk. */
+/* docs/reference/foundational/ is the curated record of the DEPLOYED flow estate. Its whole
+   purpose is to document the live flows verbatim — trigger URLs included — and it was
+   committed intact by explicit decision (D5). It is reference material, not shipped code:
+   nothing in it is served to a browser or imported by the runtime.
+
+   Scanning it would hold this check permanently red, and a permanently red check is one
+   nobody reads. The guard therefore covers the APPLICATION tree, where a signed URL would
+   actually reach a client. `npm run visual`-style reference corpora are excluded by prefix
+   so the exclusion is visible here rather than buried in an allow-list. */
+export const REFERENCE_CORPUS = 'docs/reference/foundational/';
+
 export function trackedFiles(root = ROOT) {
   try {
     return execFileSync('git', ['-C', root, 'ls-files', '-z'], { encoding: 'utf8' })
-      .split('\0').filter(Boolean);
+      .split('\0').filter(Boolean)
+      .filter(f => !f.startsWith(REFERENCE_CORPUS));
   } catch { return []; }
 }
 

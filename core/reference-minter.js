@@ -25,10 +25,20 @@
 // its own scope and honest about where that scope ends, rather than quietly wrong
 // everywhere.
 
-/** The one format. Every flow that issues a reference must mint this same shape. */
+/* THE FORMAT CONFORMS TO THE REGISTER, NOT THE OTHER WAY ROUND (decision D1).
+   The live registry issues `NITDA-2026-217` — unpadded. This module minted
+   `NITDA-2026-000217`, so the platform and the register disagreed about the identifier
+   itself, and every reference already in a citizen's hands was the "wrong" shape in its own
+   system. The register is the authority; the padding was ours to drop.
+
+   The pattern still ACCEPTS a padded sequence, because references minted before this
+   change exist and must keep resolving. It only stops PRODUCING them — `sequenceOf`
+   parses '000217' and '217' to the same 217, so the two forms compare equal by sequence
+   and neither can collide with the other. */
 export const REFERENCE_PREFIX = 'NITDA';
-export const REFERENCE_PATTERN = /^([A-Z]+)-(\d{4})-(\d{6})$/;
-export const SEQUENCE_WIDTH = 6;
+export const REFERENCE_PATTERN = /^([A-Z]+)-(\d{4})-(\d{1,6})$/;
+/** Retained for the legacy form: what the platform used to emit, and still reads. */
+export const LEGACY_SEQUENCE_WIDTH = 6;
 
 /** Does this string have the registry's reference shape? */
 export function isReference(value, { prefix = REFERENCE_PREFIX } = {}) {
@@ -94,5 +104,5 @@ export function mintReference(records = [], { prefix = REFERENCE_PREFIX, now = (
 }
 
 function format(prefix, year, seq) {
-  return `${prefix}-${year}-${String(seq).padStart(SEQUENCE_WIDTH, '0')}`;
+  return `${prefix}-${year}-${seq}`;
 }

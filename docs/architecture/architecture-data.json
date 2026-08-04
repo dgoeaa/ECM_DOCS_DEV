@@ -258,7 +258,7 @@
   "layers": {
     "files": {
       "config": 32,
-      "core": 60,
+      "core": 61,
       "shared": 8,
       "modules": 29
     },
@@ -302,7 +302,7 @@
       "components": [
         {
           "name": "root platform",
-          "detail": "29 routes · 29 modules · 60 core",
+          "detail": "29 routes · 29 modules · 61 core",
           "note": "The single system of record, since D6(b)"
         }
       ]
