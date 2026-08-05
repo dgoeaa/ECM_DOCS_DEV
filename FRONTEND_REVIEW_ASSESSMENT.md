@@ -305,29 +305,72 @@ Waves 1 and 2 must not regress this is the right constraint to put in writing.
 ## Assessment of the plan
 
 The sequencing logic is correct and I would not reorder it. Nothing downstream is worth
-designing while the platform clips content without telling anyone. Three adjustments:
+designing while the platform clips content without telling anyone.
 
-**Wave 1 · ~6 d → ~7 d.** Finding 01 at 0.5 d is the one materially optimistic estimate.
-Writing `.dgo-scroll` is thirty minutes. Deciding *which* of the four nested
+### First, the report's own totals do not reconcile
+
+Before adjusting anything, the stated wave figures should be checked against the register
+they are drawn from.
+
+| Wave | Findings scheduled | Register sum | Card states |
+|---|---|---|---|
+| 1 | 01 (0.5) · 02 (3) · 03 (2) · 06 (1.5) | **7.0 d** | ≈6 d |
+| 2 | 04 (2) · 05 (0.5) · 07 (2) + 12 (1.5) · 11 (1) · 13 (1) · 14 (1) | **9.0 d** | ≈9 d ✓ |
+| 3 | 08 (0.5) · 09 (1) · 10 (1) · 15 (2) · 18 (0.25) | **4.75 d** | ≈5 d ✓ |
+| | | **20.75 d** | ≈20 d |
+
+Wave 1 understates its own listed items by a full day. Waves 2 and 3 are sound.
+
+Two findings — **16** (0.5 d, unlabelled topbar glyphs) and **17** (0.5 d, duplicated
+placeholder identity) — appear in the register and in **no wave at all**. The register
+totals 21.75 d; the waves schedule 20.75 d of it. Whether those two are deliberately
+deferred or simply dropped in transcription is not stated, and should be.
+
+### Then, the four adjustments
+
+**Wave 1 · 7.0 d → 7.5 d.** Finding 01 at 0.5 d is the one materially optimistic
+estimate. Writing `.dgo-scroll` is thirty minutes. Deciding *which* of the nested
 `overflow:hidden !important` levels — `dgo-shell` / `.dgo-shell-grid` / `.dgo-workarea` /
 `.dgo-main` / `.workspace` — becomes the scroller, without breaking the footer-visible
-contract that block was written to guarantee, is the work. `contain:layout size` on
-`dgo-shell` interacts with it. Budget 1.5–2 d, and expect finding 02 to be the cheaper of
-the two despite its 3 d estimate, since the deletion rules are five discrete blocks.
+contract that block was written to guarantee, is the work; `contain:layout size` on
+`dgo-shell` interacts with it. **01: 0.5 → 2.0 d.** Against that, finding 06 reduces to
+the loading state alone, since the empty and error states already exist: **06: 1.5 →
+0.5 d.** Findings 02 and 03 stand as estimated — though expect 02 to come in under its
+3 d, since the deletion rules are five discrete blocks.
 
-**Wave 2 · ~9 d → ~6.5 d.** Drop 05 entirely (already done, −0.5 d). Reduce 06 to the
-loading state only (−1 d). Reduce 04 to wiring the existing design-system breadcrumb
-(−1 d).
+**Wave 2 · 9.0 d → 7.0 d.** Drop **05** entirely (already shipped, −0.5 d). Reduce **04**
+to wiring the design system's existing breadcrumb component against
+`visibleWorkspaceForRoute()` and the declared `handoffs` arrays, rather than building one
+(2 → 1 d). Reduce **13** to the route-title and card-copy halves, dropping the
+group-label size claim (1 → 0.5 d). Findings 07, 12, 11 and 14 stand.
 
-**Wave 3 · ~5 d → ~3 d.** Drop 09 entirely (−1 d); the assets and the sprite ship today.
-Rescope 10 from "the portal" to "the home page ribbon and Registry activity panel", and
-reuse the `found`/`denied`/`unavailable` contract `PF.api.status` already establishes
-rather than inventing a second one (−1 d).
+**Wave 3 · 4.75 d → 3.25 d.** Drop **09** entirely (−1 d); the logo assets and the icon
+sprite ship today. Rescope **10** from "the portal" to the home ribbon and the Registry
+activity panel only, reusing the `found`/`denied`/`unavailable` contract `PF.api.status`
+already establishes rather than inventing a second one (1 → 0.5 d). Findings 08, 15 and
+18 stand.
 
 **One item to add, at Wave 1 or before it.** `styles/index.css` justifies its cascade
 architecture with measurements from three files that are not in the repository. Wave 1
 edits `app.css` inside that architecture. Either restore the tooling or replace the
-comment with what is actually true, before someone relies on it to size a change.
+comment with what is actually true, before someone relies on it to size a change. Not
+estimated here — it is a decision before it is a task.
+
+### Corrected total
+
+| | Stated | Register sum | Corrected |
+|---|---|---|---|
+| Wave 1 · stop losing information | ≈6 d | 7.0 d | **7.5 d** |
+| Wave 2 · make the journey legible | ≈9 d | 9.0 d | **7.0 d** |
+| Wave 3 · earn public trust | ≈5 d | 4.75 d | **3.25 d** |
+| **Scheduled total** | **≈20 d** | **20.75 d** | **17.75 d** |
+| Unscheduled minors (16, 17) | — | 1.0 d | 1.0 d |
+| **Full register** | — | **21.75 d** | **18.75 d** |
+
+**≈17.75 days of scheduled frontend work, or ≈18.75 if findings 16 and 17 are pulled back
+in.** Call it three and a half to four weeks for one developer — the same calendar shape
+the report gives, because the day count was never the binding constraint. Wave 1 is
+serial by nature: one person deciding one containment model.
 
 ---
 
@@ -341,6 +384,10 @@ in Waves 2 and 3 changes that.
 
 Correct 05 and 09 before circulating, because both assert an absence that is not there
 and both are checkable in under a minute — a reader who spots either will discount the
-other sixteen. Trim 06 and 13 to the halves that hold. The corrected plan is roughly
-16–17 days rather than the 20 stated, and the reductions come from work already done,
-which is the better direction to be wrong in.
+other sixteen. Trim 06 and 13 to the halves that hold. Fix Wave 1's card, which
+understates its own listed items by a day, and say what happened to findings 16 and 17.
+
+The corrected plan is **≈17.75 days scheduled** against the ≈20 stated — and the
+reduction is smaller than it looks, because it nets a genuine increase in Wave 1 against
+removals in Waves 2 and 3 for work that is already done. That is the right shape to be
+wrong in: the blockers cost more than budgeted, and the polish costs less.
