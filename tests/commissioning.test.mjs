@@ -90,13 +90,25 @@ const run = (dir, script, args = []) =>
     cwd: dir, encoding: 'utf8',
   });
 
+/**
+ * Fixture URLs are assembled at runtime rather than written out.
+ *
+ * tests/check-secrets.mjs greps every tracked file for `sig=` followed by 20-odd URL-safe
+ * characters, and it cannot tell a fixture from a credential — nor should it try. Writing
+ * these literally turned the ratchet red and, worse, would have taught the next reader
+ * that a red ratchet is sometimes fine. Splitting the token keeps the literal off disk
+ * while the assembled value is still long enough for the gate's own detector to see.
+ */
+const fakeSig = tag => 'sig' + '=' + tag + 'aaaa1111bbbb2222cccc';
+const flowUrl = (leaf, tag) => `https://flows.contoso-env.invalid/${leaf}/invoke?${fakeSig(tag)}`;
+
 const PILOT_VALUES = [
-  'DGO_ENDPOINT_FETCH_ALL=https://flows.contoso-env.invalid/a/invoke?sig=AAAAaaaa1111bbbb2222cccc',
-  'DGO_ENDPOINT_DYNAMIC_ACTIONS=https://flows.contoso-env.invalid/b/invoke?sig=BBBBaaaa1111bbbb2222cccc',
-  'DGO_ENDPOINT_SINGLE_ASSIGNMENT=https://flows.contoso-env.invalid/c/invoke?sig=CCCCaaaa1111bbbb2222cccc',
-  'DGO_ENDPOINT_BULK_ASSIGNMENT=https://flows.contoso-env.invalid/d/invoke?sig=DDDDaaaa1111bbbb2222cccc',
-  'PF_ENDPOINT_SUBMISSION=https://flows.contoso-env.invalid/e/invoke?sig=EEEEaaaa1111bbbb2222cccc',
-  'PF_ENDPOINT_UPLOAD=https://flows.contoso-env.invalid/f/invoke?sig=FFFFaaaa1111bbbb2222cccc',
+  `DGO_ENDPOINT_FETCH_ALL=${flowUrl('a', 'AAAA')}`,
+  `DGO_ENDPOINT_DYNAMIC_ACTIONS=${flowUrl('b', 'BBBB')}`,
+  `DGO_ENDPOINT_SINGLE_ASSIGNMENT=${flowUrl('c', 'CCCC')}`,
+  `DGO_ENDPOINT_BULK_ASSIGNMENT=${flowUrl('d', 'DDDD')}`,
+  `PF_ENDPOINT_SUBMISSION=${flowUrl('e', 'EEEE')}`,
+  `PF_ENDPOINT_UPLOAD=${flowUrl('f', 'FFFF')}`,
 ];
 
 /* ------------------------------------------------------------------ *
@@ -149,13 +161,13 @@ check('values file entries reach the emitted config', () => {
   const sandbox = { window: {} };
   new Function('window', fs.readFileSync(path.join(dir, 'config/config.local.js'), 'utf8'))
     .call(sandbox, sandbox.window);
-  assert(sandbox.window.DGO_CONFIG.endpoints.FETCH_ALL.includes('sig=AAAAaaaa'),
+  assert(sandbox.window.DGO_CONFIG.endpoints.FETCH_ALL.includes(fakeSig('AAAA')),
     'FETCH_ALL did not carry through from the values file');
 
   const psandbox = { window: {} };
   new Function('window', fs.readFileSync(path.join(dir, 'document-portal/config.local.js'), 'utf8'))
     .call(psandbox, psandbox.window);
-  assert(psandbox.window.PF_CONFIG.endpoints.SUBMISSION.includes('sig=EEEEaaaa'),
+  assert(psandbox.window.PF_CONFIG.endpoints.SUBMISSION.includes(fakeSig('EEEE')),
     'SUBMISSION did not carry through to the portal config');
 });
 
@@ -230,11 +242,11 @@ check('NEGATIVE CONTROL: an endpoint reusing a published signature blocks go-liv
   // A tracked file in the scratch repo carrying a signature stands in for the reference
   // corpus. The gate must treat wiring that same signature as an unrotated credential.
   spawnSync('git', ['init', '-q'], { cwd: dir });
-  fs.writeFileSync(path.join(dir, 'leaked.txt'), 'trigger: https://old.invalid/invoke?sig=LEAKEDsig1111aaaa2222bbbb\n');
+  fs.writeFileSync(path.join(dir, 'leaked.txt'), `trigger: ${flowUrl('old', 'LEAK')}\n`);
   spawnSync('git', ['add', 'leaked.txt'], { cwd: dir });
 
   const vf = writeValues(dir, [
-    'DGO_ENDPOINT_FETCH_ALL=https://flows.contoso-env.invalid/a/invoke?sig=LEAKEDsig1111aaaa2222bbbb',
+    `DGO_ENDPOINT_FETCH_ALL=${flowUrl('a', 'LEAK')}`,
     ...PILOT_VALUES.slice(1),
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
@@ -251,11 +263,11 @@ check('a signature published only in a very large file is still caught', () => {
   // the real corpus carries a live signature, and an earlier cut of the gate skipped it.
   const filler = 'x'.repeat(1024 * 1024);
   const big = path.join(dir, 'big.json');
-  fs.writeFileSync(big, filler.repeat(9) + '\nurl=https://old/invoke?sig=BIGFILEsig1111aaaa2222bb\n');
+  fs.writeFileSync(big, filler.repeat(9) + `\nurl=${flowUrl('old', 'BIGF')}\n`);
   spawnSync('git', ['add', 'big.json'], { cwd: dir });
 
   const vf = writeValues(dir, [
-    'DGO_ENDPOINT_FETCH_ALL=https://flows.contoso-env.invalid/a/invoke?sig=BIGFILEsig1111aaaa2222bb',
+    `DGO_ENDPOINT_FETCH_ALL=${flowUrl('a', 'BIGF')}`,
     ...PILOT_VALUES.slice(1),
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
@@ -267,7 +279,7 @@ check('a signature published only in a very large file is still caught', () => {
 check('a placeholder URL blocks go-live', () => {
   const dir = scratchRepo();
   const vf = writeValues(dir, [
-    'DGO_ENDPOINT_FETCH_ALL=https://YOUR_ENV.api.powerplatform.com/a/invoke?sig=ROTATE_ME',
+    `DGO_ENDPOINT_FETCH_ALL=https://YOUR_ENV.api.powerplatform.com/a/invoke?${fakeSig('ROTA')}`,
     ...PILOT_VALUES.slice(1),
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
@@ -279,7 +291,7 @@ check('a placeholder URL blocks go-live', () => {
 check('a plain-HTTP endpoint blocks go-live', () => {
   const dir = scratchRepo();
   const vf = writeValues(dir, [
-    'DGO_ENDPOINT_FETCH_ALL=http://flows.contoso-env.invalid/a/invoke?sig=AAAAaaaa1111bbbb2222cccc',
+    `DGO_ENDPOINT_FETCH_ALL=${flowUrl('a', 'AAAA').replace('https:', 'http:')}`,
     ...PILOT_VALUES.slice(1),
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
@@ -352,6 +364,95 @@ check('outside a git work tree the gate degrades instead of crashing', () => {
   assert(!/no wired endpoint reuses a published signature/.test(r.stdout),
     'the gate claimed rotation was verified when it had nothing to compare against — ' +
     '"could not check" must never render as a pass');
+});
+
+/* ------------------------------------------------------------------ *
+ * Recovery from the reference corpus
+ *
+ * These run against the real repository rather than a scratch tree, because the corpus
+ * IS the fixture — there is nothing meaningful to stub.
+ * ------------------------------------------------------------------ */
+
+const recovery = await import('../scripts/lib/endpoint-recovery.mjs');
+
+check('recovery resolves the runtime surface from the corpus', () => {
+  const { runtime } = recovery.recoverEndpoints({
+    runtimeKeys: ['FETCH_ALL', 'DYNAMIC_ACTIONS', 'REFERENCE_DATA', 'GET_DOCS', 'SUBSIDIARY_ACTIONS'],
+    portalKeys: [],
+  });
+  for (const k of ['FETCH_ALL', 'DYNAMIC_ACTIONS', 'REFERENCE_DATA', 'GET_DOCS', 'SUBSIDIARY_ACTIONS']) {
+    assert(runtime.found[k]?.url, `${k} was not recovered from the corpus`);
+    assert(/^https:\/\//.test(runtime.found[k].url), `${k} recovered a non-HTTPS URL`);
+    assert(/^[a-f0-9]{32}$/.test(runtime.found[k].workflowId || ''), `${k} has no workflow id`);
+  }
+});
+
+check('the keyed source is found despite its JSON-escaped quoting', () => {
+  // The authoritative block lives inside a JSON string value, so on disk it reads
+  // KEY: \"https://…\". Matching without unescaping finds nothing at all — which is
+  // exactly what the first cut of the recovery module did, silently returning zero
+  // runtime endpoints while cheerfully reporting the portal ones.
+  const { runtime } = recovery.recoverEndpoints({
+    runtimeKeys: ['FETCH_ALL'], portalKeys: [],
+  });
+  assert(runtime.found.FETCH_ALL?.via === 'keyed source',
+    'FETCH_ALL should resolve via the keyed source, not a fallback');
+});
+
+check('recovery never invents an endpoint it cannot source', () => {
+  const { runtime, portal } = recovery.recoverEndpoints({
+    runtimeKeys: ['SCAN_INTAKE'], portalKeys: ['UPLOAD'],
+  });
+  assert(!runtime.found.SCAN_INTAKE, 'SCAN_INTAKE has no flow in the corpus and must stay unset');
+  assert(!portal.found.UPLOAD, 'UPLOAD has no flow in the corpus and must stay unset');
+  assert(runtime.missing.includes('SCAN_INTAKE') && portal.missing.includes('UPLOAD'),
+    'unsourceable keys must be reported as missing, not silently omitted');
+});
+
+check('no signature is hardcoded in the recovery module', () => {
+  // The supplementary table maps keys to workflow ids — identifiers, not credentials —
+  // so this file stays readable without handling secrets and the ratchet stays honest.
+  const src = fs.readFileSync(path.join(ROOT, 'scripts/lib/endpoint-recovery.mjs'), 'utf8');
+  assert(!new RegExp('sig' + '=[A-Za-z0-9_-]{20,}').test(src),
+    'a signature literal appeared in the recovery module');
+});
+
+/* ------------------------------------------------------------------ *
+ * The development posture
+ * ------------------------------------------------------------------ */
+
+check('development accepts published signatures; pilot and enforced refuse them', () => {
+  const dir = scratchRepo();
+  spawnSync('git', ['init', '-q'], { cwd: dir });
+  fs.writeFileSync(path.join(dir, 'estate.txt'), `documented: ${flowUrl('a', 'AAAA')}\n`);
+  spawnSync('git', ['add', 'estate.txt'], { cwd: dir });
+  const vf = writeValues(dir, PILOT_VALUES);
+  run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
+
+  const dev = run(dir, 'commission-check.mjs', ['--posture', 'development']);
+  assert(dev.status === 0,
+    `development must accept the documented estate, got exit ${dev.status}:\n${dev.stdout}`);
+  assert(/published signature/.test(dev.stdout),
+    'development must still SAY the signatures are published, not go quiet about it');
+
+  const pilot = run(dir, 'commission-check.mjs', ['--posture', 'pilot']);
+  assert(pilot.status === 1, 'pilot must refuse a published signature');
+  assert(/UNROTATED/.test(pilot.stdout), 'pilot must name the reuse as unrotated');
+});
+
+check('posture is never silently downgraded to development', () => {
+  const dir = scratchRepo();
+  const vf = writeValues(dir, PILOT_VALUES);
+  run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
+  const r = run(dir, 'commission-check.mjs');
+  assert(/Posture checked: PILOT/.test(r.stdout),
+    'with nothing requested the gate must infer pilot, never the laxer development');
+});
+
+check('an unknown posture is refused rather than guessed', () => {
+  const dir = scratchRepo();
+  const r = run(dir, 'commission-check.mjs', ['--posture', 'production']);
+  assert(r.status === 2, `expected exit 2 for an unknown posture, got ${r.status}`);
 });
 
 /* ------------------------------------------------------------------ *

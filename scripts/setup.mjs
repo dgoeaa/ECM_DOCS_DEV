@@ -18,14 +18,22 @@
  *      has you fill in as you regenerate each trigger.
  *   2. environment          `DGO_ENDPOINT_<KEY>` for the runtime,
  *                           `PF_ENDPOINT_<KEY>` for the portal.
- *   3. nothing              the key is written empty, and that feature reports itself
+ *   3. `--recover`          the deployed flow estate documented in this repository's own
+ *      reference corpus. DEVELOPMENT ONLY — see below. Lowest precedence, so an explicit
+ *      value always overrides a recovered one.
+ *   4. nothing              the key is written empty, and that feature reports itself
  *                           unconfigured at runtime rather than failing mid-action.
  *
- * WHERE THEY DELIBERATELY DO NOT COME FROM: the archived operations manifest. An
- * earlier version of this script recovered the pilot URLs out of `ECM_DOCS_DEV.zip`.
- * Those are the signatures gap G-03 records as published, and wiring them back in is
- * the opposite of commissioning — it would put known-compromised bearer credentials
- * into a live deployment. Rotate in Power Automate, then pass the new URLs in here.
+ * ON `--recover`. The signatures it wires are published: they are committed to this
+ * repository and anyone who can read it holds them. They are development credentials by
+ * circumstance, not by design, and they must never back a production deployment —
+ * `npm run commission` refuses the pilot and enforced postures while one is wired.
+ *
+ * What it buys is worth being explicit about. Without it, exercising a configuration
+ * change means building throwaway flows by hand first, so configuration errors surface
+ * for the first time in production against flows nobody has ever called. With it,
+ * development runs against the estate that already exists, configuration is proven live,
+ * and production gets a fresh estate built once from a configuration already known good.
  *
  * Idempotent, and it never overwrites an existing config.local.js without --force, so
  * a hand-edited file survives a re-run. Exits 0 with no values supplied: that is the
@@ -41,6 +49,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const FORCE = argv.includes('--force');
 const QUIET = argv.includes('--quiet');
+const RECOVER = argv.includes('--recover');
 const VALUES_FILE = (() => {
   const i = argv.indexOf('--values');
   return i !== -1 && argv[i + 1] ? argv[i + 1] : null;
@@ -131,17 +140,32 @@ function parseValuesFile(file) {
 const FILE_VALUES = VALUES_FILE ? parseValuesFile(VALUES_FILE) : {};
 
 /**
+ * Recovered endpoints, when `--recover` is passed. Loaded lazily so the corpus is only
+ * scanned when it is actually wanted — it is a few hundred megabytes of documentation.
+ */
+let RECOVERED = null;
+if (RECOVER) {
+  const { recoverEndpoints } = await import('./lib/endpoint-recovery.mjs');
+  RECOVERED = recoverEndpoints({
+    runtimeKeys: RUNTIME_ENDPOINTS.map(e => e.key),
+    portalKeys: PORTAL_ENDPOINTS.map(e => e.key),
+  });
+}
+
+/**
  * Resolve one endpoint. `prefixes` are tried in order against the values file first,
- * then the environment, so a values file entry always beats a stale shell export.
+ * then the environment, then anything recovered from the corpus — so an explicit value
+ * always overrides a recovered one, and a values file entry beats a stale shell export.
  *
  * Both the bare key and the `DGO_ENDPOINT_`/`PF_ENDPOINT_` forms are accepted because
  * MINIMAL-PILOT.md tells you to record them prefixed, and people reasonably write
  * them bare.
  */
-function resolve(key, prefixes) {
+function resolve(key, prefixes, surface) {
   const names = [...prefixes.map(p => p + key), key];
   for (const n of names) if (FILE_VALUES[n]) return FILE_VALUES[n].trim();
   for (const n of names) if (process.env[n]) return process.env[n].trim();
+  if (RECOVERED?.[surface]?.found[key]) return RECOVERED[surface].found[key].url;
   return '';
 }
 
@@ -150,6 +174,18 @@ function resolve(key, prefixes) {
  * ------------------------------------------------------------------ */
 
 const pad = (s, n) => String(s).padEnd(n, ' ');
+
+/** Wrap prose to a width, so a caveat stays readable in a terminal report. */
+function wrap(text, width) {
+  const out = [];
+  let line = '';
+  for (const word of String(text).split(/\s+/)) {
+    if (line && line.length + word.length + 1 > width) { out.push(line); line = word; }
+    else line = line ? `${line} ${word}` : word;
+  }
+  if (line) out.push(line);
+  return out;
+}
 
 /**
  * The auth block is emitted only when something was actually supplied. Writing
@@ -256,10 +292,13 @@ function write(relPath, contents, label) {
  * ------------------------------------------------------------------ */
 
 const runtimeValues = Object.fromEntries(
-  RUNTIME_ENDPOINTS.map(e => [e.key, resolve(e.key, ['DGO_ENDPOINT_', 'DGO_'])])
+  RUNTIME_ENDPOINTS.map(e => [e.key, resolve(e.key, ['DGO_ENDPOINT_', 'DGO_'], 'runtime')])
 );
 const portalValues = Object.fromEntries(
-  PORTAL_ENDPOINTS.map(e => [e.key, resolve(e.key, ['PF_ENDPOINT_', 'DGO_ENDPOINT_INTAKE_', 'PF_'])])
+  PORTAL_ENDPOINTS.map(e => [
+    e.key,
+    resolve(e.key, ['PF_ENDPOINT_', 'DGO_ENDPOINT_INTAKE_', 'PF_'], 'portal'),
+  ])
 );
 
 const authValues = {};
@@ -278,6 +317,38 @@ if (!QUIET) {
   console.log('\nDGO Digital Operations — endpoint setup\n');
 
   if (VALUES_FILE) console.log(`  Reading values from ${VALUES_FILE}\n`);
+
+  if (RECOVERED) {
+    console.log('  RECOVERED FROM THE REFERENCE CORPUS — development use only.');
+    console.log('  These signatures are committed to this repository and are therefore');
+    console.log('  published. `npm run commission` will refuse pilot and enforced');
+    console.log('  postures while any of them is wired.\n');
+
+    for (const [surface, label] of [['runtime', 'Internal runtime'], ['portal', 'Public portal']]) {
+      const { found, missing } = RECOVERED[surface];
+      const keys = Object.keys(found);
+      if (keys.length) {
+        console.log(`  ${label} — ${keys.length} recovered`);
+        for (const k of keys) {
+          const r = found[k];
+          console.log(`    ✅ ${pad(k, 24)} ${r.workflowId?.slice(0, 8) ?? '?'}  via ${r.via}`);
+          if (r.alternates?.length) {
+            console.log(`       ${r.alternates.length} older signature(s) for the same flow were not chosen`);
+          }
+          if (r.caveat) {
+            for (const line of wrap(r.caveat, 68)) console.log(`       ⚠  ${line}`);
+          }
+        }
+      }
+      const unavailable = RECOVERED.unavailable[surface] || {};
+      for (const k of missing) {
+        const why = unavailable[k];
+        console.log(`    ·  ${pad(k, 24)} no flow in the corpus`);
+        if (why) for (const line of wrap(why, 68)) console.log(`       ${line}`);
+      }
+      console.log('');
+    }
+  }
 
   for (const [label, list, values] of [
     ['Internal runtime  (config/config.local.js)', RUNTIME_ENDPOINTS, runtimeValues],

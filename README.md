@@ -24,6 +24,8 @@ Both items are open. See G-03 and G-04 of the capability assessment.
 
 **Going live?** Read **[`COMMISSIONING.md`](COMMISSIONING.md)** first, and run `npm run commission` — it reports exactly which obligations stand between this repository and a live deployment, and which of them only you can discharge.
 
+**Running it for development?** `npm run recover` wires 22 of the 24 endpoints from the documented flow estate in `docs/reference/foundational/`, so development runs against flows that already exist instead of throwaway ones built by hand each cycle. `npm run verify:endpoints` then proves that wiring against the live flows. The signatures it uses are the published ones above — the commissioning gate accepts them for development and refuses them for pilot and production.
+
 ---
 
 ## What's in this repo
@@ -78,8 +80,10 @@ must authenticate and authorise its own callers.
 
 ```bash
 npm run setup                                    # scaffold config only
-npm run setup -- --values ~/dgo-values.txt       # wire real endpoints
+npm run recover                                  # wire the documented estate (development)
+npm run setup -- --values ~/dgo-values.txt       # wire your own endpoints
 npm run setup -- --force                         # rewrite after rotating signatures
+npm run verify:endpoints                         # call each flow and report what came back
 npm run commission                               # readiness gate for live usage
 npm start                                        # serve
 ```
@@ -185,6 +189,8 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 │   └── smoke.spec.js                   Playwright smoke suite
 ├── scripts/
 │   ├── setup.mjs                       Writes both config.local.js files
+│   ├── lib/endpoint-recovery.mjs       Resolves the documented estate onto contract keys
+│   ├── verify-endpoints.mjs            Calls each live flow and reports the response
 │   ├── commission-check.mjs            Live-usage readiness gate
 │   └── check-links.mjs                 Link / asset checker
 ├── .github/workflows/ci.yml            CI

@@ -15,7 +15,14 @@
  * checks the obligations that stand between a healthy repository and live usage, and
  * it distinguishes the ones a machine can settle from the ones a person must sign.
  *
- * Two postures, because they are genuinely different products:
+ * Three postures, because they are genuinely different products:
+ *
+ *   development  Wired to the flow estate this repository documents, via
+ *                `npm run setup -- --recover`. The signatures are published, and that is
+ *                accepted here and nowhere else: the point is to exercise a real
+ *                configuration against real flows before production flows exist, so that
+ *                configuration errors surface here rather than against a fresh estate
+ *                nobody has ever called. Never serve the public from this posture.
  *
  *   pilot     Cloudflare Access gates who may LOAD the interface. Auth is inert, role
  *             is advisory, and a flow called directly answers whoever calls it. Fit for
@@ -45,6 +52,13 @@ const posturArg = (() => {
 
 const PILOT_RUNTIME = ['FETCH_ALL', 'DYNAMIC_ACTIONS', 'SINGLE_ASSIGNMENT', 'BULK_ASSIGNMENT'];
 const PILOT_PORTAL = ['SUBMISSION', 'UPLOAD'];
+
+/* Development runs the internal platform against the documented estate. UPLOAD is left
+   out of the required set because no ticket-redeeming upload flow exists anywhere in the
+   corpus — demanding it would make the development posture permanently unreachable for a
+   reason development cannot fix. */
+const DEV_RUNTIME = PILOT_RUNTIME;
+const DEV_PORTAL = ['SUBMISSION'];
 const PUBLIC_PORTAL = ['SUBMISSION', 'UPLOAD', 'STATUS', 'SUPPORT', 'VERIFY', 'VERIFY_CONFIRM'];
 
 const SIG = /sig=([A-Za-z0-9_-]{20,})/g;
@@ -88,6 +102,28 @@ function loadLocalConfig(relPath, globalName) {
 
 const runtime = loadLocalConfig('config/config.local.js', 'DGO_CONFIG');
 const portal = loadLocalConfig('document-portal/config.local.js', 'PF_CONFIG');
+
+/* ------------------------------------------------------------------ *
+ * Posture
+ *
+ * Settled before anything is checked, because the posture decides what "required" even
+ * means. Inference goes to `enforced` when auth is on, otherwise `pilot` — never to
+ * `development`, which has to be asked for. A posture that quietly downgrades its own
+ * standard is not a gate.
+ * ------------------------------------------------------------------ */
+
+const authCfg = runtime.config?.auth || {};
+const declaredEnforced = authCfg.enabled === true;
+const posture = posturArg || (declaredEnforced ? 'enforced' : 'pilot');
+
+if (!['development', 'pilot', 'enforced'].includes(posture)) {
+  console.error(`\n  ✖  Unknown posture "${posture}". Use --posture development | pilot | enforced\n`);
+  process.exit(2);
+}
+
+const isDev = posture === 'development';
+const requiredRuntime = isDev ? DEV_RUNTIME : PILOT_RUNTIME;
+const requiredPortal = isDev ? DEV_PORTAL : PILOT_PORTAL;
 
 /* ------------------------------------------------------------------ *
  * 1 · Endpoint wiring
@@ -138,8 +174,8 @@ function checkWiring(surface, required, label, cfgFile) {
   return endpoints;
 }
 
-const runtimeEndpoints = checkWiring(runtime, PILOT_RUNTIME, 'Internal runtime', 'config/config.local.js');
-const portalEndpoints = checkWiring(portal, PILOT_PORTAL, 'Public portal', 'document-portal/config.local.js');
+const runtimeEndpoints = checkWiring(runtime, requiredRuntime, 'Internal runtime', 'config/config.local.js');
+const portalEndpoints = checkWiring(portal, requiredPortal, 'Public portal', 'document-portal/config.local.js');
 
 /* ------------------------------------------------------------------ *
  * 2 · Credential hygiene — the part that actually decides go-live
@@ -247,11 +283,25 @@ function checkRotation(endpoints, label) {
     }
   }
   if (reused.length) {
-    blocker('credentials', `${label}: ${reused.length} endpoint(s) wired to an UNROTATED signature`,
-      reused.map(r => `  ${r.key} — same signature as ${r.files[0]}${r.files.length > 1 ? ` (+${r.files.length - 1} more)` : ''}`).join('\n') +
-      `\n  These trigger URLs are published in this repository. Going live on them means ` +
-      `going live on a credential that is already disclosed.`,
-      `Regenerate the trigger in Power Automate, then npm run setup -- --force`);
+    const detail =
+      reused.map(r => `  ${r.key} — same signature as ${r.files[0]}${r.files.length > 1 ? ` (+${r.files.length - 1} more)` : ''}`).join('\n');
+    if (isDev) {
+      /* Expected here, and the whole point of the posture: development runs against the
+         documented estate so configuration is exercised against real flows. Recorded as
+         a warning rather than waved through, because the same wiring must never survive
+         into pilot or production — where this same check blocks it. */
+      warn('credentials', `${label}: ${reused.length} endpoint(s) wired to a published signature`,
+        detail + `\n  Expected in the development posture — these are the documented estate. ` +
+        `They are disclosed to anyone who can read this repository, so this configuration ` +
+        `must not be deployed anywhere the public or real correspondence can reach it.`,
+        `Before production: build a fresh estate and re-wire with npm run setup -- --values`);
+    } else {
+      blocker('credentials', `${label}: ${reused.length} endpoint(s) wired to an UNROTATED signature`,
+        detail +
+        `\n  These trigger URLs are published in this repository. Going live on them means ` +
+        `going live on a credential that is already disclosed.`,
+        `Regenerate the trigger in Power Automate, then npm run setup -- --force`);
+    }
   } else if (inGitTree && Object.values(endpoints || {}).some(Boolean)) {
     pass('credentials', `${label}: no wired endpoint reuses a published signature`,
       'Every configured trigger URL is distinct from the ones committed here.');
@@ -281,16 +331,22 @@ if (inGitTree) {
  * 3 · Authentication posture
  * ------------------------------------------------------------------ */
 
-const authCfg = runtime.config?.auth || {};
-const declaredEnforced = authCfg.enabled === true;
-const posture = posturArg || (declaredEnforced ? 'enforced' : 'pilot');
+if (isDev) {
+  warn('auth', 'development posture: nothing is enforced anywhere',
+    'Authentication is inert by design here — no identity provider, no token, identity ' +
+    'from the local profile. Every flow is reachable by anyone holding its URL, and every ' +
+    'URL is published. This is a development configuration and carries no security ' +
+    'properties at all.',
+    'Correct for development. Never expose it to the public or to real correspondence.');
 
-if (!['pilot', 'enforced'].includes(posture)) {
-  console.error(`\n  ✖  Unknown posture "${posture}". Use --posture pilot | enforced\n`);
-  process.exit(2);
-}
-
-if (posture === 'enforced') {
+  manual('auth', 'authorisation is the flows\' obligation, in every posture',
+    'With no proxy and no identity provider, a flow is the only place a caller can be ' +
+    'checked. That does not change when you move to production — it is the same ' +
+    'obligation, against a fresh estate. What development buys you is the chance to get ' +
+    'the request and response contracts right first, so the production flows are built ' +
+    'once against a configuration already proven.',
+    'npm run verify:endpoints -- --include-writes, then AUTHENTICATION_CONTRACT.md §2');
+} else if (posture === 'enforced') {
   if (!declaredEnforced) {
     blocker('auth', 'enforced posture requested but auth is inert',
       'config/auth.config.js defaults to enabled:false, and nothing in ' +

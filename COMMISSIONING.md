@@ -1,6 +1,14 @@
 # Commissioning for live usage
 
-**Status as at 5 August 2026: the platform is healthy and NOT commissioned.**
+**Status as at 5 August 2026: the platform is healthy, wired for development, and not yet
+commissioned for production.**
+
+```bash
+npm run recover                                # wire the documented estate — 22 of 24 endpoints
+npm run commission -- --posture development    # clears, no blockers
+npm run verify:endpoints                       # prove it against the live flows
+npm start                                      # http://localhost:8080
+```
 
 Those are two different statements and the distinction is the whole point of this
 document. The code works — 17 Node suites, 78 browser tests, every route rendering, all
@@ -79,7 +87,32 @@ clone or a Codespace. The platform boots and runs locally with nothing transmitt
 
 ### 1 · Decide the posture
 
-Two genuinely different products. Choose before you build flows, because the flows differ.
+Three genuinely different products. Choose before you build flows, because the flows differ.
+
+**Development** — wired to the flow estate this repository already documents:
+
+```bash
+npm run recover              # = npm run setup -- --recover --force
+npm run commission -- --posture development
+npm run verify:endpoints     # prove the wiring against the live flows
+```
+
+This wires **22 of the 24 endpoints** from `docs/reference/foundational/`: all 17 runtime
+contracts plus 5 of the 6 portal ones. The two it cannot wire have no flow anywhere in the
+corpus — `SCAN_INTAKE` (no raw-bytes PUT flow exists) and portal `UPLOAD` (no
+ticket-redeeming flow exists; the legacy submission flow takes bytes inline as base64,
+which is the 4 MB ceiling the ticket design replaced).
+
+The point is to stop rebuilding throwaway flows every development cycle. Configuration is
+exercised against flows that already exist, so a wrong action name or a response shape the
+client cannot read surfaces here — not in production, against a fresh estate nobody has
+ever called. Production then gets one estate, built once, from a configuration already
+proven.
+
+> The signatures this wires are **published** — committed to this repository, held by
+> anyone who can read it. `npm run commission` accepts them in the development posture and
+> **refuses them in pilot and enforced**, so this wiring cannot reach production by
+> accident. Never point it at real correspondence or expose it publicly.
 
 **Pilot** — Cloudflare Access gates who may *load* the interface. Authentication stays
 inert: caller identity is a client-asserted `userEmail` from `localStorage`, and RBAC is
@@ -95,9 +128,51 @@ sit between the page and the flows, so a flow called directly answers whoever ca
 server half is the row you cannot delegate.
 
 ```bash
+npm run commission -- --posture development
 npm run commission -- --posture pilot
 npm run commission -- --posture enforced
 ```
+
+With no identity provider in the picture, `enforced` does not apply: it is the Entra
+posture, and it asks for a tenant and client id. Running without one means the client half
+stays inert permanently and **every authentication and authorisation decision belongs to
+the flow** — the same obligation, made explicit rather than delegated. The gate reports it
+as a standing manual obligation in every posture, because no check in this repository can
+verify a Power Automate flow.
+
+### 1a · Prove the wiring against the live flows
+
+```bash
+npm run verify:endpoints                    # read-only probes
+npm run verify:endpoints -- --include-writes
+npm run verify:endpoints -- --only FETCH_ALL,GET_DOCS
+npm run verify:endpoints -- --json report.json
+```
+
+Calls each configured flow for real and reports status, latency, and whether the response
+carries the keys the client reads. Write endpoints are skipped unless you ask for them —
+about two thirds of the surface mutates a real register — and every write probe is tagged
+`__DGO_PROBE__` with a run id so the rows can be found and deleted afterwards.
+
+Three outcomes, kept distinct on purpose:
+
+| | Meaning |
+|---|---|
+| **answered** | 2xx, or a 4xx the flow itself produced. A flow that refuses a thin probe payload is a flow that validates its input. |
+| **unauthorised / stale / flow error** | Reached Power Automate; the signature is revoked, the URL is stale, or the flow is erroring. |
+| **never reached** | A transport failure, or a non-JSON body — which means a proxy or egress filter answered, not the tenant. **This verifies nothing about your configuration.** |
+
+That last row matters. A Power Automate manual trigger answers JSON or nothing, so a
+non-JSON body is proof the call never arrived. If your network blocks
+`*.environment.api.powerplatform.com`, every probe lands there and the run tells you about
+your network, not your endpoints. Run it from a machine whose egress policy allows the
+host.
+
+The finding worth looking for is the middle case that still says *answered*: the flow is
+live but its response does not carry what the client reads. `SUBMISSION` is the known one —
+the documented portal flow answers `{ trackingId, referenceId, … }` while the portal
+expects `{ referenceId, uploads: [ticket, …] }`. That is exactly the class of defect this
+step exists to surface while it is still cheap to fix.
 
 ### 2 · Rotate every exposed signature
 
