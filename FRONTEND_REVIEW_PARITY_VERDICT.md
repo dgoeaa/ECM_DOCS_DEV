@@ -145,10 +145,62 @@ overriding `--dgo-control-target-min: 44px` from `tokens.enhanced.css`. Every si
 item in the internal runtime is below the touch floor. Finding 18 credits the runtime with
 honouring 44px and blames the portal's single 32px toggle; the runtime has 29 controls under it.
 
-## 4. What follows
+## 4. The finding neither the review nor this assessment made — and it outranks all 18
 
+The public portal's landing view discloses the register, and its lookup page dispenses the
+credential that guards it. This is an authorization defect, not a presentation one, and it is the
+most serious thing in either application.
+
+**The landing feed is not the visitor's feed.** `js/home.js:25` builds the "Registry activity"
+panel from `PF.store.all()` — unfiltered, every record, sorted by `updatedAt`. The visitor's own
+submissions are a separate panel at `:34` from `PF.store.mine()`. The distinction is drawn
+deliberately and the public set is the one given the hero panel. Each row emits tracking ID,
+category, last event label, status and timestamp, deep-linked to `track.html?id=`. The record
+behind that ID carries submitter name, email, organisation, org type, state, assigned officer,
+file names, priority and the full event history including reviewer notes (`js/core.js:135-150`).
+
+**The gate is well built and then undermined.** `js/track.js:110` requires tracking ID *and*
+submitter email to match, and `:123-129` deliberately refuses to distinguish "unknown ID" from
+"wrong email" so the register cannot be enumerated. That is correct, deliberate work. Then
+`js/track.js:16` renders "Or open a sample record" chips carrying `data-email`, and the handler at
+`:26-30` fills the email field and calls `lookup()`. The page hands out the credential its own
+gate checks.
+
+**The posture is internally inconsistent.** `VERIFY` and `VERIFY_CONFIRM` exist and gate
+*submission* — `js/core.js:401`, `:418`, with a 403 `verification-required` at `:332`. But
+`PF.intake.status()` at `:445` posts `{referenceId, email}` and no verification proof. The portal
+proves a citizen owns an email before accepting a document from them, then serves the case file to
+anyone who knows an email. Email is used as a bearer secret and is not one.
+
+**Scope, stated precisely.** The sample chips filter on `r.seeded`, so that leak is demo data
+today. The store is `localStorage`, so the feed currently shows a visitor only their own device's
+records plus the seeds — nothing crosses between citizens yet. That is why this is urgent rather
+than academic: an unauthenticated page is coded to render an unfiltered register, and
+commissioning `STATUS` against the live registry is the step that makes it real. **Fix before
+wiring, not after.**
+
+**The redesign carries it forward.** The prototype's `liveFeed: recs.slice().sort(...)` is the
+same all-records panel from the same source, and its seeds pair named organisations with plausible
+submitter emails. The design pass corrected layout and feedback and left the disclosure model
+untouched.
+
+**Why it was missed.** Finding 10 examined the same panel and asked whether its numbers were
+*true* — a data-provenance question, answered "no, they come from `localStorage`". It never asked
+whether the panel should be visible at all, which is the authorization question. Finding 11 treated
+two status vocabularies as a translation cost for Customer Service rather than as disclosure. The
+question class was wrong and was applied consistently, so a redesign built on those answers
+inherited the blind spot.
+
+Remediation, in order: filter the landing feed to `PF.store.mine()` or replace it with aggregate
+counts carrying no per-record identifiers; delete the `data-email` chips outright; and gate
+`STATUS` on a `VERIFY_CONFIRM` token rather than on email equality, so ownership is proved once
+per session instead of asserted by knowing a field that appears in the record.
+
+## 5. What follows
+
+- Section 4 comes first, and before `STATUS` is wired to the live registry.
 - The review is worth acting on. 13 findings hold as written, three blockers among them
-  (01, 02, 03), and none is fixed on this branch.
+  (01, 02, 03), and none is fixed on this branch. None of the 18 is the defect in section 4.
 - Correct the register before scheduling: drop 05 and 09, rescope 06, 13 and 14, and add the
   36px sidebar target.
 - The prototype is a design target, not a candidate build. Adopting its visual decisions means
