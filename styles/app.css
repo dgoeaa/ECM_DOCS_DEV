@@ -142,13 +142,13 @@ tr.row-active>td{background:var(--sunken)}
    Strategy: critical content first, compact KPI/action band, progressive secondary visibility, safe-area footer handling, and height+width responsive rules. */
 .cc-workspace{--cc-gap:10px;--cc-kpi-min:92px;display:flex;flex-direction:column;gap:var(--cc-gap);min-height:0;container-type:inline-size}
 .cc-workspace .pagehead{margin-bottom:2px}.cc-workspace .subtitle{font-size:var(--dgo-type-floor);line-height:1.35}.cc-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.32fr);gap:var(--cc-gap);align-items:stretch;min-width:0}.cc-kpi-band{min-width:0}.cc-kpi-band .kpis{gap:var(--cc-gap);margin-bottom:0}.cc-kpi-band .kpi{min-height:var(--cc-kpi-min);padding:12px 14px;display:flex;flex-direction:column;justify-content:center}.cc-kpi-band .kpi b{font-size:clamp(22px,3.1vw,40px)}.cc-source-strip{min-height:var(--cc-kpi-min);display:flex;flex-direction:column;justify-content:center}.cc-source-list{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-source-list span{display:flex;align-items:center;gap:6px;min-height:28px;border:1px solid var(--bd);font:700 var(--dgo-type-floor) var(--sans);color:var(--p);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc-source-list span:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--a);flex:0 0 auto}.cc-actions-panel{min-height:0;padding:12px}.action-card.cc-action{color:var(--fg);text-decoration:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-height:112px;padding:14px 16px;overflow:hidden;border-left:4px solid transparent}.action-card.cc-action:hover,.action-card.cc-action:focus-visible{border-color:var(--a);transform:translateY(-1px);box-shadow:var(--shadow)}.action-card.cc-primary-action{border-left-color:var(--a)}.action-card.cc-action h2{font-size:clamp(15px,1.9vw,22px);margin:7px 0 6px}.action-card.cc-action p{font-size:clamp(10.5px,1.1vw,13px);line-height:1.35;margin:0;color:var(--fg);text-decoration:none}.action-card.cc-action .kpi-inline{font:800 clamp(18px,2.5vw,28px) var(--display);color:var(--p);text-decoration:none;align-self:end}.cc-support-panels{gap:var(--cc-gap);grid-template-columns:minmax(260px,.9fr) minmax(0,1.1fr)}.cc-progressive{min-height:auto;padding:12px 14px}.cc-progressive summary{cursor:pointer;list-style:none}.cc-progressive summary::-webkit-details-marker{display:none}.cc-progressive summary:after{content:"▾";float:right;color:var(--mut);font-size:12px}.cc-progressive:not([open]) summary:after{content:"▸"}.journey-list{margin:6px 0 0;padding-left:22px}.journey-list li{margin:2px 0;line-height:1.33}
-@media(max-width:1500px){.cc-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-hero-grid{grid-template-columns:1fr}.cc-source-strip{display:none}.cc-kpi-band .kpis{grid-template-columns:repeat(5,minmax(95px,1fr))}}
+@media(max-width:1500px){.cc-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-hero-grid{grid-template-columns:1fr}.cc-source-strip{min-height:0}.cc-source-list{grid-template-columns:repeat(4,minmax(0,1fr))}.cc-kpi-band .kpis{grid-template-columns:repeat(5,minmax(95px,1fr))}}
 @media(max-width:1100px){.cc-kpi-band .kpis{grid-template-columns:repeat(3,minmax(95px,1fr))}.cc-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.action-card.cc-action{min-height:100px}.cc-support-panels{grid-template-columns:1fr}}
-@media(max-width:720px){.cc-kpi-band .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-action-grid{grid-template-columns:1fr}.action-card.cc-action{min-height:86px}.cc-workspace .subtitle{font-size:var(--dgo-type-floor)}.cc-support-panels details:not(:first-child){display:none}}
+@media(max-width:720px){.cc-kpi-band .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-action-grid{grid-template-columns:1fr}.action-card.cc-action{min-height:86px}.cc-workspace .subtitle{font-size:var(--dgo-type-floor)}.cc-source-list{grid-template-columns:1fr}}
 @media(max-height:900px) and (min-width:1000px){:root{--footer:38px}.footer{padding:5px 14px}.footer img{width:24px;height:24px}.footer small{font-size:var(--dgo-type-floor)}.cc-workspace{--cc-gap:8px;--cc-kpi-min:74px}.cc-workspace .pagehead{margin-bottom:0}.cc-kpi-band .kpi{min-height:74px;padding:8px 12px}.cc-kpi-band .kpi small{font-size:var(--dgo-type-floor)}.cc-kpi-band .kpi b{font-size:clamp(20px,2.4vw,32px)}.cc-action-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.action-card.cc-action{min-height:82px;padding:10px 12px}.action-card.cc-action h2{font-size:clamp(14px,1.45vw,19px);margin:3px 0}.action-card.cc-action p{font-size:var(--dgo-type-floor);line-height:1.25}.action-card.cc-action .kpi-inline{font-size:20px}.cc-support-panels{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-progressive{padding:9px 12px}.cc-progressive .journey-list{font-size:11px}.cc-progressive p,.cc-progressive .meta{font-size:var(--dgo-type-floor);line-height:1.35}}
-@media(max-height:760px) and (min-width:1000px){.cc-support-panels{display:none}.cc-source-strip{display:none}.cc-action-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.action-card.cc-action{min-height:76px}.cc-actions-panel{padding:9px}.cc-kpi-band .kpis{grid-template-columns:repeat(5,minmax(84px,1fr))}.top{height:50px}.logo{height:36px}.header-search{height:30px}.content{grid-template-rows:minmax(0,1fr) 0px}.footer{display:none}}
-@media(max-height:640px) and (min-width:1000px){.cc-actions-panel .panel-eyebrow{display:none}.action-card.cc-action:nth-child(n+5){display:none}.cc-action-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.action-card.cc-action p{display:none}.action-card.cc-action{min-height:60px}.cc-kpi-band .kpi{min-height:58px}.cc-kpi-band .kpi b{font-size:23px}.cc-workspace .pagehead .subtitle{display:none}}
-@container (max-width:760px){.cc-source-strip{display:none}.cc-kpi-band .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-action-grid{grid-template-columns:1fr}.cc-support-panels details:not(:first-child){display:none}}
+@media(max-height:760px) and (min-width:1000px){.cc-action-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.action-card.cc-action{min-height:76px}.cc-actions-panel{padding:9px}.cc-kpi-band .kpis{grid-template-columns:repeat(5,minmax(84px,1fr))}.top{height:50px}.logo{height:36px}.header-search{height:30px}}
+@media(max-height:640px) and (min-width:1000px){.cc-action-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.action-card.cc-action p{font-size:var(--dgo-type-floor);line-height:1.2}.action-card.cc-action{min-height:60px}.cc-kpi-band .kpi{min-height:58px}.cc-kpi-band .kpi b{font-size:23px}}
+@container (max-width:760px){.cc-source-list{grid-template-columns:1fr}.cc-kpi-band .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-action-grid{grid-template-columns:1fr}}
 
 /* Source view filters: makes each ingestion source visible across lifecycle workspaces. */
 .source-view-switcher{margin:10px 0 12px;padding:10px 12px;border:1px solid var(--bd);border-radius:18px;background:linear-gradient(180deg,#fff,var(--sunken));box-shadow:0 6px 18px rgba(0,0,0,.035)}
@@ -192,7 +192,7 @@ dgo-shell{height:100vh;background:var(--dgo-color-surface-sunken,#f6f8f6);}
 .dgo-sidebar__identity{padding:14px 16px;border-top:1px solid rgba(255,255,255,.11)}.dgo-sidebar__identity b{display:block;font-size:13px}.dgo-sidebar__identity small{display:block;color:rgba(255,255,255,.62);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dgo-workarea{flex-direction:column;min-width:0;min-height:0}.dgo-topbar{height:var(--dgo-shell-topbar-h);display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--dgo-color-surface-page,#fff);border-bottom:1px solid var(--dgo-color-border-default,#dfe7e2);position:relative;z-index:var(--dgo-z-sticky,100)}.dgo-route-title{display:flex;flex-direction:column}.dgo-route-title small{font-weight:800;text-transform:uppercase;color:var(--dgo-color-fg-brand)}.dgo-route-title b{font-family:var(--dgo-family-display,Outfit,system-ui);font-size:17px;color:var(--dgo-color-fg-strong,#111)}.dgo-search-trigger{display:flex;align-items:center;gap:9px;width:330px;max-width:36vw;border-radius:10px;border:1px solid transparent;background:var(--dgo-color-surface-sunken,#f4f7f4);color:var(--dgo-color-fg-muted,#626a64);padding:0 12px;cursor:pointer}.dgo-search-trigger:hover{border-color:var(--dgo-color-border-default,#dfe7e2)}.dgo-search-trigger span:nth-child(2){flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dgo-search-trigger kbd{font-size:11px;border:1px solid var(--dgo-color-border-default,#dfe7e2);background:var(--dgo-color-surface-page,#fff);border-radius:5px;padding:1px 5px}
 .dgo-iconbtn{border-radius:10px;display:grid;place-items:center;border:1px solid var(--dgo-color-border-default,#dfe7e2);background:var(--dgo-color-surface-page,#fff);color:var(--dgo-color-fg-default,#1b1a1a);cursor:pointer}.dgo-iconbtn:hover{background:var(--dgo-color-surface-sunken,#f4f7f4)}.dgo-hamburger{display:none}.dgo-persona-button{display:flex;gap:8px;align-items:center;border:1px solid var(--dgo-color-border-default,#dfe7e2);background:transparent;border-radius:999px;padding:3px 10px 3px 3px;cursor:pointer;color:inherit}.dgo-avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--dgo-green-700,#05583B);color:#fff;font-weight:800}.dgo-persona-button b,.dgo-persona-button small{display:block;text-align:left}.dgo-persona-button small{font-size:11px;color:var(--dgo-color-fg-muted,#626a64)}
-.dgo-main{flex:1;min-height:0;overflow:hidden!important;padding:26px}.dgo-main>.route-stage,.workspace{max-width:1280px;margin:0 auto}.dgo-footer{height:40px;align-items:center;justify-content:space-between;gap:12px;padding:0 20px;border-top:1px solid var(--dgo-color-border-default,#dfe7e2);background:var(--dgo-color-surface-page,#fff);color:var(--dgo-color-fg-muted,#626a64);font-size:12px}.dgo-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:90}.dgo-live-region{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.dgo-main{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;padding:26px}.dgo-main>.route-stage,.workspace{max-width:1280px;margin:0 auto}.dgo-footer{height:40px;align-items:center;justify-content:space-between;gap:12px;padding:0 20px;border-top:1px solid var(--dgo-color-border-default,#dfe7e2);background:var(--dgo-color-surface-page,#fff);color:var(--dgo-color-fg-muted,#626a64);font-size:12px}.dgo-scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:90}.dgo-live-region{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .dgo-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;font-weight:700;border:1px solid var(--dgo-color-border-default,#dfe7e2);cursor:pointer}.dgo-btn--secondary,.dgo-btn--ghost{background:var(--dgo-color-surface-page,#fff);color:var(--dgo-color-action-primary,#05583B)}.dgo-btn--danger{background:var(--dgo-danger-600,#b42318);border-color:var(--dgo-danger-600,#b42318);color:#fff}.dgo-card,.panel{border:1px solid var(--dgo-card-border)}.dgo-card__eyebrow,.panel-eyebrow,.eyebrow,.dgo-overline{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--dgo-color-fg-brand)}.dgo-card__title{font-family:var(--dgo-family-display,Outfit,system-ui);margin:.45rem 0}.dgo-card__body{color:var(--dgo-color-fg-default,#1b1a1a)}.dgo-status,.dgo-source,.dgo-priority,.dgo-chip,.pill,.chip{gap:5px;border-radius:999px;padding:4px 9px;font-size:11.5px;font-weight:800;line-height:1.1;color:var(--dgo-color-fg-muted,#626a64);border:1px solid var(--dgo-color-border-default,#dfe7e2)}.dgo-status--success,.success{background:var(--dgo-color-success-subtle-bg);color:var(--dgo-color-success-subtle-fg)}.dgo-status--danger,.danger{background:var(--dgo-color-danger-subtle-bg);color:var(--dgo-color-danger-subtle-fg)}.dgo-status--warn,.warn,.dgo-status--pending{background:var(--dgo-color-warning-subtle-bg);color:var(--dgo-color-warning-subtle-fg)}.dgo-status--routed,.dgo-status--action{background:var(--dgo-color-info-subtle-bg);color:var(--dgo-color-info-subtle-fg)}.dgo-status--archived,.dgo-status--draft{background:var(--dgo-ink-50,#f4f4f4);color:var(--dgo-ink-700,#373435)}.dgo-source--physical{background:#edf7ff;color:#175cd3}.dgo-source--email{background:#eefbe9;color:#087b3c}.dgo-source--portal{background:#f4f1ff;color:#5925dc}.dgo-source--dgceo{background:#fff7e6;color:#b54708}
 .dgo-kpi-card,.kpi,.dgo-metric{border:1px solid var(--dgo-card-border);padding:16px}.dgo-kpi-card__top,.dgo-metric__label{display:flex;justify-content:space-between;gap:8px;font-weight:700}.dgo-kpi-card strong,.kpi b,.dgo-metric__value{display:block;margin-top:10px;font-size:30px}.kpis,.stat-row,.cc-kpi-band{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.quick-grid,.cc-action-grid,.dgo-action-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.action-card,.cc-action{display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding:16px 18px;text-decoration:none;color:inherit;min-height:122px}.action-card:hover{transform:translateY(-1px);box-shadow:var(--dgo-shadow-3,0 8px 22px rgba(5,88,59,.12))}.cc-source-list{display:grid;gap:8px}.cc-source-list span{padding:9px 10px;border-radius:10px;background:var(--dgo-color-surface-sunken,#f4f7f4)}
 .dgo-table-scroll,.tablewrap{overflow:auto;border:1px solid var(--dgo-card-border);background:var(--dgo-card-bg)}.dgo-table{width:100%;background:var(--dgo-card-bg)}.dgo-table th,.dgo-table td{padding:var(--dgo-density-pad-y) 14px;border-bottom:1px solid var(--dgo-card-border);text-align:left;vertical-align:top}.dgo-table th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--dgo-color-fg-muted,#626a64);background:var(--dgo-color-surface-sunken,#f4f7f4)}.dgo-record-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border-bottom:1px solid var(--dgo-card-border);text-decoration:none;color:inherit}.dgo-record-row__ref{font-family:var(--dgo-family-display,Outfit,system-ui);font-weight:800;color:var(--dgo-green-700,#05583B);background:var(--dgo-green-50,#edf8f1);border-radius:8px;padding:4px 9px}.dgo-record-row__main{flex:1;min-width:0}.dgo-record-row__main strong,.dgo-record-row__main small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dgo-record-row__main small{color:var(--dgo-color-fg-muted,#626a64);margin-top:3px}.dgo-record-row__badges{display:flex;gap:6px;flex-wrap:wrap}.dgo-field{display:block}.dgo-field__label{display:block;font-weight:800;color:var(--dgo-color-fg-muted,#626a64);margin-bottom:6px}.dgo-input,.dgo-select,.dgo-textarea,input,select,textarea{font:14px var(--dgo-family-sans,Inter,system-ui);}.dgo-input,.dgo-select,input,select{padding:0 12px}.dgo-textarea,textarea{padding:10px 12px}.dgo-input:focus,.dgo-select:focus,.dgo-textarea:focus,input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{box-shadow:var(--dgo-focus-ring)}
@@ -329,11 +329,30 @@ dgo-shell{
   max-block-size:var(--dgo-shell-topbar-h);
   flex:0 0 var(--dgo-shell-topbar-h);
 }
+/* THE scroller. The shell has always asked for one — shared/shell.js renders
+   `class="dgo-main dgo-scroll"` — and two call sites already assume this element is it:
+   core/ui.js `resetWorkspaceScroll()` sets `main.scrollTop=0`, and core/router.js sets
+   `out.scrollTop=0` after mounting a route. Neither could ever have had an effect while
+   this rule said `overflow:hidden !important`; content taller than the viewport was
+   clipped with no scrollbar and no indication anything had been cut.
+
+   The containment above this line is unchanged and still does its job: html/body/#app/
+   dgo-shell, .dgo-shell-grid and .dgo-workarea stay contained, so the footer remains
+   pinned and visible and the page itself never scrolls. Only this one element inside that
+   frame scrolls, which is what "footer-visible, no page scroll" was always meant to buy. */
 .dgo-main{
   min-inline-size:0;
   min-block-size:0;
   max-block-size:100%;
-  overflow:hidden !important;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+/* The class the markup requests. Kept as its own rule rather than folded into .dgo-main so
+   any other region can opt into the same behaviour by adding it. */
+.dgo-scroll{
+  overflow-y:auto;
+  min-block-size:0;
   overscroll-behavior:contain;
 }
 .dgo-footer{
@@ -345,14 +364,17 @@ dgo-shell{
   overflow:hidden;
   visibility:visible !important;
 }
+/* Route stage and workspace: `min-block-size:100%` so a short route still fills the frame
+   and its footer-adjacent panels sit where they always did, but no `max-block-size` and no
+   `overflow:hidden` — a workspace taller than the frame now grows and .dgo-main scrolls it.
+   These three declarations were what turned "the pane is bounded" into "the content is
+   gone": a workspace pinned to exactly 100% with hidden overflow has nowhere to put its
+   overflow and no way to reveal it. */
 .dgo-main>.route-stage,
 .dgo-main>.route-stage>.workspace,
 .dgo-main>.workspace{
   min-inline-size:0;
-  min-block-size:0;
-  block-size:100%;
-  max-block-size:100%;
-  overflow:hidden !important;
+  min-block-size:100%;
 }
 .dgo-main>.route-stage{display:flex;flex-direction:column;}
 .dgo-main>.route-stage>.workspace,
@@ -367,13 +389,17 @@ dgo-shell{
 .dgo-main>.workspace>.dashboard-grid,
 .dgo-main>.route-stage>.workspace>.panel-stack,
 .dgo-main>.workspace>.panel-stack{flex:1 1 auto;min-block-size:0;}
+/* Multi-pane layouts stay bounded — that is the point of the pane model, and their
+   children below opt into their own scrollbars. But bounded must mean "scrolls within its
+   bound", never "clips at its bound": `auto` shows a scrollbar exactly when there is
+   something to reach and is otherwise indistinguishable from `hidden`. */
 .split,
 .dgo-master-detail,
 .dg-layout,
 .dashboard-grid{
   min-inline-size:0;
   min-block-size:0;
-  overflow:hidden !important;
+  overflow:auto;
 }
 /* Equal-height panes only where the layout is a true 2-pane master-detail
    (has a data-md list/detail toggle) or an explicit dashboard/detail grid.
@@ -610,9 +636,8 @@ dgo-shell[data-route="response-tracking"] .rt-workspace{
   display:grid;
   grid-template-rows:auto auto minmax(0,1fr);
   gap:12px;
-  block-size:100%;
-  max-block-size:100%;
-  overflow:hidden !important;
+  min-block-size:100%;
+  overflow:auto;
 }
 dgo-shell[data-route="response-tracking"] .kpis{
   margin-block-end:0;
@@ -647,7 +672,7 @@ dgo-shell[data-route="response-tracking"] .rt-toolbar input{
 dgo-shell[data-route="response-tracking"] .rt-split{
   min-block-size:0;
   block-size:100%;
-  overflow:hidden !important;
+  overflow:auto;
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(280px,.72fr);
   gap:12px;
@@ -686,9 +711,8 @@ dgo-shell[data-route="response-tracking"] .dgo-table td:nth-child(2){
 /* Correspondence route: reduce padding to reclaim vertical space for the split panes. */
 dgo-shell[data-route="correspondence"] .dgo-main{padding:10px 14px;}
 dgo-shell[data-route="correspondence"] .correspondence-workspace{
-  block-size:100%;
-  max-block-size:100%;
-  overflow:hidden !important;
+  min-block-size:100%;
+  overflow:auto;
   display:flex;
   flex-direction:column;
   gap:8px;
@@ -727,7 +751,7 @@ dgo-shell[data-route="correspondence"] .cc-controls{
 dgo-shell[data-route="correspondence"] .correspondence-split{
   flex:1 1 auto;
   min-block-size:0;
-  overflow:hidden !important;
+  overflow:auto;
 }
 dgo-shell[data-route="correspondence"] .detail-col,
 dgo-shell[data-route="correspondence"] .list-col{
@@ -876,3 +900,113 @@ tr.row-link:focus-visible>td{background:var(--sunken)}
 .feed-group{padding:6px 0}
 .feed-group + .feed-group{border-top:1px solid var(--bd);margin-top:8px}
 .feed-group .eyebrow{color:var(--mut);font-weight:700;margin-bottom:4px}
+
+/* ── Route pending indicator (finding 06) ────────────────────────────────────────────
+   Set by core/router.js only once a mount has taken longer than PENDING_AFTER_MS, so a
+   route that resolves from state never flashes a bar. Anchored to .dgo-workarea rather
+   than to .dgo-main because .dgo-main is now the scroller — a bar inside it would scroll
+   away from the top of the viewport as soon as the user moved. */
+.dgo-workarea{position:relative;}
+dgo-shell[data-route-pending] .dgo-workarea::after{
+  content:"";
+  position:absolute;
+  inset-block-start:var(--dgo-shell-topbar-h);
+  inset-inline:0;
+  block-size:3px;
+  z-index:var(--dgo-z-sticky,100);
+  background:linear-gradient(90deg,
+    transparent 0%,
+    var(--dgo-color-action-primary,#05583B) 40%,
+    var(--dgo-color-action-accent,#17B255) 60%,
+    transparent 100%);
+  background-size:40% 100%;
+  background-repeat:no-repeat;
+  animation:dgoRoutePending 1s linear infinite;
+}
+@keyframes dgoRoutePending{from{background-position:-40% 0}to{background-position:140% 0}}
+@media (prefers-reduced-motion:reduce){
+  dgo-shell[data-route-pending] .dgo-workarea::after{
+    animation:none;
+    background:var(--dgo-color-action-accent,#17B255);
+    opacity:.85;
+  }
+}
+
+/* ── Notification centre (finding 03) ────────────────────────────────────────────────
+   The durable half of the feedback channel. The toast host above is unchanged and still
+   carries the at-a-glance signal; this is where every message is kept afterwards. */
+.dgo-notify-trigger{position:relative;}
+.dgo-notify-badge{
+  position:absolute;
+  inset-block-start:2px;
+  inset-inline-end:2px;
+  min-inline-size:16px;
+  block-size:16px;
+  padding:0 4px;
+  border-radius:999px;
+  background:var(--dgo-color-danger-strong-bg,#b3261e);
+  color:var(--dgo-color-danger-strong-fg,#fff);
+  font:800 10px/16px var(--dgo-family-sans,Inter,system-ui);
+  text-align:center;
+}
+.dgo-notify-panel{
+  position:fixed;
+  inset-block-start:calc(var(--dgo-shell-ministry-h) + var(--dgo-shell-topbar-h) + 6px);
+  inset-inline-end:14px;
+  z-index:1200;
+  inline-size:min(400px,calc(100vw - 28px));
+  max-block-size:min(60vh,560px);
+  display:flex;
+}
+.dgo-notify-panel[hidden]{display:none;}
+.dgo-notify-panel>section{
+  display:flex;
+  flex-direction:column;
+  min-block-size:0;
+  inline-size:100%;
+  background:var(--dgo-card-bg,#fff);
+  border:1px solid var(--dgo-card-border,#dfe7e2);
+  border-radius:16px;
+  box-shadow:var(--dgo-shadow-5,0 18px 50px rgba(0,0,0,.18));
+  overflow:hidden;
+}
+.dgo-notify-panel header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--dgo-card-border,#dfe7e2);
+  flex:0 0 auto;
+}
+.dgo-notify-panel header h2{margin:0;font-family:var(--dgo-family-display,Outfit,system-ui);font-size:15px;}
+.dgo-notify-panel header div{display:flex;align-items:center;gap:8px;}
+.dgo-notify-panel ol{
+  margin:0;
+  padding:6px;
+  list-style:none;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  min-block-size:0;
+}
+.dgo-notify-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  padding:10px 12px;
+  border-radius:10px;
+  border-inline-start:3px solid var(--dgo-color-border-default,#dfe7e2);
+}
+.dgo-notify-item + .dgo-notify-item{margin-block-start:4px;}
+.dgo-notify-item p{margin:0;font-size:13px;line-height:1.45;overflow-wrap:anywhere;}
+.dgo-notify-item small{display:block;margin-block-start:4px;font-size:11px;color:var(--dgo-color-fg-muted,#626a64);}
+.dgo-notify-item--success{border-inline-start-color:var(--dgo-color-action-accent,#17B255);}
+.dgo-notify-item--warn{border-inline-start-color:var(--dgo-color-warning-strong-bg,#a87500);}
+.dgo-notify-item--error{border-inline-start-color:var(--dgo-color-danger-strong-bg,#b3261e);}
+.dgo-notify-item.is-unread{background:var(--dgo-color-surface-sunken,#f4f7f4);}
+.dgo-notify-item.is-unread p{font-weight:700;}
+.dgo-notify-empty{padding:22px 14px;color:var(--dgo-color-fg-muted,#626a64);font-size:13px;line-height:1.5;}
+@media (max-width:480px){
+  .dgo-notify-panel{inset-inline:10px;inline-size:auto;}
+}

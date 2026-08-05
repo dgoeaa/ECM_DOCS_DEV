@@ -4,6 +4,11 @@
 **Report's stated target:** `dgoeaa/ECM_DOCS_DEV@main`.
 **Assessed against:** `claude/platform-commissioning-live-5vnn9n` @ `8613358`.
 
+> **Implementation status.** Wave 1 — findings 01, 02, 03 and the surviving half of 06 — is
+> implemented on this branch and covered by `tests/containment.spec.js`, which fails on the
+> pre-fix source and passes after. Waves 2 and 3 are not started. See *Assessment of the
+> plan* below for the corrected effort, and the Wave 1 subsection for what shipped.
+
 ---
 
 ## Headline
@@ -328,7 +333,16 @@ deferred or simply dropped in transcription is not stated, and should be.
 
 ### Then, the four adjustments
 
-**Wave 1 · 7.0 d → 7.5 d.** Finding 01 at 0.5 d is the one materially optimistic
+**Wave 1 · 7.0 d → 7.5 d — now implemented.** What shipped: `.dgo-main` is the single
+scroller (`.dgo-scroll` is defined, and the `overflow:hidden !important` that made the
+markup's request unanswerable is gone from every content container, while the frame —
+`html`/`body`/`#app`/`dgo-shell`, `.dgo-shell-grid`, `.dgo-workarea`, `.dgo-topbar` —
+stays contained so the footer is still pinned); every `display:none` viewport rule on the
+Command Center is replaced with reflow; `core/notification-center.js` gives every toast a
+durable, dismissable, severity-tagged record that survives route changes and reload; and
+`core/router.js` publishes route mounts through the existing `LoadingState` with a
+140 ms-delayed progress bar and a retry on the failure view. Finding 01 at 0.5 d is the one
+materially optimistic
 estimate. Writing `.dgo-scroll` is thirty minutes. Deciding *which* of the nested
 `overflow:hidden !important` levels — `dgo-shell` / `.dgo-shell-grid` / `.dgo-workarea` /
 `.dgo-main` / `.workspace` — becomes the scroller, without breaking the footer-visible
