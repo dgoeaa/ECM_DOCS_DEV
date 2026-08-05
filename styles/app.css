@@ -866,3 +866,13 @@ tr.row-link:focus-visible>td{background:var(--sunken)}
 @media (max-height:640px){
   .dgo-sidebar{inset-block-start:0;}
 }
+
+/* Dual-spine triage (D2) and intake feed inventory (D4).
+   The AI panel is deliberately quieter than the form beside it: a left rule and a recessed
+   surface mark it as something to read, not the thing that acts. Making it look like a peer
+   of the human form is how a design that says "advisory" reads as "authoritative". */
+.ai-spine{border-left:3px solid var(--bd);padding-left:12px}
+.ai-spine .action-row:last-of-type{border-bottom:0}
+.feed-group{padding:6px 0}
+.feed-group + .feed-group{border-top:1px solid var(--bd);margin-top:8px}
+.feed-group .eyebrow{color:var(--mut);font-weight:700;margin-bottom:4px}

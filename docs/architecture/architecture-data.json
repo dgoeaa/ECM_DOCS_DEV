@@ -266,8 +266,8 @@
       "core->config": 40,
       "shared->core": 13,
       "shared->config": 8,
-      "modules->core": 240,
-      "modules->config": 27,
+      "modules->core": 242,
+      "modules->config": 28,
       "modules->shared": 1
     },
     "dynamicEdges": {
