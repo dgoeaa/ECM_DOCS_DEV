@@ -174,6 +174,35 @@ the documented portal flow answers `{ trackingId, referenceId, … }` while the 
 expects `{ referenceId, uploads: [ticket, …] }`. That is exactly the class of defect this
 step exists to surface while it is still cheap to fix.
 
+### 1b · Provision identity and roles
+
+```bash
+npm run seed:roles                                    # regenerate from config/rbac.config.js
+./scripts/setup-sharepoint.ps1 -SiteUrl "…" -WhatIf   # report
+./scripts/setup-sharepoint.ps1 -SiteUrl "…"           # 10 lists · 97 fields · 10 seed rows
+```
+
+The provisioner now creates seed items as well as lists and fields. It previously created
+neither the six `DGO_RoleCatalogue` rows nor the bootstrap directory entry, so the role
+catalogue provisioned empty every time.
+
+`DGO_RoleCatalogue` is seeded from `docs/reference/role-catalogue-seed.json`, generated
+from `config/rbac.config.js` rather than from the workbook. The workbook predates decision
+D6(b) and scan-intake, and grants three roles fewer routes than the platform actually does
+— executive 9 against 12, director 11 against 15, operator 13 against 16. `npm run test:roles`
+runs in CI and fails if the two drift again.
+
+Then extend `FETCH_ALL` to return a `users` collection from `DGO_UserDirectory`. That one
+change makes role assignment real for reading: the packaged bootstrap administrator stops
+applying and every caller's role comes from the register.
+
+> **Until it does, every browser is a System Administrator.** `core/state.js` seeds a
+> `systemAdmin` profile with `accessScope: ['all']` so a fresh clone can boot and render all
+> 25 routes. That is correct for development and unacceptable anywhere else.
+
+Full request and response contracts, including the OTP identity pair and what each governed
+flow must verify: **[`docs/reference/flow-contracts/IDENTITY.md`](docs/reference/flow-contracts/IDENTITY.md)**.
+
 ### 2 · Rotate every exposed signature
 
 **59 signed Power Automate trigger URLs are committed to this repository**, across 39

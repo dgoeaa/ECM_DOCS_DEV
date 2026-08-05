@@ -48,6 +48,18 @@ jobs:
       - name: Check authentication postures
         run: node tests/auth-posture.test.mjs
 
+      # Identity and role assignment against DGO_UserDirectory. Negative controls: the
+      # directory role must survive normalisation, a disabled user must not arrive active,
+      # and an EMPTY directory response must not promote the caller to systemAdmin.
+      - name: Check identity and role assignment
+        run: node tests/identity-directory.test.mjs
+
+      # The DGO_RoleCatalogue seed is generated from config/rbac.config.js. This fails if
+      # the two have drifted — which they had: the provisioning workbook predates D6(b) and
+      # scan-intake, and granted three roles fewer routes than the platform actually does.
+      - name: Check role catalogue seed is current
+        run: node scripts/role-catalogue-seed.mjs --check
+
       # The commissioning path: `npm run setup` and the `npm run commission` readiness
       # gate. Includes the check that every npm script named by README.md and
       # devcontainer.json actually exists — three of them did not, so every Codespace
