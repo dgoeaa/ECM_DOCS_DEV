@@ -10,7 +10,7 @@
   },
   "scripts": {
     "start": "http-server . -p 8080 --cors -c-1 --silent",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:register && npm run test:normalizer && npm run test:flags && npm run test:entrypoints && npm run test:triage && npm run test:visual && npm run test:architecture && npm run test:auth && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:portability && npm run test:register && npm run test:normalizer && npm run test:flags && npm run test:entrypoints && npm run test:triage && npm run test:visual && npm run test:architecture && npm run test:auth && npm run test:smoke",
     "test:auth": "node tests/auth-posture.test.mjs",
     "test:encoding": "node tests/output-encoding.test.mjs",
     "test:governance": "node tests/governance.test.mjs",
@@ -20,6 +20,7 @@
     "test:secrets": "node tests/check-secrets.mjs",
     "test:exposure": "node tests/secret-exposure.test.mjs",
     "test:filenames": "node tests/filename-policy.test.mjs",
+    "test:portability": "node tests/package-portability.test.mjs",
     "test:smoke": "playwright test",
     "test:references": "node tests/reference-minter.test.mjs",
     "test:categories": "node tests/categories.test.mjs",
