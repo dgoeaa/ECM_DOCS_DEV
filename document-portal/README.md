@@ -110,6 +110,49 @@ submission **and says so on the record**. Presenting device data as the registry
 the failure this replaced; an unreachable registry is also never reported as "not found",
 because it is not evidence the submission was never received.
 
+**Proposed — verified read-back. Not implemented; the client does not send this yet.** Today
+`STATUS` authorises on `{ referenceId, email }`, so possession of the two fields *is* the
+authorisation. Both are printed inside the record the call returns, and the email is the least
+secret field a submitter has: it appears on their letterhead, in the CC line of every thread about
+the matter, and in any correspondence the agency itself sends onward. The portal already proves
+ownership of an address properly for `SUBMISSION` — `VERIFY` mails a code, `VERIFY_CONFIRM`
+returns a proof, and the intake flow answers `403 {"error":"verification_required"}` when the
+proof is absent. The read path asks for no such proof. So the portal is stricter about accepting a
+document from a citizen than about handing that citizen's file to a stranger, which is backwards.
+
+The change is to reuse the mechanism that already exists rather than invent a second one:
+
+| Endpoint | Method | Request | Response | What the flow must enforce |
+| --- | --- | --- | --- | --- |
+| `STATUS` | POST | `{ referenceId, verification }` | `{ record }` | Resolve the address from the proof, not from the request body. Reject an expired, unknown or replayed proof with the same byte-identical `404` as a wrong reference. Return the allow-listed projection only when the reference was submitted under the proof's address |
+
+Three properties this must keep, each of which is easy to lose in implementation:
+
+1. **The email leaves the request body.** If the flow accepts both `email` and `verification`
+   it will be called with `email` alone by something, and the old path survives. Resolve the
+   address from the proof and reject a body that carries an `email` field at all.
+2. **One denial, still.** Unknown reference, wrong address, expired proof and replayed proof
+   must be indistinguishable — the same `404`, the same bytes. Adding a distinct
+   `proof_expired` is the natural thing to do for usability and it reintroduces the oracle:
+   "this reference exists, your proof is just stale." Expiry is reported by the *proof* flow
+   on the next `VERIFY_CONFIRM`, never by `STATUS`.
+3. **Unavailable is still not denied.** A verification service that cannot be reached must
+   surface as `unavailable`, so the page keeps saying "status is unavailable right now" rather
+   than "no request matches" — an outage is not evidence a submission was never received. This
+   is the distinction `PF.intake.status()` already draws and it must not narrow to two states.
+
+Client-side, `PF.intake.status(referenceId, email)` becomes `status(referenceId, verification)`,
+and the tracking form's second field changes from "the email you submitted with" to a code
+challenge: enter the reference, receive a code at the address on file, then read the record. That
+is one extra step for a citizen checking their own case, and it is the step that makes the answer
+theirs alone. `keepUrl()` must stop writing the address into `location.search` at the same time —
+a verified session that leaves the identifier in the URL bar, the browser history and the
+`Referer` header has moved the disclosure rather than closed it.
+
+Sequencing: this lands with, or before, the wiring of `STATUS` to the live registry. While the
+store is `localStorage` the current contract discloses nothing between citizens, which is exactly
+the window in which the shape can be changed cheaply.
+
 Respond / add-a-note / withdraw still write only to `localStorage`, so they are offered on a
 device-sourced record only. A registry-sourced record routes the submitter to the helpdesk,
 which *is* delivered. Citizen write-back to the registry is a later step — a button that

@@ -1,7 +1,6 @@
 /* Home — live registry panel, catalogue, stats and the first-visit welcome. */
 PF.page = function () {
   var m = PF.metrics();
-  var all = PF.store.all();
 
   /* ---- clock ---- */
   var clock = PF.$('#liveClock');
@@ -21,15 +20,32 @@ PF.page = function () {
     tile(m.action, 'Action needed', 'var(--dgo-color-status-action-fg)') +
     tile(m.onTimeRate + '%', 'On time', 'var(--dgo-color-action-accent)');
 
-  /* ---- recent activity feed ---- */
-  var feed = all.slice().sort(function (a, b) { return new Date(b.updatedAt) - new Date(a.updatedAt); }).slice(0, 4);
-  PF.$('#liveFeed').innerHTML = feed.map(function (r) {
-    var last = r.events[r.events.length - 1];
-    return '<li><a class="pf-rec" href="track.html?id=' + encodeURIComponent(r.id) + '" style="text-decoration:none">' +
-      '<span class="pf-rec__top"><span class="pf-rec__id">' + PF.esc(r.id) + '</span>' + PF.pill(r.status) + '</span>' +
-      '<span class="pf-rec__meta"><span>' + PF.esc(r.category) + '</span><span>·</span><span>' + PF.esc(last.label) + '</span><span>·</span><span>' + PF.rel(r.updatedAt) + '</span></span>' +
-      '</a></li>';
-  }).join('');
+  /* ---- where the register currently stands ----
+     This panel used to list PF.store.all() — every record, newest first, each row carrying a
+     tracking ID and deep-linking to track.html?id=. That is an unauthenticated page publishing
+     the register: the ID identifies a submission, and the record behind it holds the submitter's
+     name, email, organisation, assigned officer, file names and the reviewer's notes. The
+     visitor's own submissions have always had their own panel below (#myRequests, from
+     PF.store.mine()), so the public list was never how anyone found their own request.
+
+     Nothing crossed between citizens while the store was localStorage. Wiring STATUS to the live
+     registry is what would have made it real, so the shape had to change before that, not after.
+
+     What replaces it is a status mix: counts only, no identifier, no timestamp, nothing that
+     resolves to a person or a submission. It is what a registry can honestly say in public. */
+  /* PF.STATUS is declared in lifecycle order, so its keys are the order to read the mix in. */
+  var mix = Object.keys(PF.STATUS).map(function (key) {
+    return { key: key, label: PF.status(key).label, n: m.byStatus[key] || 0 };
+  }).filter(function (x) { return x.n > 0; });
+
+  PF.$('#liveFeed').innerHTML = mix.length
+    ? mix.map(function (x) {
+        return '<li><span class="pf-rec" style="cursor:default;display:flex;align-items:center;gap:10px">' +
+          PF.pill(x.key) +
+          '<span class="pf-rec__id" style="margin-left:auto">' + x.n + '</span></span></li>';
+      }).join('')
+    : '<li><span class="pf-rec" style="cursor:default;color:var(--dgo-color-fg-muted);font-size:12px">' +
+      'No submissions in the register yet.</span></li>';
 
   /* ---- your requests on this device ---- */
   var mine = PF.store.mine();
