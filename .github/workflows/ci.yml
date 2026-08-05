@@ -48,6 +48,14 @@ jobs:
       - name: Check authentication postures
         run: node tests/auth-posture.test.mjs
 
+      # The commissioning path: `npm run setup` and the `npm run commission` readiness
+      # gate. Includes the check that every npm script named by README.md and
+      # devcontainer.json actually exists — three of them did not, so every Codespace
+      # failed its postCreateCommand and every reader following the README hit
+      # `Missing script`. Nothing caught it because nothing tested what an operator types.
+      - name: Check commissioning path
+        run: node tests/commissioning.test.mjs
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest

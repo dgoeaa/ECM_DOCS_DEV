@@ -29,7 +29,13 @@ const LAYERS = ['config', 'core', 'shared', 'modules'];
 const read = p => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const exists = p => fs.existsSync(path.join(ROOT, p));
 const lines = p => read(p).split('\n').length;
-const listJs = d => fs.readdirSync(path.join(ROOT, d)).filter(f => f.endsWith('.js')).sort();
+/* `*.local.js` is the naming convention for deploy-time configuration: git-ignored,
+   written by `npm run setup`, and holding the signed flow URLs. It is not part of the
+   source inventory and must never enter a committed dataset — otherwise this generator
+   describes whatever happens to be on the operator's disk, and `npm test` fails for
+   everyone who follows the documented setup step. */
+const isSource = f => f.endsWith('.js') && !f.endsWith('.local.js');
+const listJs = d => fs.readdirSync(path.join(ROOT, d)).filter(isSource).sort();
 
 /* ── live configuration, imported rather than parsed ───────────────────────────
    These are ES modules with no side effects, so importing them gives the real values
