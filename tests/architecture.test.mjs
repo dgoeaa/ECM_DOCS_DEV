@@ -97,6 +97,28 @@ for (const [label, expected, re] of claims) {
   });
 }
 
+t('the zone count in the strip is the number of zones actually drawn', () => {
+  /* Zones are not a config value, so this cannot be checked against the code the way the
+     counts above are. What CAN be checked is that the page agrees with itself.
+
+     It did not. Removing the proxy correctly removed the enforcement zone from the diagram
+     — three zones are drawn — but the strip went on claiming four, and nothing noticed
+     because every other count on that strip is config-derived and this one had no owner.
+     A summary figure that outlives the thing it summarises is how a diagram starts lying. */
+  /* Scoped to the trust-zone sheet by its own aria-label. `t-zone` styles labels on more
+     than one diagram, so an unscoped count reads the lifecycle sheet's swimlanes too and
+     fails for the wrong reason. */
+  const sheet = html.split(/<svg\b/).find(s => /aria-label="[^"]*trust zones/i.test(s));
+  assert.ok(sheet, 'no diagram declares itself the trust-zone sheet');
+  const drawn = [...sheet.matchAll(/class="t-zone"[^>]*>([^<]+)</g)]
+    .map(m => m[1].trim()).filter(Boolean);
+  assert.ok(drawn.length, 'no zone labels found in the trust-zone diagram');
+  const m = text.match(/(\d+)\s+zones/);
+  assert.ok(m, 'the page never states a zone count');
+  assert.equal(Number(m[1]), drawn.length,
+    `the strip says ${m[1]} zones; the diagram draws ${drawn.length} (${drawn.join(', ')})`);
+});
+
 t('the module and file counts in sheet 5 are real', () => {
   // `.json` counts as well as `.js`: config/ declares product-definition.config.json alongside
   // its modules, and the sheet counts declaration files, not only the executable ones.
