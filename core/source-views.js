@@ -1,10 +1,37 @@
 import { SourceViews, SourceViewAll, sourceView } from '../config/source-views.config.js';
+import { entryPoint } from '../config/entry-points.config.js';
+import { declaredEntryPoint } from './entry-point-feeds.js';
 const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const hay = item => {
   try { return JSON.stringify(item ?? {}).toLowerCase(); } catch { return String(item ?? '').toLowerCase(); }
 };
+/**
+ * Which source view an item belongs to.
+ *
+ * ORDER MATTERS, AND IT USED NOT TO. This function previously concatenated the explicit
+ * channel fields onto `JSON.stringify(item)` and regex-swept the lot, so a record that
+ * DECLARED its channel could still be misfiled by its own prose — `channel:'Document'` with
+ * the title "Ministerial directive" was filed as DGCEO outgoing, because 'directive' matched
+ * an earlier pattern than 'document'. Three of six records carrying an explicit channel were
+ * misfiled that way.
+ *
+ * Now there are three tiers, and a lower one is only consulted when the one above is silent:
+ *
+ *   1. The D4 stamp written at ingestion by core/entry-point-feeds.js. Provenance, not a
+ *      guess — the feed that admitted the record knew where it came from.
+ *   2. Any other DECLARED channel field, matched exactly against the entry point's
+ *      channelValues. Still a statement by the producer, not an inference.
+ *   3. Only then, the text sweep — kept because records loaded from older captures carry no
+ *      stamp and no channel, and a best guess beats nothing for those. It no longer gets to
+ *      overrule a record that said what it was.
+ */
 export function inferSourceId(item={}){
-  const explicit = String(item.sourceView || item.sourceId || item.sourceType || item.ingestionSource || item.channel || item.correspondenceType || item.source?.sourceView || item.source?.sourceId || item.source?.channel || '').toLowerCase();
+  const declared = declaredEntryPoint(item);
+  if (declared) {
+    const ep = entryPoint(declared.id);
+    if (ep) return ep.sourceView;
+  }
+  const explicit = String(item.source?.sourceView || item.source?.sourceId || item.source?.channel || '').toLowerCase();
   const text = `${explicit} ${hay(item)}`;
   if (/customer.?service|email|mailbox|message|internetmessageid|conversationid|fromaddress|email-to-task/.test(text)) return 'customer-service-emails';
   if (/portal|public.?submission|webform|submitter|public-correspondence/.test(text)) return 'public-portal-correspondence';

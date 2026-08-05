@@ -211,10 +211,18 @@ t('the extractor counts bare and dynamic imports, not only `from`', () => {
 });
 
 t('the edge counts drawn on sheet 2 are the measured ones', () => {
+  /* Scoped to the edge-label group, and compared as a SET.
+     This assertion used to be `text.includes(String(n))` — a substring match against the
+     whole page. It passed while the layer graph drew 37 for core->config and the extractor
+     measured 40, because "40" happened to appear somewhere else in the prose. A check that
+     passes on a wrong number is precisely what this file's header says it must not be. */
   const d = JSON.parse(read('docs/architecture/architecture-data.json'));
+  const group = (html.match(/<g class="t-edge"[^>]*>([\s\S]*?)<\/g>/) || [])[1] || '';
+  const drawn = [...group.matchAll(/<text[^>]*>(\d+)<\/text>/g)].map(m => Number(m[1]));
+  assert.ok(drawn.length, 'no edge labels found in the layer-graph diagram');
   for (const [edge, n] of Object.entries(d.layers.edges)) {
-    assert.ok(text.includes(String(n)),
-      `sheet 2 does not show the count ${n} for ${edge}`);
+    assert.ok(drawn.includes(n),
+      `sheet 2 draws [${drawn.join(', ')}]; ${edge} measures ${n}`);
   }
 });
 
