@@ -68,6 +68,29 @@ async function seedFeeds(page, feeds) {
   await page.evaluate(() => { location.hash = '#/operator-hud'; });
 }
 
+
+/**
+ * Ask for an AI classification, and decline the flow-execution gate if one appears.
+ *
+ * The two platform variants differ here and the test has to work on both. With no endpoint
+ * configured the call fails before any gate is raised. With one configured — the proxy
+ * variant — AI_DOC_ANALYSIS is a governed contract, so core/flow-confirmation.js asks before
+ * anything leaves the browser, and an unanswered dialog leaves the panel on "Analysing…"
+ * forever.
+ *
+ * Declining is the realistic path anyway: an officer who says no to sending the document for
+ * analysis is in exactly the state D2 is about — no AI proposal, and triage carrying on
+ * regardless.
+ */
+async function requestAi(page) {
+  await page.click('[data-ai-triage]');
+  const no = page.locator('[data-dialog="confirm"] [data-no]');
+  try {
+    await no.first().waitFor({ state: 'visible', timeout: 3_000 });
+    await no.first().click();
+  } catch { /* no gate on this variant — the call failed before one was needed */ }
+}
+
 test.describe('dual-spine triage (D2)', () => {
   test('the human form and the AI panel are both present, and the AI one is advisory', async ({ page }) => {
     await openTriage(page);
@@ -87,7 +110,7 @@ test.describe('dual-spine triage (D2)', () => {
 
   test('THE PROPERTY: an unreachable AI says so and leaves the form usable', async ({ page }) => {
     await openTriage(page);
-    await page.click('[data-ai-triage]');
+    await requestAi(page);
 
     await expect(page.locator('.ai-spine')).toContainText(/Unavailable/i, { timeout: 15_000 });
     await expect(page.locator('.ai-spine')).toContainText(/Triage continues without it/i);
@@ -101,14 +124,14 @@ test.describe('dual-spine triage (D2)', () => {
   test('a failed AI call does not alter the record', async ({ page }) => {
     await openTriage(page);
     const before = JSON.stringify(await stateOf(page, 'correspondence'));
-    await page.click('[data-ai-triage]');
+    await requestAi(page);
     await expect(page.locator('.ai-spine')).toContainText(/Unavailable/i, { timeout: 15_000 });
     expect(JSON.stringify(await stateOf(page, 'correspondence'))).toBe(before);
   });
 
   test('the AI panel cannot disable or replace the human submit control', async ({ page }) => {
     await openTriage(page);
-    await page.click('[data-ai-triage]');
+    await requestAi(page);
     await expect(page.locator('.ai-spine')).toContainText(/Unavailable/i, { timeout: 15_000 });
 
     // No submit control lives inside the AI panel — it must not be able to commit anything.
@@ -118,7 +141,7 @@ test.describe('dual-spine triage (D2)', () => {
 
   test('the form still saves after the AI failed — end to end', async ({ page }) => {
     await openTriage(page);
-    await page.click('[data-ai-triage]');
+    await requestAi(page);
     await expect(page.locator('.ai-spine')).toContainText(/Unavailable/i, { timeout: 15_000 });
 
     await page.selectOption('[data-triage] [name="priority"]', 'high');
@@ -161,8 +184,19 @@ test.describe('intake feed inventory (D4)', () => {
   });
 
   test('with no inventory yet it says so rather than rendering an empty panel', async ({ page }) => {
+    /* Explicitly cleared rather than assumed absent. On a variant with a dev server
+       configured the boot load succeeds and the inventory is genuinely populated — which is
+       a fine thing for the panel to do and a poor thing for this test to trip over. */
     await boot(page);
-    await page.evaluate(() => { location.hash = '#/operator-hud'; });
+    await expect.poll(() => page.evaluate(async () => {
+      const { State } = await import('./core/state.js');
+      return !!State.get().runtime?.lastLoad;
+    }), { timeout: 15_000 }).toBe(true);
+    await page.evaluate(async () => {
+      const { State } = await import('./core/state.js');
+      State.patch({ runtime: { ...State.get().runtime, feeds: {} } }, { module: 'test', action: 'seed' });
+      location.hash = '#/operator-hud';
+    });
     await page.waitForSelector('[data-outlet] .route-stage .workspace');
     await expect(page.locator('.workspace')).toContainText(/No feed inventory yet/i);
   });

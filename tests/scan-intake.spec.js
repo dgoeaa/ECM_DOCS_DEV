@@ -104,12 +104,15 @@ test.describe('registry scan intake', () => {
     await openWorkspace(page);
     const text = await page.textContent('.workspace');
     expect(text).toMatch(/Deposit unavailable/);
-    // Assert the substance, not the sentence. The panel must name what is missing and what
-    // setting it would enable — an earlier version of this test pinned one phrase of the
-    // copy, so rewording the panel broke it while the behaviour was never in question.
+    /* Assert the substance, not the sentence — and variant-agnostically. One platform
+       variant is unavailable because no proxy is configured, this one because no scan
+       endpoint is; what both must do is name WHAT is missing and WHICH setting fixes it.
+       An earlier version pinned one phrase of the copy and broke when it was reworded,
+       while the behaviour was never in question. */
     expect(text, 'the reason must be stated, not merely the symptom')
-      .toMatch(/No scan endpoint is configured/);
-    expect(text, 'and it must name the setting that fixes it').toMatch(/SCAN_INTAKE/);
+      .toMatch(/No (?:proxy|scan endpoint) is configured/);
+    expect(text, 'and it must name the setting that fixes it')
+      .toMatch(/proxyBaseUrl|SCAN_INTAKE/);
     await expect(page.locator('[data-files]')).toBeDisabled();
   });
 

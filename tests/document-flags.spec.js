@@ -40,6 +40,18 @@ async function confirmYes(page) {
   await yes.click();
   await expect.poll(async () => page.locator('[data-dialog="confirm"] [data-yes]').count())
     .toBeLessThanOrEqual(1);
+
+  /* A second gate follows on any variant that has an endpoint configured: the flag is a
+     governed write, so core/flow-confirmation.js asks before anything leaves the browser.
+     Leaving it unanswered blocks the write's completion — and with it the re-render that
+     the state assertions below are waiting on. Declining is correct: the flag is written
+     locally first and the backend call is optional, which is exactly what the module's
+     queue-on-failure path is for. */
+  const gate = page.locator('[data-dialog="confirm"] [data-no]');
+  try {
+    await gate.first().waitFor({ state: 'visible', timeout: 2_000 });
+    await gate.first().click();
+  } catch { /* no endpoint on this variant, so no gate */ }
 }
 
 const DOC = {
