@@ -328,7 +328,7 @@ The lesson is worth keeping: **a boundaries file is a permission list, not a man
 Any future parity claim has to be checked against the tree before it is believed, including
 one produced by this script.
 
-## The two that survived checking
+## The three that survived checking
 
 ### 1. Document flagging is a dead end — a promise with no implementation
 
@@ -350,16 +350,43 @@ workspace, and left there with no control to finish the act. A missing button is
 button that promises, redirects, and abandons is a defect — the officer believes the
 document is flagged.
 
-### 2. Flow-graph authoring — a genuine scope decision
+### 2. A record-to-record relationship graph — a product question
 
-The Orchestrator SPA edits the routing graph itself: `openEdgeEditor`, `addOrUpdateEdge`,
-`importEdges`, `importWorkspace`, `saveFlow`, `sendFlow`. `modules/orchestrator.js` binds
-only runtime verbs (`data-mark-done`, `data-set-reminder`, `data-export`, comments), and
-`module-boundaries.config.js` declares block/resume/complete-action.
+The Orchestrator SPA lets a user draw an edge between two **records**:
 
-This one is not a defect — it is undecided. **Does routing-graph authoring belong in the
-platform, or does it stay in Power Automate?** Nothing should be built until that is
-answered, because building it in the wrong place creates two authorities over one graph.
+```
+{ source:{type:'doc', id:'18106'}, target:{type:'task', id:''},
+  relType:'custom', attributes:{confidence:3} }
+```
+
+with an adjacency map, a timeline view, and localStorage persistence. The platform has a
+narrower form of this already — `dependencies` on an operation is a list of refs, editable
+in the Activities work-state editor — but it is untyped, one-directional and carries no
+confidence. So the question is not architectural, it is a product one: **is typed record
+linking wanted, or is the dependency list enough?**
+
+### 3. An endpoint console — deliberately not carried across
+
+`dg_ceo_office_platform` registers flow endpoints in the browser (`saveFlow` stores name,
+category, url, authMode, token, headerName) and fires hand-typed JSON payloads at them
+(`sendFlow`). This is recorded as a gap so the record is complete, and it should stay one.
+An endpoint-and-token registry living in the client is the precise thing the organising rule
+forbids, and an arbitrary-payload sender bypasses action ownership, audit and idempotency —
+every guarantee `WriteManager.backend()` exists to provide.
+
+### A correction
+
+These three bindings —`openEdgeEditor`, `addOrUpdateEdge`, `importEdges` — and those three —
+`importWorkspace`, `saveFlow`, `sendFlow` — were first reported together as a single gap
+called **"flow-graph authoring"**, with the question *"does routing-graph editing belong in
+the platform, or stay in Power Automate?"* attached to it.
+
+That was wrong, and it was wrong in a specific way worth naming: it was read off function
+names rather than off the code. Neither feature authors a routing graph, they are in two
+different SPAs, and they have nothing to do with each other. The lesson is the same one the
+false-positive table above teaches from the other direction — **a name is a hypothesis, the
+source is the evidence** — and it applies to this harvest's own output, which is exactly
+where it is easiest to forget.
 
 ## The reverse direction is not evidence
 

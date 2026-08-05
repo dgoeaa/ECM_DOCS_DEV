@@ -232,13 +232,28 @@ GAPS = {
         'flag implementation. The string `flags` appears in one module in the whole '
         'platform. An officer marking a document for DG attention is confirmed, redirected, '
         'and abandoned believing it was flagged.'),
-    'flow-graph authoring': (GAP,
-        ['open edge editor', 'add or update edge', 'import edges', 'import workspace',
-         'save flow', 'send flow'],
-        'UNDECIDED, NOT DEFECTIVE. The Orchestrator SPA edits the routing graph itself. '
-        'modules/orchestrator.js binds only runtime verbs. Does graph authoring belong in '
-        'the platform or stay in Power Automate? Building before that is answered creates '
-        'two authorities over one graph.'),
+    # I originally reported these six bindings as one gap called "flow-graph authoring"
+    # and asked whether routing-graph editing belonged in the platform. That was a
+    # misreading of function names. Reading the source showed two unrelated features in two
+    # different SPAs, and neither one authors a routing graph. Recorded here because the
+    # wrong version of this went into a status report.
+    'record-to-record relationship graph': (GAP,
+        ['open edge editor', 'add or update edge', 'import edges'],
+        'Orchestrator SPA only. A user-created edge between two RECORDS — '
+        "{source:{type:'doc',id:'18106'}, target:{type:'task'}, relType, attributes:{confidence}} "
+        '— with an adjacency map, a timeline view and localStorage persistence. The platform '
+        'has a narrower form already: `dependencies` on an operation is a list of refs, but it '
+        'is untyped, one-directional and carries no confidence. A genuine product question: '
+        'is typed record linking wanted, or is the dependency list enough?'),
+    'endpoint console': (GAP,
+        ['import workspace', 'save flow', 'send flow'],
+        'dg_ceo_office_platform SPA only, and NOT a candidate for porting. saveFlow stores '
+        '{name, category, url, authMode, token, headerName} in browser state; sendFlow picks '
+        'one and POSTs a hand-typed JSON payload at it. That is an endpoint-and-token registry '
+        'living in the client, which is the precise thing the organising rule forbids, and an '
+        'arbitrary-payload sender bypasses action ownership, audit and idempotency — every '
+        'guarantee WriteManager.backend() exists to provide. Recorded as deliberately not '
+        'carried across.'),
 }
 
 
