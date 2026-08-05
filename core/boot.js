@@ -13,6 +13,16 @@ async function boot(){
   try{
     PlatformProvisioner.ensure();
     window.__DGO_PROVISIONING__ = PlatformProvisioner.validate();
+    // Identity. Inert posture registers nothing and behaves exactly as before. Enforced
+    // posture installs the OTP provider, because with no identity provider configured it
+    // is the only way to acquire a proof — and without one core/auth.js would throw
+    // "no token provider is registered" on the first governed action. Imported lazily so
+    // the inert path does not pay for a module it never uses.
+    const { isAuthEnforced } = await import('../config/auth.config.js');
+    if (isAuthEnforced()) {
+      const { installOtpProvider } = await import('./otp-identity.js');
+      installOtpProvider();
+    }
     window.__DGO_DATA_OPS__ = { cache:CacheManager, loading:LoadingState, performance:PerformanceMonitor, pending:PendingQueue };
     for(const [id,load] of Object.entries(modules)) Router.register(id, async el => (await load()).mount(el));
     const s=State.get(); document.documentElement.dataset.theme=s.settings.theme; document.documentElement.dataset.density=s.settings.density; const wel=await import('./welcome-experience.js'); await wel.WelcomeExperience.run();

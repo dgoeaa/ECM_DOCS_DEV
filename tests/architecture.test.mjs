@@ -122,7 +122,11 @@ t('the zone count in the strip is the number of zones actually drawn', () => {
 t('the module and file counts in sheet 5 are real', () => {
   // `.json` counts as well as `.js`: config/ declares product-definition.config.json alongside
   // its modules, and the sheet counts declaration files, not only the executable ones.
-  const dirCount = d => readdirSync(path.join(ROOT, d)).filter(f => /\.(js|json)$/.test(f)).length;
+  // `*.local.js` is excluded: it is git-ignored deploy-time config written by
+  // `npm run setup`, so counting it would make this assertion depend on whether the
+  // operator has wired their endpoints. The generator applies the same exclusion.
+  const dirCount = d => readdirSync(path.join(ROOT, d))
+    .filter(f => /\.(js|json)$/.test(f) && !f.endsWith('.local.js')).length;
   for (const [dir, re] of [['config', /(\d+)\s+declaration files/], ['core', /(\d+)\s+files\s+—\s+state, auth/],
                            ['shared', /(\d+)\s+files\s+—\s+app shell/], ['modules', /(\d+)\s+workspaces, one per route/]]) {
     const m = text.match(re);

@@ -39,7 +39,14 @@ export function bootstrapAdmin(profile={}){
 }
 
 export function normalizeUserRecord(user={}, profile={}){
-  const role=user.role || profile.role || (profile.persona==='admin'?'systemAdmin':'viewer');
+  // The role NEVER falls back to the local profile's persona.
+  //
+  // This previously read `(profile.persona==='admin' ? 'systemAdmin' : 'viewer')`, and the
+  // packaged default profile in core/state.js carries `persona:'admin'`. So any directory
+  // row that arrived without a Role — which was every row, until normalizeUser learned to
+  // read the `Role` column — resolved to systemAdmin against a profile object the user
+  // controls. An absent role is an unknown role, and an unknown role is `viewer`.
+  const role=user.role || profile.role || 'viewer';
   const persona=user.persona || profile.persona || roleToPersona(role);
   return {
     id:user.id || normalizeEmail(user.email||profile.email) || crypto.randomUUID?.() || String(Date.now()),
@@ -77,7 +84,22 @@ export function getCurrentUser(state=State.get()){
   const profile=state.profile||{};
   const users=Array.isArray(state.users)?state.users:[];
   const email=normalizeEmail(profile.email);
+
+  // Has DGO_UserDirectory ever been served to this browser? core/data-loader.js records it
+  // the moment a backend response carries a users collection.
+  //
+  // This distinction is the whole safety property. Before it, `!users.length` meant
+  // "nobody has configured users yet, so hand this browser a bootstrap administrator" —
+  // and it could not tell that apart from "the directory answered, and you are not in it".
+  // A backend returning `users: []` therefore promoted every caller to systemAdmin with
+  // accessScope ['all']. The bootstrap is for a platform that has never had a directory,
+  // never for one whose directory does not list you.
+  const directoryServed = state.runtime?.directory?.served === true;
+
   if(!users.length){
+    if(directoryServed){
+      return normalizeUserRecord({id:'unregistered-current-user',email,fullName:profile.name||email,role:'viewer',persona:'general',status:'unregistered'}, profile);
+    }
     return {...bootstrapAdmin(profile), bootstrap:true, registered:true};
   }
   const found=users.find(u=>normalizeEmail(u.email)===email);

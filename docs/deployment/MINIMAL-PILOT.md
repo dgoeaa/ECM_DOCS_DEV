@@ -33,10 +33,19 @@ minimal pilot is still a public endpoint on the open internet; build the flows a
 
 ```bash
 cd /path/to/ECM_DOCS_DEV
-git checkout claude/quirky-babbage-1nomt5 && git pull
+git checkout main && git pull
 npm install
 npx wrangler login
 ```
+
+Then see where you stand before changing anything:
+
+```bash
+npm run commission
+```
+
+It lists every obligation between this repository and a live deployment, and exits
+non-zero until they are met. Re-run it after each step below.
 
 The free Cloudflare plan is enough. There is no Worker and no Durable Object any more, so you
 do not need the Workers Paid plan; `wrangler` is used only to create and deploy the Pages
@@ -220,15 +229,25 @@ window.PF_CONFIG = {
 };
 ```
 
-Both files are already git-ignored. Confirm nothing is staged before you deploy:
+Or let the setup script write both from the values file you have been filling in — it uses
+exactly the `DGO_ENDPOINT_*` / `PF_ENDPOINT_*` names recorded above:
 
 ```bash
-git status --short config/config.local.js document-portal/config.local.js
+npm run setup -- --values ~/dgo-values.txt --force
 ```
 
-It must print nothing. A signed flow URL committed to Git is a leaked credential that outlives
-deleting the file. Every URL in these two files is delivered to every visitor's browser, so
-treat them as public and rotate them on a schedule.
+Both files are already git-ignored. Confirm before you deploy:
+
+```bash
+npm run commission
+```
+
+It must exit 0. Beyond checking that nothing is staged, it fails if any endpoint you just
+wired carries a signature that is still published in this repository — meaning that trigger
+was never regenerated, and going live on it means going live on a credential anyone with
+repository access already holds. A signed flow URL committed to Git is a leaked credential
+that outlives deleting the file. Every URL in these two files is delivered to every
+visitor's browser, so treat them as public and rotate them on a schedule.
 
 ## 6 · Deploy the static site — 5 minutes
 
