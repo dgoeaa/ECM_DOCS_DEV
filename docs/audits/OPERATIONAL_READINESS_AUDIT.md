@@ -447,9 +447,37 @@ single source of truth.**
 | `archive/repo-hygiene-audit` | 49 | Hygiene audit | **Keep as archive.** Narrative recovered into `docs/audits/repository-hygiene/` |
 | `archive/proxy-harness` | 3 | Local proxy harness | **Keep as archive** or retire with `platform/with-proxy` |
 
-Branch deletion is left to the repository owner — it is not reversible from here and nothing
-depends on it. The five marked *Retire* carry no content `main` lacks; that was verified by
-content diff, not by commit topology.
+### Executing the retirement
+
+**This could not be done from here.** The session's git credentials are scoped to the
+designated working branch: pushing a tag and deleting a branch both return `HTTP 403`,
+verified rather than assumed. The retirement tags were created locally and are listed below
+with the commit each preserves, so the whole disposition is one paste for someone with
+write access.
+
+Tag first. The five branches carry no content `main` lacks — verified by content diff, not
+by commit topology — but `platform/with-proxy` holds 20 commits of a real implementation
+that was withdrawn by decision rather than abandoned, and deleting it without a tag is the
+one irreversible step in this table.
+
+```sh
+git tag retired/platform-no-proxy                          8c90967
+git tag retired/platform-with-proxy                        3469b2f
+git tag retired/claude-platform-commissioning-live-5vnn9n  7a84fde
+git tag retired/claude-platform-package-unzip-a0bfbe       b175775
+git tag retired/claude-platform-parity-check-xp2028        0fa6a88
+git push origin --tags
+
+git push origin --delete platform/no-proxy
+git push origin --delete platform/with-proxy
+git push origin --delete claude/platform-commissioning-live-5vnn9n
+git push origin --delete claude/platform-package-unzip-a0bfbe
+git push origin --delete claude/platform-parity-check-xp2028
+```
+
+The three `archive/*` branches are **kept**, not retired: they are the audit record's own
+provenance, and their narrative content was recovered into `docs/audits/` rather than
+duplicated.
 
 **Residual from the retired proxy variant:** `scripts/visual-docs-data.mjs` and
 `tests/visual-docs.test.mjs` still branch on `exists('proxy/src')` to render either topology,
@@ -517,7 +545,8 @@ authority that is not this repository's, not a deferral.
 | 4 | **Register the Entra application** | Tenant administration |
 | 5 | **Approve the Part H routing table** | A governance decision, not a technical one. `npm run commission` reports it as unsigned |
 | 6 | **Clear test records before real correspondence** | Acts on a live SharePoint list |
-| 7 | **Merge to `main`** | The session's branch policy assigns work to `claude/ecm-docs-dev-audit-ysyy2v`; landing it is a review decision |
+| 7 | **Delete the five retired branches, or push their tags** | The session's git credentials are scoped to the designated working branch. Both return `HTTP 403` — verified, not assumed. The tags exist locally and §4 gives the commands and the commit each preserves |
+| 8 | **Merge to `main`** | The pull request is open; landing it is a review decision |
 
 Two further bounds on scope, stated because an audit that does not bound itself cannot be
 relied on:
