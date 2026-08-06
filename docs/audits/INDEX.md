@@ -22,6 +22,14 @@ must do to go live, [`../deployment/COMMISSIONING.md`](../deployment/COMMISSIONI
 | [`FRONTEND_REVIEW_ASSESSMENT.md`](./FRONTEND_REVIEW_ASSESSMENT.md) | 2026-08-05 | `8613358` | Assessment of an external frontend design review, 18 findings | **Live.** Wave 1 shipped; `tests/containment.spec.js` covers it |
 | [`FRONTEND_REVIEW_PARITY_VERDICT.md`](./FRONTEND_REVIEW_PARITY_VERDICT.md) | 2026-08-05 | `8613358` | Whether an attached prototype was at parity | **Live.** Companion to the assessment above |
 
+## Also here
+
+[`repository-hygiene/`](./repository-hygiene/README.md) — the narrative half of a
+machine-assisted hygiene audit of commit `c2d78ba2ea23`, recovered from the
+`archive/repo-hygiene-audit` branch. Its ~63,000 lines of raw `.tsv`/`.log`/`.json`
+output were deliberately left behind; see that README. It sits outside the chain below
+because it audited repository structure rather than the platform.
+
 ## Supersession chain
 
 ```
