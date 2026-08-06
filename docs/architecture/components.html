@@ -272,7 +272,7 @@
     <g>
       <rect x="300" y="256" width="520" height="70" rx="10" fill="var(--card)" stroke="var(--line)" stroke-width="1.4"/>
       <text x="326" y="286" class="t-node" fill="var(--ink)">core/ — domain &amp; services</text>
-      <text x="326" y="308" class="t-sub" fill="var(--ink-2)">60 files · state, auth, router, governance, domain logic</text>
+      <text x="326" y="308" class="t-sub" fill="var(--ink-2)">66 files · state, auth, router, governance, domain logic</text>
     </g>
 
     <g>
@@ -619,7 +619,7 @@
     <tbody>
       <tr><td>Public</td><td><code>document-portal/</code></td><td>5 pages, service worker, offline outbox, design system</td><td><strong>Yes</strong> — <code>config.local.js</code> carries the six signed flow URLs it calls, and every visitor can read it</td></tr>
       <tr><td>Internal</td><td><code>config/</code></td><td>34 declaration files — routes, RBAC, boundaries, categories, endpoints, filename policy</td><td>No — <code>config.local.js</code> does, and is git-ignored</td></tr>
-      <tr><td>Internal</td><td><code>core/</code></td><td>64 files — state, auth, router, governance, domain services</td><td>No</td></tr>
+      <tr><td>Internal</td><td><code>core/</code></td><td>66 files — state, auth, OTP identity, router, governance, domain services</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>shared/</code></td><td>8 files — app shell, relationship runtime, components</td><td>No</td></tr>
       <tr><td>Internal</td><td><code>modules/</code></td><td>29 workspaces, one per route</td><td>No</td></tr>
       <tr><td>Record</td><td>Power Automate</td><td>25 dev/pilot workflows, to be decommissioned at cutover</td><td>19 contract keys, called directly by both browsers — <strong>the only place any control can be enforced</strong></td></tr>

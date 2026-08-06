@@ -197,7 +197,12 @@ t('the lifecycle includes states that are only ever transition TARGETS', () => {
 
 t('the file inventories are the files on disk', () => {
   for (const layer of ['config', 'core', 'shared', 'modules']) {
-    const onDisk = readdirSync(path.join(ROOT, layer)).filter(f => f.endsWith('.js')).sort();
+    /* `*.local.js` is git-ignored deploy-time configuration written by `npm run setup`.
+       It is not source, and including it here would fail this suite for every operator
+       who has wired their endpoints — which the commissioning path asks them to do
+       first. The generator applies the same exclusion. */
+    const onDisk = readdirSync(path.join(ROOT, layer))
+      .filter(f => f.endsWith('.js') && !f.endsWith('.local.js')).sort();
     assert.deepEqual(P.inventory[layer].map(f => f.name + '.js').sort(), onDisk,
       `${layer}/ inventory is stale — run: npm run visual`);
     assert.equal(P.layers.files[layer], onDisk.length);

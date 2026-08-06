@@ -10,17 +10,21 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 **This repository must not be made public in its current state.**
 
-1. **4 live Power Automate SAS signatures remain in 2 tracked files** — `document-portal/js/data.js` (3) and `newack/config.js` (1) — both client-delivered. A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow.
+1. **59 signed Power Automate trigger URLs are committed here**, across 39 tracked files — almost entirely the reference corpus under `docs/reference/foundational/`, which documents the deployed flow estate verbatim by explicit decision (D5). A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow, so anyone who can read this repository holds all 59.
 
-   **22 distinct signatures were public before the structural cleanup.** Removing the files did not revoke them. **All 22 must be rotated**, not only the 4 still present.
+   > *Corrected 5 August 2026.* This item previously read "4 live signatures in 2 tracked files — `document-portal/js/data.js` and `newack/config.js`". Both statements are now wrong: `data.js` carries no signature and `newack/` no longer exists. The application tree is clean, which is what `npm run test:secrets` guards; the exposure moved to the reference corpus, which that ratchet deliberately does not scan. The count went **up**, not down, because the corpus was committed after the earlier figure was written.
 
-   **Rotate every one of them in Power Automate.** Deleting the files revokes nothing, and neither does rewriting history. Rotation must come first. `npm run test:secrets` lists the affected files; `tests/secrets-baseline.txt` tracks them.
+   **Rotate every one of them in Power Automate.** Deleting a file revokes nothing, and neither does rewriting history. `npm run commission` blocks go-live if you wire an endpoint to a signature that is still published here — that is the check that catches an unrotated credential.
 
-2. **Authentication is provisioned but INERT.** The platform is in development; the auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
+2. **Authentication is provisioned but INERT.** The auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
    Activation is a configuration event, not a development one: set `auth.enabled: true`, supply tenant configuration, and implement the server obligations. See **[`AUTHENTICATION_CONTRACT.md`](AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
 
 Both items are open. See G-03 and G-04 of the capability assessment.
+
+**Going live?** Read **[`COMMISSIONING.md`](COMMISSIONING.md)** first, and run `npm run commission` — it reports exactly which obligations stand between this repository and a live deployment, and which of them only you can discharge.
+
+**Running it for development?** `npm run recover` wires 22 of the 24 endpoints from the documented flow estate in `docs/reference/foundational/`, so development runs against flows that already exist instead of throwaway ones built by hand each cycle. `npm run verify:endpoints` then proves that wiring against the live flows. The signatures it uses are the published ones above — the commissioning gate accepts them for development and refuses them for pilot and production.
 
 ---
 
@@ -32,7 +36,6 @@ Both items are open. See G-03 and G-04 of the capability assessment.
 |-----|------------|-------------|
 | **DGO R11.6 Runtime** | `index.html` | Obsidian Harmonized Design System runtime — platform shell with routing, client-side RBAC, state, module boundaries, accessibility and theming. 25 routes. |
 | **Document Portal** | `document-portal/index.html` | Public document submission and tracking portal (PWA — service worker, manifest, offline). |
-| **Acknowledgement flow** | `newack/index.html` | Acknowledgement / unified hub prototype. |
 
 All are zero-build: no bundler, no transpilation, no server-side rendering. They need a real HTTP server (not `file://`) because browsers block ES-module imports across origins.
 
@@ -64,22 +67,32 @@ Needs Node 20 or newer.
 npm install && npm run go
 ```
 
-`npm run go` wires the pilot endpoints and starts the server. Nothing else to configure.
+`npm run go` scaffolds the config files and starts the server. Nothing else to configure.
 
-Copy `config/config.example.js` to `config/config.local.js` and fill in your endpoints. The
-browser calls each Power Automate flow directly, so those URLs are the credential — the file
-is git-ignored, and every flow behind it must authenticate and authorise its own callers. See
-`docs/deployment/MINIMAL-PILOT.md`.
-It never overwrites an existing config unless you pass `--force`.
+With no endpoint URLs supplied the platform runs in **demo mode**: it boots, renders and
+transmits nothing. That is the intended state for a fresh clone — the platform is not
+inert because something is broken, but because nothing has been wired to a flow yet.
 
-Authentication stays **inert** for local testing: no sign-in, no token, identity from the
-local profile. Exactly as the pilot has always behaved.
+To wire real endpoints, follow `docs/deployment/MINIMAL-PILOT.md` to regenerate each
+trigger, then pass them in. The browser calls each Power Automate flow directly, so those
+URLs *are* the credential: both target files are git-ignored, and every flow behind them
+must authenticate and authorise its own callers.
 
 ```bash
-npm run setup            # wire config only
-npm run setup -- --force # rewrite after rotating signatures
-npm start                # serve
+npm run setup                                    # scaffold config only
+npm run recover                                  # wire the documented estate (development)
+npm run setup -- --values ~/dgo-values.txt       # wire your own endpoints
+npm run setup -- --force                         # rewrite after rotating signatures
+npm run verify:endpoints                         # call each flow and report what came back
+npm run commission                               # readiness gate for live usage
+npm start                                        # serve
 ```
+
+`npm run setup` never overwrites an existing config unless you pass `--force`.
+
+Authentication stays **inert** for local testing: no sign-in, no token, identity from the
+local profile. Exactly as the pilot has always behaved. Turning it on is a deploy-time
+decision — see [`COMMISSIONING.md`](COMMISSIONING.md).
 
 Then open:
 
@@ -165,15 +178,21 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 ├── styles/                             CSS @layer cascade
 │   └── dgo-design-system/              Self-hosted design tokens + fonts
 ├── document-portal/                    Public document portal (PWA)
-├── newack/                             Acknowledgement flow prototype
 ├── tests/
 │   ├── README.md                       Suite design and the secrets ratchet
 │   ├── auth-posture.test.mjs           Inert + enforced posture assertions
 │   ├── check-imports.mjs               Static module-graph check
 │   ├── check-secrets.mjs               SAS signature ratchet
+│   ├── commissioning.test.mjs          setup + readiness gate, and that the
+│   │                                   documented npm scripts actually exist
 │   ├── secrets-baseline.txt            Known-affected files (may only shrink)
 │   └── smoke.spec.js                   Playwright smoke suite
-├── scripts/check-links.mjs             Link / asset checker
+├── scripts/
+│   ├── setup.mjs                       Writes both config.local.js files
+│   ├── lib/endpoint-recovery.mjs       Resolves the documented estate onto contract keys
+│   ├── verify-endpoints.mjs            Calls each live flow and reports the response
+│   ├── commission-check.mjs            Live-usage readiness gate
+│   └── check-links.mjs                 Link / asset checker
 ├── .github/workflows/ci.yml            CI
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
 ├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations

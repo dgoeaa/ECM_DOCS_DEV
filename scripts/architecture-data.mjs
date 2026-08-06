@@ -34,7 +34,10 @@ function layerGraph() {
   const files = [];
   for (const dir of LAYERS) {
     for (const f of fs.readdirSync(path.join(ROOT, dir))) {
-      if (f.endsWith('.js')) files.push(`${dir}/${f}`);
+      /* `*.local.js` is git-ignored deploy-time configuration written by
+         `npm run setup`, not source. Counting it would make the layer graph depend on
+         whether the operator has wired their endpoints yet. */
+      if (f.endsWith('.js') && !f.endsWith('.local.js')) files.push(`${dir}/${f}`);
     }
   }
   const layerOf = f => f.split('/')[0];
@@ -99,6 +102,8 @@ const countFiles = (dir, ext) => {
   const walk = d => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
       if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
+      // Deploy-time config is git-ignored and operator-specific — see layerGraph().
+      if (e.name.endsWith('.local.js')) continue;
       const full = path.join(d, e.name);
       if (e.isDirectory()) walk(full);
       else if (!ext || e.name.endsWith(ext)) n++;
