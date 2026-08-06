@@ -192,6 +192,10 @@ An authenticating proxy was built — `proxy/`, a Cloudflare Worker holding ever
 
 The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
 
+**The URLs travel in the package, not alongside it.** `npm run package` builds each platform into a self-contained directory with its endpoint configuration written in, a manifest hashing every byte, and a provisioning record naming what is wired. It refuses to emit a pilot or enforced package with a required endpoint missing, a malformed URL, two keys resolving to one flow, or a signature this repository already publishes. `npm run package:verify` checks a delivered package against its manifest before it is deployed. See `docs/deployment/PACKAGING.md`.
+
+This is the part the direct model makes load-bearing. With no proxy to normalise a URL or turn a malformed one into a useful error, a subtly wrong value fails for the first time at an officer's desk, mid-action, as a network error naming nothing — so it is caught at build time instead. Rotation is the only revocation, and rebuilding changes the package's build id, which is what tells one deployment apart from the one it replaced and what invalidates the portal's service-worker cache.
+
 ### Regression guarantees
 
 `tests/auth-posture.test.mjs` — 25 assertions across both postures, in CI. The demonstrated **viewer → systemAdmin escalation is encoded as a test**: with auth enforced, rewriting `localStorage` leaves the effective role at `viewer`. An unmapped role claim is denied rather than defaulted.

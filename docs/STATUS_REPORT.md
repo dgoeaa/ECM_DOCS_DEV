@@ -1,5 +1,11 @@
 # DGO Digital Operations — Status Report
 
+> **Superseded on current state by
+> [`audits/OPERATIONAL_READINESS_AUDIT.md`](./audits/OPERATIONAL_READINESS_AUDIT.md)**
+> (6 August 2026), which audited both platforms and every branch end to end. Read that for
+> where things stand; this remains the narrative of how the repair phase went. Two figures
+> below were corrected by it and are marked inline.
+
 **As at** 6 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (**private**)
 **Interactive view:** [`visual/`](./visual/README.md) — architecture and status console, generated
 from the source tree and drift-tested by `npm run test:visual`. Where this document and the
@@ -51,11 +57,11 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 
 | | Then | Now |
 |---|---|---|
-| Runtime | **Could not boot** | Boots; 25/25 routes render clean |
+| Runtime | **Could not boot** | Boots; 29/29 routes render clean |
 | Dark / high-contrast themes | Content invisible | Correct in all three themes |
-| Test suite | **Did not exist** | 23 suites in one gate, CI on every push |
+| Test suite | **Did not exist** | 25 suites in one gate, CI on every push |
 | CI | **Did not exist** | Green on every run |
-| Tracked files / size | 400 · 51 MB | 643 · 26 MB |
+| Tracked files / size | 400 · 51 MB | 656 · 29 MB |
 | Broken references | 1 | **0** |
 | Authentication | Absent, undocumented | Provisioned on both apps; server enforcement is the flows' obligation, and unverified |
 | ECM Portal identity | Hardcoded, role switchable in-browser | Closed — F-001 … F-005 |
@@ -67,16 +73,25 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 
 ## 2. Verification
 
-Every claim below is reproducible from `main`.
+Reproducible from `main`, re-measured 6 August 2026 by the operational-readiness audit. The
+figures this block carried before that — 168 modules, 2 baselined files, 63 governance
+assertions, a 6-test smoke suite — were each true when written and none was regenerated
+since. That is the failure mode this block exists to avoid, so it is now stated with the
+command that produces each number rather than the number alone.
 
 ```
-npm test
-  imports      168 modules reachable · 0 broken edges        ✅
-  secrets      2 baselined files · no new signatures         ✅
-  governance   63/63 ownership, RBAC, idempotency, audit     ✅
-  auth         38/38 across both postures, both apps         ✅
-  smoke        6/6 boot, a11y, 25 routes, themes, portal     ✅
-CI          green on all runs
+npm test                                                    25 suites · 680 assertions
+  imports      135 modules reachable · 1 849 edges · 0 broken      ✅
+  secrets      0 in the application tree; 55 across 28 files
+               under docs/reference/foundational/ reported, not
+               scanned — see O-05                                  ⚠️
+  governance   72/72 ownership, RBAC, idempotency, audit,
+               provisioning parity                                 ✅
+  packaging    60/60 provisioning, validation, manifest integrity  ✅
+  auth         38/38 across both postures, both apps               ✅
+  smoke       100 browser assertions · boot, a11y, 29 routes,
+               themes, portal, containment, touch floor            ✅
+CI          green on all runs · 4 jobs
 ```
 
 ---
@@ -101,7 +116,7 @@ CI          green on all runs
 
 | ID | Finding | Done | Outstanding |
 |---|---|---|---|
-| **G-03** | 22 SAS signatures in tracked files | Reduced to 4 signatures in 2 files; ratchet blocks new ones | **Rotate all 22 in Power Automate.** Deleting files revoked nothing |
+| **G-03** | 22 SAS signatures in tracked files | Ratchet blocks new ones in the application tree | **Rotate them in Power Automate.** Deleting files revoked nothing. **Corrected 6 Aug:** "reduced to 4 signatures in 2 files" counted the application tree only, which is the ratchet's scope and not rotation's. The whole-repository figure is **55 distinct signatures across 28 files**, all under `docs/reference/foundational/`. See O-05 |
 | **G-04** | No authentication; privilege escalation demonstrated | Client half complete on both apps | **The whole server half.** The proxy that implemented it has been removed; each flow must now validate the token, derive the role and authorise the action itself |
 | **G-08** | Quality gate | Imports, secrets, governance, auth, smoke — 5 suites | **No rendered-appearance coverage**; the `overrides` cascade debt stays unmeasured |
 
@@ -124,7 +139,7 @@ The three ECM Activity Hub Portal findings open since the first audit are closed
 | Risk | Severity | Standing |
 |---|---|---|
 | No server-side enforcement **running** | **High** | No implementation exists. Every control stays advisory until each flow enforces its own callers. |
-| 22 pilot signatures unrotated | **Low** | Pilot-only endpoints, repository private. Rotate at convenience. |
+| 55 published signatures unrotated | **Medium** | Repository private, so the exposure is bounded by repository access — but every one is disclosed to everyone who has it, and rotation is the only revocation. `npm run package` refuses a pilot or enforced package wired to any of them. Rotate before minting production endpoints, not at convenience. |
 | Governance spine untested | — | **Closed.** 63 assertions, verified by negative control. |
 | ECM Portal identity client-controlled | — | **Closed.** F-001 … F-005. |
 | `overrides` cascade debt unmeasured | **Low** | Documented in `styles/index.css`. |
@@ -165,7 +180,7 @@ Ordered so each step de-risks the next.
 | 1 | ~~ECM Portal auth parity~~ — **done**, PR #3 | — |
 | 2 | ~~Governance spine coverage~~ — **done**, 63 assertions | — |
 | 3 | ~~Accessibility~~ — **verified clean**, no change required | — |
-| 4 | **Rotate 22 pilot signatures** | Power Automate |
+| 4 | **Rotate all 55 published signatures** | Power Automate |
 | 5 | **Register Entra ID application** — six app roles | Tenant administration |
 | 6 | **Make each flow enforce its own callers** — token validation, role derivation, per-action authorisation, rate limiting, reference minting, upload ticketing, filename policy | Power Automate |
 | 7 | **Activate** — set `auth.enabled`, supply tenant config, verify | Configuration |

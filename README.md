@@ -10,11 +10,13 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 **This repository must not be made public in its current state.**
 
-1. **59 signed Power Automate trigger URLs are committed here**, across 39 tracked files — almost entirely the reference corpus under `docs/reference/foundational/`, which documents the deployed flow estate verbatim by explicit decision (D5). A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow, so anyone who can read this repository holds all 59.
+1. **55 signed Power Automate trigger URLs are committed here**, across 28 tracked files — entirely the reference corpus under `docs/reference/foundational/`, which documents the deployed flow estate verbatim by explicit decision (D5). A SAS-signed URL is a bearer credential: possession alone authorizes invoking the flow, so anyone who can read this repository holds all 55.
 
-   > *Corrected 5 August 2026.* This item previously read "4 live signatures in 2 tracked files — `document-portal/js/data.js` and `newack/config.js`". Both statements are now wrong: `data.js` carries no signature and `newack/` no longer exists. The application tree is clean, which is what `npm run test:secrets` guards; the exposure moved to the reference corpus, which that ratchet deliberately does not scan. The count went **up**, not down, because the corpus was committed after the earlier figure was written.
+   > *Corrected 5 August 2026.* This item previously read "4 live signatures in 2 tracked files — `document-portal/js/data.js` and `newack/config.js`". Both statements are now wrong: `data.js` carries no signature and `newack/` no longer exists. The application tree is clean, which is what `npm run test:secrets` guards; the exposure moved to the reference corpus, which that ratchet deliberately does not scan.
+   >
+   > *Re-measured 6 August 2026.* **55 across 28 files**, down from 59 across 39 — the corpus trim removed files, not signatures, and the difference is duplicate copies of the same workflow. `npm run test:secrets` now prints this figure on every run instead of reporting "no signatures" over its narrowed scope, so the number no longer depends on which command you happen to run.
 
-   **Rotate every one of them in Power Automate.** Deleting a file revokes nothing, and neither does rewriting history. `npm run commission` blocks go-live if you wire an endpoint to a signature that is still published here — that is the check that catches an unrotated credential.
+   **Rotate every one of them in Power Automate.** Deleting a file revokes nothing, and neither does rewriting history. Two checks catch an unrotated credential: `npm run commission` blocks go-live, and `npm run package` refuses to build a pilot or enforced package wired to one.
 
 2. **Authentication is provisioned but INERT.** The auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
@@ -89,6 +91,20 @@ npm start                                        # serve
 ```
 
 `npm run setup` never overwrites an existing config unless you pass `--force`.
+
+**Handing the platform to someone else?** `npm run setup` wires a working tree; `npm run
+package` builds the artefact you give away:
+
+```bash
+npm run package                                       # both platforms, demo posture
+npm run package -- --values ~/dgo-values.txt --posture pilot
+npm run package:verify -- --verify dist/dgo-document-portal
+```
+
+Each package is self-contained — the platform's files, its endpoint URLs configured in, a
+manifest hashing every byte, and a record of what is wired. It refuses to build with a
+required endpoint missing, a malformed URL, two keys on one flow, or a signature this
+repository already publishes. See [`docs/deployment/PACKAGING.md`](docs/deployment/PACKAGING.md).
 
 Authentication stays **inert** for local testing: no sign-in, no token, identity from the
 local profile. Exactly as the pilot has always behaved. Turning it on is a deploy-time

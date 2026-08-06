@@ -1,0 +1,394 @@
+# Operational readiness audit — both platforms, every branch
+
+**Date** 6 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (private) · **Anchor** `main`
+**Scope** Every branch, folder, file, configuration, integration, workflow, dependency and
+platform surface. Both delivered platforms, assessed independently.
+**Question** Is this ready for live operationalization — real production usage against live
+endpoints under structured operational conditions?
+
+---
+
+## Verdict
+
+**Yes for the internal platform and the document portal as software. No for the estate they
+call, and that is where every remaining blocker lives.**
+
+The repository is in good order and its engineering is real. What this audit found was, with
+one exception, not broken code. It was **checks that were narrower than the claim they made**
+— three of them reporting success over a scope smaller than the one they named, and a fourth
+checking three properties of a URL where eleven decide whether it works. A green light
+computed across the subset a control happens to know about is the failure mode this
+codebase is otherwise unusually careful about, which is why it is worth naming as a pattern
+rather than as four unrelated bugs. Each is closed with an assertion that fails if it
+returns.
+
+The one structural gap was the architecture's own delivery step. The decision is that every
+endpoint is called directly, with its complete URL provisioned into the artefact that is
+handed over. The repository implemented the calling and not the provisioning: the URLs were
+written into git-ignored files, so the artefact people actually received — a clone, or
+GitHub's "Download ZIP" — was by construction the one thing that could not contain them.
+That is now a build step with a build gate.
+
+**What stands between here and live is not in this repository.** Fifty-five signed trigger
+URLs must be rotated, and each flow must be built to authenticate and authorise its own
+callers. No code change here can close either.
+
+| | Before this audit | After |
+|---|---|---|
+| Endpoints in the delivered artefact | **impossible by construction** | provisioned, hashed, verifiable |
+| Endpoint URL validation | 3 checks | 11 refusal codes, negative-controlled |
+| Flow routes exercisable live | 35 of 39 | **39 of 39** |
+| Activation manifest coverage | 24 of 29 routes | **29 of 29** |
+| Secret ratchet's reported scope | "no signatures" (55 outside scope) | scope stated, exposure reported every run |
+| Portal rotation reaching a returning visitor | required a human to remember | mechanical |
+| Node assertions | ~600 across 23 suites | **680 across 25 suites** |
+| Browser assertions | 96 | **100** |
+| Unmerged branch work | 1 commit | **0** |
+
+---
+
+## 1 · What was examined
+
+| Surface | Extent |
+|---|---|
+| Branches | 9 remote, all compared against `main` commit-by-commit and by content |
+| Tracked files | 656, 29 MB |
+| Internal platform | 29 routes, 135 reachable modules, 1 849 import edges, 18 endpoint keys, 39 flow routes |
+| Document portal | 5 pages, 6 endpoint keys, 1 service worker, 8 design-token files |
+| Configuration | 33 config modules |
+| Tooling | `setup`, `commission`, `verify:endpoints`, `dev`, `package` (new) |
+| CI | 1 workflow, 4 jobs |
+| Quality gate | 25 Node suites (680 assertions) + 100 browser assertions |
+
+Everything below was verified by running it, not by reading a claim about it. Where this
+document and a generated artefact disagree, the artefact is right.
+
+---
+
+## 2 · Findings
+
+Ordered by consequence. **All eleven are closed in this audit's commits.** The items that
+remain open are in §5, and none of them is closable here.
+
+### O-01 · The delivered package could not contain its endpoints — **closed**
+
+**Severity: high.** The architecture requires each platform to call its flows directly with
+the complete URLs configured into the delivered artefact. `npm run setup` wrote them to
+`config/config.local.js` and `document-portal/config.local.js`, both git-ignored. The
+handover artefact therefore could not carry them, by construction, and provisioning happened
+on the far side of the handover with nothing checking the result.
+
+**Closed by** `npm run package`. Two self-contained packages, endpoint configuration written
+in, `PACKAGE_MANIFEST.json` hashing every byte, `ENDPOINT_PROVISIONING.md` naming what is
+wired. `npm run package:verify` re-hashes a delivered package and catches an edited file, an
+added file, a removed file, and a manifest edited to hide any of them. 60 assertions in
+`tests/packaging.test.mjs`; CI builds and verifies both packages on every push.
+
+The internal platform package is 160 files / 1.0 MB; the portal is 42 files / 0.7 MB.
+Neither ships the test suite, the scripts, the docs or the reference corpus.
+
+### O-02 · Endpoint URL validation missed every failure that reaches production — **closed**
+
+**Severity: high.** `npm run commission` checked three things: empty, placeholder,
+non-HTTPS. Those are the failures made once. A trigger URL truncated at the first `&`, one
+that kept its signature but lost its `api-version`, one carrying a newline out of a
+spreadsheet cell, one pointing at the run-history path rather than the trigger path — every
+one is non-empty, HTTPS and free of template text, and every one passes.
+
+Called directly, a malformed URL has nothing in front of it to turn the failure into a
+useful error. It fails mid-action, at an officer's desk, as a network error naming nothing.
+
+**Closed by** `scripts/lib/endpoint-validation.mjs`: 11 refusal codes covering scheme, host
+reachability, fragment, whitespace, control characters, placeholder text, workflow id,
+trigger path, `api-version`, signature presence and signature length — plus a
+workflow-collision check, because two keys on one flow means the second silently inherits
+the first's flow. An unrecognised host is **reported, not refused**: a validator that blocks
+a legitimate migration gets deleted, and a deleted validator checks nothing. `commission`
+and `package` now apply the same rules and cannot reach opposite verdicts on one
+configuration.
+
+### O-03 · Four flow routes could not be verified live at all — **closed**
+
+**Severity: high for a phase whose purpose is live operation.** `verify-endpoints` walked
+the configured key list, so `DISPATCH_OUTBOUND` and `ARCHIVE_REFERENCE` — which ride the
+`DYNAMIC_ACTIONS` URL and are distinguished only by `action` — could never become targets
+however they were configured. `SCAN_INTAKE` and the portal's `UPLOAD` are raw-byte PUTs and
+had no probe shape. The run reported the endpoints it had probed and never mentioned the
+ones it structurally could not.
+
+`UPLOAD` is half the portal's minimal-pilot set. "Both pilot endpoints are wired" and "both
+pilot endpoints answer" were different claims, and only the first was ever checked.
+
+**Closed by** driving targets from the probe table rather than the key list, a `via` field
+for routes that share a URL, and a raw-bytes request shape. All 39 flow routes across both
+surfaces are now reachable by `npm run verify:endpoints`.
+
+### O-04 · The activation manifest was five routes behind the router — **closed**
+
+**Severity: medium.** `config/platform-provisioning.config.js` is what
+`core/platform-provisioner.js` validates at boot, what `modules/diagnostics.js` renders as
+provisioning health, and what `core/action-runtime.js` reads to decide whether a workspace
+may run an action. It carried 24 entries; the platform serves 29 routes. `briefs`,
+`meetings`, `projects` (D6(b)), `scan-intake` and `ecm-erp-charter` had none.
+
+`validate()` therefore enumerated 24 modules, computed `ok` across those 24, and returned
+`true`. **A module that was never provisioned could not make the report false.** All five
+workspaces render and work — the defect is that the surface an operator reads to decide
+readiness could not see what it was missing.
+
+**Closed by** entering all five with the actions each already performs. `ecm-erp-charter`
+renders a charter and changes nothing, so it declares `readOnly: true`; the validator
+distinguishes that from a workflow module that lost its actions, because the flag is on the
+record rather than inferred. Seven assertions hold both directions of the parity, both ways
+the read-only exemption could be abused, and every `ActionRuntime.run()` call site read from
+the module sources.
+
+### O-05 · The secret ratchet described a narrowed result as the whole result — **closed**
+
+**Severity: medium.** `tests/check-secrets.mjs` printed **"No SAS signatures in tracked
+files"** while 55 distinct signatures sat in 28 tracked files one directory outside its
+scope. The exclusion of `docs/reference/foundational/` is deliberate and correct — that
+corpus documents the deployed estate verbatim by explicit decision (D5), and scanning it
+would hold the ratchet permanently red. Describing the narrowed result as the whole result
+was not correct, and the command wired into CI as **"Secret scan"** was the one that said
+zero. Only `npm run commission` reported the real figure, so the number a reader saw
+depended on which command they happened to run.
+
+**Closed by** stating the scope in the pass message and printing the excluded exposure on
+every run. A control may narrow its scope; it may not describe the narrowed result as the
+whole result.
+
+**This also corrects the record.** `docs/STATUS_REPORT.md` recorded G-03 as "reduced to 4
+signatures in 2 files". That was the application tree. The whole-repository figure — the one
+that matters, because rotation is per signature — is **55 across 28 files**.
+
+### O-06 · Rotating a portal endpoint did not reach a returning visitor — **closed**
+
+**Severity: medium, and it defeats the only revocation mechanism there is.** The service
+worker was cache-first for every same-origin GET, including `config.local.js` — the file
+holding the trigger URLs. A returning visitor's browser served the cached copy and kept
+calling the URL that had just been revoked. The source could only ask a human to remember to
+bump `CACHE`.
+
+Under an architecture where a signed URL can be rotated but never retired, a cache that
+outlives the rotation is not a performance detail.
+
+**Closed by** naming the cache after the build id — a digest of the provisioned endpoint set,
+so rotating a signature necessarily invalidates it — and making the config network-first with
+a cache fallback. A URL is only ever used online, so a stale copy can never be the one that
+gets called; an offline visitor keeps the behaviour they had.
+
+### O-07 · The endpoint registry warned against the approved architecture — **closed**
+
+**Severity: medium, as a governance defect.** `core/endpoint-registry.js` reported packaged
+URLs as a `endpoint.packaged-signature` warning describing them as a "TEMPORARY posture" and
+directing operators to "move to the endpoint broker", citing
+`evidence/ENDPOINT_CONTRACT_AUDIT.json`. The broker was built, withdrawn and its branch
+retired; the evidence file does not exist. The warning had outlived its own subject and was
+flagging the approved architecture as a defect while pointing at a component that does not
+exist.
+
+**Closed by** reporting what an operator can act on — which contracts have no resolvable
+target, and which resolve to something other than the packaged value. The consequence of the
+direct model is stated where it belongs, in each package's provisioning record.
+
+### O-08 · Touch targets fell below the platform's own declared floor — **closed**
+
+**Severity: low.** Finding 20 of the folded frontend review, still live. `--dgo-control-target-min`
+is 44px. Three rules undercut it: `.dgo-sidebar__item` to 36px, `.dgo-iconbtn` to 34px,
+`.dgo-persona-button` to 40px — all inside narrow and landscape breakpoints, which is to say
+on touch devices, which is the one context where the floor is load-bearing rather than
+decorative. `.dgo-sidebar__item` was also absent from the target-size rule in
+`platform-authority.css`, so the floor for the 29 controls every user presses on every visit
+was owned by whatever `app.css` last said.
+
+**Closed by** deleting all three overrides, claiming `.dgo-sidebar__item` in the authority
+sheet, and measuring the rendered height at two touch viewports in
+`tests/containment.spec.js`. Verified as a negative control: reinstating the 36px rule fails
+it.
+
+### O-09 · Three definitions of the endpoint surface — **closed**
+
+**Severity: low, high blast radius.** The endpoint list existed in `setup.mjs` and
+`config.example.js`; the pilot subset again in `commission-check.mjs`; the URL rules in
+`commission-check.mjs`; the signature scanner in `commission-check.mjs` and again in
+`check-secrets.mjs`. Copies of a list that must agree are chances for it to disagree, and
+the consequence is not cosmetic: a wired working tree and a delivered package could
+provision different endpoint sets while both reported success.
+
+**Closed by** `scripts/lib/endpoint-surface.mjs`, `endpoint-validation.mjs` and
+`published-signatures.mjs`. `tests/packaging.test.mjs` asserts the surface against
+`config/endpoints.config.js` in both directions, so a key added to the runtime and forgotten
+fails the build rather than shipping as a silently unprovisioned endpoint.
+
+### O-10 · One commit of unmerged branch work — **closed**
+
+See §4. The folded frontend-review register was carried onto `main` and the superseded
+document removed.
+
+### O-11 · Stale figures in live prose — **closed**
+
+Six documents and two scripts stated 25 routes; there are 29. Historical audits keep their
+original figures — correcting a point-in-time record would falsify it — but prose that
+states a current fact was corrected.
+
+---
+
+## 3 · The two platforms, assessed independently
+
+### Platform 1 — the internal operations platform
+
+29 routes, 135 modules, 24 workspaces, 6 roles, 18 endpoint keys carrying 39 flow routes.
+
+| Dimension | State | Evidence |
+|---|---|---|
+| Boot | Clean, with a 15-second watchdog naming failing URLs | `tests/smoke.spec.js` |
+| Routes | 29/29 mount without error | smoke suite |
+| Themes | Light, dark and high-contrast all repaint | smoke suite |
+| Accessibility | Entry points exposed; touch floor now honoured at every breakpoint | smoke + `containment.spec.js` |
+| Governance spine | Action ownership, RBAC, idempotency, audit — 72 assertions, negative-controlled | `governance.test.mjs` |
+| Activation manifest | 29/29 routes, health report enumerates all | O-04 |
+| Endpoint contracts | 19 contracts over 18 URLs; redaction verified | `governance.test.mjs` |
+| Offline behaviour | Queue with receipts; failed writes stay visible and retryable | `hardening.test.mjs` (103) |
+| Identity | Server-authoritative when enforced; directory role survives normalisation; an empty directory response does not promote to systemAdmin | `identity-directory.test.mjs` (33) |
+| Packaging | 160 files, 1.0 MB, self-contained, manifest-verified | `packaging.test.mjs` |
+
+**Open:** authorisation is advisory until the flows enforce it (G-04). Client identity is a
+`userEmail` from `localStorage` in the pilot posture; editing one storage key escalates a
+viewer to systemAdmin. That is a property of the posture, correctly documented, and it is
+what `enforced` plus flow-side validation exists to change.
+
+### Platform 2 — the document portal
+
+5 pages, 6 endpoint keys, service worker, 8 token files shared with the internal platform.
+
+| Dimension | State | Evidence |
+|---|---|---|
+| Pages | All 5 load with no same-origin failure | `tests/portal.spec.js` |
+| Disclosure | No identifier or email belonging to a record reaches an unauthenticated page | `portal.spec.js`, asserted as a property |
+| Denial semantics | One uniform message that does not say which half was wrong, so the register cannot be enumerated | `portal.spec.js` |
+| Unreachable registry | Falls back to device data and says so; with no device copy reports *unavailable*, not *not-found* | `portal.spec.js` |
+| Taxonomy | Every public correspondence type maps to an internal category | `portal.spec.js`, `categories.test.mjs` (21) |
+| Demo mode | With `SUBMISSION` unset nothing is transmitted — the safe failure for a public channel | `packaging.test.mjs` |
+| Service worker | Cache keyed to the build; endpoint config never served cache-first | O-06 |
+| Packaging | 42 files, 0.7 MB, self-contained, manifest-verified | `packaging.test.mjs` |
+
+**Open, and it is the portal's sharpest remaining asymmetry:** `VERIFY` and `VERIFY_CONFIRM`
+gate *submission* — `PF.intake.submit()` carries a proof and the flow answers
+`403 verification_required` without one. `PF.intake.status()` posts `{referenceId, email}`
+and carries no proof at all. The reference-plus-email pair is the whole gate on reading a
+record back, and it is a pair a submitter's correspondent may also hold. This is a **flow-side
+decision, not a client defect** — the client cannot strengthen a gate the flow does not
+enforce — and it belongs in the `STATUS` flow's obligations before the portal carries real
+citizen correspondence. Recorded here rather than fixed, because fixing it in the browser
+would be theatre.
+
+---
+
+## 4 · Branches — disposition register
+
+Nine remote branches. **One carried unmerged work; it has been folded in. `main` is now the
+single source of truth.**
+
+| Branch | Ahead of `main` | Content | Disposition |
+|---|---|---|---|
+| `main` | — | — | **Trunk** |
+| `platform/no-proxy` | 0 | Fully merged | Retire — `main` is its content |
+| `platform/with-proxy` | 20 | The authenticating proxy: `proxy/src`, worker secrets tooling, `setup-endpoints.mjs` | **Retire.** Implements the rejected architecture. Not a superset of `main` — it lacks `setup.mjs`, the commissioning gate and the identity suite. Nothing in it is wanted |
+| `claude/platform-commissioning-live-5vnn9n` | 1 | Phantom endpoint key + stale counts | Retire — content verified present in `main` |
+| `claude/platform-package-unzip-a0bfbe` | 1 | ZIP path-length fix | Retire — landed as `6cdc2af` |
+| `claude/platform-parity-check-xp2028` | 7 | **The folded review register** | **Carried onto `main`** by this audit. Retire |
+| `archive/forensic-audit-gen1` | 43 | Gen-1 forensic audit | **Keep as archive.** Narrative recovered into `docs/audits/` |
+| `archive/repo-hygiene-audit` | 49 | Hygiene audit | **Keep as archive.** Narrative recovered into `docs/audits/repository-hygiene/` |
+| `archive/proxy-harness` | 3 | Local proxy harness | **Keep as archive** or retire with `platform/with-proxy` |
+
+Branch deletion is left to the repository owner — it is not reversible from here and nothing
+depends on it. The five marked *Retire* carry no content `main` lacks; that was verified by
+content diff, not by commit topology.
+
+**Residual from the retired proxy variant:** `scripts/visual-docs-data.mjs` and
+`tests/visual-docs.test.mjs` still branch on `exists('proxy/src')` to render either topology,
+and `docs/visual/app.js` still draws the proxy request pipeline. This is dead code on `main`
+and correct behaviour for a branch that no longer exists. It is recorded rather than removed:
+the generator's dual-variant handling is deliberate, tested, and harmless, and deleting it is
+a decision about whether the proxy variant may ever return — which is the owner's, not this
+audit's.
+
+---
+
+## 5 · Readiness for live operationalization
+
+### Cleared
+
+- Both platforms build, boot and pass their gate: **680 Node assertions across 25 suites, 100
+  browser assertions**, green.
+- Both package as self-contained, manifest-verified artefacts with their endpoints
+  provisioned in.
+- All 39 flow routes are exercisable live by `npm run verify:endpoints`.
+- The build refuses a package that is not fit to deploy, and says which endpoint and why.
+- No intermediary exists anywhere in either request path, and each package declares that in
+  its manifest rather than leaving a reviewer to infer it.
+
+### Blocking — neither is closable in this repository
+
+| # | Blocker | Owner |
+|---|---|---|
+| **1** | **Rotate all 55 published signatures.** They are committed here; anyone with repository access holds them. Deleting a file revokes nothing. `npm run package` refuses to build a pilot or enforced package wired to any of them, so this cannot be forgotten — it can only be done. | Power Automate |
+| **2** | **Make each flow enforce its own callers** — token validation, role derivation, per-action authorisation, rate limiting, reference minting, upload ticketing, filename policy. Called directly, the flow is the only place any of it can happen. Until then every control in this repository is advisory. `docs/architecture/AUTHENTICATION_CONTRACT.md` §2, sequenced in `FLOW-BUILD-PLAN.md`. | Power Automate |
+
+### Required before the phase can be called complete
+
+| # | Step | Why |
+|---|---|---|
+| 3 | `npm run verify:endpoints -- --include-writes` against the live estate | The only step that turns "the configuration looks right" into a transcript. Exercises all 39 routes including the four O-03 restored |
+| 4 | Register the Entra application, six app roles | Prerequisite for `enforced` |
+| 5 | Build with `--posture enforced`, verify both packages, deploy | The client half becomes a configuration event, not a development one |
+| 6 | Run the browser suite against the deployed hostname | Deployment is where endpoint-config presence differs from local |
+| 7 | Decide the `STATUS` flow's proof obligation | §3, platform 2 |
+| 8 | Approve the Part H routing table; clear test records before real correspondence | `npm run commission` reports both; neither is a script's to settle |
+
+### The sequencing point
+
+Production endpoint URLs are not to be minted until this phase's outputs are accepted. That
+ordering is now enforceable rather than procedural: `npm run package -- --posture pilot`
+refuses every URL that is malformed, duplicated across flows, or already published here. When
+the production estate is built, the packages are rebuilt against it and the build id changes
+— which is how a deployment can be told apart from the one it replaced, and what makes the
+portal's cache invalidate.
+
+---
+
+## 6 · What this audit did not do
+
+Stated because an audit that does not bound itself cannot be relied on.
+
+- **It did not call a live flow.** No endpoint in this environment is reachable; every probe
+  in this environment failed at the network, and `verify-endpoints` correctly reported that
+  it had verified the network rather than the configuration. Step 3 above is not optional.
+- **It did not verify any Power Automate flow's behaviour.** No check in this repository can.
+  Both blockers above are consequences of that, not oversights.
+- **It did not audit the reference corpus for accuracy** — 23 MB of harvested flow
+  definitions, list exports and response samples. It audited what the corpus *exposes*: 55
+  signatures, 28 files, reported on every run.
+- **It did not delete any branch or rewrite any history.** Dispositions are recorded in §4;
+  acting on them is the owner's.
+- **It did not re-open closed historical findings.** `docs/audits/INDEX.md` holds the
+  supersession chain; point-in-time records keep their original figures.
+
+---
+
+## 7 · Corrections to the existing record
+
+Recorded because they change conclusions.
+
+1. **G-03 was understated.** `docs/STATUS_REPORT.md` recorded "4 signatures in 2 files". The
+   whole-repository figure is **55 across 28 files**. The smaller number counted the
+   application tree only, which is the ratchet's scope and not rotation's.
+2. **The route count was 25 in six places and is 29.** Corrected where stated as current
+   fact; left alone in historical records and where "25 routes" is used illustratively.
+3. **Finding 20's scope was slightly overstated** in the source assessment: the 36px override
+   sat inside a landscape media query, so it did not apply at every viewport. It applied on
+   touch devices, which is worse rather than better, and the finding stands.
+4. **`endpoint.packaged-signature` was not a warning about a risk.** It was a warning about
+   the approved architecture, left behind by a component that was withdrawn. Removing it is a
+   correction, not a relaxation.

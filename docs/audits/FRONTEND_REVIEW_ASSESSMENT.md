@@ -2,32 +2,61 @@
 
 **Report under assessment:** `Frontend_Review__DGO_Digital_Operations.dc.html`, dated 5 August 2026, 18 findings (3 blocker, 10 major, 5 minor).
 **Report's stated target:** `dgoeaa/ECM_DOCS_DEV@main`.
-**Assessed against:** `claude/platform-commissioning-live-5vnn9n` @ `8613358`.
+**Assessed against:** the commissioning line, first at `8613358`, re-verified at `7a84fde`, and re-verified again on `main` during the operational-readiness audit of 6 August 2026.
 
-> **Implementation status.** Wave 1 — findings 01, 02, 03 and the surviving half of 06 — is
-> implemented on this branch and covered by `tests/containment.spec.js`, which fails on the
-> pre-fix source and passes after. Waves 2 and 3 are not started. See *Assessment of the
-> plan* below for the corrected effort, and the Wave 1 subsection for what shipped.
+> **This is the single register.** It was two documents — this assessment, and
+> `FRONTEND_REVIEW_PARITY_VERDICT.md`, written independently on a separate branch. They were
+> folded together because two records of the same review is how a finding gets fixed twice, or
+> not at all. Where the two agreed the wording is this document's; where only one had
+> something it is marked.
+>
+> The fold itself was written on `claude/platform-parity-check-xp2028` and was the last piece
+> of unmerged branch work in the repository; the operational-readiness audit carried it onto
+> `main`, where the two source documents had until then been kept side by side.
+>
+> **The two assessments were written without knowledge of each other and agree on every
+> disputed point:** both find 05 and 09 false on the same evidence, and both correct 13's size
+> claim to 11px with the label *smaller* than its items. Independent agreement on the findings
+> a reader is most likely to challenge is worth more than either document alone.
+
+> **Implementation status, as at 6 August 2026.** Wave 1 — findings 01, 02, 03 and the
+> surviving half of 06 — is implemented and covered by `tests/containment.spec.js`, which fails
+> on the pre-fix source and passes after. **Finding 19, the portal disclosure defect, is
+> closed** and covered by four tests in `tests/portal.spec.js`, verified in both directions.
+> **Finding 20, the touch-target floor, is closed** — the three sub-floor overrides are gone,
+> `.dgo-sidebar__item` is claimed by `platform-authority.css` so the floor has an owner, and
+> four assertions in `tests/containment.spec.js` measure the rendered height at two touch
+> viewports; reinstating the 36px override fails them. Waves 2 and 3 are not started. See
+> *Assessment of the plan* below for the corrected effort.
 
 ---
 
 ## Headline
 
 The report reviewed the wrong branch, and it does not matter. `main` and the live
-commissioning branch have diverged sharply — 67 commits on live are absent from `main`,
-32 commits on `main` are absent from live — but that divergence is in the flow estate,
-role assignment and data contracts. It did not touch the shell, the stylesheet, or the
-portal home page. **Sixteen of the eighteen findings reproduce on live, verbatim.**
+commissioning branch had diverged sharply when this was written — but that divergence was in
+the flow estate, role assignment and data contracts. It did not touch the shell, the
+stylesheet, or the portal home page: a `git diff` between the two restricted to `styles/`,
+`shared/`, `modules/`, `index.html` and `document-portal/` was empty. **Sixteen of the
+eighteen findings reproduce on live, verbatim.**
 
 Two findings are wrong, and they are wrong about `main` too — they are mis-reads, not
 branch drift. One more is half right. Everything else stands, with the file and line
 references intact.
+
+The report also missed two defects, one of them more serious than anything in its register.
 
 | Verdict | Count | Findings |
 |---|---|---|
 | Confirmed on live | 14 | 01, 02, 03, 04, 07, 08, 10, 11, 12, 14, 15, 16, 17, 18 |
 | Half right | 2 | 06, 13 |
 | Not reproducible — the code does the right thing | 2 | 05, 09 |
+| **Not in the report — found during assessment** | **2** | **19 (blocker), 20 (minor)** |
+
+*Branch state note: the divergence described above is resolved — every branch that carried
+unmerged work has been folded into `main`, this document included. The commit counts
+originally cited here were measured against an earlier `main` and have been removed rather
+than restated, because they no longer describe anything a reader can reproduce.*
 
 ---
 
@@ -307,6 +336,159 @@ Waves 1 and 2 must not regress this is the right constraint to put in writing.
 
 ---
 
+## The two findings the report did not make
+
+*From the parity assessment folded into this register. Finding 19 outranks everything in the
+report's own register; both were re-verified against the merged tree, after Wave 1 rewrote `app.css`.*
+
+### 19 · The public portal published the register, and the lookup page handed out its key — blocker, now fixed
+
+The portal is unauthenticated, so everything it renders is published. Two places were
+publishing records the visitor did not submit.
+
+`document-portal/js/home.js:25` built the "Registry activity" feed from `PF.store.all()` —
+unfiltered, every record, newest first, each row carrying a tracking ID and deep-linking to
+`track.html?id=`. The visitor's own submissions had their own panel directly below, at `:34`,
+from `PF.store.mine()`. The two sets were distinguished deliberately and the public one was
+given the hero panel, so the list was never how anyone found their own request. The record
+behind each ID holds submitter name, email, organisation, org type, state, assigned officer,
+file names, priority and the full event history including reviewer notes
+(`js/core.js:135-150`).
+
+`document-portal/js/track.js:16` rendered "Or open a sample record" chips from
+`PF.store.all().filter(seeded)` through the same `chip()` helper, so each carried
+`data-email` — another submitter's address — and the handler at `:26-30` filled both fields
+and called `lookup()`. The gate in `lookup()` is careful work: `:110` requires the ID and the
+email together, and `:123-129` deliberately refuses to say which of the two was wrong so the
+register cannot be enumerated. These chips handed a visitor the pair, on the page that
+enforces it.
+
+Underneath both, a posture that is internally inconsistent. `VERIFY` and `VERIFY_CONFIRM`
+exist and gate *submission* — `js/core.js:401`, `:418`, with a `403 verification_required` at
+`:332`. But `PF.intake.status()` at `:445` posts `{referenceId, email}` and no proof. The
+portal proves a citizen owns an address before accepting a document from them, then serves the
+case file to anyone who knows an address. Email is used as a bearer secret and is not one.
+
+**Scope, stated precisely.** The chips filtered on `r.seeded`, so that half exposed demo
+records. The store is `localStorage`, so nothing crossed between citizens. That is the reason
+this was urgent rather than academic: an unauthenticated page was coded to render an
+unfiltered register, and wiring `STATUS` to the live registry is the step that would have made
+it real.
+
+**Why both review passes missed it.** Finding 10 examines the same panel and asks whether its
+numbers are *true* — a data-provenance question, correctly answered "no, they come from
+`localStorage`". Neither pass asked whether the panel should be visible at all, which is the
+authorization question. Finding 11 likewise treats two status vocabularies as a translation
+cost for Customer Service rather than as disclosure. The question class was wrong and was
+applied consistently, so the redesign built on those answers inherited the blind spot: the
+prototype's `liveFeed: recs.slice().sort(...)` is the same all-records panel.
+
+**Fixed.** The landing panel renders a status mix — counts against status labels, no
+identifier, no timestamp, nothing that resolves to a person or a submission. Quick picks are
+the visitor's own device history only, with guidance where the chips were. Four tests in
+`tests/portal.spec.js` assert the property rather than the removed strings: no ID from the
+store may appear in the landing page's text or in any `href`, no submitter email may appear on
+`index` or `track`, the aggregate panel must still say something and every row must be a
+status label, and a fresh visit must get no prefilled chips. All four fail on the pre-fix
+source.
+
+**Still open — the contract change.** `document-portal/README.md` carries the drafted shape,
+marked proposed because the client does not send it yet: `STATUS` takes
+`{ referenceId, verification }` and resolves the address from the proof `VERIFY_CONFIRM`
+already issues, instead of authorising on a field printed inside the record it returns. Three
+properties are easy to lose in implementation and are written down there — the email must
+leave the request body entirely, expired and replayed proofs must share the one byte-identical
+`404`, and an unreachable verification service must still surface as `unavailable` rather than
+as a denial. `keepUrl()` must stop writing the address into `location.search` at the same
+time, or the disclosure moves into the URL bar, history and `Referer`. **Estimate: 1 d
+client-side, plus the flow change. Must land with or before the `STATUS` wiring.**
+
+### 20 · The sidebar's own nav items are below the touch floor — minor, **closed**
+
+`styles/app.css` declares `.dgo-sidebar__item` twice. The first carries
+`min-height:var(--dgo-control-target-min)`; a later rule overrides it with `min-height:36px`.
+`--dgo-control-target-min` is `44px` (`tokens.enhanced.css:3`). Every navigation item in the
+internal shell is therefore 36px, not 44px — 29 controls, on the one surface every user
+touches on every visit. Verified still present after Wave 1, which rewrote `app.css` around it
+without touching it.
+
+This corrects the scope of finding 18 and of this document's own note on it. Finding 18 credits
+the runtime with honouring the 44px floor and blames the portal's single 32px theme toggle;
+the assessment above repeats that — *"the runtime's `--dgo-control-target-min` governs the
+rest"*. It governs the declaration and is then overridden. The portal toggle is the smaller
+instance of the two.
+
+**Closed, 6 August 2026.** The override is deleted rather than accepted, along with the two
+adjacent ones it sat beside — `.dgo-iconbtn` at 34px and `.dgo-persona-button` at 40px, both
+undercutting the same token in the same narrow breakpoints. `.dgo-sidebar__item` was also
+missing from the target-size rule in `platform-authority.css`, which is why the floor for the
+one control set every user presses on every visit was owned by whatever `app.css` last said;
+it is claimed there now. Four assertions in `tests/containment.spec.js` measure the rendered
+height at 900x500 and 1100x700, so the property is checked where a finger meets it rather than
+in the stylesheet text. Verified as a negative control: reinstating the 36px rule fails them.
+
+The scope in the paragraph above is corrected in one respect. The override sat inside
+`@media (max-width:980px) and (orientation:landscape)`, so it did not apply at every viewport —
+it applied on a phone or small tablet held sideways, which is the one context where the floor
+is load-bearing rather than decorative.
+
+---
+
+## The attachment's prototypes, judged as a build
+
+*From the parity assessment folded into this register. The report shipped alongside two redesigned
+prototypes, and the question asked of them was whether they are at par with the platform. They
+are not, and they do not claim to be — but the gap should be on the record before anyone
+schedules against them.*
+
+`Root Platform — DGO Digital Operations.dc.html` declares all 29 routes with names matching
+`config/routes.config.js` 1:1, and implements **9**. The other 20 render an explainer card —
+label, reason, "visible through", and an *Open owning workspace* button — where the platform
+renders a working module. `modules/registry.js` alone carries registry files, custody chain,
+movements, minutes, queues, closure and archive control; the prototype has no Registry screen.
+
+| Dimension | Platform | Prototype |
+|---|---|---|
+| Screens implemented | 29 modules, 317 KB | 9 view methods, one file |
+| Governed actions | 61 (`config/action-ownership.config.js`) | ~11 local mutations |
+| Core services | 60 files, ~4,000 lines | none |
+| Endpoint contracts | 19 registered keys | none |
+| Network / persistence / auth | write manager, offline queue, idempotency, receipt ledger | zero `fetch`, zero `localStorage`; `NOW()` hardcoded to `2026-08-05T09:20` |
+
+`Document Portal — NITDA Intelligent Portal.dc.html` covers 4 of 4 portal pages.
+
+Two divergences matter beyond scope, because importing the prototype would carry them in:
+
+- **RBAC.** Same six role ids and labels; different route tables. `director` 25 routes against
+  the platform's declared 15, `operator` 20 against 16, `executive` gains `ecm-erp-charter`.
+  The prototype also implements role-table-only gating, while `canAccess()` falls through to a
+  persona check when the table misses — so a `director` actually reaches everything except
+  `user-admin`. The prototype is simultaneously more permissive than the declared table and
+  more restrictive than the effective behaviour.
+- **Design system.** The bundled `_ds/` snapshot predates the accessibility remediation in
+  `styles/dgo-design-system/`. Five of seven shared token files differ; `tokens.enhanced.css`
+  and `tokens.legacy-bridge.css` are absent. Missing: the SC 1.4.11 border strengthening (dark
+  `--dgo-color-border-strong` is `#2D3F36` in the snapshot against `#6E8A7C`, *"4.48:1 on the
+  dark card"*, in the tree), the HC theme's own surfaces — the snapshot's HC file sets
+  `color-scheme: light` — the dark sidebar/topbar/tooltip bindings, and the 11px type floor.
+  **Rendering the prototype shows weaker contrast than the platform.** `platform-authority.css`
+  is the one stylesheet that is byte-identical.
+
+Treat the prototypes as a design target for the 9 workspaces, not a candidate build. Adopting
+their decisions means re-implementing across 29 modules against the current design system.
+Refresh `_ds/` from `styles/dgo-design-system/` before the next design pass, so the work is
+done against the tokens the platform ships.
+
+**Bundle triage.** `uploads/document-portal/` in the attachment is a byte-identical copy of
+`document-portal/` — 33 files, `diff -rq` clean — as are the root-level `styles/` and
+`assets/` copies. Those are duplication. The two `.dc.html` prototypes, the review itself and
+`screenshots/` are the unique content; `screenshots/portal-icons.png` is what disproves finding
+09, showing the mark and the trust-chip icons rendering. `_ds/` and `support.js` are what make
+the prototypes render, so they cannot be deleted — but `_ds/` must not be treated as the design
+system of record.
+
+---
+
 ## Assessment of the plan
 
 The sequencing logic is correct and I would not reorder it. Nothing downstream is worth
@@ -372,19 +554,27 @@ estimated here — it is a decision before it is a task.
 
 ### Corrected total
 
-| | Stated | Register sum | Corrected |
-|---|---|---|---|
-| Wave 1 · stop losing information | ≈6 d | 7.0 d | **7.5 d** |
-| Wave 2 · make the journey legible | ≈9 d | 9.0 d | **7.0 d** |
-| Wave 3 · earn public trust | ≈5 d | 4.75 d | **3.25 d** |
-| **Scheduled total** | **≈20 d** | **20.75 d** | **17.75 d** |
-| Unscheduled minors (16, 17) | — | 1.0 d | 1.0 d |
-| **Full register** | — | **21.75 d** | **18.75 d** |
+| | Stated | Register sum | Corrected | Status |
+|---|---|---|---|---|
+| **Wave 0 · finding 19, portal disclosure** | — | — | **1.0 d** | client fixed; contract change open |
+| Wave 1 · stop losing information | ≈6 d | 7.0 d | **7.5 d** | implemented |
+| Wave 2 · make the journey legible | ≈9 d | 9.0 d | **7.0 d** | not started |
+| Wave 3 · earn public trust | ≈5 d | 4.75 d | **3.25 d** | not started |
+| **Scheduled total** | **≈20 d** | **20.75 d** | **18.75 d** | |
+| Unscheduled minors (16, 17, 20) | — | 1.0 d | 1.25 d | not started |
+| **Full register** | — | **21.75 d** | **20.0 d** | |
 
-**≈17.75 days of scheduled frontend work, or ≈18.75 if findings 16 and 17 are pulled back
-in.** Call it three and a half to four weeks for one developer — the same calendar shape
-the report gives, because the day count was never the binding constraint. Wave 1 is
-serial by nature: one person deciding one containment model.
+Finding 19 is entered as Wave 0 rather than folded into Wave 3 because it is not the same kind
+of work: Waves 1–3 improve a platform that behaves correctly, and 19 was a platform publishing
+records to people not entitled to them. Its client half is done; what remains is the `STATUS`
+contract change, and that has a hard ordering constraint the other waves do not — it must land
+with or before the wiring of `STATUS` to the live registry, because that wiring is what turns a
+shape problem into a disclosure.
+
+**≈18.75 days of scheduled frontend work, or ≈20 with the three unscheduled minors.** Call it
+four weeks for one developer — the same calendar shape the report gives, because the day count
+was never the binding constraint. Wave 1 is serial by nature: one person deciding one
+containment model. Waves 1 and 0's client half are already spent, leaving ≈10.5 d scheduled.
 
 ---
 
@@ -401,7 +591,15 @@ and both are checkable in under a minute — a reader who spots either will disc
 other sixteen. Trim 06 and 13 to the halves that hold. Fix Wave 1's card, which
 understates its own listed items by a day, and say what happened to findings 16 and 17.
 
-The corrected plan is **≈17.75 days scheduled** against the ≈20 stated — and the
-reduction is smaller than it looks, because it nets a genuine increase in Wave 1 against
-removals in Waves 2 and 3 for work that is already done. That is the right shape to be
-wrong in: the blockers cost more than budgeted, and the polish costs less.
+The corrected plan is **≈18.75 days scheduled** against the ≈20 stated — and the near-parity
+is a coincidence of two movements, not a small correction. Waves 2 and 3 lose work that is
+already done, Wave 1 costs more than budgeted, and Wave 0 adds a day the report never
+identified. That is the right shape to be wrong in: the blockers cost more, the polish costs
+less.
+
+The one thing the report got wrong that its own method could not have caught: it audited the
+platform's *presentation* thoroughly and its *authorization* not at all. Finding 19 was sitting
+in the same panel as finding 10, one question away — "should this be visible?" rather than "is
+this number true?" — and neither review pass asked it. Both prototypes reproduce the panel.
+Before Wave 2 is scheduled, the register is worth a second pass with that question applied to
+every surface the public can reach.

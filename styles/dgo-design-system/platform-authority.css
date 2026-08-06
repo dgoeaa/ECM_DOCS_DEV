@@ -54,7 +54,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
    receives pointer input. It was declared for .btn only, so chips, disclosure summaries, the
    topbar controls and the skip link fell through to whatever literal app.css happened to set.
    Pills and badges are deliberately excluded: they are read, not pressed. */
-summary,button.chip,a.chip,.dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button,a.skip {
+/* .dgo-sidebar__item was missing from this list, so the floor for the 29 navigation links —
+   the controls every user presses on every visit — was owned by whatever app.css last said.
+   app.css set the token and then overrode it to 36px in a landscape breakpoint 300 lines
+   later, and nothing here disagreed because nothing here claimed them. */
+summary,button.chip,a.chip,.dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button,.dgo-sidebar__item,a.skip {
   min-block-size: var(--dgo-control-target-min);
 }
 .dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button,button.chip,a.chip { min-inline-size: var(--dgo-control-target-min); }

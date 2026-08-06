@@ -1,0 +1,171 @@
+# Packaging — building the two artefacts that get handed over
+
+`npm run package` builds each platform into a self-contained directory with its endpoint
+URLs configured into it, a manifest hashing every byte, and a provisioning record naming
+what is wired and what is not.
+
+```
+npm run package                                              # both, demo posture
+npm run package -- --values ~/dgo-values.txt --posture pilot # provisioned
+npm run package -- --surface portal                          # one of them
+npm run package:verify -- --verify dist/dgo-document-portal  # check a delivered package
+```
+
+Output:
+
+| Package | Serves | Entry |
+|---|---|---|
+| `dist/dgo-internal-platform/` | The internal operations platform | `index.html` |
+| `dist/dgo-document-portal/` | The public document portal | `index.html` |
+
+Both are static sites. There is nothing to build, install, deploy alongside or keep
+running — serve the directory.
+
+---
+
+## Why this exists, and what changed
+
+The architecture decision is that each platform calls its Power Automate flows **directly**,
+with the complete trigger URLs configured into the artefact that is handed over. No proxy,
+no broker, no intermediary in the request path, and nothing to stand up between the browser
+and the flow.
+
+The repository implemented the first half of that and not the second. `npm run setup` wrote
+the URLs into `config/config.local.js` and `document-portal/config.local.js`, both
+git-ignored — so the thing people actually received, a clone or GitHub's "Download ZIP", was
+by construction the one artefact that could not contain them. Provisioning was a step an
+operator performed from a document, on the far side of the handover, with nothing checking
+the result.
+
+`npm run setup` is still the right command for a working tree. `npm run package` is the
+command for something you are giving to someone else. Both write the same bytes from the
+same endpoint definition in `scripts/lib/endpoint-surface.mjs`, so a wired working tree and
+a delivered package are the same product.
+
+---
+
+## The three postures
+
+| Posture | Requires | Use |
+|---|---|---|
+| `demo` (default) | nothing | A package that boots, renders and exercises every screen, and transmits nothing. Stamped `demo: true` in the manifest and in `DEPLOY.md`. |
+| `pilot` | every pilot endpoint valid, no unrotated signature | An internal pilot on correspondence you accept being readable by anyone holding a URL. |
+| `enforced` | the above, plus the Entra tenant values | `auth.enabled:true`. The **client** half only — see below. |
+
+The pilot set is the irreducible one: correspondence cannot flow end to end without it.
+Four keys on the internal platform (`FETCH_ALL`, `DYNAMIC_ACTIONS`, `SINGLE_ASSIGNMENT`,
+`BULK_ASSIGNMENT`) and two on the portal (`SUBMISSION`, `UPLOAD`). Everything else is a
+feature you add later with one value and a rebuild, which is why an unset non-pilot key is
+reported rather than treated as a failure.
+
+---
+
+## What the build refuses
+
+A package is not emitted when:
+
+- **a required endpoint is missing** (pilot and enforced),
+- **a URL is malformed** — in *every* posture, demo included,
+- **two keys resolve to the same flow**, because the second silently inherits the first's
+  flow and every action routed to it lands on a switch with no case for it,
+- **a wired signature is one already published in this repository**, because going live on
+  it means going live on a credential everyone with repository access already holds,
+- **the package cannot resolve its own module graph** — every asset and every module the
+  entry HTML reaches is resolved inside the package before it is written.
+
+### Why URL validation is stricter than it looks
+
+`npm run commission` used to check three things: empty, placeholder, non-HTTPS. Those are
+the failures you make once. The ones that survive to production are quieter:
+
+| What happened | What the URL looks like |
+|---|---|
+| Pasted from a mail client that broke the line at `&` | non-empty, HTTPS, no template text, **no signature** |
+| Copied out of a spreadsheet cell | ends in a newline |
+| Truncated somewhere between two documents | has `sig`, has no `api-version` |
+| Someone pasted the run history URL | valid Power Automate host, **not a trigger path** |
+
+Every one of them passes the three old checks. Called directly, a malformed URL has nothing
+in front of it to produce a useful error: it fails mid-action, at an officer's desk, as a
+network error with nothing to point at. `scripts/lib/endpoint-validation.mjs` fails all of
+them at build time, and `npm run commission` now applies the same rules, so the gate and the
+packager cannot reach opposite verdicts on one configuration.
+
+A URL on an unrecognised host is **reported, not refused** — a validator that blocks a
+legitimate migration gets deleted, and a deleted validator checks nothing.
+
+---
+
+## What is in a package
+
+| File | What it is |
+|---|---|
+| `PACKAGE_MANIFEST.json` | Every file, its size and its SHA-256; the endpoint provisioning record; the build id. **Signatures are redacted** — the manifest is safe to paste into an issue. |
+| `ENDPOINT_PROVISIONING.md` | What is wired, what is not, which flow routes each URL carries, and how to rotate. |
+| `DEPLOY.md` | How to deploy it and what to verify first. |
+| `config/config.local.js` *or* `config.local.js` | The provisioned endpoint URLs. **This is a credential.** |
+
+The platform's own `README.md` is preserved. The repository's scaffolding — `tests/`,
+`scripts/`, `docs/`, `package.json`, the reference corpus — is not shipped.
+
+### The build id
+
+A digest of the **provisioned endpoint set**, not of the clock. Two builds of the same code
+with the same endpoints carry the same id; rotating one signature changes it. That is what
+makes "is this the deployment I verified?" an answerable question.
+
+It also does real work in the portal. The service worker names its cache after it, so a
+rotation necessarily invalidates the cache — previously the source could only ask a human to
+remember, and a returning visitor kept calling the URL that had just been revoked. The
+endpoint config is additionally network-first, so a stale copy can never be the one that
+gets called while online.
+
+---
+
+## Verifying a delivered package
+
+```
+npm run package:verify -- --verify dist/dgo-internal-platform
+```
+
+Recomputes every file hash against the manifest and re-validates the endpoint set. It
+catches an edited file, an added file, a removed file, and a manifest edited to hide any of
+them. **A package that does not verify must not be deployed.**
+
+The only file not covered is `PACKAGE_MANIFEST.json` itself, which would have to contain its
+own digest; it is checked instead against the digest of its own file list.
+
+---
+
+## The obligation a package cannot discharge
+
+Each flow is called directly, so **each flow is the only place authentication,
+authorisation, validation and rate limiting can happen.** No file in a package can do it for
+them, and no check in this repository can prove they do.
+
+`enforced` posture provisions the client half: the browser acquires a token and sends it,
+stops asserting identity itself, and reads roles from claims. It does not make any decision
+server-authoritative.
+
+The seven server-side obligations are specified in
+[`../architecture/AUTHENTICATION_CONTRACT.md`](../architecture/AUTHENTICATION_CONTRACT.md)
+§2 and sequenced in [`FLOW-BUILD-PLAN.md`](./FLOW-BUILD-PLAN.md). Exercise them live with
+`npm run verify:endpoints -- --include-writes` before declaring anything live.
+
+---
+
+## Before handing a package over
+
+```
+npm test                                                     # 25 suites, 100 browser assertions
+npm run package -- --values <file> --posture pilot
+npm run package:verify -- --verify dist/dgo-internal-platform
+npm run package:verify -- --verify dist/dgo-document-portal
+npm run verify:endpoints -- --include-writes                 # the flows answer, live
+npm run commission                                           # obligations a person must sign
+```
+
+The last two are the ones that cannot be skipped. `verify:endpoints` is the difference
+between "the configuration looks right" and "the configuration was exercised against the
+live flow and here is the transcript"; `commission` reports the obligations no script can
+settle.

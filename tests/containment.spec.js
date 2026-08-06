@@ -117,6 +117,56 @@ test.describe('Wave 1 · reflow instead of deletion (finding 02)', () => {
   });
 });
 
+test.describe('touch-target floor (finding 20)', () => {
+  /**
+   * `--dgo-control-target-min` is 44px and is the platform's own declared minimum for
+   * anything that receives pointer input. Three rules undercut it in the narrow
+   * breakpoints — the sidebar items to 36px, the icon buttons to 34px, the persona button
+   * to 40px — and they undercut it in the one context where the floor is load-bearing
+   * rather than decorative: a touch device.
+   *
+   * The defect was invisible to review because it was not a contradiction on the page. The
+   * token was set correctly at the declaration and overridden 300 lines later in a media
+   * query, so both rules read as reasonable in isolation.
+   *
+   * Measured from the rendered result rather than asserted against the stylesheet text: the
+   * property that matters is what a finger meets, and a future refactor is free to reach it
+   * a different way.
+   */
+  const FLOOR = 44;
+
+  for (const [w, h, label] of [[900, 500, 'phone landscape'], [1100, 700, 'small tablet']]) {
+    test(`no navigation item falls below the touch floor at ${w}x${h} (${label})`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await boot(page);
+
+      const undersized = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('.dgo-sidebar__item'))
+          .map(el => ({ label: (el.textContent || '').trim().slice(0, 24), h: el.getBoundingClientRect().height }))
+          .filter(x => x.h > 0 && x.h < 44));
+
+      expect(undersized, `navigation items under ${FLOOR}px: ` +
+        undersized.map(u => `${u.label}=${u.h.toFixed(1)}px`).join(', ')).toEqual([]);
+    });
+
+    test(`no topbar control falls below the touch floor at ${w}x${h} (${label})`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await boot(page);
+
+      const undersized = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('.dgo-iconbtn,.dgo-search-trigger,.dgo-persona-button'))
+          .map(el => {
+            const r = el.getBoundingClientRect();
+            return { sel: el.className, w: r.width, h: r.height };
+          })
+          .filter(x => x.w > 0 && x.h > 0 && (x.w < 44 || x.h < 44)));
+
+      expect(undersized, `topbar controls under ${FLOOR}px: ` +
+        undersized.map(u => `${u.sel}=${u.w.toFixed(0)}x${u.h.toFixed(0)}`).join(', ')).toEqual([]);
+    });
+  }
+});
+
 test.describe('Wave 1 · durable feedback (finding 03)', () => {
   test('a toast is recorded, survives a route change, and can be dismissed', async ({ page }) => {
     await boot(page);
