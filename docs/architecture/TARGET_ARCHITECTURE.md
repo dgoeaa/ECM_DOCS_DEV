@@ -375,7 +375,7 @@ Each step is independently deployable and leaves the platform working.
 
 - **The correspondence record model.** It was already right; it gains one `channel` value.
 - **Attachment-by-link.** Already correct and matches the SharePoint provisioning package.
-- **The root platform's module and route structure.** 25 routes, clean boundaries, ownership assertions that throw.
+- **The root platform's module and route structure.** 29 routes, clean boundaries, ownership assertions that throw.
 - **The ECM Activity Hub's layering.** `actions → services → Store → pages` is cleaner than the root platform's own.
 
 The architecture is not a rewrite. **Most of it already exists and is correct.** What is missing is the connective tissue between the external channel and the record — and, since the proxy was removed, an enforcement point at all. There is no longer one beside the request path; there must now be one at the end of it, inside each flow.

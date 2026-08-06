@@ -56,6 +56,27 @@ group("Action ownership — config/action-ownership.config.js");
     (boundaryFor("approvals")?.mustNotOwn || []).length > 0);
   check("ownsAction agrees with the boundary", ownsAction("dispatch", "send-dispatch") === true);
   check("a module does not own another's action", ownsAction("dispatch", "approve") === false);
+
+  /* Every `backend` label must name a real endpoint.
+   *
+   * `scan-deposit` declared `SCAN_UPLOAD.required` — a key that exists nowhere in the
+   * endpoint registry; the endpoint is SCAN_INTAKE. Nothing failed at runtime, because
+   * core/scan-intake-service.js resolves SCAN_INTAKE for itself and never reads this
+   * label. The cost was to anyone reading the governance config to decide which flows to
+   * build: docs/deployment/FLOW-BUILD-PLAN.md is generated from exactly this table, and a
+   * phantom key there sends someone off to build a flow the client will never call.
+   *
+   * `none` is a legitimate sentinel — the eight client-only actions declare it. */
+  const ownership = (await import("../config/action-ownership.config.js")).ActionOwnership || {};
+  const { EndpointContracts, EndpointUrls } = await import("../config/endpoints.config.js");
+  const known = new Set([...Object.keys(EndpointContracts), ...Object.keys(EndpointUrls), "none"]);
+  const phantom = Object.entries(ownership)
+    .filter(([, v]) => v?.backend)
+    .map(([action, v]) => [action, String(v.backend).split(".")[0]])
+    .filter(([, key]) => !known.has(key));
+  check("every declared backend names a real endpoint key",
+    phantom.length === 0,
+    phantom.map(([a, k]) => `${a} → ${k}`).join(", "));
 }
 
 /* ═══════════════ THE OWNERSHIP GATE ═══════════════ */

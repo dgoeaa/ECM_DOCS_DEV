@@ -8,7 +8,7 @@
  *
  * Answers one question: **may this platform be declared live?**
  *
- * The repository has long been able to say "the tests pass" — 17 Node suites and 78
+ * The repository has long been able to say "the tests pass" — 20 Node suites and 78
  * browser tests, all green. That is not the same claim. A platform whose code is
  * correct can still be uncommissionable because its trigger URLs are published, its
  * register is answerable by anonymous callers, or nothing is wired up at all. This
@@ -424,7 +424,7 @@ for (const [label, script] of [
 }
 
 manual('quality', 'browser suite must be run against the deployed build',
-  'npm run test:smoke covers boot, accessibility, all 25 routes, themes and the portal, ' +
+  'npm run test:smoke covers boot, accessibility, all 29 routes, themes and the portal, ' +
   'but against a local server. Run it once more against the deployed hostname before ' +
   'declaring live, because deployment is where config.local.js presence differs.',
   'npm run test:smoke');

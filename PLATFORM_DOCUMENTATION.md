@@ -31,7 +31,7 @@ Four independently bootable applications share the repository. Only the first us
 
 | Application | Entry | Scale | Role |
 |---|---|---|---|
-| **DGO R11.6 Runtime** | `index.html` | 137 files reachable · 25 routes | The platform shell |
+| **DGO R11.6 Runtime** | `index.html` | 134 modules reachable · 29 routes | The platform shell |
 | ~~**ECM Activity Hub Portal**~~ | — | — | **Retired at D6(b)**; briefs, meetings and projects are now root modules |
 | **Document Portal** | `document-portal/index.html` | 34 files | Public submission & tracking (PWA) |
 | **AckFlow** | `newack/index.html` | 5 files | Acknowledgement prototype |
@@ -259,7 +259,7 @@ npm run test:links    # linkinator crawl
 | `check-imports.mjs` | Every relative import resolves. **167 modules, 0 broken edges.** The check that would have caught the original boot failure in one second. |
 | `check-secrets.mjs` | A ratchet, not a gate — fails on *new* signatures, reports known ones. Deleting a file revokes nothing, so failing on known exposure would only make CI permanently red. |
 | `auth-posture.test.mjs` | Both postures, 25 assertions, one child process each. |
-| `smoke.spec.js` | Boot, accessibility entry points, all 25 routes, theme repaint, `?skipWelcome=1`, ECM portal. Gated on `__DGO_BOOTED__`, **not** HTTP 200 — a 200 proves the server served `index.html` and nothing more. |
+| `smoke.spec.js` | Boot, accessibility entry points, all 29 routes, theme repaint, `?skipWelcome=1`, ECM portal. Gated on `__DGO_BOOTED__`, **not** HTTP 200 — a 200 proves the server served `index.html` and nothing more. |
 
 CI (`.github/workflows/ci.yml`): `imports` gates `smoke` and `links`; `secrets` runs independently.
 
