@@ -56,6 +56,7 @@ callers. No code change here can close either.
 | Internal platform | 29 routes, 135 reachable modules, 1 849 import edges, 18 endpoint keys, 39 flow routes |
 | Document portal | 5 pages, 6 endpoint keys, 1 service worker, 8 design-token files |
 | Configuration | 33 config modules |
+| Dependencies | 4 devDependencies, **0 runtime dependencies in either package** |
 | Tooling | `setup`, `commission`, `verify:endpoints`, `dev`, `package` (new) |
 | CI | 1 workflow, 4 jobs |
 | Quality gate | 25 Node suites (680 assertions) + 100 browser assertions |
@@ -67,8 +68,10 @@ document and a generated artefact disagree, the artefact is right.
 
 ## 2 · Findings
 
-Ordered by consequence. **All eleven are closed in this audit's commits.** The items that
-remain open are in §5, and none of them is closable here.
+Ordered by consequence. **All eleven defect findings are closed in this audit's commits**;
+O-12 records the dependency posture, where the finding is favourable and one advisory is
+accepted on the record. The items that remain open are in §5, and none of them is closable
+here.
 
 ### O-01 · The delivered package could not contain its endpoints — **closed**
 
@@ -225,6 +228,35 @@ fails the build rather than shipping as a silently unprovisioned endpoint.
 
 See §4. The folded frontend-review register was carried onto `main` and the superseded
 document removed.
+
+### O-12 · Dependencies — **clean where it counts, one advisory accepted**
+
+**Severity: informational, and the finding is favourable.** Both delivered packages have
+**zero runtime dependencies**. No module under `core/`, `modules/`, `shared/` or `config/`
+imports a bare specifier; every import is relative. Neither package contains a bundler
+output, a vendored library or a CDN reference, which is why each is a static directory you
+can serve and nothing else.
+
+Everything in `package.json` is a `devDependency` and none of it ships:
+
+| Package | Used by | Ships? |
+|---|---|---|
+| `@playwright/test` | the browser suite | no |
+| `http-server` | `npm start`, the test server | no |
+| `linkinator` | `npm run test:links` | no |
+| `puppeteer-core` | tooling | no |
+
+`npm audit` reported three advisories, all transitive under `linkinator`. The high-severity
+one (`brace-expansion`, DoS) is resolved by a lockfile bump taken in this audit. **Two
+moderate ones remain** — `uuid` reached through `gaxios`, reached through `linkinator` —
+and are accepted rather than forced: closing them needs a `linkinator` major bump, the tool
+is an informational link crawler that CI already runs `continue-on-error`, and it does not
+execute against anything untrusted. Recorded so the acceptance is a decision rather than an
+oversight.
+
+`@playwright/test` is declared as `^1.48.0` and resolves to 1.62.0. That is not a
+reproducibility problem: `package-lock.json` pins it and CI installs with `npm ci`, so the
+browser build is deterministic. Worth stating because the floating range reads like one.
 
 ### O-11 · Stale figures in live prose — **closed**
 
