@@ -39,11 +39,41 @@ const SIG = /sig=[A-Za-z0-9_-]{20,}/;
    not a per-commit gate. */
 const REFERENCE_CORPUS = 'docs/reference/foundational/';
 
-const trackedFiles = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 })
+const allTracked = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 })
   .toString('utf8')
   .split('\0')
-  .filter(Boolean)
-  .filter(f => !f.startsWith(REFERENCE_CORPUS));
+  .filter(Boolean);
+
+const trackedFiles = allTracked.filter(f => !f.startsWith(REFERENCE_CORPUS));
+
+/**
+ * How much this ratchet is NOT looking at.
+ *
+ * The exclusion above is deliberate and correct, but the success message was not: this
+ * printed "No SAS signatures in tracked files" while 55 of them sat in 28 tracked files
+ * one directory away. Only `npm run commission` reported the real figure, so the number a
+ * reader saw depended on which command they happened to run — and the one wired into CI as
+ * "Secret scan" was the one that said zero. A control may narrow its scope. It may not
+ * describe the narrowed result as the whole result.
+ */
+function excludedExposure() {
+  const files = [];
+  const distinct = new Set();
+  for (const f of allTracked.filter(f => f.startsWith(REFERENCE_CORPUS))) {
+    let buf;
+    try {
+      const st = fs.statSync(path.join(ROOT, f));
+      if (!st.isFile() || st.size > 512 * 1024 * 1024) continue;
+      buf = fs.readFileSync(path.join(ROOT, f));
+    } catch { continue; }
+    if (buf.includes(0)) continue;
+    const found = buf.toString('utf8').match(ALL);
+    if (!found) continue;
+    files.push(f);
+    found.forEach(v => distinct.add(v));
+  }
+  return { files: files.length, distinct: distinct.size };
+}
 
 const ALL = /sig=[A-Za-z0-9_-]{20,}/g;
 
@@ -152,6 +182,23 @@ if (unscannable.length) {
   console.error('the archive from the tree.\n');
 }
 
-if (!affected.length && !cleared.length && !unscannable.length) console.log('✅ No SAS signatures in tracked files.');
+if (!affected.length && !cleared.length && !unscannable.length) {
+  console.log('✅ No SAS signatures in the application tree.');
+}
+
+/* Printed on every run, pass or fail. The exposure this ratchet excludes is real, is gap
+   G-03, and is the thing that must be rotated before any production endpoint is minted —
+   so it is stated here rather than left to a different command nobody ran. */
+const excluded = excludedExposure();
+if (excluded.files) {
+  console.log(
+    `\nℹ️  NOT IN SCOPE: ${excluded.distinct} distinct signature(s) across ${excluded.files} file(s) ` +
+    `under ${REFERENCE_CORPUS}`);
+  console.log('   That corpus documents the deployed flow estate verbatim by explicit decision (D5),');
+  console.log('   so scanning it would hold this ratchet permanently red. The exposure is not');
+  console.log('   thereby closed: anyone who can read this repository holds every one of those');
+  console.log('   signatures, and deleting a file revokes nothing.');
+  console.log('   Gap G-03 — rotate each in Power Automate before minting production endpoints.');
+}
 
 process.exit(added.length || cleared.length || unscannable.length ? 1 : 0);

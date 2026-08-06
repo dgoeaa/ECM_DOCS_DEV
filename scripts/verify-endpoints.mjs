@@ -29,6 +29,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -99,6 +100,27 @@ const RUNTIME_PROBES = {
   AI_CHAT: { body: { action: 'aiChat', userEmail: PROBE_EMAIL, message: '__DGO_PROBE__' }, expect: ['reply'] },
   OTP_GENERATE: { body: { action: 'otpGenerate', userEmail: PROBE_EMAIL } },
   OTP_VERIFY: { body: { action: 'otpVerify', userEmail: PROBE_EMAIL, code: '000000' } },
+
+  /* Two contracts, one URL. DISPATCH_OUTBOUND and ARCHIVE_REFERENCE both post to the
+     DYNAMIC_ACTIONS trigger and are distinguished only by `action`, so provisioning that
+     one URL commissions three obligations rather than one. Until these were added, the
+     verifier exercised the first and reported the surface green — a flow whose switch had
+     no `dispatchOutbound` case would have been discovered by the first officer who tried
+     to dispatch a decision, in production. `via` names the key whose URL to use. */
+  DISPATCH_OUTBOUND: {
+    via: 'DYNAMIC_ACTIONS',
+    body: { action: 'dispatchOutbound', ref: '__DGO_PROBE__', channel: 'email', recipients: [PROBE_EMAIL], userEmail: PROBE_EMAIL },
+  },
+  ARCHIVE_REFERENCE: {
+    via: 'DYNAMIC_ACTIONS',
+    body: { action: 'archiveReference', ref: '__DGO_PROBE__', userEmail: PROBE_EMAIL },
+  },
+
+  /* Not a JSON contract: core/scan-intake-service.js PUTs the raw bytes of a scanned
+     document with the filename, size and digest in headers, because base64-in-JSON is what
+     produced the 4 MB ceiling this replaced. Probing it with a POSTed envelope would prove
+     nothing about the path the platform actually uses. */
+  SCAN_INTAKE: { transport: 'bytes', filename: '__DGO_PROBE__.txt' },
 };
 
 const PORTAL_PROBES = {
@@ -123,6 +145,14 @@ const PORTAL_PROBES = {
   },
   VERIFY: { write: true, body: { action: 'otpGenerate', email: PROBE_EMAIL }, expect: ['sent'] },
   VERIFY_CONFIRM: { write: true, body: { action: 'otpVerify', email: PROBE_EMAIL, code: '000000' }, expect: ['verification'] },
+
+  /* The ticket-redeeming attachment PUT. It is half of the portal's minimal-pilot set and
+     was the one member of that set the verifier could not exercise, so "both pilot
+     endpoints are wired" and "both pilot endpoints answer" were different claims and only
+     the first was ever checked. A deposit without a ticket should be REFUSED — that
+     refusal is the evidence that the flow validates its own callers, which on a public
+     channel is the whole control. */
+  UPLOAD: { write: true, transport: 'bytes', filename: '__DGO_PROBE__.txt' },
 };
 
 /** A contract's own readOnly flag is the authority for the runtime surface. */
@@ -137,18 +167,40 @@ const isWrite = (key, surface) =>
 
 const workflowIdOf = url => (/workflows\/([a-f0-9]{32})/.exec(url) || [])[1] || null;
 
+/**
+ * The raw-bytes request the two deposit endpoints actually receive: a PUT of the document
+ * with its filename, size and SHA-256 in headers. Built here rather than in the probe
+ * table so the two callers cannot describe it differently.
+ */
+function bytesRequest(spec) {
+  const payload = Buffer.from(`__DGO_PROBE__ ${RUN_ID}\n`, 'utf8');
+  return {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/octet-stream',
+      'X-DGO-Filename': spec.filename || '__DGO_PROBE__.bin',
+      'X-DGO-Size': String(payload.length),
+      'X-DGO-Sha256': createHash('sha256').update(payload).digest('hex'),
+      'X-DGO-Probe': RUN_ID,
+    },
+    body: payload,
+  };
+}
+
 async function probe(key, url, spec) {
   const started = Date.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   const result = { key, workflowId: workflowIdOf(url), ms: 0 };
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-DGO-Probe': RUN_ID },
-      body: JSON.stringify({ ...spec.body, __probe: RUN_ID }),
-      signal: controller.signal,
-    });
+    const req = spec.transport === 'bytes'
+      ? bytesRequest(spec)
+      : {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-DGO-Probe': RUN_ID },
+          body: JSON.stringify({ ...spec.body, __probe: RUN_ID }),
+        };
+    const res = await fetch(url, { ...req, signal: controller.signal });
     result.ms = Date.now() - started;
     result.status = res.status;
     const text = await res.text();
@@ -228,18 +280,27 @@ function verdictOf(r) {
  * Run
  * ------------------------------------------------------------------ */
 
+/*
+ * Targets are driven by the PROBE TABLE, not by the configured key list.
+ *
+ * The earlier loop walked `Object.entries(endpoints)`, so a contract reachable only
+ * through another key's URL — DISPATCH_OUTBOUND and ARCHIVE_REFERENCE both ride
+ * DYNAMIC_ACTIONS — could never become a target however it was configured. Three flow
+ * routes were therefore unverifiable by construction, and nothing said so: the run
+ * reported the endpoints it had probed and never mentioned the ones it structurally
+ * could not.
+ */
 const targets = [];
 for (const [surface, endpoints, probes] of [
   ['runtime', runtimeEndpoints, RUNTIME_PROBES],
   ['portal', portalEndpoints, PORTAL_PROBES],
 ]) {
   if (SURFACE && SURFACE !== surface) continue;
-  for (const [key, url] of Object.entries(endpoints)) {
-    if (!url) continue;
+  for (const [key, spec] of Object.entries(probes)) {
     if (ONLY.length && !ONLY.includes(key)) continue;
-    const spec = probes[key];
-    if (!spec) continue;
-    targets.push({ surface, key, url, spec, write: isWrite(key, surface) });
+    const url = String(endpoints[spec.via || key] || '').trim();
+    if (!url) continue;
+    targets.push({ surface, key, url, spec, write: isWrite(key, surface), via: spec.via || null });
   }
 }
 
@@ -270,7 +331,9 @@ for (const t of targets) {
   results.push({ ...t, ...r, verdict: v });
   const icon = v.ok ? '✅' : '⛔';
   const status = r.error ? '---' : String(r.status);
-  console.log(`${icon} ${status.padEnd(4)} ${String(r.ms + 'ms').padEnd(8)} ${v.why}`);
+  console.log(`${icon} ${status.padEnd(4)} ${String(r.ms + 'ms').padEnd(8)} ${v.why}` +
+    (t.via ? `  (on ${t.via}'s URL)` : '') +
+    (t.spec.transport === 'bytes' ? '  (raw-bytes PUT)' : ''));
   if (r.keys?.length) console.log(`  ${' '.repeat(24)}    keys: ${r.keys.join(', ')}`);
   if (r.parsed === false) console.log(`  ${' '.repeat(24)}    non-JSON: ${r.snippet}`);
 }

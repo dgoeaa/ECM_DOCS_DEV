@@ -59,11 +59,19 @@ const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
  */
 function scratchRepo({ qualityPasses = true, git = true } = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dgo-commission-'));
-  for (const d of ['scripts', 'config', 'document-portal', 'tests']) {
+  for (const d of ['scripts', 'scripts/lib', 'config', 'document-portal', 'tests']) {
     fs.mkdirSync(path.join(dir, d), { recursive: true });
   }
   fs.copyFileSync(SETUP, path.join(dir, 'scripts', 'setup.mjs'));
   fs.copyFileSync(GATE, path.join(dir, 'scripts', 'commission-check.mjs'));
+
+  /* The shared libraries both scripts import. Copied rather than stubbed: the endpoint
+     list and the URL rules ARE what these two commands are being tested about, and a
+     scratch copy that declared its own would let them drift apart in exactly the way
+     moving them into one module was meant to prevent. */
+  for (const lib of ['endpoint-surface.mjs', 'endpoint-validation.mjs', 'published-signatures.mjs']) {
+    fs.copyFileSync(path.join(ROOT, 'scripts', 'lib', lib), path.join(dir, 'scripts', 'lib', lib));
+  }
 
   // The quality scripts the gate shells out to are STUBBED here. This suite tests the
   // gate's own logic — whether it blocks when a sub-check fails — not check-imports.mjs
@@ -285,7 +293,11 @@ check('a placeholder URL blocks go-live', () => {
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
   assert(r.status === 1, 'a placeholder URL did not block go-live');
-  assert(/placeholder/i.test(r.stdout), 'the placeholder was not named');
+  /* Asserted on the property, not the sentence: the gate must name the offending KEY, so
+     the reader knows which endpoint to fix. The wording comes from the shared validator
+     and is free to improve. */
+  assert(/FETCH_ALL/.test(r.stdout), 'the placeholder endpoint was not named');
+  assert(/not usable|template text/i.test(r.stdout), 'the reason was not given');
 });
 
 check('a plain-HTTP endpoint blocks go-live', () => {
@@ -297,7 +309,8 @@ check('a plain-HTTP endpoint blocks go-live', () => {
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
   assert(r.status === 1, 'a non-HTTPS trigger URL did not block go-live');
-  assert(/non-HTTPS/.test(r.stdout), 'the insecure endpoint was not named');
+  assert(/FETCH_ALL/.test(r.stdout), 'the insecure endpoint was not named');
+  assert(/http:\/\/|must not travel in clear/i.test(r.stdout), 'the reason was not given');
 });
 
 /* ------------------------------------------------------------------ *

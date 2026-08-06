@@ -24,3 +24,7 @@ Thumbs.db
 # The 17MB reference archive. Extracted to docs/reference/ and removed from the
 # working tree — see docs/cutover/ARCHIVE_DISPOSITION.md. Still in git history.
 ECM_DOCS_DEV.zip
+
+# Built deployment packages (npm run package). Each carries a provisioned
+# config.local.js — a credential. Never commit one.
+dist/

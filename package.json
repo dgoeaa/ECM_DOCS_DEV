@@ -18,7 +18,7 @@
     "commission": "node scripts/commission-check.mjs",
     "recover": "node scripts/setup.mjs --recover --force",
     "verify:endpoints": "node scripts/verify-endpoints.mjs",
-    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:tokens && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:portability && npm run test:register && npm run test:normalizer && npm run test:flags && npm run test:entrypoints && npm run test:triage && npm run test:visual && npm run test:architecture && npm run test:auth && npm run test:identity && npm run test:roles && npm run test:commissioning && npm run test:devserver && npm run test:smoke",
+    "test": "npm run test:imports && npm run test:secrets && npm run test:exposure && npm run test:governance && npm run test:encoding && npm run test:tokens && npm run test:hardening && npm run test:references && npm run test:categories && npm run test:filenames && npm run test:portability && npm run test:packaging && npm run test:register && npm run test:normalizer && npm run test:flags && npm run test:entrypoints && npm run test:triage && npm run test:visual && npm run test:architecture && npm run test:auth && npm run test:identity && npm run test:roles && npm run test:commissioning && npm run test:devserver && npm run test:smoke",
     "test:commissioning": "node tests/commissioning.test.mjs",
     "test:identity": "node tests/identity-directory.test.mjs",
     "test:roles": "node scripts/role-catalogue-seed.mjs --check",
@@ -46,7 +46,10 @@
     "visual": "node scripts/visual-docs-data.mjs --write",
     "test:visual": "node tests/visual-docs.test.mjs",
     "architecture": "node scripts/architecture-data.mjs --write",
-    "test:architecture": "node tests/architecture.test.mjs"
+    "test:architecture": "node tests/architecture.test.mjs",
+    "package": "node scripts/package.mjs",
+    "package:verify": "node scripts/package.mjs",
+    "test:packaging": "node tests/packaging.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

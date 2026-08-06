@@ -44,6 +44,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { RUNTIME_ENDPOINTS, PORTAL_ENDPOINTS } from './lib/endpoint-surface.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const argv = process.argv.slice(2);
@@ -56,34 +58,18 @@ const VALUES_FILE = (() => {
 })();
 
 /* ------------------------------------------------------------------ *
- * The two endpoint surfaces.
+ * The two endpoint surfaces come from scripts/lib/endpoint-surface.mjs.
+ *
+ * They used to be declared here, and again in scripts/package.mjs, and the pilot subset
+ * a third time in scripts/commission-check.mjs. Three copies of a list that must agree is
+ * three chances to disagree, and the consequence is not cosmetic: a wired working tree and
+ * a delivered package would provision different endpoint sets while both reported success.
  *
  * `pilot: true` marks the endpoints docs/deployment/MINIMAL-PILOT.md treats as the
- * irreducible set — correspondence cannot flow end to end without them. Everything
- * else is a feature you add later with one line here and a redeploy, which is why an
- * unset key is reported rather than treated as an error.
+ * irreducible set — correspondence cannot flow end to end without them. Everything else is
+ * a feature you add later with one value and a re-run, which is why an unset key is
+ * reported rather than treated as an error.
  * ------------------------------------------------------------------ */
-
-const RUNTIME_ENDPOINTS = [
-  { key: 'FETCH_ALL', pilot: true, note: 'the register itself — officers see nothing without it' },
-  { key: 'DYNAMIC_ACTIONS', pilot: true, note: 'every governed write: register, triage, treat, approve, dispatch, close, archive' },
-  { key: 'SINGLE_ASSIGNMENT', pilot: true, note: 'assign one correspondence to one officer' },
-  { key: 'BULK_ASSIGNMENT', pilot: true, note: 'assign many at once' },
-  { key: 'FETCH_ACTIVITIES', note: 'activity feed' },
-  { key: 'REFERENCE_DATA', note: 'lookups and reference data' },
-  { key: 'GET_DOCS', note: 'document retrieval' },
-  { key: 'FETCH_EMAIL_ATTACHMENTS', note: 'email attachment retrieval' },
-  { key: 'BULK_ASSIGNMENT_DIRECT', note: 'direct bulk assignment variant' },
-  { key: 'EMAIL', note: 'outward correspondence email' },
-  { key: 'EMAIL_RELATED_TASK', note: 'email-to-task assignment' },
-  { key: 'AI_EMAIL_ANALYSIS', note: 'AI analysis of inbound email' },
-  { key: 'AI_DOC_ANALYSIS', note: 'AI analysis of event documents' },
-  { key: 'AI_CHAT', note: 'AI chat' },
-  { key: 'OTP_GENERATE', note: 'one-time passcode issue' },
-  { key: 'OTP_VERIFY', note: 'one-time passcode check' },
-  { key: 'SUBSIDIARY_ACTIONS', note: 'multi-route subsidiary action flow' },
-  { key: 'SCAN_INTAKE', note: 'registry counter scan deposit (raw-bytes PUT, not a JSON contract)' },
-];
 
 /**
  * Authentication, injected the same way the endpoints are.
@@ -104,15 +90,6 @@ const AUTH_KEYS = [
   { key: 'clientId', env: 'DGO_AUTH_CLIENT_ID' },
   { key: 'authority', env: 'DGO_AUTH_AUTHORITY' },
   { key: 'roleSource', env: 'DGO_AUTH_ROLE_SOURCE' },
-];
-
-const PORTAL_ENDPOINTS = [
-  { key: 'SUBMISSION', pilot: true, note: 'register a submission, mint its reference, issue upload tickets' },
-  { key: 'UPLOAD', pilot: true, note: 'redeem one ticket with the bytes of one attachment' },
-  { key: 'STATUS', note: 'citizens tracking a submission (reference + email pair)' },
-  { key: 'SUPPORT', note: 'public help desk — CASE- references, never enters the registry' },
-  { key: 'VERIFY', note: 'mail a one-time code to a submitter' },
-  { key: 'VERIFY_CONFIRM', note: 'exchange that code for the proof SUBMISSION accepts' },
 ];
 
 /* ------------------------------------------------------------------ *
