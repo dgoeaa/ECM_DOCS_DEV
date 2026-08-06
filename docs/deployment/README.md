@@ -7,6 +7,10 @@ config line and a redeploy each.
 
 Then:
 
+- **[`FLOW-BUILD-PLAN.md`](./FLOW-BUILD-PLAN.md)** — what to BUILD in Power Automate. All 19
+  contract keys across 15 physical flows, each with its request, response and obligations,
+  sequenced into six waves by what unblocks what. Start at Wave 0: it closes the fail-open
+  that makes every browser a System Administrator, and needs no authentication.
 - **[`CLOUDFLARE.md`](./CLOUDFLARE.md)** — the full deployment, and the reference for the
   parts the minimal path points at. What to DO. A click-by-click walkthrough in nine
   parts (A to I), 229 numbered steps, from checking Node.js to reading the logs after

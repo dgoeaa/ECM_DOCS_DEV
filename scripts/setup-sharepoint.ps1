@@ -54,6 +54,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $SpecPath = Join-Path $PSScriptRoot '../docs/reference/sharepoint-provisioning-spec.json'
+$RoleSeedPath = Join-Path $PSScriptRoot '../docs/reference/role-catalogue-seed.json'
 
 <#
   The columns the PLATFORM READS from your existing operational lists.
@@ -205,6 +206,74 @@ function Ensure-SpecList($ListSpec, $FieldsForList) {
     }
 }
 
+function Ensure-SeedItem($Seed, $RoleRows) {
+    $title = $Seed.ListTitle
+    $keyField = $Seed.KeyField
+    $keyValue = $Seed.KeyValue
+
+    if (-not (Get-ListSafe $title)) {
+        Write-Host "      ? $title.$keyValue — list absent, seed skipped" -ForegroundColor Yellow
+        return
+    }
+
+    # Idempotent by the specification's own key field, not by Title. Re-running must never
+    # produce a second systemAdmin row, and several of these lists have a Title that is not
+    # unique by design.
+    # @() wraps the result: a CAML query matching exactly one item returns a bare object,
+    # not an array, and a bare object has no .Count — the seed would then be treated as
+    # absent and created a second time on every run.
+    $existing = @()
+    try {
+        $existing = @(Get-PnPListItem -List $title -Query `
+            "<View><Query><Where><Eq><FieldRef Name='$keyField'/><Value Type='Text'>$keyValue</Value></Eq></Where></Query></View>" `
+            -ErrorAction Stop)
+    } catch { $existing = @() }
+
+    if ($existing.Count -gt 0) {
+        Write-Host "      = $keyValue" -ForegroundColor DarkGray
+        $script:Present++
+        return
+    }
+
+    # DGO_RoleCatalogue is seeded from role-catalogue-seed.json, NOT from the workbook.
+    # The workbook was extracted before decision D6(b) and before scan-intake, so its role
+    # rows grant executive, director and operator fewer routes than config/rbac.config.js
+    # actually allows. Seeding those would take pages away from officers who use them daily.
+    # Every other list seeds from the specification verbatim.
+    $values = $null
+    if ($title -eq 'DGO_RoleCatalogue' -and $RoleRows) {
+        $row = $RoleRows | Where-Object { $_.RoleId -eq $keyValue } | Select-Object -First 1
+        if ($row) {
+            $values = @{}
+            $row.PSObject.Properties | ForEach-Object { $values[$_.Name] = $_.Value }
+        }
+    }
+    if (-not $values) {
+        if (-not $Seed.FieldsJson) {
+            Write-Host "      ! $keyValue — no FieldsJson in the specification" -ForegroundColor Red
+            $script:Failed++
+            return
+        }
+        $values = @{}
+        ($Seed.FieldsJson | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $values[$_.Name] = $_.Value }
+    }
+
+    if (-not $PSCmdlet.ShouldProcess("$title.$keyValue", 'Create seed item')) {
+        Write-Host "      ? $keyValue (would create)" -ForegroundColor Yellow
+        return
+    }
+
+    try {
+        Add-PnPListItem -List $title -Values $values | Out-Null
+        Write-Host "      + $keyValue" -ForegroundColor Green
+        $script:Created++
+    }
+    catch {
+        Write-Host "      ! $keyValue — $($_.Exception.Message)" -ForegroundColor Red
+        $script:Failed++
+    }
+}
+
 function Report-OperationalList($Group) {
     $found = $null
     foreach ($alias in $Group.Aliases) { if (Get-ListSafe $alias) { $found = $alias; break } }
@@ -259,6 +328,22 @@ if (-not $OperationalListsOnly) {
 
     Write-Host "Platform lists — from $(Split-Path $SpecPath -Leaf)" -ForegroundColor Cyan
     Write-Host "$($spec.lists.Count) list(s), $($spec.fields.Count) field(s) specified"
+
+    # -SiteUrl decides where these land; the specification's TargetSite is documentation.
+    # They are reported when they disagree because two copies of this workbook exist with
+    # different TargetSite values (DGO_ECM_GOVERNANCE and NITDADGO-EAAACTIVITYTRACKING),
+    # and provisioning the governance lists into the wrong site is the kind of mistake that
+    # is only noticed once something reads an empty directory and fails open.
+    $specSites = @($spec.lists | ForEach-Object { $_.TargetSite } | Where-Object { $_ } | Sort-Object -Unique)
+    foreach ($site in $specSites) {
+        if ($site.TrimEnd('/') -ne $SiteUrl.TrimEnd('/')) {
+            Write-Host ""
+            Write-Host "  ! The specification names a different site:" -ForegroundColor Yellow
+            Write-Host "      specification : $site" -ForegroundColor Yellow
+            Write-Host "      -SiteUrl      : $SiteUrl" -ForegroundColor Yellow
+            Write-Host "    -SiteUrl wins. Confirm this is the site you intend before continuing." -ForegroundColor Yellow
+        }
+    }
     Write-Host ""
 
     foreach ($l in ($spec.lists | Sort-Object ListOrder)) {
@@ -266,6 +351,30 @@ if (-not $OperationalListsOnly) {
         Ensure-SpecList -ListSpec $l -FieldsForList $fieldsForList
     }
     Write-Host ""
+
+    # Seed items. Previously specified and never provisioned: the ten seed rows — six of
+    # them the RBAC role catalogue — were read out of the workbook into the specification
+    # and then nothing created them, so DGO_RoleCatalogue provisioned empty every time.
+    if ($spec.seedItems) {
+        $roleRows = $null
+        if (Test-Path $RoleSeedPath) {
+            $roleRows = (Get-Content $RoleSeedPath -Raw | ConvertFrom-Json).rows
+            Write-Host "Seed items — roles from $(Split-Path $RoleSeedPath -Leaf), the rest from the specification" -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "Seed items — from the specification" -ForegroundColor Cyan
+            Write-Host "  ! role-catalogue-seed.json is absent; DGO_RoleCatalogue will be seeded from the" -ForegroundColor Yellow
+            Write-Host "    workbook, whose role rows predate D6(b) and scan-intake. Run: npm run seed:roles" -ForegroundColor Yellow
+        }
+        Write-Host "$($spec.seedItems.Count) seed item(s) specified"
+        Write-Host ""
+
+        foreach ($group in ($spec.seedItems | Group-Object ListTitle | Sort-Object Name)) {
+            Write-Host "  · $($group.Name)" -ForegroundColor Cyan
+            foreach ($s in $group.Group) { Ensure-SeedItem -Seed $s -RoleRows $roleRows }
+        }
+        Write-Host ""
+    }
 }
 
 Write-Host "Existing operational lists — REPORT ONLY, nothing is changed" -ForegroundColor Cyan
@@ -274,7 +383,7 @@ Write-Host ""
 foreach ($g in $OperationalSchema) { Report-OperationalList -Group $g }
 
 Write-Host ""
-Write-Host "Platform lists: $script:Created field(s) created, $script:Present already present, $script:Failed failed." -ForegroundColor Green
+Write-Host "Platform lists: $script:Created created, $script:Present already present, $script:Failed failed (fields and seed items)." -ForegroundColor Green
 Write-Host ""
 Write-Host "Anything marked -- above is a column the platform reads and your list does not have." -ForegroundColor Yellow
 Write-Host "Decide each one deliberately. Adding a column to a live register is a change to a" -ForegroundColor Yellow

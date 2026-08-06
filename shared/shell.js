@@ -10,6 +10,7 @@ import { CommandPalette, ToastHost } from './components.js';
 import { installAccessibilityShortcuts, afterRouteChange } from './accessibility.js';
 import { allWorkspaceCommands, guideFor } from './workspace-guide.js';
 import { canCurrentUserAccess } from '../core/current-user.js';
+import { NotificationCenter } from '../core/notification-center.js';
 
 const I = Object.freeze({home:'⌂','ecm-erp-charter':'⚖',correspondence:'✉','single-assignment':'▣',orchestrator:'⌘','response-tracking':'↔',approvals:'✓',dispatch:'➤',settings:'⚙',activities:'▤','bulk-assignment':'∞',lookup:'⌕',archive:'◇',registry:'▣',comments:'◌',reports:'R',statistics:'∑',executive:'E',assistant:'✦','operator-hud':'O',diagnostics:'D','user-admin':'U'});
 
@@ -23,7 +24,7 @@ const NAV_DRAWER_MAX = 900;
 if (typeof HTMLElement !== 'undefined' && typeof customElements !== 'undefined') {
 class Shell extends HTMLElement{
   connectedCallback(){ this._installed=false; this.render(); this._off=State.on(()=>this.refreshIdentityAndNav()); Router.start(); if(!this._installed){ installAccessibilityShortcuts(this); this._installed=true; } }
-  disconnectedCallback(){ this._off?.(); }
+  disconnectedCallback(){ this._off?.(); this._offFeed?.(); }
   render(){
     const s=State.get(); const route=Router.path(); const theme=normalizeTheme(s.settings.theme); const density=normalizeDensity(s.settings.density); applyRootAttributes(route,{theme,density});
     this.innerHTML=`<div class="dgo-ministry-bar">Federal Ministry of Communications, Innovation & Digital Economy</div>
@@ -43,6 +44,7 @@ class Shell extends HTMLElement{
           <button type="button" class="dgo-iconbtn" data-sync aria-label="Synchronize data" title="Synchronize data">↻</button>
           <button type="button" class="dgo-iconbtn" data-density aria-label="Toggle density" title="Density: ${esc(density)}">↕</button>
           <button type="button" class="dgo-iconbtn" data-theme aria-label="Switch theme" title="Theme: ${esc(theme)}">◐</button>
+          <button type="button" class="dgo-iconbtn dgo-notify-trigger" data-notify-open aria-label="Activity and notifications" title="Activity" aria-haspopup="dialog" aria-expanded="false">•<span class="dgo-notify-badge" data-notify-badge hidden></span></button>
           <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(s.profile.persona)}</small></span></button>
         </header>
         <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
@@ -51,7 +53,7 @@ class Shell extends HTMLElement{
     </div>
     <div class="dgo-scrim" data-scrim hidden></div>
     <div class="dgo-live-region" aria-live="polite" data-live-region></div>
-    ${ToastHost()}${CommandPalette()}`;
+    ${ToastHost()}${CommandPalette()}${this.notifyPanelHtml()}`;
     this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert();
   }
   navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon" aria-hidden="true">${I[r.path]||'•'}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
@@ -66,7 +68,69 @@ class Shell extends HTMLElement{
     this.querySelectorAll('.dgo-sidebar__item').forEach(a=>a.addEventListener('click',()=>this.closeNav()));
     this.querySelector('[data-command-close]')?.addEventListener('click',()=>this.closeCommandPalette());
     this.querySelector('[data-command-input]')?.addEventListener('input',e=>this.renderCommandResults(e.target.value));
+    this.querySelector('[data-notify-open]')?.addEventListener('click',()=>this.toggleNotifications());
+    this.querySelector('[data-notify-close]')?.addEventListener('click',()=>this.closeNotifications());
+    this.querySelector('[data-notify-clear]')?.addEventListener('click',()=>{ NotificationCenter.clear(); this.announce('Activity history cleared'); });
+    this._offFeed?.(); this._offFeed=NotificationCenter.subscribe(()=>this.renderNotifications());
+    this.renderNotifications();
   }
+
+  /* ── Durable feedback surface (finding 03) ─────────────────────────────────────────
+     The toast remains the at-a-glance signal; this is where it goes afterwards, so an
+     outcome the user did not happen to be looking at is still recoverable. */
+  notifyPanelHtml(){
+    return `<div class="dgo-notify-panel" data-notify-panel hidden>
+      <section role="dialog" aria-modal="false" aria-label="Activity and notifications">
+        <header>
+          <h2>Activity</h2>
+          <div>
+            <button type="button" class="dgo-btn dgo-btn--secondary dgo-btn--sm" data-notify-clear>Clear all</button>
+            <button type="button" class="dgo-iconbtn" data-notify-close aria-label="Close activity">&times;</button>
+          </div>
+        </header>
+        <ol data-notify-list></ol>
+      </section>
+    </div>`;
+  }
+  renderNotifications(){
+    const badge=this.querySelector('[data-notify-badge]');
+    const list=this.querySelector('[data-notify-list]');
+    const items=NotificationCenter.all();
+    const unread=NotificationCenter.unreadCount();
+    if(badge){ badge.hidden=unread===0; badge.textContent=unread>99?'99+':String(unread); }
+    const trigger=this.querySelector('[data-notify-open]');
+    if(trigger) trigger.setAttribute('aria-label',unread?`Activity and notifications, ${unread} unread`:'Activity and notifications');
+    if(!list) return;
+    list.innerHTML = items.length
+      ? items.map(r=>`<li class="dgo-notify-item dgo-notify-item--${esc(r.tone)}${r.read?'':' is-unread'}">
+          <div>
+            <p>${esc(r.message)}</p>
+            <small>${esc(fmtDateTime(r.at))}${r.module?` &middot; ${esc(r.module)}`:''}${r.ref?` &middot; ${esc(r.ref)}`:''}</small>
+          </div>
+          <button type="button" class="dgo-iconbtn" data-notify-dismiss="${esc(r.id)}" aria-label="Dismiss: ${esc(r.message)}">&times;</button>
+        </li>`).join('')
+      : '<li class="dgo-notify-empty">Nothing yet. Actions you take, and anything that fails, will be recorded here.</li>';
+    list.querySelectorAll('[data-notify-dismiss]').forEach(b=>b.addEventListener('click',()=>NotificationCenter.dismiss(b.dataset.notifyDismiss)));
+  }
+  toggleNotifications(){ this.querySelector('[data-notify-panel]')?.hidden ? this.openNotifications() : this.closeNotifications(); }
+  openNotifications(){
+    const panel=this.querySelector('[data-notify-panel]'); if(!panel) return;
+    panel.hidden=false;
+    this.querySelector('[data-notify-open]')?.setAttribute('aria-expanded','true');
+    NotificationCenter.markAllRead();
+    this.renderNotifications();
+    panel._releaseTrap=createFocusTrap(panel,{onEscape:()=>this.closeNotifications()});
+    requestAnimationFrame(()=>panel.querySelector('button')?.focus());
+  }
+  closeNotifications(){
+    const panel=this.querySelector('[data-notify-panel]'); if(!panel||panel.hidden) return;
+    panel._releaseTrap?.(); panel._releaseTrap=null;
+    panel.hidden=true;
+    const trigger=this.querySelector('[data-notify-open]');
+    trigger?.setAttribute('aria-expanded','false');
+    trigger?.focus();
+  }
+  announce(message){ const live=this.querySelector('[data-live-region]'); if(live) live.textContent=String(message||''); }
   toggleNav(){ const open=this.dataset.navopen==='true'; this.dataset.navopen=open?'false':'true'; this.querySelector('[data-scrim]').hidden=open; this.syncNavInert(); }
   closeNav(){ this.dataset.navopen='false'; const s=this.querySelector('[data-scrim]'); if(s) s.hidden=true; this.syncNavInert(); }
   // Below the drawer breakpoint the sidebar is parked off-canvas with translateX(-100%), which
@@ -103,7 +167,15 @@ class Shell extends HTMLElement{
   closeCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(p){ p.hidden=true; p._releaseTrap?.(); } }
   renderCommandResults(q=''){ const box=this.querySelector('[data-command-results]'); if(!box)return; const query=String(q).toLowerCase(); const items=allWorkspaceCommands().filter(c=>canCurrentUserAccess(c.route)).filter(c=>!query || `${c.label} ${c.route} ${c.purpose}`.toLowerCase().includes(query)).slice(0,20); box.innerHTML=items.map(c=>`<button type="button" role="option" class="dgo-cmdk__item" data-open-route="${esc(c.route)}"><span>${I[c.route]||'•'}</span><span><b>${esc(c.label)}</b><small>${esc(c.primary?'Workspace':(c.visibleThrough||'Contextual'))}</small></span></button>`).join('') || '<div class="dgo-cmdk__empty">No matching workspace.</div>'; box.querySelectorAll('[data-open-route]').forEach(b=>b.addEventListener('click',()=>{Router.go(b.dataset.openRoute); this.closeCommandPalette();})); }
   showGuide(){ const route=Router.path(); const g=guideFor(route); const title=g?.label || this.routeLabel(route); const body=`<p>${esc(g?.purpose || g?.reason || 'This workspace is governed by the DGO operating model.')}</p>${g?.owns?`<p><b>Owns:</b> ${esc(g.owns.join(', '))}</p>`:''}${g?.handoffs?`<p><b>Handoffs:</b> ${esc(g.handoffs.join(', '))}</p>`:''}`; this.dialog(title, body); }
-  toast(message,tone='info'){ const host=this.querySelector('[data-toast-host]'); if(!host)return; const node=document.createElement('div'); node.className=`dgo-toast dgo-toast--${tone}`; node.textContent=String(message||''); host.appendChild(node); setTimeout(()=>node.remove(),4200); }
+  /* The transient half of the feedback channel. Every toast is also written to the
+     notification centre before it is shown, so the 4200ms timeout below decides only how
+     long the message stays in front of the user — never whether it survives at all. */
+  toast(message,tone='info',meta={}){
+    NotificationCenter.push(message,tone,meta);
+    const host=this.querySelector('[data-toast-host]'); if(!host)return;
+    const node=document.createElement('div'); node.className=`dgo-toast dgo-toast--${tone}`; node.textContent=String(message||'');
+    host.appendChild(node); setTimeout(()=>node.remove(),4200);
+  }
   dialog(title, body){ const wrap=document.createElement('div'); wrap.className='dgo-dialog-backdrop'; wrap.dataset.dialog='guide'; wrap.innerHTML=`<section class="dgo-dialog" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${esc(title)}</h2><button type="button" class="dgo-iconbtn" data-dialog-close aria-label="Close dialog">×</button></header><div class="dgo-dialog__body">${body}</div><footer><button type="button" class="dgo-btn dgo-btn--primary" data-dialog-close>Close</button></footer></section>`; const close=()=>{ wrap._releaseTrap?.(); wrap.remove(); }; wrap._dismiss=close; wrap.querySelectorAll('[data-dialog-close]').forEach(b=>b.addEventListener('click',close)); this.appendChild(wrap); createFocusTrap(wrap,{onEscape:close}); requestAnimationFrame(()=>wrap.querySelector('button')?.focus()); }
   confirm(options){ const o=typeof options==='string'?{title:'Confirm action',body:options}:options||{}; return new Promise(resolve=>{ const wrap=document.createElement('div'); wrap.className='dgo-dialog-backdrop'; wrap.dataset.dialog='confirm'; wrap.innerHTML=`<section class="dgo-dialog" role="dialog" aria-modal="true" aria-label="${esc(o.title||'Confirm action')}"><header><h2>${esc(o.title||'Confirm action')}</h2></header><div class="dgo-dialog__body">${/<[a-z][\s\S]*>/i.test(o.body||'')?(o.body||''):('<p>'+esc(o.body||'Do you want to continue?')+'</p>')}</div><footer><button type="button" class="dgo-btn dgo-btn--secondary" data-no>Cancel</button><button type="button" class="dgo-btn dgo-btn--primary" data-yes>Continue</button></footer></section>`;
     // Every dismissal route (Cancel, Escape, global transient close) must resolve the

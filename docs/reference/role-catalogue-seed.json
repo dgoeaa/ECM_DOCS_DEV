@@ -1,0 +1,82 @@
+{
+  "generatedBy": "scripts/role-catalogue-seed.mjs",
+  "generatedFrom": "config/rbac.config.js",
+  "listTitle": "DGO_RoleCatalogue",
+  "keyField": "RoleId",
+  "note": "Generated. Do not edit by hand — change config/rbac.config.js and re-run `npm run seed:roles`. This supersedes the DGO_RoleCatalogue rows in sharepoint-provisioning-spec.json, which are a verbatim record of a workbook extracted before D6(b) and scan-intake and are therefore three roles short of the routes the platform grants.",
+  "roleCount": 6,
+  "rows": [
+    {
+      "Title": "systemAdmin",
+      "RoleId": "systemAdmin",
+      "Persona": "admin",
+      "PermissionsJson": "[\"user:view\",\"user:create\",\"user:update\",\"user:disable\",\"role:assign\",\"role:view\",\"settings:manage\",\"audit:view\",\"dispatch:approve\",\"bulk:assign\",\"route:manage\",\"executive:view\",\"executive:export\"]",
+      "AllowedRoutesJson": "[\"*\"]",
+      "CanAssignRoles": true,
+      "CanManageSettings": true,
+      "CanViewAudit": true,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    },
+    {
+      "Title": "userAdmin",
+      "RoleId": "userAdmin",
+      "Persona": "admin",
+      "PermissionsJson": "[\"user:view\",\"user:create\",\"user:update\",\"user:disable\",\"role:assign\",\"role:view\",\"audit:view\"]",
+      "AllowedRoutesJson": "[\"home\",\"settings\",\"user-admin\",\"diagnostics\",\"operator-hud\"]",
+      "CanAssignRoles": true,
+      "CanManageSettings": false,
+      "CanViewAudit": true,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    },
+    {
+      "Title": "executive",
+      "RoleId": "executive",
+      "Persona": "executive",
+      "PermissionsJson": "[\"executive:view\",\"executive:export\",\"audit:view\"]",
+      "AllowedRoutesJson": "[\"home\",\"executive\",\"response-tracking\",\"approvals\",\"briefs\",\"meetings\",\"projects\",\"reports\",\"statistics\",\"lookup\",\"assistant\",\"archive\"]",
+      "CanAssignRoles": false,
+      "CanManageSettings": false,
+      "CanViewAudit": true,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    },
+    {
+      "Title": "director",
+      "RoleId": "director",
+      "Persona": "registry",
+      "PermissionsJson": "[\"executive:view\",\"route:manage\",\"dispatch:approve\",\"bulk:assign\"]",
+      "AllowedRoutesJson": "[\"home\",\"activities\",\"correspondence\",\"response-tracking\",\"orchestrator\",\"approvals\",\"dispatch\",\"scan-intake\",\"briefs\",\"meetings\",\"projects\",\"reports\",\"statistics\",\"lookup\",\"assistant\"]",
+      "CanAssignRoles": false,
+      "CanManageSettings": false,
+      "CanViewAudit": false,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    },
+    {
+      "Title": "operator",
+      "RoleId": "operator",
+      "Persona": "registry",
+      "PermissionsJson": "[\"route:manage\",\"bulk:assign\"]",
+      "AllowedRoutesJson": "[\"home\",\"activities\",\"correspondence\",\"response-tracking\",\"orchestrator\",\"single-assignment\",\"bulk-assignment\",\"scan-intake\",\"registry\",\"comments\",\"dispatch\",\"correspondence-email\",\"meetings\",\"projects\",\"lookup\",\"assistant\"]",
+      "CanAssignRoles": false,
+      "CanManageSettings": false,
+      "CanViewAudit": false,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    },
+    {
+      "Title": "viewer",
+      "RoleId": "viewer",
+      "Persona": "general",
+      "PermissionsJson": "[]",
+      "AllowedRoutesJson": "[\"home\",\"response-tracking\",\"reports\",\"statistics\",\"lookup\"]",
+      "CanAssignRoles": false,
+      "CanManageSettings": false,
+      "CanViewAudit": false,
+      "Active": true,
+      "Version": "R11.6-PILOT"
+    }
+  ]
+}
