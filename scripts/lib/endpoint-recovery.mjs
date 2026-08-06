@@ -130,7 +130,21 @@ function trackedCorpusFiles() {
  *
  * Unescaping here is deliberately lossy and that is fine: this is a scanner looking for
  * URLs and key names, not a parser that has to round-trip anything.
+ *
+ * It is done in a single pass. Chained `.replace()` calls would re-scan their own output,
+ * so `\u0026amp;` would decode to `&` in two steps rather than the `&amp;` it denotes —
+ * and a URL carrying a literal `&amp;` in a parameter would lose it. One pass, each match
+ * substituted once, keeps the mapping honest.
  */
+const UNESCAPE = {
+  '\\"': '"',
+  '\\/': '/',
+  '\\u0026': '&',
+  '&amp;': '&',
+  '\\n': '\n'
+};
+const UNESCAPE_RE = /\\"|\\\/|\\u0026|&amp;|\\n/g;
+
 function readNormalised(rel) {
   const abs = path.join(ROOT, rel);
   let text;
@@ -140,12 +154,7 @@ function readNormalised(rel) {
   } catch {
     return '';
   }
-  return text
-    .replace(/\\"/g, '"')
-    .replace(/\\\//g, '/')
-    .replace(/\\u0026/g, '&')
-    .replace(/&amp;/g, '&')
-    .replace(/\\n/g, '\n');
+  return text.replace(UNESCAPE_RE, (m) => UNESCAPE[m]);
 }
 
 /**
