@@ -29,10 +29,23 @@
  *           entry and `DataClient.request()` must not be used for it — base64-in-JSON is
  *           what produced the 4 MB ceiling these two replaced.
  *
- * `actions` names every flow route that arrives on this URL. Where it holds more than one
- * entry the flow switches on `action`, so provisioning one URL commissions several
- * obligations — and a flow that implements only the first of them fails at the desk, not
- * at the gate. The packager reports action coverage for exactly this reason.
+ * `actions` names every flow route that arrives on this URL, and a route is reached in one
+ * of TWO ways — the distinction matters to whoever builds the flow:
+ *
+ *   by `action`     the wire body's own `action` field, which core/data-client.js takes
+ *                   from the contract. `fetchAll`, `getDocs`, `singleassignment`.
+ *   by `operation`  a discriminator INSIDE the payload, where several routes share one
+ *                   `action`. `core/api.js` invokeObsidianAction() posts
+ *                   `{ action: 'dynamicGlobalAction', payload: { operation: 'dispatchOutbound' } }`
+ *                   — so `dispatchOutbound` is an operation, not an action, and a flow
+ *                   switching only on `action` will never see it.
+ *
+ * Both are listed here because both are obligations on the flow, and provisioning one URL
+ * commissions all of them. A flow that implements the first and not the rest fails at a
+ * desk, not at the gate — which is why the packager reports route coverage rather than
+ * only URL coverage, and why `docs/deployment/FLOW-BUILD-PLAN.md` is cross-checked against
+ * this list. That cross-check found `transitionStatus` and `logAuditEvent` documented
+ * nowhere, while the client had always been able to send them.
  */
 export const RUNTIME_ENDPOINTS = Object.freeze([
   { key: 'FETCH_ALL', pilot: true, transport: 'json', actions: ['fetchAll'],

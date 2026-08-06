@@ -442,16 +442,56 @@
          denied     the registry answered and it did not — authoritative, do not fall back
          unavailable  no read-back configured, offline, or the registry could not be
                     reached. NOT a denial: the caller may show device data, labelled. */
-    status: function (referenceId, email) {
+    /* THE PROOF IS OPTIONAL HERE THE SAME WAY IT IS OPTIONAL ON SUBMIT.
+
+       The portal gated SUBMISSION behind a verified address and left STATUS ungated: it
+       posted `{referenceId, email}` and no proof at all. That asymmetry was the portal's
+       sharpest remaining one, because the reference-and-email pair is the entire gate on
+       reading a record back — and it is a pair a submitter's own correspondent may hold, a
+       forwarded receipt being the ordinary way it escapes.
+
+       It cannot be fixed in the browser. A client cannot strengthen a gate the flow does
+       not enforce; posting a proof the flow ignores would be theatre, and refusing to look
+       up without one would break every deployment whose STATUS flow does not ask.
+
+       So this follows the pattern the repository already uses for authentication and for
+       submission verification: the CLIENT HALF is complete and dormant, and the FLOW
+       decides. A STATUS flow that requires a proof answers `403 verification_required`; the
+       tracking page then runs the same code round-trip the submission wizard runs and
+       retries with the proof. A flow that does not require one never triggers it, and
+       nothing changes. Turning it on is a flow-side configuration event, not a development
+       one — which is the whole point of provisioning it dormant. */
+    status: function (referenceId, email, opts) {
+      opts = opts || {};
       var url = endpointUrl('STATUS');
       if (!url) return Promise.resolve({ resolution: 'unavailable', reason: 'not-configured' });
       if (!navigator.onLine) return Promise.resolve({ resolution: 'unavailable', reason: 'offline' });
+      /* THE EMAIL LEAVES THE BODY WHEN A PROOF IS PRESENT.
+
+         README.md's verified-read-back contract makes this property 1, and it is the one
+         easiest to lose: if the flow ever sees both `email` and `verification` it will
+         eventually be called with `email` alone by something, and the unverified path
+         survives inside the verified one. The flow resolves the address from the proof.
+
+         Sending both would also be the weaker claim — a request carrying an address the
+         caller typed and a proof for an address they own is only as strong as whichever
+         the flow decides to read. */
+      var body = opts.verification
+        ? { referenceId: referenceId, verification: opts.verification }
+        : { referenceId: referenceId, email: email };
       return fetch(url, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ referenceId: referenceId, email: email })
+        body: JSON.stringify(body)
       }).then(function (r) {
         return readJson(r).then(function (data) {
           if (r.ok) return { resolution: 'found', record: data.record || null };
+          /* Distinct from a denial, and it must stay distinct. The pair may be entirely
+             correct; what is missing is proof that this caller reads that mailbox.
+             Collapsing it into `denied` would tell a legitimate submitter their own
+             reference does not exist. */
+          if (r.status === 403 && data.error === 'verification_required') {
+            return { resolution: 'verification-required' };
+          }
           // 404 is the registry's single, uniform denial — it deliberately does not say
           // whether the reference was unknown or the email was wrong, and neither does
           // this. 400 is a malformed query, which is also a definite "not this pair".
@@ -462,6 +502,17 @@
       }).catch(function () {
         return { resolution: 'unavailable', reason: 'unreachable' };
       });
+    },
+
+    /* Can the tracking page run a verification round-trip at all?
+
+       Both halves are needed: a code that can be sent and nowhere to redeem it is worse
+       than not offering verification, because the submitter waits for an outcome that
+       cannot arrive. When this is false and the flow demands a proof, the page says the
+       lookup cannot be completed on this deployment rather than starting a flow it cannot
+       finish. */
+    verificationAvailable: function () {
+      return !!endpointUrl('VERIFY') && !!endpointUrl('VERIFY_CONFIRM');
     }
   };
 

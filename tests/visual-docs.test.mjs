@@ -209,28 +209,42 @@ t('the file inventories are the files on disk', () => {
   }
 });
 
-t('the proxy inventory is the proxy on disk — or says there is none', () => {
-  /* Two platform variants are maintained: one fronted by an enforcing proxy, one calling
-     the flows directly. This test used to assume the first and crashed on the second, which
-     would have meant the atlas simply could not be built on the no-proxy branch.
+t('the atlas describes one topology, and it is the one on disk', () => {
+  /* This test used to assert either topology, because two platform variants were
+     maintained: one fronted by an enforcing proxy, one calling the flows directly. That
+     variant is retired — the architecture decision is direct invocation and the proxy
+     branch was withdrawn rather than deployed — so the generator no longer detects, and
+     this no longer accepts, a shape that cannot occur.
 
-     Both directions are asserted, because the dangerous failure is not a missing inventory
-     — it is an inventory that disagrees with the tree. A page claiming a proxy tier this
-     repository does not ship is exactly the kind of confident wrong picture the generated-
-     documentation approach exists to prevent. */
-  const dir = path.join(ROOT, 'proxy/src');
-  const hasProxy = existsSync(dir);
-  assert.equal(P.backend.present, hasProxy,
-    hasProxy ? 'the tree has a proxy but the dataset denies it'
-             : 'the dataset claims a proxy tier this tree does not ship');
+     The dangerous failure was never a missing inventory. It is an inventory that disagrees
+     with the tree: a page claiming a proxy tier this repository does not ship is exactly
+     the confident wrong picture the generated-documentation approach exists to prevent.
+     That is asserted here in both directions, and it now also catches the reverse — a
+     `proxy/` reappearing on disk while the atlas denies it, which under the current
+     decision means someone has reintroduced an intermediary. */
+  assert.ok(!existsSync(path.join(ROOT, 'proxy/src')),
+    'proxy/src exists — an intermediary has been reintroduced into a request path the '
+    + 'architecture requires to be direct, and the atlas no longer draws it');
 
-  if (!hasProxy) {
-    assert.deepEqual(P.backend.modules, [], 'no proxy on disk, so no modules may be listed');
-    assert.ok(P.backend.note, 'the absence must be stated, not left as a silent zero');
-    return;
-  }
-  const onDisk = readdirSync(dir).filter(f => f.endsWith('.js')).sort();
-  assert.deepEqual(P.backend.modules.map(m => m.name).sort(), onDisk);
+  assert.equal(P.backend.present, false, 'the dataset claims a proxy tier this tree does not ship');
+  assert.deepEqual(P.backend.modules, [], 'no proxy on disk, so no modules may be listed');
+  assert.deepEqual(P.quality.proxyTests, [], 'no proxy on disk, so no proxy tests may be listed');
+  assert.ok(P.backend.note, 'the absence must be stated, not left as a silent zero');
+  assert.match(P.backend.note, /directly/,
+    'the note must say what the platform does instead, not only what it lacks');
+});
+
+t('no zone in the atlas is an enforcement tier this repository ships', () => {
+  /* The enforcement boundary is the flow endpoint. A zone diagram that draws a component
+     in front of it would describe a system that does not exist and would quietly
+     contradict the architecture the packages are built to. */
+  const ids = P.zones.map(z => z.id);
+  assert.ok(!ids.includes('enforcement'),
+    'the atlas draws an enforcement zone; there is no component between the browser and the flow');
+  assert.equal(ids.length, 3, `expected three zones, got ${ids.length}: ${ids.join(', ')}`);
+  const record = P.zones.find(z => z.id === 'record');
+  assert.match(record.rule, /enforcement boundary sits here/,
+    'the systems-of-record zone must carry the enforcement rule, since nothing stands in front of it');
 });
 
 t('the data model totals match the provisioning specification', () => {

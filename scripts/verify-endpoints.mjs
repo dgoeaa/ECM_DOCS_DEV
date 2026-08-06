@@ -128,6 +128,11 @@ const PORTAL_PROBES = {
     write: false,
     body: { action: 'TRACK', name: 'TRACK', referenceId: '__DGO_PROBE__', email: PROBE_EMAIL },
     expect: ['record'],
+    /* The register must not confirm that a reference exists, so an unknown pair and a wrong
+       address answer identically. __DGO_PROBE__ is by construction unknown: 404 is the
+       correct answer and the evidence the uniform denial is implemented. */
+    expectStatus: [404],
+    expectStatusWhy: 'the uniform denial — the flow refuses to say whether the reference exists',
   },
   SUBMISSION: {
     write: true,
@@ -152,7 +157,13 @@ const PORTAL_PROBES = {
      the first was ever checked. A deposit without a ticket should be REFUSED — that
      refusal is the evidence that the flow validates its own callers, which on a public
      channel is the whole control. */
-  UPLOAD: { write: true, transport: 'bytes', filename: '__DGO_PROBE__.txt' },
+  UPLOAD: {
+    write: true, transport: 'bytes', filename: '__DGO_PROBE__.txt',
+    /* Deposited with no ticket. A refusal is the pass: a flow that accepts bytes without a
+       redeemable ticket is one anyone can write into. */
+    expectStatus: [401, 403],
+    expectStatusWhy: 'refused a deposit carrying no upload ticket — the ticket check is live',
+  },
 };
 
 /** A contract's own readOnly flag is the authority for the runtime surface. */
@@ -209,9 +220,28 @@ async function probe(key, url, spec) {
       const json = JSON.parse(text);
       result.parsed = true;
       result.keys = json && typeof json === 'object' && !Array.isArray(json) ? Object.keys(json) : [];
-      if (spec.expect) {
+
+      /* The contract shape can be nested. The documented flow envelope is
+         `{ ok, status, request, timing, meta, data }` and the payload the client reads —
+         `tasks`, `docs`, `emails` — is inside `data`; core/data-loader.js calls
+         assertEnvelope() and then reads the collections out of it. Checking only the top
+         level reported six correctly-shaped responses as contract gaps, which is a verifier
+         that cries wolf, and a verifier that cries wolf gets ignored on the run where it is
+         right. Both levels are considered, and which one satisfied the contract is
+         recorded so the transcript stays honest about what it found where. */
+      const envelope = json && typeof json.data === 'object' && json.data !== null && !Array.isArray(json.data)
+        ? Object.keys(json.data) : null;
+      result.dataKeys = envelope;
+      /* The declared shape describes a SUCCESSFUL response. Checking it against a refusal
+         reports a contract gap on a flow that is behaving correctly: a thin probe payload
+         refused with 400 obviously carries no `referenceId`, and saying so buries the one
+         case that matters — a 2xx that answered without what the client reads. */
+      if (spec.expect && res.status < 400) {
         result.expected = spec.expect;
-        result.missing = spec.expect.filter(k => !result.keys.includes(k));
+        const atTop = spec.expect.filter(k => !result.keys.includes(k));
+        const inData = envelope ? spec.expect.filter(k => !envelope.includes(k)) : atTop;
+        result.missing = inData.length <= atTop.length ? inData : atTop;
+        result.matchedIn = result.missing.length === 0 && atTop.length > 0 ? 'data' : 'top-level';
       }
     } catch {
       result.parsed = false;
@@ -252,7 +282,7 @@ const INTERCEPT = /not in allowlist|egress|proxy|blocked by|access denied by|cap
  * packet had reached the tenant. A verifier that green-lights unreachable endpoints is
  * worse than no verifier, because it is trusted.
  */
-function verdictOf(r) {
+function verdictOf(r, spec = {}) {
   if (r.error) return { ok: false, reached: false, why: r.error };
 
   if (r.parsed === false) {
@@ -264,6 +294,24 @@ function verdictOf(r) {
         ? 'never reached Power Automate — an egress filter or proxy answered instead'
         : `answered with non-JSON (${r.status}) — this did not come from Power Automate`,
     };
+  }
+
+  /* A STATUS OF ITS OWN, DECLARED BY THE PROBE.
+     Two endpoints answer correctly with a code this function otherwise reads as broken, and
+     conflating them is the same class of error as reading an egress filter's 403 as a live
+     flow — just in the other direction.
+
+       STATUS  404 is its DESIGNED denial. It deliberately does not distinguish an unknown
+               reference from a wrong email, because doing so answers "does this reference
+               exist?" for anybody who asks. A probe carrying __DGO_PROBE__ must get a 404,
+               and getting one is the control working.
+       UPLOAD  403 without a valid ticket is the ticket check doing its job. A deposit that
+               succeeds without a ticket is the failure; a refusal is the pass.
+
+     Declared per probe rather than inferred, so the exemption is a decision on the record
+     and cannot quietly widen to endpoints that have not earned it. */
+  if (Array.isArray(spec.expectStatus) && spec.expectStatus.includes(r.status)) {
+    return { ok: true, reached: true, why: `${r.status} — ${spec.expectStatusWhy || 'the documented response for this probe'}` };
   }
 
   if (r.status === 401 || r.status === 403) {
@@ -327,14 +375,19 @@ for (const t of targets) {
   }
   process.stdout.write(`  ${t.key.padEnd(24)} `);
   const r = await probe(t.key, t.url, t.spec);
-  const v = verdictOf(r);
+  const v = verdictOf(r, t.spec);
   results.push({ ...t, ...r, verdict: v });
   const icon = v.ok ? '✅' : '⛔';
   const status = r.error ? '---' : String(r.status);
   console.log(`${icon} ${status.padEnd(4)} ${String(r.ms + 'ms').padEnd(8)} ${v.why}` +
     (t.via ? `  (on ${t.via}'s URL)` : '') +
     (t.spec.transport === 'bytes' ? '  (raw-bytes PUT)' : ''));
-  if (r.keys?.length) console.log(`  ${' '.repeat(24)}    keys: ${r.keys.join(', ')}`);
+  if (r.keys?.length) {
+    console.log(`  ${' '.repeat(24)}    keys: ${r.keys.join(', ')}`);
+    if (r.matchedIn === 'data') {
+      console.log(`  ${' '.repeat(24)}    contract shape satisfied inside data: ${r.dataKeys.join(', ')}`);
+    }
+  }
   if (r.parsed === false) console.log(`  ${' '.repeat(24)}    non-JSON: ${r.snippet}`);
 }
 

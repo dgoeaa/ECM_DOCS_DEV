@@ -12,7 +12,9 @@
 >
 > Full analysis, method and evidence: [`docs/audits/CAPABILITY_ASSESSMENT_R11.6.md`](./CAPABILITY_ASSESSMENT_R11.6.md) (G-03 and G-04).
 
-> **Superseded in part by [`ECM_ActivityHub_Portal/REVIEW.md`](ECM_ActivityHub_Portal/REVIEW.md)** (full multidimensional review at commit `77cb6af`). Every finding below was independently re-verified there (§6). Summary of changes:
+> **Superseded in part by `ECM_ActivityHub_Portal/REVIEW.md`** (full multidimensional review at commit `77cb6af`). Every finding below was independently re-verified there (§6). Summary of changes:
+>
+> *(Editorial note, 6 August 2026 — the only change made to this document since it was written, and made to the link rather than the text. `ECM_ActivityHub_Portal/` was retired under decision D6(b) and its three unique capabilities moved into the root platform, so this citation no longer resolves to a file. The reference is kept as written because the review it names is what re-verified the findings below; it is now plain text rather than a link, so a reader is not sent to a 404 and `tests/references.test.mjs` does not report a break it must not "fix" by editing history. To read the document, check out commit `77cb6af`.)*
 >
 > - **F-001/F-002/F-003 upheld and strengthened** — the client-trust failure was reproduced as a live exploit, not just inferred.
 > - **F-004/F-005/F-006/F-008 upheld.** F-008's self-refutation was additionally confirmed dynamically across all 15 data-bearing routes.

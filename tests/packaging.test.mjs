@@ -123,6 +123,30 @@ t('every contract action is reachable from a provisioned key', () => {
     `contract actions no package documents as reachable: ${[...new Set(missing)].join(', ')}`);
 });
 
+t('every provisioned route is documented in the flow build plan', () => {
+  /* A route the client can send and the plan does not describe is a route the flow will be
+     built without. It fails at a desk, in production, as an unrecognised operation — and it
+     is invisible to every other check here, because the client is correct, the contract is
+     correct, and only the instructions to the person building the flow are incomplete.
+
+     This found `transitionStatus` and `logAuditEvent`: both reachable through
+     core/api.js since it was written, both absent from FLOW-BUILD-PLAN.md, so a flow built
+     exactly to that document would have rejected them. */
+  const plan = fs.readFileSync(path.join(ROOT, 'docs/deployment/FLOW-BUILD-PLAN.md'), 'utf8');
+  const undocumented = [];
+  for (const [surfaceId, endpoints] of [['runtime', RUNTIME_ENDPOINTS], ['portal', PORTAL_ENDPOINTS]]) {
+    for (const e of endpoints) {
+      if (!plan.includes(e.key)) undocumented.push(`${surfaceId}:${e.key} (endpoint)`);
+      for (const action of e.actions) {
+        if (action === '(raw PUT)') continue;   // no discriminator to document
+        if (!plan.includes(action)) undocumented.push(`${e.key}.${action} (route)`);
+      }
+    }
+  }
+  assert.deepEqual(undocumented, [],
+    `nobody building the flows is told to handle these:\n       ${undocumented.join('\n       ')}`);
+});
+
 t('the portal surface matches the keys document-portal/js/core.js resolves', () => {
   const core = fs.readFileSync(path.join(ROOT, 'document-portal/js/core.js'), 'utf8');
   const used = [...new Set([...core.matchAll(/endpointUrl\('([A-Z_]+)'\)/g)].map(m => m[1]))].sort();

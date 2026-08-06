@@ -375,62 +375,6 @@
     return fig(s, 'Handoffs are declared in <code>config/workflow-clarity.config.js</code>, so this graph is the configuration rather than an impression of it.', '');
   }
 
-  function figProxy() {
-    var stages = [
-      ['Request', 'Bearer token\n+ contract key', 'var(--ink-3)'],
-      ['§2.1 Verify', 'JWKS · alg allow-list\niss · aud · exp · nbf', 'var(--z-enforce)'],
-      ['§2.2 Identify', 'subject from claims\nnever from the body', 'var(--z-enforce)'],
-      ['§2.3 Role', 'mapped server-side\nfrom claims only', 'var(--z-enforce)'],
-      ['§2.4 Strip', 'client-asserted\nidentity discarded', 'var(--crit)'],
-      ['§2.5 Authorize', 'per action, matrix\nfrom rbac.config', 'var(--z-enforce)'],
-      ['§2.6 Idempotency', 'replay returns the\nfirst response', 'var(--info)'],
-      ['§2.7 Audit', 'server-side record\nbefore the call', 'var(--info)'],
-      ['Upstream', 'signed flow URL,\nserver-side only', 'var(--z-record)']
-    ];
-    var s = svgOpen('0 0 1180 250', 'The proxy request pipeline, one stage per clause of the authentication contract');
-    s += arrowDefs();
-    stages.forEach(function (st, i) {
-      var x = 16 + i * 129;
-      s += '<rect class="box" x="' + x + '" y="52" width="116" height="104" rx="9" stroke="' + st[2] + '" stroke-width="1.7"/>';
-      s += '<text class="t-cap" x="' + (x + 58) + '" y="78" text-anchor="middle" fill="' + st[2] + '">' + h(st[0]) + '</text>';
-      st[1].split('\n').forEach(function (l, j) {
-        s += '<text class="t-mono" x="' + (x + 58) + '" y="' + (102 + j * 16) + '" text-anchor="middle" style="font-size:9.6px">' + h(l) + '</text>';
-      });
-      if (i < stages.length - 1) s += '<path d="M' + (x + 116) + ',104 L' + (x + 127) + ',104" stroke="var(--ink-3)" stroke-width="1.7" marker-end="url(#ar)"/>';
-      s += '<text class="t-mono" x="' + (x + 58) + '" y="174" text-anchor="middle" fill="var(--crit)" style="font-size:9.5px">' + h(['', '401', '401', '403', '', '403', '', '', ''][i]) + '</text>';
-    });
-    s += wrap('Any stage may refuse, and a refusal is terminal. There is no path that skips a stage, and an unknown contract key requires the highest permission rather than passing through.', 16, 206, 118, 19);
-    s += wrap('One handler, two hosts: proxy/src/worker.js (Cloudflare) and proxy/src/server.js (node:http) are adapters. No security decision lives in either.', 16, 248, 118, 19, 't-sub', ' fill="var(--ink-3)"');
-    s += '</svg>';
-    return fig(s, 'Clause numbers refer to <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code> §2, which this pipeline implements end to end.',
-      sw('var(--z-enforce)', 'authentication & authorization') + sw('var(--crit)', 'refusal of client-asserted trust') + sw('var(--info)', 'integrity of the record'));
-  }
-
-  function figTicket() {
-    var s = svgOpen('0 0 1180 326', 'Upload ticket lifecycle: minted by the proxy, redeemed once, burned, with bytes relayed and verified');
-    s += arrowDefs();
-    var steps = [
-      ['1 · Declare', 'client submits filename,\nsize and sha256', 'var(--ink-3)', 60],
-      ['2 · Mint', 'proxy signs an HMAC ticket:\none file · one submission · short expiry', 'var(--z-enforce)', 320],
-      ['3 · Redeem', 'client sends the bytes\nwith the ticket', 'var(--ink-3)', 600],
-      ['4 · Verify + burn', 'digest and size checked against\nthe bytes; ticket single-use', 'var(--ok)', 860]
-    ];
-    steps.forEach(function (st, i) {
-      s += '<rect class="box" x="' + st[3] + '" y="40" width="240" height="96" rx="10" stroke="' + st[2] + '" stroke-width="1.8"/>';
-      s += '<text class="t-cap" x="' + (st[3] + 16) + '" y="68" fill="' + st[2] + '">' + h(st[0]) + '</text>';
-      st[1].split('\n').forEach(function (l, j) {
-        s += '<text class="t-sub" x="' + (st[3] + 16) + '" y="' + (92 + j * 17) + '">' + h(l) + '</text>';
-      });
-      if (i < 3) s += '<path d="M' + (st[3] + 240) + ',88 L' + (steps[i + 1][3] - 2) + ',88" stroke="var(--ink-3)" stroke-width="1.7" marker-end="url(#ar)"/>';
-    });
-    s += '<rect x="60" y="168" width="1040" height="98" rx="10" fill="var(--crit-wash)" stroke="var(--crit)" stroke-width="1.6"/>';
-    s += '<text class="t-cap" x="80" y="192" fill="var(--crit)">What is deliberately NOT done</text>';
-    s += wrap('The architecture note said hand the browser a SharePoint upload URL. A Graph upload-session URL is a bearer credential, so that would reintroduce the exact class this design retires. Bytes are relayed through the proxy instead — and only relaying makes the declared digest verifiable rather than decorative.', 80, 214, 124, 19);
-    s += wrap('Single-use holds per isolate today. proxy/src/worker.js says so in its own header, /healthz reports singleUseScope, and the deployment guide requires a shared store before production traffic.', 60, 296, 124, 19, 't-sub', ' fill="var(--ink-3)"');
-    s += '</svg>';
-    return fig(s, 'A write grant that names one file of one submission and expires is not a credential for anything else — which is the property that makes an anonymous channel safe to run.', '');
-  }
-
   function figLifecycle() {
     var T = P.lifecycle.transitions, states = P.lifecycle.states;
     /* Rank by shortest path from `arrival`. A longest-path layering would be tidier on a
@@ -553,15 +497,13 @@
       var out = '';
       out += '<div class="callout" data-aud="exec arch dev ops"><div class="lbl">In one paragraph</div><p>' + h(pr.summary) + '</p>' +
         '<p><strong>The organising rule, and the reason this is an architecture rather than a collection of apps: no client — internal or external — holds a credential for a system of record.</strong> ' +
-        (P.backend.present
-          ? 'One component does, and everything passes through it. That single sentence explains the trust zones, the proxy, the upload design and half the roadmap.'
-          : 'In this variant the component that does is the flow itself, reached with deploy-time configuration the browser never sees. That single sentence explains the trust zones, the upload design and half the roadmap.') + '</p></div>';
+        'The component that holds it is the flow itself, and the browser reaches it with a URL provisioned into the package it was delivered in. That single sentence explains the trust zones, the upload design and half the roadmap — and the cost, stated rather than absorbed: the URL is a credential the browser holds, so it can be rotated but never retired, and every flow must authenticate its own caller.' + '</p></div>';
 
       out += '<div class="grid g4" data-aud="exec arch dev ops">' +
         kpi(HEAD.routes, 'routes', 'every workspace the runtime can open', true) +
         kpi(HEAD.visibleWorkspaces, 'visible workspaces', 'the doors a person is asked to choose from') +
         kpi(HEAD.technicalRoutes, 'technical routes', 'routable and contract-tested, reached through a door') +
-        kpi(HEAD.roles + ' / ' + HEAD.permissions, 'roles / permissions', 'one matrix, shared by client and proxy') +
+        kpi(HEAD.roles + ' / ' + HEAD.permissions, 'roles / permissions', 'one matrix, and the flows must apply the same one') +
         kpi(HEAD.stateCollections, 'state collections', 'the working set a session holds') +
         kpi(HEAD.contractKeys, 'endpoint contracts', 'named keys — never URLs in the client') +
         kpi(P.dataModel.listCount + ' / ' + P.dataModel.fieldCount, 'lists / fields', 'the system-of-record schema') +
@@ -572,9 +514,7 @@
       var L = P.layers;
       out += '<div class="grid g4" data-aud="exec arch dev ops">' +
         kpi(n(L.files.config + L.files.core + L.files.shared + L.files.modules), 'front-end files', n(sum(Object.keys(L.sloc).map(function (k) { return L.sloc[k]; }))) + ' lines across four layers') +
-        (P.backend.present
-          ? kpi(P.backend.modules.length, 'proxy modules', n(P.backend.totalLines) + ' lines — the enforcement tier')
-          : kpi('direct', 'flow access', 'no proxy tier — each flow enforces its own contract')) +
+        kpi('direct', 'flow access', 'no proxy tier — each flow enforces its own contract') +
         kpi(P.portal.files, 'portal files', P.portal.pages.length + ' pages, holding no credential') +
         kpi(P.quality.suites.length, 'test suites', P.quality.ciJobs.length + ' CI jobs gate every push') +
         '</div>';
@@ -584,7 +524,7 @@
 
       out += '<div class="grid g2" data-aud="exec arch dev ops">' +
         [['Executive briefing', 'Sections 1–3, 13 and 17. The rule, the zones, the document\'s journey, the security posture and what remains to decide. Roughly twelve minutes at a walk.'],
-         ['Architecture review', 'Sections 2–5, 9–10 and 14. Zones, layering, workspace topology, ' + (P.backend.present ? 'the enforcement tier' : 'the flow tier') + ' and the lifecycle that governs every record.'],
+         ['Architecture review', 'Sections 2–5, 9–10 and 14. Zones, layering, workspace topology, the flow tier and the lifecycle that governs every record.'],
          ['Developer onboarding', 'Sections 4–8 and 15. Layer rules, the module contract, the service catalogue, the design system, then the test suites that will tell you when you are wrong.'],
          ['Operations & deployment', 'Sections 9, 11, 15–16. The proxy, the portal, what CI proves, and the deployment surface with the state caveats stated rather than buried.']]
           .map(function (c) { return '<div class="card sunk"><h4>' + h(c[0]) + '</h4><p>' + h(c[1]) + '</p></div>'; }).join('') + '</div>';
@@ -653,9 +593,7 @@
         kpi(P.taxonomy.publicKinds.length, 'public document kinds', 'the vocabulary a citizen chooses from') +
         '</div>';
       out += '<p data-aud="arch dev"><strong>Why the sequence is not a variable in memory.</strong> It was, and two processes both minted <code>' +
-        h(P.taxonomy.referencePrefix) + '-2026-1</code>: on a server that needed a restart, on an edge isolate it needs only a cold start, which happens routinely and invisibly. Two citizens then hold a receipt for the same reference and the register contains it twice. For a records system that is not a rough edge — it is the register being wrong. ' + (P.backend.present
-          ? 'It now lives in a Durable Object, single-threaded with strongly consistent storage, because a sequence needs an <em>atomic</em> read-modify-write and eventually-consistent storage cannot provide one.'
-          : 'The sequence is held by the SUBMISSION flow, which is the single writer. Anything this browser mints is marked <code>referenceProvisional</code> on the record, because a client sees only the records it has loaded and cannot issue an authoritative registry reference.') + '</p>';
+        h(P.taxonomy.referencePrefix) + '-2026-1</code>: on a server that needed a restart, on an edge isolate it needs only a cold start, which happens routinely and invisibly. Two citizens then hold a receipt for the same reference and the register contains it twice. For a records system that is not a rough edge — it is the register being wrong. ' + 'The sequence is held by the SUBMISSION flow, which is the single writer. Anything this browser mints is marked <code>referenceProvisional</code> on the record, because a client sees only the records it has loaded and cannot issue an authoritative registry reference.' + '</p>';
 
       out += '<h3 class="sub" data-aud="arch dev ops">What a citizen may send</h3>';
       out += '<div class="tags">' + tagList(P.taxonomy.publicKinds) + '</div>';
@@ -895,76 +833,45 @@
 
   S({
     id: 'backend', part: 'Back end',
-    title: P.backend.present ? 'The authenticating proxy' : 'The flow tier',
+    title: 'The flow tier',
     aud: 'arch dev ops exec',
-    eyebrow: P.backend.present ? 'Sheet 8 · the enforcement tier' : 'Sheet 8 · where enforcement actually happens',
-    note: P.backend.present
-      ? 'The component that makes governance <em>enforced</em> rather than advisory. Until it is deployed, every control in both clients is a user-experience affordance: a browser can decline to send a request, but it can never prevent one.'
-      : 'This variant ships no proxy. Enforcement lives at the flow endpoint instead — which does not weaken the organising rule, it relocates it. A browser can still decline to send a request and can still never prevent one; the component that says no is simply on the other side of the boundary.',
+    eyebrow: 'Sheet 8 · where enforcement actually happens',
+    note: 'This platform ships no proxy, by decision. Enforcement lives at the flow endpoint '
+      + 'instead — which does not weaken the organising rule, it relocates it. A browser can '
+      + 'still decline to send a request and can still never prevent one; the component that '
+      + 'says no is simply on the other side of the boundary.',
     render: function () {
-      var b = P.backend, out;
-      if (!b.present) {
-        /* Describing the tier that IS in force. The reader's question on this sheet is
-           "what stands between a browser and a system of record?" — and it has an answer
-           here, it is just not a directory in this repository. */
-        out = '<div class="grid g4">' +
-          kpi(P.endpoints.count, 'endpoint contracts', 'each one a flow that authenticates its own caller') +
-          kpi('0', 'shipped tiers', 'nothing to deploy between client and flow') +
-          kpi(P.security.postureName, 'auth posture', 'reported by the auth layer about itself') +
-          kpi(P.quality.suites.length, 'test suites', 'contract shape is asserted client-side') +
-          '</div>';
-        out += '<p class="note">' + h(b.note) + '</p>';
-        out += '<h3 class="sub">The nineteen contracts</h3>';
-        out += '<p>Declared in <code>config/endpoints.config.js</code>, which holds no URL — ' +
-          'trigger URLs are supplied as deploy-time configuration, so the repository names the ' +
-          'contracts without carrying the credentials that reach them.</p>';
-        out += '<div class="chips">' + P.endpoints.keys.map(function (k) {
-          return '<span class="chip">' + h(k) + '</span>';
-        }).join('') + '</div>';
-        out += '<h3 class="sub">What moved, and what did not</h3>';
-        out += tbl(['Concern', 'With a proxy', 'Here'], [
-          ['Who holds the flow credential', 'The proxy, in Worker secrets', 'Deploy-time configuration; never the browser'],
-          ['Who authenticates the caller', 'The proxy, once, centrally', 'Each flow, for itself'],
-          ['Who mints the registry reference', 'A Durable Object counter', 'The SUBMISSION flow; client minting stays provisional'],
-          ['Where rate limiting lives', 'One choke point', 'Per flow — more places to tune, no single point to forget'],
-          ['The organising rule', 'No client holds a credential for a system of record', '<strong>Unchanged.</strong> The boundary moved; the rule did not'],
-        ]);
-        return out;
-      }
-      out = figProxy();
-      out += '<div class="grid g4">' +
-        kpi(b.modules.length, 'modules', n(b.totalLines) + ' lines, zero runtime dependencies') +
-        kpi(b.tests.length, 'test suites', 'real RSA tokens signed at run time') +
-        kpi(P.endpoints.count, 'contract keys', 'named actions — never URLs in a client') +
-        kpi(HEAD.roles, 'roles', 'matrix imported from config/rbac.config.js, not restated') +
+      /* Sheet 8 used to render either topology, and the proxy branch is now unreachable:
+         the variant was withdrawn rather than deployed and the generator no longer reports
+         one. Dead branches in a briefing pack are worse than dead code in a module — this
+         is the artefact people read to learn what the system is, and a diagram of a tier
+         that does not exist is a confident wrong picture, which is the exact failure the
+         generated-documentation approach exists to prevent. */
+      var b = P.backend;
+      var out = '<div class="grid g4">' +
+        kpi(P.endpoints.count, 'endpoint contracts', 'each one a flow that authenticates its own caller') +
+        kpi('0', 'shipped tiers', 'nothing to deploy between client and flow') +
+        kpi(P.security.postureName, 'auth posture', 'reported by the auth layer about itself') +
+        kpi(P.quality.suites.length, 'test suites', 'contract shape is asserted client-side') +
         '</div>';
-
-      out += '<h3 class="sub">Modules</h3>';
-      out += tbl(['File', 'Lines', 'Responsibility', 'Exports'], b.modules.map(function (m) {
-        return ['<code>' + h(m.name) + '</code>', '<span class="num">' + m.lines + '</span>',
-          h(m.role || '—'),
-          '<span class="mono" style="font-size:11px">' + h(m.exports.slice(0, 5).join(' · ')) + (m.exports.length > 5 ? ' <b>+' + (m.exports.length - 5) + '</b>' : '') + '</span>'];
-      }));
-
-      out += '<h3 class="sub">Four design decisions worth defending</h3>';
-      out += '<div class="grid g2">' + [
-        ['No third-party JWT library', 'WebCrypto imports a JWK and verifies RS/PS signatures natively. There is no third-party code in the path that decides whether an identity claim is genuine, and the zero-dependency commitment holds on the server too.'],
-        ['WebCrypto only — no <code>nodejs_compat</code>', 'The same source runs on Node, Workers, Deno and Bun with no runtime branching, so the Node test suite exercises the exact code the Worker runs rather than a sibling of it. A compatibility shim is a bad place to put the thing that says yes or no to a token.'],
-        ['The matrix is imported, never copied', 'Two copies of an authorization matrix drift, and the drift is silent and always in the unsafe direction. <code>proxy/src/authorize.js</code> imports <code>config/rbac.config.js</code> directly.'],
-        ['Fails closed, and refuses to start', 'An unknown contract key requires the highest permission rather than passing through. A proxy that boots without an issuer validates nothing and is worse than no proxy at all, so a misconfigured one does not boot.']
-      ].map(function (c) { return '<div class="card"><h4>' + c[0] + '</h4><p>' + c[1] + '</p></div>'; }).join('') + '</div>';
-
-      out += '<h3 class="sub" data-aud="dev arch">The alg-confusion defences, named</h3>';
-      out += tbl(['Attack', 'Naive behaviour', 'What this implementation does'], [
-        ['<code>alg: none</code>', 'Trusts the header to select the algorithm and accepts an unsigned token.', 'The header never selects the algorithm. It is checked against an allow-list <em>and</em> against the key\'s own type.'],
-        ['RS256 → HS256 confusion', 'Verifies an HMAC using the public key as the secret.', 'Same check. <code>importKey</code> also binds a key to one algorithm at import, so the platform refuses key-confusion before our own check runs — both are kept, because the explicit one gives a diagnosable error.'],
-        ['Unknown <code>kid</code>', 'Falls back to trying every key in the JWKS.', 'At most one rate-limited JWKS refresh, then failure. There is no try-every-key path.'],
-        ['Absent claim', 'Treats a missing <code>exp</code> or <code>aud</code> as satisfied.', 'Every claim check is explicit. Absent is not the same as valid.']
+      out += '<p class="note">' + h(b.note) + '</p>';
+      out += '<h3 class="sub">The ' + P.endpoints.count + ' contracts</h3>';
+      out += '<p>Declared in <code>config/endpoints.config.js</code>, which holds no URL. ' +
+        'Trigger URLs are provisioned into the delivered package by <code>npm run package</code>, ' +
+        'so the repository names the contracts without carrying the credentials that reach them, ' +
+        'and the artefact that is handed over carries both.</p>';
+      out += '<div class="chips">' + P.endpoints.keys.map(function (k) {
+        return '<span class="chip">' + h(k) + '</span>';
+      }).join('') + '</div>';
+      out += '<h3 class="sub">What moved, and what did not</h3>';
+      out += tbl(['Concern', 'With a proxy', 'Here'], [
+        ['Who holds the flow credential', 'The proxy, in Worker secrets', 'The delivered package; readable by anyone the site serves'],
+        ['Who authenticates the caller', 'The proxy, once, centrally', 'Each flow, for itself'],
+        ['Who mints the registry reference', 'A Durable Object counter', 'The SUBMISSION flow; client minting stays provisional'],
+        ['Where rate limiting lives', 'One choke point', 'Per flow — more places to tune, no single point to forget'],
+        ['How a credential is revoked', 'Rotate one secret in one place', 'Rotate the trigger and rebuild the package. Rotation is the only revocation'],
+        ['The organising rule', 'No client holds a credential for a system of record', '<strong>Changed, and the cost is stated.</strong> The browser does hold one. The rule that replaces it: every flow authenticates its own caller, because nothing else can'],
       ]);
-
-      out += '<h3 class="sub" data-aud="dev ops">Endpoint contract keys</h3>';
-      out += '<p data-aud="dev ops">' + h(P.endpoints.note) + '</p>';
-      out += '<div class="tags" data-aud="dev ops">' + tagList(P.endpoints.keys) + '</div>';
       return out;
     }
   });
@@ -972,9 +879,7 @@
   S({
     id: 'intake', part: 'Back end', title: 'Anonymous intake, uploads and verification', aud: 'arch dev ops',
     eyebrow: 'Sheet 9 · the one unauthenticated path',
-    note: P.backend.present
-      ? '<code>/intake/*</code> is the only route through the proxy that does not require a token, because a citizen writing to NITDA has no account and should not need one. Everything about its design follows from being unauthenticated.'
-      : 'The public submission path requires no token, because a citizen writing to NITDA has no account and should not need one. With no proxy tier, every property below is an obligation on the SUBMISSION flow itself — specified in <code>document-portal/README.md</code> and the deployment guides, and enforced there rather than by a component this repository ships.',
+    note: 'The public submission path requires no token, because a citizen writing to NITDA has no account and should not need one. With no tier in front of it, every property below is an obligation on the SUBMISSION flow itself — specified in <code>document-portal/README.md</code> and the deployment guides, and enforced there rather than by a component this repository ships.',
     render: function () {
       var out = '';
       out += '<div class="grid g2">' + [
@@ -991,12 +896,11 @@
       /* The ticket lifecycle is a proxy mechanism. Drawing it on a tree that ships no proxy
          would illustrate a component the reader cannot find — so the obligation is stated
          instead, which is what actually transfers to the flow. */
-      out += P.backend.present ? figTicket()
-        : '<p>With no proxy tier there is no ticket broker to draw. The obligation transfers to the '
-        + '<code>INTAKE_UPLOAD</code> flow: redeem a single-use ticket once, verify the received bytes '
-        + 'against the declared size and SHA-256, and refuse anything that does not match. The portal '
-        + 'computes and declares the digest before sending, so a file that changes in transit is refused '
-        + 'rather than filed.</p>';
+      out += '<p>There is no ticket broker to draw, because there is no tier to draw it in. The '
+        + 'obligation transfers whole to the <code>UPLOAD</code> flow: redeem a single-use ticket once, '
+        + 'verify the received bytes against the declared size and SHA-256, and refuse anything that '
+        + 'does not match. The portal computes and declares the digest before sending, so a file that '
+        + 'changes in transit is refused rather than filed.</p>';
       out += '<div class="callout" data-aud="arch dev"><div class="lbl">The bug this design retires</div>' +
         '<p>The portal used to base64-encode a file into a workflow payload. Base64 inflates by a third, so the transport limit became a silent data-loss bug: the interface accepted five files up to 50&nbsp;MB, transmitted only the first, and if that one exceeded 4&nbsp;MB sent an <strong>empty</strong> payload while reporting success. For a service desk that is a bug. For a document intake channel it is the entire purpose failing silently — and telling the submitter their documents were received. Moving bytes out of the payload removes the ceiling and the failure mode together.</p></div>';
 
@@ -1138,9 +1042,7 @@
       out += '<p data-aud="arch dev ops">Provider <code>' + h(s.provider) + '</code>, scopes <code>' + h(s.scopes.join(' ')) + '</code>. Tenant, client and proxy base URL are injected at deploy time and never committed. The full obligations are in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>; Diagnostics reports the live posture inside the running platform.</p>';
 
       out += '<h3 class="sub">Role and route matrix</h3>';
-      out += '<p>' + (P.backend.present
-        ? 'One matrix, two consumers: the client renders navigation from it and the proxy authorizes against it. Not a copy — <code>proxy/src/authorize.js</code> imports it.'
-        : 'One matrix, one consumer today: the client renders navigation from it. With no proxy tier to authorize against it, RBAC here is <strong>advisory</strong> — which is exactly what the auth posture above reports, and why it says so rather than implying enforcement.') + '</p>';
+      out += '<p>One matrix, one consumer today: the client renders navigation from it. With nothing in front of the flows to authorize against it, RBAC here is <strong>advisory</strong> — which is exactly what the auth posture above reports, and why it says so rather than implying enforcement. Each flow must apply the same matrix for it to become enforcement.</p>';
       var roleIds = Object.keys(s.roleRouteAccess);
       var matrix = '<div class="scroll"><table class="matrix"><thead><tr><th class="rh">Route</th>' +
         roleIds.map(function (r) { return '<th class="rot">' + h(r) + '</th>'; }).join('') + '</tr></thead><tbody>' +
@@ -1167,7 +1069,7 @@
       out += tbl(['Control', 'What it stops', 'Where it lives'], [
         ['<b>Module boundaries</b>', 'A workspace quietly absorbing a neighbour\'s authority — approving inside a tracking lens, archiving inside a registry view.', '<code>config/module-boundaries.config.js</code> · <code>core/action-authority.js</code>'],
         ['<b>Lifecycle gates</b>', 'A transition without its evidence: a completion with no response, a return with no reason, an approve-with-edit with no diff.', '<code>core/lifecycle.js</code>'],
-        ['<b>Idempotency</b>', 'A retried or replayed action creating a second record. The first response is returned instead.', '<code>core/idempotency.js</code> · <code>proxy/src/handler.js</code>'],
+        ['<b>Idempotency</b>', 'A retried or replayed action creating a second record. The first response is returned instead.', '<code>core/idempotency.js</code>, and the flow must honour the key it is sent'],
         ['<b>Output encoding</b>', 'Injected markup from a sender name, a subject line or a filename.', '<code>shared/design-system-adapter.js</code> · <code>core/ui.js</code>, tested as negative controls'],
         ['<b>Endpoint redaction</b>', 'A signed URL reaching a log, an export or a diagnostics panel. <code>sig</code>, <code>sv</code>, <code>sp</code> and <code>code</code> are stripped first.', '<code>core/endpoint-registry.js</code>'],
         ['<b>Filename normalisation</b>', 'Reserved device names, control characters and right-to-left override tricks arriving from an anonymous submitter into a Windows document library.', '<code>config/filename-policy.config.js</code>'],
@@ -1180,21 +1082,14 @@
          sheet with a rotation warning would foreground an operational concern at the expense
          of the architecture the sheet exists to explain. The defences above are still drawn;
          only the framing changes. */
-      out += P.backend.present
-        ? ('<div class="callout crit" data-aud="exec arch ops"><div class="lbl">Open, and it must not be softened</div>' +
-           '<p>Signed Power Automate trigger URLs were published in client-delivered files. ' +
-           '<strong>Removing a file revokes nothing, and neither does rewriting history.</strong> ' +
-           'The secrets baseline ' + (s_secretsLen
-             ? 'currently lists <strong>' + s_secretsLen + '</strong> entries.'
-             : 'is currently empty at this commit — which records the tracked files, not the rotation itself.') +
-           ' Rotation comes first; the deployment guide requires regenerating every trigger before its ' +
-           'URL is placed in a Worker secret, or the exercise moves a leaked credential rather than ' +
-           'retiring it.</p></div>')
-        : ('<div class="callout" data-aud="exec arch ops"><div class="lbl">Where the credential lives</div>' +
-           '<p>No endpoint URL is committed. <code>config/endpoints.config.js</code> declares the ' +
-           P.endpoints.count + ' contracts by name and holds no URL; the URLs are supplied as deploy-time ' +
-           'configuration. The secret ratchet above exists so that a <em>new</em> one entering a tracked ' +
-           'file is reported by CI rather than discovered later.</p></div>');
+      out += '<div class="callout" data-aud="exec arch ops"><div class="lbl">Where the credential lives</div>' +
+        '<p>No endpoint URL is committed. <code>config/endpoints.config.js</code> declares the ' +
+        P.endpoints.count + ' contracts by name and holds no URL; the URLs are provisioned into the ' +
+        'delivered package by <code>npm run package</code>, which refuses to build one wired to a ' +
+        'signature this repository already publishes. The secret ratchet above exists so that a ' +
+        '<em>new</em> one entering a tracked file is reported by CI rather than discovered later, and ' +
+        'it reports the exposure it deliberately excludes on every run rather than describing a ' +
+        'narrowed scan as a clean result.</p></div>';
       return out;
     }
   });
@@ -1264,15 +1159,13 @@
   S({
     id: 'deploy', part: 'Delivery', title: 'Deployment and operations', aud: 'ops arch dev',
     eyebrow: 'Sheet 15 · the runtime surface',
-    note: P.backend.present
-      ? 'Cloudflare at the edge in front of the existing Power Automate flows. The flows keep their signed trigger URLs; those URLs live in Worker secrets and are reachable only from there. A browser gets a token and the Worker, never a flow URL.'
-      : 'Static hosting plus deploy-time configuration. There is no tier between the clients and the Power Automate flows: endpoint URLs are supplied at deploy time and are never committed, and each flow enforces its own contract.',
+    note: 'Static hosting plus a provisioned package. There is no tier between the clients and the Power Automate flows: endpoint URLs are configured into the delivered artefact and are never committed, and each flow enforces its own contract.',
     render: function () {
       /* No proxy in this variant, so there is no worker to describe. The honest thing is
          to describe the topology that IS in force rather than render an empty deployment
          sheet — the reader's question ("what do I stand up, and what enforces what?") has
          a real answer here, it is just a different one. */
-      if (!P.backend.present) {
+      {
         var o = '<div class="grid g4">' +
           kpi('none', 'proxy tier', 'the platform calls the flows directly') +
           kpi(P.endpoints.keys.length, 'endpoint contracts', 'each one a flow that enforces its own caller') +
@@ -1336,15 +1229,11 @@
       out += tbl(['Capability', 'Where it lives', 'Status'], [
         ['Internal operations platform — ' + HEAD.routes + ' routes, ' + HEAD.visibleWorkspaces + ' workspaces', '<code>index.html</code> · <code>modules/</code> · <code>core/</code>', '<span class="pill ok">running</span>'],
         ['Public document portal — ' + P.portal.pages.length + ' pages, offline shell', '<code>document-portal/</code>', '<span class="pill ok">running</span>'],
-      ].concat(P.backend.present ? [
-        ['Authenticating proxy — both hosts, ' + P.backend.tests.length + ' suites', '<code>proxy/src/</code>', '<span class="pill warn">complete, not deployed</span>'],
-        ['Anonymous intake, upload brokering, email verification', '<code>proxy/src/intake.js</code> · <code>upload.js</code> · <code>verification.js</code>', '<span class="pill warn">complete, not deployed</span>'],
-        ['Durable registry sequence', '<code>proxy/src/reference-store.js</code>', '<span class="pill warn">binding required before real correspondence</span>'],
-        ['Registry scan intake — channel C', '<code>modules/scan-intake.js</code> · <code>core/scan-intake-service.js</code>', '<span class="pill warn">built, needs the proxy</span>'],
-      ] : [
-        ['Anonymous intake and upload — enforced by the flow, not by a shipped tier', '<code>document-portal/</code> → <code>INTAKE_SUBMISSION</code>', '<span class="pill warn">flow-side contract</span>'],
+      ].concat([
+        ['Anonymous intake and upload — enforced by the flow, not by a shipped tier', '<code>document-portal/</code> → <code>SUBMISSION</code>', '<span class="pill warn">flow-side contract</span>'],
         ['Registry sequence — held by the SUBMISSION flow', '<code>core/reference-minter.js</code> mints provisional only', '<span class="pill ok">server-issued</span>'],
         ['Registry scan intake — channel C', '<code>modules/scan-intake.js</code> · <code>core/scan-intake-service.js</code>', '<span class="pill ok">running against SCAN_INTAKE</span>'],
+        ['Provisioned deployment packages, manifest-verified', '<code>scripts/package.mjs</code>', '<span class="pill ok">gated in CI</span>'],
       ]).concat([
         ['Universal filename policy, enforced at both entry points', '<code>config/filename-policy.config.js</code>', '<span class="pill ok">enforced</span>'],
         ['Briefs, meetings and projects (ex-Activity Hub, decision D6(b))', '<code>core/executive-register.js</code>', '<span class="pill ok">running as platform modules</span>']
@@ -1356,12 +1245,8 @@
          reader to look for work that does not exist on this branch. What IS open is the
          architecture that has been decided and not yet built. */
       out += tbl(['Item', 'Why it matters', 'What closes it'],
-        (P.backend.present ? [
-        ['<b>Rotate every published signature</b>', 'A signed trigger URL is a bearer credential. Deleting a file revokes nothing; neither does rewriting history.', 'Regenerate every trigger in Power Automate, then place the new URLs only in Worker secrets.'],
-        ['<b>Activate authentication</b>', 'Until it is on, every client-side control is an affordance and RBAC is advisory.', 'Deploy the proxy, set <code>auth.enabled</code>, supply tenant configuration, satisfy the server obligations in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>.'],
-        ['<b>Shared store for single-use state</b>', 'Upload tickets and verification proofs are single-use per isolate, which is not single-use.', 'Bind the KV namespace or the state Durable Object sketched in <code>proxy/wrangler.toml</code>.'],
-        ['<b>Restrict the flows to proxy egress</b>', 'Until the flows only accept the proxy, a leaked URL still works.', 'IP-restrict or private-endpoint the workflow triggers.'],
-      ] : [
+        ([
+        ['<b>Rotate every published signature</b>', 'A signed trigger URL is a bearer credential, and this repository publishes 55 of them. Deleting a file revokes nothing; neither does rewriting history.', 'Regenerate every trigger in Power Automate, then rebuild the packages. <code>npm run package</code> refuses a pilot build wired to a published one.'],
         ['<b>Activate authentication</b>', 'Until it is on, every client-side control is an affordance and RBAC is advisory. The auth layer says so about itself rather than implying otherwise.', 'Set <code>auth.enabled</code>, supply tenant configuration, and satisfy the server-side obligations at the flow.'],
         ['<b>Dual-spine intake (D2)</b>', 'AI classification and human triage are to run at par, with the AI path degrading to human-only rather than blocking. Approved and not yet built.', 'Build the AI spine alongside the human one, sharing the category taxonomy both already write into.'],
         ['<b>Per-entry-point first-line feeds (D4)</b>', 'Each of the four channels is to keep its own dedicated first-line feed before convergence. Approved and not yet built.', 'Give each channel its own feed, then converge through the normalising layer that already exists in <code>core/source-normalizer.js</code>.'],
@@ -1370,9 +1255,7 @@
         ['<b>Rendered-appearance regression coverage</b>', 'Nothing beyond the smoke suite\'s theme check protects the cascade.', 'Add visual regression coverage over the rendered surfaces.'],
       ]));
       out += '<div class="callout" data-aud="exec"><div class="lbl">The one-line summary for a decision meeting</div>' +
-        '<p>' + (P.backend.present
-          ? 'The platform is built and running; the component that makes its governance real is written, tested and not yet deployed. The remaining work is deployment and configuration, not new development.'
-          : 'The platform is built and running against its own flows. Governance is enforced at the flow endpoint, authentication is provisioned and inert, and the remaining work is architectural rather than infrastructural — the two approved intake decisions above.') + '</p></div>';
+        '<p>The platform is built and running against its own flows, and both deliverables package with their endpoints provisioned in and every byte hashed. Governance is enforced at the flow endpoint, authentication is provisioned and inert, and the remaining work is in Power Automate rather than here — rotate the published signatures, and make each flow authenticate its own caller.</p></div>';
       return out;
     }
   });
@@ -1475,7 +1358,7 @@
   document.getElementById('railFoot').innerHTML =
     'Derived from <b>' + h(P.provenance.commit) + '</b><br>' +
     n(sum([P.layers.sloc.config, P.layers.sloc.core, P.layers.sloc.shared, P.layers.sloc.modules])) + ' front-end lines<br>' +
-    (P.backend.present ? n(P.backend.totalLines) + ' proxy lines<br>' : 'no proxy tier<br>') +
+    'no proxy tier<br>' +
     '<span style="opacity:.75">npm run visual</span>';
 
   /* ── interactions ───────────────────────────────────────────────────────────────── */
@@ -1625,7 +1508,6 @@
   P.inventory.core.forEach(function (f) { idx('Service', 'core/' + f.name, f.exports.slice(0, 6).join(' · ') || (f.lines + ' lines'), 'services'); });
   P.inventory.shared.forEach(function (f) { idx('Shell', 'shared/' + f.name, f.exports.slice(0, 6).join(' · ') || '', 'services'); });
   P.inventory.config.forEach(function (f) { idx('Config', 'config/' + f.name, f.exports.slice(0, 6).join(' · ') || '', 'services'); });
-  P.backend.modules.forEach(function (m) { idx('Proxy', 'proxy/src/' + m.name, m.role, 'backend'); });
   P.endpoints.keys.forEach(function (k) { idx('Endpoint', k, 'contract key — resolved server-side', 'backend'); });
   P.security.roles.forEach(function (r) { idx('Role', r.id, r.label + ' — ' + r.permissions.length + ' permissions', 'security'); });
   P.security.permissions.forEach(function (p) { idx('Permission', p, 'capability', 'security'); });

@@ -183,9 +183,25 @@ Action: `bulk-assign`. Client caps at 50 (`AppConfig.maxBulkAssign`), 90 s timeo
 cannot see becomes a silent data-loss bug. `BULK_ASSIGNMENT_DIRECT` is the same contract
 against a different workflow; build one, point both keys at it unless you need the split.
 
-### 2.4 `DISPATCH_OUTBOUND` / `ARCHIVE_REFERENCE`
-Operations `dispatchOutbound` and `archiveReference` on the **same** flow as 2.1.
-Archive is terminal — refuse to archive a reference with open tasks rather than cascading.
+### 2.4 `DISPATCH_OUTBOUND` / `ARCHIVE_REFERENCE` / `TRANSITION_STATUS` / `LOG_AUDIT_EVENT`
+
+Four operations on the **same** flow as 2.1, reached the same way — `core/api.js`
+`invokeObsidianAction()` posts `{ "action": "dynamicGlobalAction", "payload": { "operation":
+"<one of these>" } }`, so they are discriminated by `operation` exactly like the table in
+2.1 and are **not** separate `action` values.
+
+| Operation | Obligation |
+|---|---|
+| `dispatchOutbound` | Record the act before the send. A dispatch marked sent that was not is worse than one that failed loudly |
+| `archiveReference` | **Terminal.** Refuse to archive a reference with open tasks rather than cascading |
+| `transitionStatus` | Refuse an illegal transition. `core/lifecycle.js` holds the permitted set; a flow that accepts any transition lets the client define the lifecycle |
+| `logAuditEvent` | Append-only. An audit record the caller can overwrite is not an audit record |
+
+> `transitionStatus` and `logAuditEvent` were absent from this plan while
+> `core/api.js` has always been able to send them, so a flow built exactly to this document
+> would have rejected two operations the client emits. Found by cross-checking the plan
+> against `scripts/lib/endpoint-surface.mjs` during the readiness audit; the check is now
+> mechanical, in `tests/packaging.test.mjs`.
 
 **Done when:** an officer registers, triages, assigns, approves, dispatches and closes one
 correspondence, and a second officer on another machine sees every step.

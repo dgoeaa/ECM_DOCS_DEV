@@ -41,8 +41,11 @@ callers. No code change here can close either.
 | Activation manifest coverage | 24 of 29 routes | **29 of 29** |
 | Secret ratchet's reported scope | "no signatures" (55 outside scope) | scope stated, exposure reported every run |
 | Portal rotation reaching a returning visitor | required a human to remember | mechanical |
-| Node assertions | ~600 across 23 suites | **680 across 25 suites** |
-| Browser assertions | 96 | **100** |
+| Node assertions | ~600 across 23 suites | **~700 across 26 suites** |
+| Browser assertions | 96 | **103** |
+| Flow routes with a live transcript | 0 | **39 of 39** |
+| Rotation work | "55 signatures" | **39 flows, 14 carrying two live signatures each** |
+| Dependency advisories | 3 (1 high) | **0** |
 | Unmerged branch work | 1 commit | **0** |
 
 ---
@@ -68,10 +71,15 @@ document and a generated artefact disagree, the artefact is right.
 
 ## 2 · Findings
 
-Ordered by consequence. **All eleven defect findings are closed in this audit's commits**;
-O-12 records the dependency posture, where the finding is favourable and one advisory is
-accepted on the record. The items that remain open are in §5, and none of them is closable
-here.
+Ordered by consequence. **All seventeen defect findings are closed in this audit's commits**;
+O-12 records the dependency posture, which is favourable. The items that remain open are in
+§5, and none of them is closable from inside this repository.
+
+O-13 through O-18 were found in the second pass, after the instruction to leave nothing
+deferred. Five of the six were only findable by *doing* the thing rather than reviewing it —
+running the verifier end to end, generating the rotation list, resolving every reference —
+which is the general lesson of this audit and the reason §5's remaining steps are actions
+rather than reviews.
 
 ### O-01 · The delivered package could not contain its endpoints — **closed**
 
@@ -258,6 +266,101 @@ oversight.
 reproducibility problem: `package-lock.json` pins it and CI installs with `npm ci`, so the
 browser build is deterministic. Worth stating because the floating range reads like one.
 
+### O-13 · The verifier mis-reported four correct behaviours — **closed**
+
+**Severity: medium, and only findable by running it.** Executing
+`npm run verify:endpoints -- --include-writes` against a conforming endpoint implementation
+— the first time every route had ever been called and its answer compared with what the
+client reads — produced four defects in the verifier itself. Each would have reported a
+working flow as broken, which is the same class of error as reading an egress filter's 403
+as a live flow, in the other direction.
+
+| Defect | What it did |
+|---|---|
+| `STATUS`'s designed 404 read as *"no such flow — the trigger URL is stale"* | The uniform denial, which is the control working, reported as a broken endpoint |
+| `UPLOAD`'s 403 read as *"the signature is wrong or revoked"* | The ticket check refusing an unticketed deposit — the pass — reported as a failure |
+| Contract shape checked at the top level only | Six correctly-shaped responses reported as gaps; the payload is inside the documented envelope's `data` |
+| Contract shape checked against refusals | A 400 refusing a thin probe obviously carries no `referenceId`; saying so buried the one case that matters, a 2xx missing what the client reads |
+
+**Closed by** a per-probe `expectStatus` declaration — so an exemption is a decision on the
+record and cannot quietly widen — envelope-aware shape checking that records *where* the
+contract was satisfied, and scoping the shape check to successful responses. A verifier that
+cries wolf gets ignored on the run where it is right.
+
+### O-14 · `AI_CHAT` answered in a shape the client cannot read — **closed**
+
+**Severity: medium.** The same run produced a real integration defect. The endpoint answered
+`{ result: { message } }`; `modules/assistant.js:28` reads `res?.reply || res?.message` off
+the unwrapped envelope. Both were `undefined`, so every Assistant request rendered its own
+fallback — *"No reply was returned by the AI flow"* — against an endpoint that had answered
+correctly.
+
+Nothing caught it because nothing had ever called the endpoint and compared the answer with
+what the client reads. That is the entire value of the exercise, and it is why the live run
+against the tenant in §5 is not optional.
+
+### O-15 · Two flow routes were documented nowhere — **closed**
+
+**Severity: medium.** `core/api.js` has always been able to send `transitionStatus` and
+`logAuditEvent` as operations on `DYNAMIC_ACTIONS`. Neither appears in
+`docs/deployment/FLOW-BUILD-PLAN.md`, which is the document somebody builds the flows from —
+so a flow built exactly to specification would have rejected two operations the client emits,
+at a desk, as an unrecognised operation.
+
+Invisible to every other check: the client is correct, the contract is correct, and only the
+instructions were incomplete. **Closed by** documenting both with their obligations, and by
+making the cross-check mechanical in `tests/packaging.test.mjs` — every provisioned route
+must appear in the build plan.
+
+The audit also corrected its own conflation here: `dispatchOutbound` and the rest are
+discriminated by `operation` **inside the payload**, not by the wire `action`. A flow
+switching only on `action` would never see them, so `scripts/lib/endpoint-surface.mjs` now
+states which mechanism reaches each route.
+
+### O-16 · The rotation instruction was unusable — **closed**
+
+**Severity: medium.** *"Rotate 55 signatures in Power Automate"* is true and unusable: it
+names a number, not a list. It does not say which flow each belongs to, which endpoint key
+reaches it, or which of them are the same credential in eight files. Deriving that by hand
+from a 23 MB corpus is how a rotation gets half done.
+
+**Closed by** `npm run rotation`, which derives it — one row per **workflow**, because
+rotation is per flow and regenerating one trigger invalidates every copy of its URL at once.
+Signatures are fingerprinted, never printed, so the register is safe to paste into a ticket.
+
+**It immediately produced a finding.** The 55 signatures resolve to **39 distinct flows**, so
+the work is 39 rotations rather than 55 — and **14 of those flows carry two different live
+signatures each.** That is a partial rotation that left the old trigger URL valid alongside
+the new one, and it was not previously recorded anywhere. Two further signatures could not be
+attributed to a workflow and are reported by fingerprint rather than dropped.
+
+### O-17 · Dead architecture in the delivered documentation — **closed**
+
+**Severity: low.** The atlas generator detected `proxy/src` and drew either topology; the
+docs console carried a full proxy request-pipeline diagram, an upload-ticket lifecycle
+diagram, and eleven conditional branches describing a tier that was withdrawn rather than
+deployed.
+
+Dead branches in a briefing pack are worse than dead code in a module: it is the artefact
+people read to learn what the system is, and a diagram of a tier that does not exist is a
+confident wrong picture — the exact failure the generated-documentation approach exists to
+prevent. **Closed by** removing the detection, both diagrams and every branch, and by
+asserting the single topology in both directions — including that a `proxy/` reappearing on
+disk now fails the build, because under the current decision that means an intermediary has
+been reintroduced.
+
+### O-18 · Nothing blocking checked the documentation's own references — **closed**
+
+**Severity: low.** `npm run test:links` crawls the two applications with a browser-shaped
+checker; it needs a server, reaches external hosts, and is `continue-on-error` in CI for good
+reason. The consequence was that nothing blocking ever checked `docs/`, which is where the
+broken references actually were.
+
+**Closed by** `tests/references.test.mjs`: no server, no network, no dependencies, 902
+references across 395 files resolved on disk in under a second, and it fails the build. It
+carries a guard on itself — if the matchers stop matching it fails rather than passing by
+checking nothing — and its single exclusion is asserted to stay single.
+
 ### O-11 · Stale figures in live prose — **closed**
 
 Six documents and two scripts stated 25 routes; there are 29. Historical audits keep their
@@ -305,15 +408,25 @@ what `enforced` plus flow-side validation exists to change.
 | Service worker | Cache keyed to the build; endpoint config never served cache-first | O-06 |
 | Packaging | 42 files, 0.7 MB, self-contained, manifest-verified | `packaging.test.mjs` |
 
-**Open, and it is the portal's sharpest remaining asymmetry:** `VERIFY` and `VERIFY_CONFIRM`
-gate *submission* — `PF.intake.submit()` carries a proof and the flow answers
-`403 verification_required` without one. `PF.intake.status()` posts `{referenceId, email}`
-and carries no proof at all. The reference-plus-email pair is the whole gate on reading a
-record back, and it is a pair a submitter's correspondent may also hold. This is a **flow-side
-decision, not a client defect** — the client cannot strengthen a gate the flow does not
-enforce — and it belongs in the `STATUS` flow's obligations before the portal carries real
-citizen correspondence. Recorded here rather than fixed, because fixing it in the browser
-would be theatre.
+**The STATUS proof asymmetry — client half now closed, flow half specified.** `VERIFY` and
+`VERIFY_CONFIRM` gated *submission* while `PF.intake.status()` posted `{referenceId, email}`
+and no proof at all. The reference-plus-email pair is the whole gate on reading a record
+back, and a forwarded receipt is the ordinary way a correct pair reaches someone it does not
+belong to.
+
+A client cannot strengthen a gate the flow does not enforce, so this is provisioned the way
+authentication is: **complete, dormant, and the flow decides.** A `STATUS` flow answering
+`403 verification_required` now triggers the same code round-trip the submission wizard runs
+and the page retries with the proof; a flow that does not ask is unaffected and the submitter
+is asked for nothing. When a proof is sent the email leaves the request body entirely — the
+flow resolves the address from the proof — and the address is kept out of the URL, the
+history entry and the `Referer` header, both of which are explicit properties of the contract
+in `document-portal/README.md`. Where the flow demands a proof and the deployment cannot send
+a code, the page says so rather than starting a round-trip it cannot finish.
+
+Five assertions in `tests/hardening.test.mjs` and three in `tests/portal.spec.js`. **What
+remains is the flow half and only the flow half**, and it is now specified rather than
+proposed.
 
 ---
 
@@ -390,24 +503,32 @@ portal's cache invalidate.
 
 ---
 
-## 6 · What this audit did not do
+## 6 · What this audit could not do
 
-Stated because an audit that does not bound itself cannot be relied on.
+Everything reachable from this environment has been closed. What follows is the complete
+list of what could not be, and why — each is a physical limit of the environment or an
+authority that is not this repository's, not a deferral.
 
-- **It did not call a live flow.** No endpoint in this environment is reachable; every probe
-  in this environment failed at the network, and `verify-endpoints` correctly reported that
-  it had verified the network rather than the configuration. Step 3 above is not optional.
-- **It did not verify any Power Automate flow's behaviour.** No check in this repository can.
-  Both blockers above are consequences of that, not oversights.
-- **It did not audit the reference corpus for accuracy** — 23 MB of harvested flow
-  definitions, list exports and response samples. It audited what the corpus *exposes*: 55
-  signatures, 28 files, reported on every run.
-- **It did not delete any branch or rewrite any history.** Dispositions are recorded in §4;
-  acting on them is the owner's.
-- **It did not re-open closed historical findings.** `docs/audits/INDEX.md` holds the
-  supersession chain; point-in-time records keep their original figures.
+| # | Not done | Why it cannot be done here |
+|---|---|---|
+| 1 | **Rotate the 39 flows** | Requires authenticated access to the Power Automate tenant. `npm run rotation` produces the exact worklist; `npm run package` refuses to build against any signature still published |
+| 2 | **Build the server half of G-04** | Seven obligations that live inside Power Automate flows. No file in this repository can implement them and no check in it can verify them |
+| 3 | **Call a live flow** | No endpoint in this environment is reachable. Every probe failed at the network, and the verifier correctly reported that it had verified the network rather than the configuration. The full 39-route transcript in `docs/deployment/verification/` was produced against the local conforming implementation and is labelled as such |
+| 4 | **Register the Entra application** | Tenant administration |
+| 5 | **Approve the Part H routing table** | A governance decision, not a technical one. `npm run commission` reports it as unsigned |
+| 6 | **Clear test records before real correspondence** | Acts on a live SharePoint list |
+| 7 | **Merge to `main`** | The session's branch policy assigns work to `claude/ecm-docs-dev-audit-ysyy2v`; landing it is a review decision |
 
----
+Two further bounds on scope, stated because an audit that does not bound itself cannot be
+relied on:
+
+- **The reference corpus was not audited for accuracy** — 23 MB of harvested flow
+  definitions, list exports and response samples, classified as untrusted harvest by
+  `docs/README.md`. What was audited is what it *exposes*: 55 signatures across 28 files,
+  resolved to 39 flows, reported on every run.
+- **Closed historical findings were not re-opened.** `docs/audits/INDEX.md` holds the
+  supersession chain; point-in-time records keep their original figures, because correcting
+  a record of what was true on a date falsifies it.
 
 ## 7 · Corrections to the existing record
 

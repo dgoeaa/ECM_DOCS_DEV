@@ -232,12 +232,40 @@ console.log('\nF-012 · the staff console is retired, not merely hidden');
 console.log('\nD-C2 · the portal reads status back from the registry');
 {
   const core = read('document-portal/js/core.js');
-  ok('PF.intake.status exists', /status:\s*function\s*\(referenceId, email\)/.test(core));
+  ok('PF.intake.status exists', /status:\s*function\s*\(referenceId, email/.test(core));
   ok('it targets the configured status endpoint', /endpointUrl\('STATUS'\)/.test(core));
   ok('a 404 is treated as authoritative, not as a reason to fall back',
      /r\.status === 404/.test(core));
 
+  /* The client half of verified status lookup, provisioned dormant. The portal gated
+     SUBMISSION behind a verified address and left STATUS ungated — but the reference and
+     email pair is the entire gate on reading a record back, and a forwarded receipt is the
+     ordinary way a correct pair reaches someone it does not belong to.
+
+     The client cannot close that; only the flow can. What the client must do is be capable
+     when the flow asks, so that turning it on is a configuration event rather than a
+     development one — the same pattern as auth.enabled. */
+  ok('the status call carries a proof when it has one, and drops the email when it does',
+     /opts\.verification\s*\?\s*\{ referenceId: referenceId, verification: opts\.verification \}/.test(core)
+     && /:\s*\{ referenceId: referenceId, email: email \}/.test(core));
+  ok('a verification demand is distinct from a denial',
+     /verification_required/.test(core) && /resolution: 'verification-required'/.test(core));
+  ok('both halves of the round-trip are required before it is offered',
+     /verificationAvailable:\s*function/.test(core)
+     && /endpointUrl\('VERIFY'\)\s*&&\s*!!endpointUrl\('VERIFY_CONFIRM'\)/.test(core));
   const track = read('document-portal/js/track.js');
+  ok('the tracking page answers a verification demand rather than reporting no match',
+     /resolution === 'verification-required'/.test(track)
+     && /function requireVerification/.test(track));
+  /* Comments stripped first. The obvious form of this assertion — "no line mentions both
+     localStorage and proof" — passed against the code and failed against the sentence
+     explaining why the code is right, which is a test measuring prose. */
+  const trackCode = track.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+  ok('the proof is discarded once it is spent',
+     /proof = null;/.test(trackCode));
+  ok('the proof never reaches persistent storage',
+     !/(?:localStorage|sessionStorage|setItem|PF\.store)[^;]*proof/i.test(trackCode)
+     && !/proof[^;]*(?:localStorage|sessionStorage|setItem)/i.test(trackCode));
   ok('the tracking page asks the registry first', /PF\.intake\.status\(/.test(track));
   ok('a registry answer is rendered as such', /'registry'/.test(track));
   ok('device data is labelled when it is used', /Shown from this device/.test(track));
