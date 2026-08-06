@@ -79,7 +79,7 @@ window.DGO_CONFIG = window.DGO_CONFIG || {
   auth: {
     /* Left FALSE deliberately.
      *
-     * Turning it on makes the client acquire an Entra token and send a bearer header, and
+     * Turning it on makes the client acquire a one-time-code proof and send it, and
      * this server has no tenant to validate one against — the app would sit at a sign-in it
      * cannot complete. Local development runs in the development posture the platform
      * already ships with: local profile, advisory RBAC, no token. Nothing is enforced.

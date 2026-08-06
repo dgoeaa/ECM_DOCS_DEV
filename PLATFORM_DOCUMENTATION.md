@@ -51,7 +51,7 @@ GOVERNANCE     core/action-authority.js · audit-log · idempotency
      │           · receipt-ledger · offline-action-queue · otp-service
 INTEGRATION    core/auth.js · endpoint-registry · data-client · fetch-manager
      │           contract resolution, redaction, retry, dedupe, queueing
-BACKEND        Power Automate (19 contracts) · SharePoint · [Entra ID at release]
+BACKEND        Power Automate (19 contracts) · SharePoint · one-time-code identity
 ```
 
 ### 3.1 Boot sequence

@@ -2,8 +2,9 @@
 /**
  * Build the delivered packages, with their endpoints provisioned into them.
  *
- *   npm run package                                  # both, demo posture
- *   npm run package -- --values ~/dgo-values.txt --posture pilot
+ *   npm run package                                  # both, wired to the available estate
+ *   npm run package -- --values ~/dgo-values.txt     # wired to URLs you supply
+ *   npm run package -- --demo                        # deliberately empty, transmits nothing
  *   npm run package -- --surface portal --out dist
  *   npm run package -- --verify dist/dgo-document-portal
  *
@@ -23,13 +24,26 @@
  * verified here is verified once, centrally, against the same definition the runtime
  * resolves — instead of being re-derived by hand for every deployment.
  *
- * WHAT IT REFUSES. In `pilot` or `enforced` posture a package will not be emitted when a
- * required endpoint is missing, when any URL is malformed (see
- * `lib/endpoint-validation.mjs` — a truncated paste is the failure this catches), when two
- * keys resolve to the same flow, or when a wired signature is one already published in
- * this repository. In `demo` posture it emits a package with no endpoints at all and
- * stamps it as such, because that is a legitimate artefact and pretending otherwise would
- * only teach people to pass `--force`.
+ * THE DEFAULT PACKAGE IS RUNNABLE. With no values supplied it wires every endpoint the
+ * documented estate provides — 17 of 18 on the internal platform, 5 of 6 on the portal —
+ * so what you download starts working when you open it. That is the point of the artefact:
+ * a package that renders perfectly and transmits nothing is the safe failure, not the
+ * intended one, and it cannot be tested live.
+ *
+ * THOSE SIGNATURES ARE PUBLISHED, AND THAT IS AN ACCEPTED DECISION RATHER THAN AN OVERSIGHT.
+ * They are committed to this repository, so anyone who can read it holds them. Minting a
+ * fresh production estate BEFORE the platform has been exercised live is the worse trade:
+ * live testing reveals contract adjustments, each adjustment means regenerating triggers
+ * again, and every regeneration cycle re-exposes the new set through the same working
+ * files. Test on the estate that is already disclosed, adjust until the contracts hold,
+ * then mint production URLs once, at the end, and rotate into them. `npm run rotation`
+ * produces that worklist — 39 flows — and every package stamps its exposure in
+ * PACKAGE_MANIFEST.json and DEPLOY.md so no deployment can be wrong about which it holds.
+ *
+ * WHAT IT STILL REFUSES. A malformed URL, in every posture — a truncated paste has nothing
+ * in front of it to produce a useful error. Two keys resolving to the same flow, because
+ * the second silently inherits the first's flow. A package that cannot resolve its own
+ * module graph. Those are defects; a disclosed signature is a decision.
  *
  * WHAT IT DOES NOT DO. It cannot verify the flow behind a URL. `npm run verify:endpoints`
  * exercises those live; the seven server-side obligations in
@@ -59,15 +73,21 @@ const opt = (name, fallback = null) => {
 
 const VERIFY_DIR = opt('--verify');
 const OUT_DIR = path.resolve(ROOT, opt('--out', 'dist'));
-const POSTURE = opt('--posture', 'demo');
 const VALUES_FILE = opt('--values');
 const ONLY_SURFACE = opt('--surface');
 const QUIET = flag('--quiet');
+const DEMO = flag('--demo');
+/* Use ONLY the values supplied, with no fallback to the documented estate. For building
+   against a fresh estate once one exists, and for proving that an unwired endpoint ships
+   as unprovisioned rather than being quietly backfilled from the corpus. */
+const NO_ESTATE = flag('--no-estate') || DEMO;
 
-if (!['demo', 'pilot', 'enforced'].includes(POSTURE)) {
-  console.error(`\n  ✖  Unknown posture "${POSTURE}". Use --posture demo | pilot | enforced\n`);
-  process.exit(2);
-}
+/* Posture is DERIVED, not declared.
+   It used to be a flag defaulting to `demo`, which meant the default build — the one
+   somebody runs without reading anything — produced a package that transmits nothing. The
+   posture is a fact about what got wired, so it is read off the result rather than
+   asserted at the front. */
+const POSTURE_OF = values => (Object.values(values).some(Boolean) ? 'live' : 'demo');
 if (ONLY_SURFACE && !SURFACE_IDS.includes(ONLY_SURFACE)) {
   console.error(`\n  ✖  Unknown surface "${ONLY_SURFACE}". Use --surface ${SURFACE_IDS.join(' | ')}\n`);
   process.exit(2);
@@ -135,17 +155,37 @@ function resolveValue(key, prefixes) {
   return '';
 }
 
+/**
+ * The documented estate, loaded once and only when it can be used.
+ *
+ * Scanning the reference corpus costs a few seconds, so it happens lazily and never in
+ * `--demo`. An explicitly supplied value always beats a recovered one — the recovery is the
+ * floor, not the ceiling, so replacing the estate later is a values file and a rebuild.
+ */
+let RECOVERED = null;
+async function loadEstate() {
+  if (NO_ESTATE || RECOVERED) return RECOVERED;
+  const { recoverEndpoints } = await import('./lib/endpoint-recovery.mjs');
+  RECOVERED = recoverEndpoints({
+    runtimeKeys: SURFACES.runtime.endpoints.map(e => e.key),
+    portalKeys: SURFACES.portal.endpoints.map(e => e.key),
+  });
+  return RECOVERED;
+}
+
 function valuesFor(surfaceId) {
   const s = SURFACES[surfaceId];
-  return Object.fromEntries(s.endpoints.map(e => [e.key, resolveValue(e.key, s.envPrefixes)]));
+  return Object.fromEntries(s.endpoints.map(e => {
+    const explicit = resolveValue(e.key, s.envPrefixes);
+    if (explicit) return [e.key, explicit];
+    if (NO_ESTATE) return [e.key, ''];
+    return [e.key, RECOVERED?.[surfaceId]?.found?.[e.key]?.url || ''];
+  }));
 }
 
 /* Authentication travels with the runtime package the same way the endpoints do. */
 const AUTH_KEYS = [
   { key: 'enabled', env: 'DGO_AUTH_ENABLED', cast: v => v === 'true' || v === '1' },
-  { key: 'tenantId', env: 'DGO_AUTH_TENANT_ID' },
-  { key: 'clientId', env: 'DGO_AUTH_CLIENT_ID' },
-  { key: 'authority', env: 'DGO_AUTH_AUTHORITY' },
   { key: 'roleSource', env: 'DGO_AUTH_ROLE_SOURCE' },
 ];
 
@@ -401,30 +441,19 @@ function buildSurface(surfaceId, tracked, published) {
   const auth = surfaceId === 'runtime' ? authValues() : {};
   const buildId = buildIdFor(values);
   const builtAt = new Date().toISOString();
-  const meta = { buildId, builtAt, posture: POSTURE };
-
   const anyProvisioned = Object.values(values).some(Boolean);
-  const required = POSTURE === 'demo' ? [] : pilotKeysOf(surfaceId);
-  const validation = validateSurface(values, surface.endpoints, { required });
+  const posture = POSTURE_OF(values);
+  const meta = { buildId, builtAt, posture };
+
+  /* Nothing is REQUIRED any more, and the reason is the estate rather than a relaxation.
+     SCAN_INTAKE has no flow in the corpus and the portal's UPLOAD has no ticket-redeeming
+     flow — those are gaps in the deployed estate, not in this build, and refusing to emit a
+     package because of them would leave nothing runnable at all. Each unwired key reports
+     itself unconfigured at the point of use, which is the honest behaviour and is asserted
+     by the suite. */
+  const validation = validateSurface(values, surface.endpoints, { required: [] });
 
   const blockers = [];
-
-  if (POSTURE !== 'demo') {
-    if (!anyProvisioned) {
-      blockers.push({
-        code: 'nothing-provisioned',
-        message: `no endpoint URL was supplied for the ${surface.label}, so a "${POSTURE}" package would ship demo mode under a live label`,
-        fix: 'npm run package -- --values ~/dgo-values.txt --posture ' + POSTURE,
-      });
-    }
-    for (const key of validation.missingRequired) {
-      blockers.push({
-        code: 'missing-required', key,
-        message: `${key} is required and has no URL — correspondence cannot flow end to end without it`,
-        fix: 'regenerate the trigger in Power Automate and add it to the values file',
-      });
-    }
-  }
 
   /* Malformed values are refused in every posture, demo included: a demo package with a
      broken URL in it is not a demo, it is a package nobody has looked at. */
@@ -441,22 +470,19 @@ function buildSurface(surfaceId, tracked, published) {
     });
   }
 
+  /* PUBLISHED SIGNATURES ARE STAMPED, NOT REFUSED.
+     This was a blocker, and it was wrong: it made the package that can actually be tested
+     live the one thing the tool would not build, and the only way past it was to mint a
+     fresh production estate before anything had been exercised — which is precisely the
+     sequence that gets an estate regenerated two or three times, re-exposing each new set.
+     The exposure is real and is recorded on the package where a deployer will see it. */
   const reused = published ? reusedSignatures(values, published) : [];
-  if (reused.length && POSTURE !== 'demo') {
-    for (const r of reused) {
-      blockers.push({
-        code: 'unrotated-signature', key: r.key,
-        message: `${r.key} is wired to a signature already published in this repository (${r.files[0]}${r.files.length > 1 ? ` +${r.files.length - 1} more` : ''})`,
-        fix: 'regenerate the trigger in Power Automate — deleting the file revokes nothing',
-      });
-    }
-  }
 
   const record = {
     surface: surfaceId,
     label: surface.label,
     packageName: surface.packageName,
-    posture: POSTURE,
+    posture,
     buildId,
     validation,
     reused,
@@ -521,15 +547,31 @@ function buildSurface(surfaceId, tracked, published) {
     return record;
   }
 
+  /* Exposure travels WITH the package, in BOTH documents a deployer might read — the
+     manifest and DEPLOY.md. Computed once so the two cannot disagree about whether the URLs
+     this artefact carries are disclosed, which is the one fact that decides whether it may
+     touch real correspondence. */
+  const exposure = reused.length
+    ? {
+        disclosed: true,
+        keys: reused.map(r => r.key),
+        note: `${reused.length} endpoint(s) are wired to signatures published in this repository. `
+          + 'Anyone with repository access holds them. This package is fit for LIVE TESTING of '
+          + 'the flow contracts and is NOT fit to carry real correspondence. Rotate before '
+          + 'production: npm run rotation.',
+      }
+    : { disclosed: false, keys: [], note: 'No wired endpoint reuses a signature published in this repository.' };
+
   /* Deployment instructions, written as DEPLOY.md rather than README.md: both platforms
      ship a README of their own, and a packager that silently overwrote it would replace
      the document explaining the platform with one explaining the box it arrived in. */
   const summary = {
-    demo: POSTURE === 'demo' && !anyProvisioned,
+    demo: !anyProvisioned,
+    exposure,
     provisionedCount: validation.results.filter(r => r.provisioned).length,
     endpointCount: surface.endpoints.length,
     actionCount: surface.endpoints.reduce((n, e) => n + e.actions.length, 0),
-    buildId, posture: POSTURE, entry: spec.entry,
+    buildId, posture, entry: spec.entry,
     fileCount: manifestFiles.length + 2,
     totalBytes: manifestFiles.reduce((n, f) => n + f.bytes, 0),
   };
@@ -543,8 +585,8 @@ function buildSurface(surfaceId, tracked, published) {
   const manifest = {
     package: surface.packageName,
     platform: surface.label,
-    posture: POSTURE,
-    demo: POSTURE === 'demo' && !anyProvisioned,
+    posture,
+    demo: !anyProvisioned,
     buildId,
     builtAt,
     builtBy: 'scripts/package.mjs',
@@ -574,6 +616,7 @@ function buildSurface(surfaceId, tracked, published) {
         status: v?.code || 'unprovisioned',
       };
     }),
+    exposure,
     provisionedCount: validation.results.filter(r => r.provisioned).length,
     endpointCount: surface.endpoints.length,
     actionCount: surface.endpoints.reduce((n, e) => n + e.actions.length, 0),
@@ -669,7 +712,23 @@ Self-contained deployment package. **Build \`${manifest.buildId}\`, posture ${ma
 
 ${manifest.demo
   ? '> **DEMO PACKAGE.** No endpoint is provisioned. It boots, renders and exercises every\n> screen, and transmits nothing. Do not present it as a live deployment.\n'
-  : `> ${manifest.provisionedCount} of ${manifest.endpointCount} endpoints provisioned, covering ${manifest.actionCount} flow routes.\n`}
+  : `> **RUNNABLE NOW.** ${manifest.provisionedCount} of ${manifest.endpointCount} endpoints provisioned, covering ${manifest.actionCount} flow routes.\n> Serve this directory and it calls the live flows.\n`}
+${manifest.exposure.disclosed ? `
+## ⚠ These endpoint URLs are disclosed
+
+${manifest.exposure.keys.length} of the URLs in this package are wired to signatures that are
+**published in the source repository**, so anyone with repository access already holds them.
+
+That is a deliberate decision, not an oversight. Minting a fresh production estate before the
+platform has been exercised live is the worse trade: live testing reveals contract adjustments,
+each adjustment means regenerating triggers again, and every regeneration cycle re-exposes the
+new set through the same working files. Test on the estate that is already disclosed, adjust
+until the contracts hold, then mint production URLs **once**, at the end.
+
+**This package is fit for live testing of the flow contracts. It is not fit to carry real
+correspondence or citizens' personal data.** When testing concludes, run \`npm run rotation\`
+for the worklist, rebuild with \`--values\`, and redeploy.
+` : ''}
 
 ## Deploy
 
@@ -795,14 +854,17 @@ if (!tracked) {
 
 /* Only scanned when it can change the outcome. In demo posture nothing is wired, so there
    is nothing to compare against the published set. */
-const published = POSTURE === 'demo' ? null : publishedSignatures(ROOT, tracked);
+const published = DEMO ? null : publishedSignatures(ROOT, tracked);
+
+await loadEstate();
 
 const surfaces = ONLY_SURFACE ? [ONLY_SURFACE] : SURFACE_IDS;
 const records = surfaces.map(s => buildSurface(s, tracked, published));
 
 if (!QUIET) {
   console.log('\nDGO Digital Operations — package build\n');
-  console.log(`  posture ${POSTURE.toUpperCase()}${VALUES_FILE ? `   values ${VALUES_FILE}` : ''}`);
+  console.log(`  ${DEMO ? 'DEMO — deliberately empty' : 'wired to every available endpoint'}` +
+    `${VALUES_FILE ? `   values ${VALUES_FILE}` : ''}`);
   console.log(`  output  ${path.relative(ROOT, OUT_DIR) || '.'}\n`);
 
   for (const r of records) {
@@ -812,7 +874,7 @@ if (!QUIET) {
     console.log(`    ${prov}/${total} endpoints provisioned · build ${r.buildId}`);
 
     for (const v of r.validation.results) {
-      if (!v.provisioned && POSTURE === 'demo') continue;
+      if (!v.provisioned && DEMO) continue;
       const icon = !v.provisioned ? '·' : v.ok ? (v.severity === 'warn' ? '⚠️ ' : '✅') : '⛔';
       console.log(`      ${icon} ${v.key.padEnd(24)} ${v.provisioned ? v.message : 'not provisioned'}`);
     }
@@ -834,7 +896,7 @@ if (!QUIET) {
   const failed = records.filter(r => !r.emitted);
   if (failed.length) {
     console.log(`  ${failed.length} package(s) refused.\n`);
-  } else if (POSTURE === 'demo') {
+  } else if (DEMO) {
     console.log('  Demo packages built. Nothing is transmitted from either of them.\n');
     console.log('  To provision endpoints:\n');
     console.log('    npm run package -- --values ~/dgo-values.txt --posture pilot\n');

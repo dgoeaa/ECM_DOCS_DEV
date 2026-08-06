@@ -181,7 +181,7 @@ Ordered so each step de-risks the next.
 | 2 | ~~Governance spine coverage~~ — **done**, 63 assertions | — |
 | 3 | ~~Accessibility~~ — **verified clean**, no change required | — |
 | 4 | **Rotate all 55 published signatures** | Power Automate |
-| 5 | **Register Entra ID application** — six app roles | Tenant administration |
+| 5 | ~~Register Entra ID application~~ — **removed.** Entra is no longer a dependency; identity is the OTP flow pair | — |
 | 6 | **Make each flow enforce its own callers** — token validation, role derivation, per-action authorisation, rate limiting, reference minting, upload ticketing, filename policy | Power Automate |
 | 7 | **Activate** — set `auth.enabled`, supply tenant config, verify | Configuration |
 

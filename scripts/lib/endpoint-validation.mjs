@@ -178,9 +178,16 @@ export function validateSurface(values, endpoints, { required } = {}) {
 
   const all = [...results, ...unknown];
 
-  /* Two flows behind one URL is a configuration mistake that looks like nothing: the
-     second key silently inherits the first key's flow, and every action routed to it
-     lands on a switch that has no case for it. */
+  /* Two keys on one flow is a defect only when they did not DECLARE that they share it.
+     Several legitimately do — `EMAIL` rides the DYNAMIC_GLOBAL_ACTIONS flow, `STATUS` and
+     `SUPPORT` are routes of one shared flow in the documented estate — and each says so
+     through `sourceKey`. An earlier cut compared workflow ids alone and refused to build
+     against the real estate for three "collisions" that are the design.
+
+     What remains reportable is the mistake that looks like nothing: two keys with DIFFERENT
+     source flows landing on the same one, so the second silently inherits the first's flow
+     and every action routed to it hits a switch with no case for it. */
+  const sourceOf = key => endpoints.find(e => e.key === key)?.sourceKey || key;
   const byWorkflow = new Map();
   for (const r of all) {
     if (!r.workflowId) continue;
@@ -188,7 +195,7 @@ export function validateSurface(values, endpoints, { required } = {}) {
     byWorkflow.get(r.workflowId).push(r.key);
   }
   const collisions = [...byWorkflow.entries()]
-    .filter(([, keys]) => keys.length > 1)
+    .filter(([, keys]) => keys.length > 1 && new Set(keys.map(sourceOf)).size > 1)
     .map(([workflowId, keys]) => ({ workflowId, keys }));
 
   return {

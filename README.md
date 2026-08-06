@@ -16,17 +16,19 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
    >
    > *Re-measured 6 August 2026.* **55 across 28 files**, down from 59 across 39 — the corpus trim removed files, not signatures, and the difference is duplicate copies of the same workflow. `npm run test:secrets` now prints this figure on every run instead of reporting "no signatures" over its narrowed scope, so the number no longer depends on which command you happen to run.
 
-   **Rotate every one of them in Power Automate.** Deleting a file revokes nothing, and neither does rewriting history. Two checks catch an unrotated credential: `npm run commission` blocks go-live, and `npm run package` refuses to build a pilot or enforced package wired to one.
+   **Rotate every one of them in Power Automate — once live testing concludes, not before.** Deleting a file revokes nothing, and neither does rewriting history. `npm run rotation` produces the worklist: the 55 signatures resolve to **39 distinct flows**, and 14 of those carry two live signatures each, so an older trigger URL is still valid alongside the newer one.
+
+   The delivered packages are deliberately wired to these URLs. Minting a fresh estate before the platform has been exercised live means regenerating triggers again after each contract adjustment, re-exposing every new set through the same working files. Every package stamps its own exposure in `PACKAGE_MANIFEST.json` and `DEPLOY.md`, and `npm run commission` reports it in every posture, so no deployment can be wrong about which it holds.
 
 2. **Authentication is provisioned but INERT.** The auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
-   Activation is a configuration event, not a development one: set `auth.enabled: true`, supply tenant configuration, and implement the server obligations. See **[`docs/architecture/AUTHENTICATION_CONTRACT.md`](docs/architecture/AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
+   Activation is a configuration event, not a development one: set `auth.enabled: true` and implement the server obligations. **There is no Entra tenant, no directory registration and no administrator approval** — identity is `OTP_GENERATE` and `OTP_VERIFY`, two Power Automate flows that arrive in the package with every other URL. See **[`docs/architecture/AUTHENTICATION_CONTRACT.md`](docs/architecture/AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
 
 Both items are open. See G-03 and G-04 of the capability assessment.
 
 **Going live?** Read **[`docs/deployment/COMMISSIONING.md`](docs/deployment/COMMISSIONING.md)** first, and run `npm run commission` — it reports exactly which obligations stand between this repository and a live deployment, and which of them only you can discharge.
 
-**Running it for development?** `npm run recover` wires 22 of the 24 endpoints from the documented flow estate in `docs/reference/foundational/`, so development runs against flows that already exist instead of throwaway ones built by hand each cycle. `npm run verify:endpoints` then proves that wiring against the live flows. The signatures it uses are the published ones above — the commissioning gate accepts them for development and refuses them for pilot and production.
+**Running it for development?** `npm run recover` wires 22 of the 24 endpoints from the documented flow estate in `docs/reference/foundational/`, so development runs against flows that already exist instead of throwaway ones built by hand each cycle. `npm run verify:endpoints` then proves that wiring against the live flows. The signatures it uses are the published ones above; the commissioning gate reports that exposure in every posture rather than blocking on it.
 
 ---
 
@@ -96,15 +98,20 @@ npm start                                        # serve
 package` builds the artefact you give away:
 
 ```bash
-npm run package                                       # both platforms, demo posture
-npm run package -- --values ~/dgo-values.txt --posture pilot
+npm run package                                       # both platforms, wired and runnable
+npm run package -- --values ~/dgo-values.txt          # wired to URLs you supply
 npm run package:verify -- --verify dist/dgo-document-portal
 ```
 
 Each package is self-contained — the platform's files, its endpoint URLs configured in, a
-manifest hashing every byte, and a record of what is wired. It refuses to build with a
-required endpoint missing, a malformed URL, two keys on one flow, or a signature this
-repository already publishes. See [`docs/deployment/PACKAGING.md`](docs/deployment/PACKAGING.md).
+manifest hashing every byte, and a record of what is wired. **The default build is runnable:**
+with no values supplied it wires every endpoint the documented estate provides, 17 of 18 on
+the internal platform and 5 of 6 on the portal.
+
+It refuses a malformed URL, two keys with different source flows landing on the same one, and
+a package that cannot resolve its own module graph. It does *not* refuse a disclosed
+signature — that is stamped on the package instead. See
+[`docs/deployment/PACKAGING.md`](docs/deployment/PACKAGING.md).
 
 Authentication stays **inert** for local testing: no sign-in, no token, identity from the
 local profile. Exactly as the pilot has always behaved. Turning it on is a deploy-time

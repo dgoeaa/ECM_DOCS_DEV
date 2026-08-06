@@ -5,11 +5,16 @@ URLs configured into it, a manifest hashing every byte, and a provisioning recor
 what is wired and what is not.
 
 ```
-npm run package                                              # both, demo posture
-npm run package -- --values ~/dgo-values.txt --posture pilot # provisioned
+npm run package                                              # both, wired and runnable
+npm run package -- --values ~/dgo-values.txt                 # wired to URLs you supply
+npm run package -- --demo                                    # deliberately empty
 npm run package -- --surface portal                          # one of them
 npm run package:verify -- --verify dist/dgo-document-portal  # check a delivered package
 ```
+
+**The default build is runnable.** With no values supplied it wires every endpoint the
+documented estate provides — 17 of 18 on the internal platform, 5 of 6 on the portal — so
+what you download starts working when you serve it.
 
 Output:
 
@@ -44,19 +49,41 @@ a delivered package are the same product.
 
 ---
 
-## The three postures
+## Posture is derived, not declared
 
-| Posture | Requires | Use |
+There is no `--posture` flag. It was one, defaulting to `demo`, which meant the default
+build — the one somebody runs without reading anything — produced a package that transmits
+nothing. Posture is a fact about what got wired, so it is read off the result:
+
+| Posture | When | What it is |
 |---|---|---|
-| `demo` (default) | nothing | A package that boots, renders and exercises every screen, and transmits nothing. Stamped `demo: true` in the manifest and in `DEPLOY.md`. |
-| `pilot` | every pilot endpoint valid, no unrotated signature | An internal pilot on correspondence you accept being readable by anyone holding a URL. |
-| `enforced` | the above, plus the Entra tenant values | `auth.enabled:true`. The **client** half only — see below. |
+| `live` | any endpoint is wired | Serve it and it calls the flows. |
+| `demo` | `--demo`, or nothing resolved | Boots, renders and exercises every screen, transmits nothing. Stamped `demo: true` in the manifest and in `DEPLOY.md`. |
 
-The pilot set is the irreducible one: correspondence cannot flow end to end without it.
-Four keys on the internal platform (`FETCH_ALL`, `DYNAMIC_ACTIONS`, `SINGLE_ASSIGNMENT`,
-`BULK_ASSIGNMENT`) and two on the portal (`SUBMISSION`, `UPLOAD`). Everything else is a
-feature you add later with one value and a rebuild, which is why an unset non-pilot key is
-reported rather than treated as a failure.
+### Where the URLs come from
+
+1. `--values <file>`, then the environment. Always wins.
+2. **The documented estate**, recovered from this repository's reference corpus. The floor,
+   not the ceiling — replacing it later is a values file and a rebuild.
+3. `--no-estate` disables the fallback: use only what you supplied.
+
+### Why the estate, and not a fresh one
+
+Those signatures are **published** — committed to this repository, so anyone with access
+holds them. Wiring them is a decision, not an oversight.
+
+Minting a fresh production estate before the platform has been exercised live is the worse
+trade. Live testing reveals contract adjustments; each adjustment means regenerating
+triggers again; and every regeneration cycle re-exposes the new set through the same working
+files. Two or three rounds of that and the "fresh" estate is as disclosed as the old one.
+
+So: test on the estate that is already disclosed, adjust until the contracts hold, then mint
+production URLs **once**, at the end, and rotate into them. `npm run rotation` produces that
+worklist — 39 flows. Every package stamps its own exposure in `PACKAGE_MANIFEST.json` and
+carries a warning in `DEPLOY.md`, so no deployment can be wrong about which it holds.
+
+**A package carrying disclosed URLs is fit for live testing of the flow contracts. It is not
+fit to carry real correspondence or citizens' personal data.**
 
 ---
 
@@ -64,14 +91,23 @@ reported rather than treated as a failure.
 
 A package is not emitted when:
 
-- **a required endpoint is missing** (pilot and enforced),
-- **a URL is malformed** — in *every* posture, demo included,
-- **two keys resolve to the same flow**, because the second silently inherits the first's
-  flow and every action routed to it lands on a switch with no case for it,
-- **a wired signature is one already published in this repository**, because going live on
-  it means going live on a credential everyone with repository access already holds,
+- **a URL is malformed** — in every posture, demo included. A truncated paste has nothing in
+  front of it to produce a useful error;
+- **two keys with different source flows resolve to the same one**, because the second
+  silently inherits the first's flow and every action routed to it lands on a switch with no
+  case for it. Keys that *declare* they share a flow — `EMAIL` on `DYNAMIC_GLOBAL_ACTIONS`,
+  `STATUS` and `SUPPORT` on `SUBSIDIARY_ACTIONS` — are the design, not a collision;
 - **the package cannot resolve its own module graph** — every asset and every module the
   entry HTML reaches is resolved inside the package before it is written.
+
+Those are defects. Two things are deliberately **not** refusals:
+
+- **A disclosed signature** is stamped, not blocked. Blocking it made the only configuration
+  that can be tested live the one the tool would not build.
+- **An endpoint with no URL** ships unprovisioned and is recorded as such. `SCAN_INTAKE` has
+  no flow in the estate at all and the portal's `UPLOAD` has no ticket-redeeming flow — gaps
+  in the deployed estate, not in the build. Refusing on them would leave nothing runnable;
+  each reports itself unconfigured at the point of use instead.
 
 ### Why URL validation is stricter than it looks
 
@@ -143,9 +179,13 @@ Each flow is called directly, so **each flow is the only place authentication,
 authorisation, validation and rate limiting can happen.** No file in a package can do it for
 them, and no check in this repository can prove they do.
 
-`enforced` posture provisions the client half: the browser acquires a token and sends it,
-stops asserting identity itself, and reads roles from claims. It does not make any decision
-server-authoritative.
+Enabling auth provisions the client half: the browser acquires a one-time-code proof and
+sends it, stops asserting identity itself, and reads the role the proof carries. It does not
+make any decision server-authoritative.
+
+**There is no Entra tenant, no directory registration and no administrator approval on this
+path.** Identity is `OTP_GENERATE` and `OTP_VERIFY`, two Power Automate flows that arrive in
+the package with every other URL, so activation is a flag rather than a procurement.
 
 The seven server-side obligations are specified in
 [`../architecture/AUTHENTICATION_CONTRACT.md`](../architecture/AUTHENTICATION_CONTRACT.md)
@@ -158,7 +198,7 @@ The seven server-side obligations are specified in
 
 ```
 npm test                                                     # 25 suites, 100 browser assertions
-npm run package -- --values <file> --posture pilot
+npm run package -- --values <file>
 npm run package:verify -- --verify dist/dgo-internal-platform
 npm run package:verify -- --verify dist/dgo-document-portal
 npm run verify:endpoints -- --include-writes                 # the flows answer, live

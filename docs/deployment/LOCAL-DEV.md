@@ -24,7 +24,7 @@ tests.
 
 ## What this replaces
 
-The deployed platform needs a lot standing behind it: an Entra tenant to issue tokens, 15
+The deployed platform needs a lot standing behind it: 15
 Power Automate flows each with its own signed URL and its own authentication, and a
 SharePoint site with 33 columns. [`CLOUDFLARE.md`](./CLOUDFLARE.md) walks through it and
 [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md) cuts that to about 75 minutes.
@@ -50,7 +50,7 @@ endpoint they call:
                     └──────────────────────────────────────┘
 ```
 
-No Entra. No Power Automate. No SharePoint. No Cloudflare. No signed URLs anywhere, because
+No Power Automate. No SharePoint. No Cloudflare. No identity provider. No signed URLs anywhere, because
 there is nothing to sign.
 
 ---
@@ -116,7 +116,7 @@ a captured response can never be mistaken for a real one.
 
 **Client-side auth stays off.** The generated config sets `auth.enabled: false`, which is
 the development posture the platform already ships with: local profile, local RBAC, no
-token. Turning it on would make the client demand an Entra token the dev server has no
+token. Turning it on would make the client demand a verified proof the dev server has no
 tenant to validate, and the app would sit at a sign-in it cannot complete. So RBAC in local
 development is advisory — a UX affordance, not a control. Client-side RBAC is advisory in a
 real deployment too; what makes it a control is each flow re-deciding the same question on

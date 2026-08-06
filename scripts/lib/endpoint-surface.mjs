@@ -40,6 +40,12 @@
  *                   — so `dispatchOutbound` is an operation, not an action, and a flow
  *                   switching only on `action` will never see it.
  *
+ * `sourceKey` names the FLOW a key is served by, and several keys legitimately share one —
+ * `EMAIL` rides `DYNAMIC_GLOBAL_ACTIONS`, `FETCH_ACTIVITIES` and `STATUS` ride
+ * `SUBSIDIARY_ACTIONS`. It defaults to the key's own name. Two keys landing on one flow is
+ * therefore only a defect when their `sourceKey`s DISAGREE; treating every shared flow as a
+ * collision refused the real estate, where sharing is the design.
+ *
  * Both are listed here because both are obligations on the flow, and provisioning one URL
  * commissions all of them. A flow that implements the first and not the rest fails at a
  * desk, not at the gate — which is why the packager reports route coverage rather than
@@ -50,14 +56,14 @@
 export const RUNTIME_ENDPOINTS = Object.freeze([
   { key: 'FETCH_ALL', pilot: true, transport: 'json', actions: ['fetchAll'],
     note: 'the register itself — officers see nothing without it' },
-  { key: 'DYNAMIC_ACTIONS', pilot: true, transport: 'json',
+  { key: 'DYNAMIC_ACTIONS', pilot: true, transport: 'json', sourceKey: 'DYNAMIC_GLOBAL_ACTIONS',
     actions: ['dynamicGlobalAction', 'dispatchOutbound', 'archiveReference', 'transitionStatus', 'logAuditEvent'],
     note: 'every governed write: register, triage, treat, approve, dispatch, close, archive' },
   { key: 'SINGLE_ASSIGNMENT', pilot: true, transport: 'json', actions: ['singleassignment'],
     note: 'assign one correspondence to one officer' },
   { key: 'BULK_ASSIGNMENT', pilot: true, transport: 'json', actions: ['bulkassignment'],
     note: 'assign many at once' },
-  { key: 'FETCH_ACTIVITIES', transport: 'json', actions: ['LIST-ACTIVITIES'],
+  { key: 'FETCH_ACTIVITIES', transport: 'json', sourceKey: 'SUBSIDIARY_ACTIONS', actions: ['LIST-ACTIVITIES'],
     note: 'activity feed' },
   { key: 'REFERENCE_DATA', transport: 'json', actions: ['lookups'],
     note: 'lookups and reference data' },
@@ -67,7 +73,7 @@ export const RUNTIME_ENDPOINTS = Object.freeze([
     note: 'email attachment retrieval' },
   { key: 'BULK_ASSIGNMENT_DIRECT', transport: 'json', actions: ['bulkassignment'],
     note: 'direct bulk assignment variant' },
-  { key: 'EMAIL', transport: 'json', actions: ['dispatchEmail'],
+  { key: 'EMAIL', transport: 'json', sourceKey: 'DYNAMIC_GLOBAL_ACTIONS', actions: ['dispatchEmail'],
     note: 'outward correspondence email' },
   { key: 'EMAIL_RELATED_TASK', transport: 'json', actions: ['emailtotaskassignment'],
     note: 'email-to-task assignment' },
@@ -81,7 +87,7 @@ export const RUNTIME_ENDPOINTS = Object.freeze([
     note: 'one-time passcode issue' },
   { key: 'OTP_VERIFY', transport: 'json', actions: ['otpVerify'],
     note: 'one-time passcode check' },
-  { key: 'SUBSIDIARY_ACTIONS', transport: 'json',
+  { key: 'SUBSIDIARY_ACTIONS', transport: 'json', sourceKey: 'SUBSIDIARY_ACTIONS',
     actions: ['INIT', 'REFRESH_EMAILS', 'LOAD_EMAIL_DETAILS', 'AI_ANALYSE_EMAIL', 'CREATE_TASK',
       'UPDATE_TASK', 'LOAD_EVENT_INFO', 'AI_CHAT', 'TRACK', 'ACKNOWLEDGE', 'GET_ALL',
       'GET_BOOTSTRAP', 'LISTDOCS', 'GETDOC', 'BULKASSIGN', 'CREATESUPPORTREQUEST',
@@ -96,9 +102,9 @@ export const PORTAL_ENDPOINTS = Object.freeze([
     note: 'register a submission, mint its reference, issue upload tickets' },
   { key: 'UPLOAD', pilot: true, transport: 'bytes', actions: ['(raw PUT)'],
     note: 'redeem one ticket with the bytes of one attachment' },
-  { key: 'STATUS', transport: 'json', actions: ['TRACK'],
+  { key: 'STATUS', transport: 'json', sourceKey: 'SUBSIDIARY_ACTIONS', actions: ['TRACK'],
     note: 'citizens tracking a submission (reference + email pair)' },
-  { key: 'SUPPORT', transport: 'json', actions: ['CREATESUPPORTREQUEST'],
+  { key: 'SUPPORT', transport: 'json', sourceKey: 'SUBSIDIARY_ACTIONS', actions: ['CREATESUPPORTREQUEST'],
     note: 'public help desk — CASE- references, never enters the registry' },
   { key: 'VERIFY', transport: 'json', actions: ['otpGenerate'],
     note: 'mail a one-time code to a submitter' },

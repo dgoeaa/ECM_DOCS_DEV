@@ -5,8 +5,8 @@
 // core/scan-intake-service.js need no change to talk to this.
 //
 // What is deliberately NOT reproduced: token validation, role authorization and identity
-// stripping. In production those are each flow's own responsibility, and they need an Entra
-// tenant. This file accepts what it is given and records it. It is a development stand-in,
+// stripping. In production those are each flow's own responsibility, and they need a verified
+// proof. This file accepts what it is given and records it. It is a development stand-in,
 // and the banner in dev-server.mjs says so on every start.
 //
 // What IS reproduced, because leaving it out would change how the portal behaves:

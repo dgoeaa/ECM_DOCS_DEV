@@ -264,7 +264,7 @@ const work = tmpdir();
 
 t('a demo package builds, and says it is a demo', () => {
   const out = path.join(work, 'demo');
-  const r = pack(['--out', out, '--quiet']);
+  const r = pack(['--out', out, '--quiet', '--demo']);
   assert.equal(r.code, 0, r.stdout);
   for (const id of SURFACE_IDS) {
     const m = JSON.parse(fs.readFileSync(path.join(out, SURFACES[id].packageName, 'PACKAGE_MANIFEST.json'), 'utf8'));
@@ -276,14 +276,51 @@ t('a demo package builds, and says it is a demo', () => {
   }
 });
 
-t('a pilot package is refused when a required endpoint is missing', () => {
+t('an endpoint with no URL is delivered unprovisioned, not refused', () => {
+  /* This asserted the opposite: a missing pilot endpoint refused the whole package. That
+     was wrong against the real estate, where SCAN_INTAKE has no flow at all and the
+     portal's UPLOAD has no ticket-redeeming flow — gaps in the deployed estate, not in the
+     build. Refusing on them left nothing runnable, which is the failure the packager
+     exists to prevent.
+
+     The property that must hold instead: the package ships, the gap is visible in the
+     manifest, and the feature reports itself unconfigured at the point of use rather than
+     pretending to work. */
   const out = path.join(work, 'incomplete');
-  // Every pilot key but the first.
   const values = writeValues(work, { runtimeKeys: pilotKeysOf('runtime').slice(1) });
-  const r = pack(['--out', out, '--values', values, '--posture', 'pilot', '--quiet']);
-  assert.equal(r.code, 1, 'an incomplete pilot package must be refused');
-  assert.ok(!fs.existsSync(path.join(out, 'dgo-internal-platform', 'PACKAGE_MANIFEST.json')),
-    'a refused package must not be written to disk');
+  const r = pack(['--out', out, '--values', values, '--quiet', '--no-estate']);
+  assert.equal(r.code, 0, `a package with an unwired endpoint must still build:\n${r.stdout}`);
+
+  const m = JSON.parse(fs.readFileSync(path.join(out, 'dgo-internal-platform/PACKAGE_MANIFEST.json'), 'utf8'));
+  const skipped = m.endpoints.find(e => e.key === pilotKeysOf('runtime')[0]);
+  assert.equal(skipped.provisioned, false, 'the unwired endpoint must be recorded as unprovisioned');
+  assert.equal(skipped.target, '', 'an unprovisioned endpoint must carry no target');
+  assert.ok(m.provisionedCount < m.endpointCount, 'the manifest must show the gap, not hide it');
+});
+
+t('a package wired to published signatures is stamped, not refused', () => {
+  /* The blocker this replaces made the only configuration that can be tested live the one
+     the tool would not build. The exposure is real and must travel with the package —
+     asserted in both documents a deployer might read. */
+  const out = path.join(work, 'estate');
+  const r = pack(['--out', out, '--quiet']);
+  assert.equal(r.code, 0, `the default build must produce a runnable package:\n${r.stdout}`);
+
+  for (const id of SURFACE_IDS) {
+    const dir = path.join(out, SURFACES[id].packageName);
+    const m = JSON.parse(fs.readFileSync(path.join(dir, 'PACKAGE_MANIFEST.json'), 'utf8'));
+    assert.equal(m.demo, false, `${id}: the default package must not be a demo`);
+    assert.equal(m.posture, 'live', `${id}: posture is derived from what got wired`);
+    assert.ok(m.provisionedCount > 0, `${id}: nothing was provisioned`);
+    assert.equal(m.exposure.disclosed, true, `${id}: the estate's signatures are published — say so`);
+    assert.ok(m.exposure.keys.length > 0, `${id}: exposure must name the keys`);
+    assert.match(m.exposure.note, /NOT fit to carry real correspondence/,
+      `${id}: the manifest must say what the exposure means, not only that it exists`);
+
+    const deploy = fs.readFileSync(path.join(dir, 'DEPLOY.md'), 'utf8');
+    assert.match(deploy, /disclosed/i, `${id}: DEPLOY.md must carry the same warning as the manifest`);
+    assert.match(deploy, /RUNNABLE NOW/, `${id}: DEPLOY.md must say the package is runnable`);
+  }
 });
 
 t('a package is refused when a URL is malformed, in every posture', () => {

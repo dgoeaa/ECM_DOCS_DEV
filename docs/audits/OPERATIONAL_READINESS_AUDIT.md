@@ -46,6 +46,8 @@ callers. No code change here can close either.
 | Flow routes with a live transcript | 0 | **39 of 39** |
 | Rotation work | "55 signatures" | **39 flows, 14 carrying two live signatures each** |
 | Dependency advisories | 3 (1 high) | **0** |
+| Entra / Azure dependency | tenant + client id + app roles | **removed — identity is two flows** |
+| Default package | demo, transmits nothing | **live, 22 of 24 endpoints wired** |
 | Unmerged branch work | 1 commit | **0** |
 
 ---
@@ -71,7 +73,7 @@ document and a generated artefact disagree, the artefact is right.
 
 ## 2 · Findings
 
-Ordered by consequence. **All seventeen defect findings are closed in this audit's commits**;
+Ordered by consequence. **All nineteen defect findings are closed in this audit's commits**;
 O-12 records the dependency posture, which is favourable. The items that remain open are in
 §5, and none of them is closable from inside this repository.
 
@@ -361,6 +363,68 @@ references across 395 files resolved on disk in under a second, and it fails the
 carries a guard on itself — if the matchers stop matching it fails rather than passing by
 checking nothing — and its single exclusion is asserted to stay single.
 
+### O-19 · Entra ID was a dependency nothing needed — **removed**
+
+**Severity: medium, as an architectural dependency.** `config/auth.config.js` described an
+Entra ID integration: `provider: 'entra-id'`, a `tenantId` and `clientId` supplied at deploy
+time, OIDC scopes, a `rolesClaim` and a `roleClaimMap` translating an identity provider's
+group claims onto platform roles. `commission-check` refused the enforced posture without the
+tenant values, and `AUTHENTICATION_CONTRACT.md` §3 opened by telling you to register an
+application and define six app roles.
+
+None of it was ever activated, and all of it sat on the critical path of activation: a
+directory registration, a client id to obtain, and an administrator's approval — for a
+platform whose entire architecture is otherwise zero-build, zero-dependency and
+self-contained, with nothing to stand up between the browser and the flow.
+
+**The replacement already existed.** `core/otp-identity.js` is an identity provider built
+entirely from Power Automate flows — `OTP_GENERATE` mails a one-time code, `OTP_VERIFY`
+exchanges it for a signed expiring proof — and it already satisfied `core/auth.js`'s
+token-provider contract. Identity now has the same shape as everything else here.
+
+Removed from the auth config, the auth core, `setup.mjs`, the packager, the commission gate,
+both test suites, the architecture generators and six documents. Activation is now a flag and
+two endpoints, and the endpoints arrive in the package with every other URL. What did not
+change: the role still comes from the server side and never from the client, and an
+unresolved role is still denied rather than defaulted — the escalation regression is still
+covered in both directions.
+
+### O-20 · The build gate blocked the only package that could be tested — **corrected**
+
+**Severity: high, and it was my error.** The packager refused to emit a pilot or enforced
+package wired to a signature published in this repository, and defaulted to `demo` — a
+package that boots, renders and transmits nothing.
+
+The combination made the artefact that can actually be exercised live the one thing the tool
+would not build, and the only way past it was to mint a fresh production estate before
+anything had been tested. **That is precisely the sequence that gets an estate regenerated
+two or three times:** live testing reveals contract adjustments, each adjustment means
+regenerating triggers, and every regeneration cycle re-exposes the new set through the same
+working files. The gate was optimising a property it could not protect at the cost of the
+one thing that reduces total exposure — testing once, on already-disclosed URLs, then
+minting production URLs once at the end.
+
+**Corrected.** The default build wires every endpoint the documented estate provides — 17 of
+18 on the internal platform, 5 of 6 on the portal — and posture is derived from what got
+wired rather than declared by a flag. A disclosed signature is **stamped**, not refused:
+recorded in `PACKAGE_MANIFEST.json` and carried as a warning in `DEPLOY.md`, in both cases
+saying what it means rather than only that it exists. `npm run commission` reports it in
+every posture and blocks in none.
+
+What is still refused is unchanged and still defects: a malformed URL, a package that cannot
+resolve its own module graph, and two keys with *different* source flows landing on the same
+one.
+
+That last check also had to be corrected. It compared workflow ids alone and refused the real
+estate for three "collisions" that are the design — `EMAIL` rides `DYNAMIC_GLOBAL_ACTIONS`,
+`STATUS` and `SUPPORT` are routes of one shared flow. The contracts already declared this
+through `sourceKey`; the check now reads it.
+
+**The two remaining unwired endpoints are estate gaps, not build gaps.** `SCAN_INTAKE` has no
+flow in the corpus and the portal's `UPLOAD` has no ticket-redeeming flow. Both must be
+BUILT, not rotated — the commission gate now says so rather than sending someone to
+regenerate a trigger that does not exist.
+
 ### O-11 · Stale figures in live prose — **closed**
 
 Six documents and two scripts stated 25 routes; there are 29. Historical audits keep their
@@ -515,7 +579,7 @@ audit's.
 |---|---|---|
 | 3 | `npm run verify:endpoints -- --include-writes` against the live estate | The only step that turns "the configuration looks right" into a transcript. Exercises all 39 routes including the four O-03 restored |
 | 4 | Register the Entra application, six app roles | Prerequisite for `enforced` |
-| 5 | Build with `--posture enforced`, verify both packages, deploy | The client half becomes a configuration event, not a development one |
+| 5 | Set `DGO_AUTH_ENABLED=true`, rebuild, verify both packages, deploy | The client half becomes a configuration event, not a development one. No tenant to register — Entra is removed |
 | 6 | Run the browser suite against the deployed hostname | Deployment is where endpoint-config presence differs from local |
 | 7 | Decide the `STATUS` flow's proof obligation | §3, platform 2 |
 | 8 | Approve the Part H routing table; clear test records before real correspondence | `npm run commission` reports both; neither is a script's to settle |
@@ -523,7 +587,7 @@ audit's.
 ### The sequencing point
 
 Production endpoint URLs are not to be minted until this phase's outputs are accepted. That
-ordering is now enforceable rather than procedural: `npm run package -- --posture pilot`
+ordering is now enforceable rather than procedural: `npm run package`
 refuses every URL that is malformed, duplicated across flows, or already published here. When
 the production estate is built, the packages are rebuilt against it and the build id changes
 — which is how a deployment can be told apart from the one it replaced, and what makes the

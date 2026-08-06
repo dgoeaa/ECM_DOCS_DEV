@@ -61,7 +61,7 @@ This is the boundary that governs everything below.
 | SAS signature rotation | Power Automate | only you |
 | SharePoint lists and columns | your tenant | only you |
 | Cloudflare Pages + Access | your Cloudflare account | only you |
-| Entra tenant and client IDs | your tenant | only you |
+| ~~Entra tenant and client IDs~~ | **not required** — Entra is removed | — |
 
 The middle row is gap **G-04**, and it is the one that matters most. An authenticating
 proxy used to discharge it; that proxy has been removed. Every obligation it carried now
@@ -123,9 +123,9 @@ sit between the page and the flows, so a flow called directly answers whoever ca
 > a URL. **Not fit for the personal data of ~785 individuals** (finding R-01) — the pilot
 > posture does not protect it.
 
-**Enforced** — `auth.enabled: true`, Entra tenant supplied, roles read from token claims,
-**and each flow validating that token itself**. The client half is here and ready. The
-server half is the row you cannot delegate.
+**Enforced** — `auth.enabled: true` with `OTP_GENERATE` and `OTP_VERIFY` wired, roles read
+from the verified proof, **and each flow verifying that proof itself**. The client half is
+here and ready. The server half is the row you cannot delegate.
 
 ```bash
 npm run commission -- --posture development
@@ -133,11 +133,12 @@ npm run commission -- --posture pilot
 npm run commission -- --posture enforced
 ```
 
-With no identity provider in the picture, `enforced` does not apply: it is the Entra
-posture, and it asks for a tenant and client id. Running without one means the client half
-stays inert permanently and **every authentication and authorisation decision belongs to
-the flow** — the same obligation, made explicit rather than delegated. The gate reports it
-as a standing manual obligation in every posture, because no check in this repository can
+`enforced` no longer asks for anything you have to go and get. Entra is removed: there is
+no tenant to register, no client id to obtain and no administrator's approval on the path.
+What it asks for is two endpoints, and they arrive in the package with every other URL — so
+activation is a flag rather than a procurement. What does not change is that **every
+authentication and authorisation decision belongs to the flow**. The gate reports it as a
+standing manual obligation in every posture, because no check in this repository can
 verify a Power Automate flow.
 
 ### 1a · Prove the wiring against the live flows

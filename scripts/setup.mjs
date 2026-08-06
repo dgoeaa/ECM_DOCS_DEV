@@ -75,20 +75,17 @@ const VALUES_FILE = (() => {
  * Authentication, injected the same way the endpoints are.
  *
  * config/auth.config.js reads `window.DGO_CONFIG.auth` and holds every structure the
- * enforced posture needs, switched off. `tenantId` and `clientId` are deliberately
- * empty in the committed file and must never be committed, so deploy-time injection
- * through this git-ignored file is the supported route to turning auth on.
+ * enforced posture needs, switched off. There is no tenantId or clientId to supply — Entra
+ * is removed, and identity is the OTP_GENERATE / OTP_VERIFY pair, which arrives with every
+ * other endpoint. Activation is therefore a flag, not a registration.
  *
  * Flipping `enabled` changes four behaviours at once, by design — see the header of
  * config/auth.config.js. It does NOT make anything server-authoritative on its own:
- * the flows still have to validate the token. That is what `npm run commission`
+ * the flows still have to verify the proof. That is what `npm run commission`
  * refuses to let you forget.
  */
 const AUTH_KEYS = [
   { key: 'enabled', env: 'DGO_AUTH_ENABLED', cast: v => v === 'true' || v === '1' },
-  { key: 'tenantId', env: 'DGO_AUTH_TENANT_ID' },
-  { key: 'clientId', env: 'DGO_AUTH_CLIENT_ID' },
-  { key: 'authority', env: 'DGO_AUTH_AUTHORITY' },
   { key: 'roleSource', env: 'DGO_AUTH_ROLE_SOURCE' },
 ];
 

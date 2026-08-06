@@ -215,15 +215,18 @@ check('the auth block is emitted only when supplied', () => {
   const vf = writeValues(dir, [
     ...PILOT_VALUES,
     'DGO_AUTH_ENABLED=true',
-    'DGO_AUTH_TENANT_ID=tenant-abc',
-    'DGO_AUTH_CLIENT_ID=client-def',
+    'DGO_AUTH_ROLE_SOURCE=verified',
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--force', '--values', vf]);
   const sandbox = { window: {} };
   new Function('window', fs.readFileSync(path.join(dir, 'config/config.local.js'), 'utf8'))
     .call(sandbox, sandbox.window);
   assert(sandbox.window.DGO_CONFIG.auth?.enabled === true, 'auth.enabled did not carry through');
-  assert(sandbox.window.DGO_CONFIG.auth.tenantId === 'tenant-abc', 'tenantId did not carry through');
+  assert(sandbox.window.DGO_CONFIG.auth.roleSource === 'verified', 'roleSource did not carry through');
+  /* There is no tenant to carry. Entra is removed, so activation needs no directory
+     registration and no administrator approval — only the two OTP endpoints, which arrive
+     with every other URL. */
+  assert(!('tenantId' in sandbox.window.DGO_CONFIG.auth), 'a tenantId was emitted; Entra is removed');
 });
 
 /* ------------------------------------------------------------------ *
@@ -245,7 +248,7 @@ check('a wired pilot with rotated URLs is cleared', () => {
   assert(r.status === 0, `expected exit 0 for a wired pilot, got ${r.status}:\n${r.stdout}`);
 });
 
-check('NEGATIVE CONTROL: an endpoint reusing a published signature blocks go-live', () => {
+check('an endpoint reusing a published signature is REPORTED, in every posture', () => {
   const dir = scratchRepo();
   // A tracked file in the scratch repo carrying a signature stands in for the reference
   // corpus. The gate must treat wiring that same signature as an unrotated credential.
@@ -259,9 +262,17 @@ check('NEGATIVE CONTROL: an endpoint reusing a published signature blocks go-liv
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
-  assert(r.status === 1, 'a reused, unrotated signature did not block go-live');
-  assert(/UNROTATED signature/.test(r.stdout), 'the reuse was not named as unrotated');
+  /* This asserted a BLOCK, and the block was wrong: it made the only configuration that can
+     be tested live the one the gate refused, and the only way past it was to mint a fresh
+     production estate before anything had been exercised — the sequence that gets an estate
+     regenerated two or three times, re-exposing each new set.
+
+     Detection is what must not regress. The exposure is reported wherever it is found,
+     names the offending endpoint, and says what it means. */
+  assert(/PUBLISHED signature/.test(r.stdout), 'the reuse was not reported');
   assert(/FETCH_ALL/.test(r.stdout), 'the offending endpoint was not identified');
+  assert(/NOT fit for real correspondence/i.test(r.stdout),
+    'the report must say what the exposure means, not only that it exists');
 });
 
 check('a signature published only in a very large file is still caught', () => {
@@ -280,8 +291,8 @@ check('a signature published only in a very large file is still caught', () => {
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
-  assert(r.status === 1, 'a signature published in a large file was missed');
-  assert(/UNROTATED signature/.test(r.stdout), 'the large-file reuse was not reported');
+  assert(/PUBLISHED signature/.test(r.stdout), 'the large-file reuse was not reported');
+  assert(/FETCH_ALL/.test(r.stdout), 'the offending endpoint was not identified');
 });
 
 check('a placeholder URL blocks go-live', () => {
@@ -326,13 +337,18 @@ check('requesting enforced against an inert config blocks', () => {
   assert(/auth is inert/.test(r.stdout), 'the inert posture was not called out');
 });
 
-check('enforced auth without a tenant blocks', () => {
+check('enforced auth without the OTP endpoints blocks', () => {
+  /* Was "without a tenant". Identity is OTP now: what activation needs is two endpoints,
+     not a directory registration. Enabling auth without them means no caller can obtain a
+     proof and every governed action fails closed — which must be caught before deployment,
+     not discovered at a desk. */
   const dir = scratchRepo();
   const vf = writeValues(dir, [...PILOT_VALUES, 'DGO_AUTH_ENABLED=true']);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
-  assert(r.status === 1, 'enforced auth cleared with no identity provider configured');
-  assert(/tenantId/.test(r.stdout), 'the missing tenant was not named');
+  assert(r.status === 1, 'enforced auth cleared with no way to issue a proof');
+  assert(/OTP_GENERATE/.test(r.stdout), 'the missing OTP endpoints were not named');
+  assert(!/tenantId|clientId/.test(r.stdout), 'the gate still asks for an Entra tenant');
 });
 
 check('the server half is always reported as unverifiable, never as done', () => {
@@ -340,7 +356,8 @@ check('the server half is always reported as unverifiable, never as done', () =>
   const vf = writeValues(dir, [
     ...PILOT_VALUES,
     'DGO_AUTH_ENABLED=true',
-    'DGO_AUTH_TENANT_ID=t', 'DGO_AUTH_CLIENT_ID=c',
+    `DGO_ENDPOINT_OTP_GENERATE=${flowUrl('otpg', 'OTPG')}`,
+    `DGO_ENDPOINT_OTP_VERIFY=${flowUrl('otpv', 'OTPV')}`,
   ]);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
   const r = run(dir, 'commission-check.mjs');
@@ -434,7 +451,14 @@ check('no signature is hardcoded in the recovery module', () => {
  * The development posture
  * ------------------------------------------------------------------ */
 
-check('development accepts published signatures; pilot and enforced refuse them', () => {
+check('every posture accepts the documented estate, and every posture says it is published', () => {
+  /* Pilot used to REFUSE a published signature, and the refusal was the wrong control: the
+     configuration it blocked is the only one that can be exercised live, and the only way
+     past it was to mint a fresh production estate before anything had been tested. That is
+     how an estate gets regenerated two or three times, re-exposing each new set.
+
+     What must hold in every posture is that the gate SAYS SO. Going quiet about a disclosed
+     credential because the posture is permissive would be the real regression. */
   const dir = scratchRepo();
   spawnSync('git', ['init', '-q'], { cwd: dir });
   fs.writeFileSync(path.join(dir, 'estate.txt'), `documented: ${flowUrl('a', 'AAAA')}\n`);
@@ -442,15 +466,15 @@ check('development accepts published signatures; pilot and enforced refuse them'
   const vf = writeValues(dir, PILOT_VALUES);
   run(dir, 'setup.mjs', ['--quiet', '--values', vf]);
 
-  const dev = run(dir, 'commission-check.mjs', ['--posture', 'development']);
-  assert(dev.status === 0,
-    `development must accept the documented estate, got exit ${dev.status}:\n${dev.stdout}`);
-  assert(/published signature/.test(dev.stdout),
-    'development must still SAY the signatures are published, not go quiet about it');
-
-  const pilot = run(dir, 'commission-check.mjs', ['--posture', 'pilot']);
-  assert(pilot.status === 1, 'pilot must refuse a published signature');
-  assert(/UNROTATED/.test(pilot.stdout), 'pilot must name the reuse as unrotated');
+  for (const posture of ['development', 'pilot']) {
+    const r = run(dir, 'commission-check.mjs', ['--posture', posture]);
+    assert(r.status === 0,
+      `${posture} must build on the documented estate, got exit ${r.status}:\n${r.stdout}`);
+    assert(/PUBLISHED signature/.test(r.stdout),
+      `${posture} went quiet about a disclosed credential`);
+    assert(/NOT fit for real correspondence/i.test(r.stdout),
+      `${posture} reported the exposure without saying what it means`);
+  }
 });
 
 check('posture is never silently downgraded to development', () => {

@@ -417,7 +417,7 @@ const zones = [
     rule: 'Holds no credential. Anonymous by design — a citizen writing to NITDA has no account.',
     components: [{ name: 'document-portal/', detail: `${countFilesIn('document-portal')} files · 5 pages · PWA` }] },
   { id: 'internal', label: 'Internal', tone: 'internal',
-    rule: 'NITDA staff. Entra ID mandatory once activated; provisioned and inert today.',
+    rule: 'NITDA staff. A one-time-code proof once activated — no directory, no tenant; provisioned and inert today.',
     components: [{ name: 'DGO R11.6 runtime', detail: `${Routes.length} routes · system of record` }] },
   { id: 'record', label: 'Systems of record', tone: 'record',
     rule: 'The enforcement boundary sits here, at the flow endpoint. Each flow authenticates '
