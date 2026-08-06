@@ -24,7 +24,7 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 
 | | Then | Now |
 |---|---|---|
-| Runtime | **Could not boot** | Boots; 25/25 routes render clean |
+| Runtime | **Could not boot** | Boots; 29/29 routes render clean |
 | Dark / high-contrast themes | Content invisible | Correct in all three themes |
 | Test suite | **Did not exist** | 4 suites, CI on every push |
 | CI | **Did not exist** | Green on every run |
@@ -44,13 +44,19 @@ Every claim below is reproducible from `main`.
 
 ```
 npm test
-  imports      168 modules reachable · 0 broken edges        ✅
-  secrets      2 baselined files · no new signatures         ✅
-  governance   63/63 ownership, RBAC, idempotency, audit     ✅
-  auth         38/38 across both postures, both apps         ✅
-  smoke        6/6 boot, a11y, 25 routes, themes, portal     ✅
-CI          green on all runs
+  imports        134 modules reachable · 1835 edges · 0 broken   ✅
+  secrets        0 baselined files · no signatures tracked       ✅
+  governance     64/64 ownership, RBAC, idempotency, audit       ✅
+  auth           38/38 across both postures, both apps           ✅
+  identity       33/33 directory roles, disabled users, fail-open ✅
+  commissioning  27/27 setup, readiness gate, recovery            ✅
+  smoke          78/78 boot, a11y, 29 routes, themes, portal      ✅
+20 node suites + Playwright · CI green on all runs
 ```
+
+> *Amended 5 August 2026.* The block above previously reported 168 modules, 2 baselined
+> secret files, 63 governance assertions, a 6-test smoke suite and 25 routes. Every one of
+> those figures had moved. They are now read from the suites rather than transcribed.
 
 ---
 

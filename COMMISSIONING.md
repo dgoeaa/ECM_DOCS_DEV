@@ -11,7 +11,7 @@ npm start                                      # http://localhost:8080
 ```
 
 Those are two different statements and the distinction is the whole point of this
-document. The code works — 17 Node suites, 78 browser tests, every route rendering, all
+document. The code works — 20 Node suites, 78 browser tests, every route rendering, all
 green. Nothing here is broken. But nothing is wired to a flow, nothing is deployed, no
 credential has been rotated, and no enforcement exists on the server side. A platform in
 that state boots, renders and transmits nothing. That is what "doesn't seem to be active"
@@ -198,7 +198,7 @@ applying and every caller's role comes from the register.
 
 > **Until it does, every browser is a System Administrator.** `core/state.js` seeds a
 > `systemAdmin` profile with `accessScope: ['all']` so a fresh clone can boot and render all
-> 25 routes. That is correct for development and unacceptable anywhere else.
+> 29 routes. That is correct for development and unacceptable anywhere else.
 
 Full request and response contracts, including the OTP identity pair and what each governed
 flow must verify: **[`docs/reference/flow-contracts/IDENTITY.md`](docs/reference/flow-contracts/IDENTITY.md)**.

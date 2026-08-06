@@ -22,7 +22,7 @@
  *
  * The bootstrap administrator is deliberately PRESERVED for the case it was built for — a
  * platform with no directory at all — because that is what lets the runtime boot and all
- * 25 routes render before any flow exists. The tests pin both halves.
+ * 29 routes render before any flow exists. The tests pin both halves.
  *
  * Usage:  node tests/identity-directory.test.mjs
  * Exit:   0 = all assertions hold, 1 = otherwise
