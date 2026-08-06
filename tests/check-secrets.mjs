@@ -139,7 +139,7 @@ if (affected.length && !added.length && !cleared.length) {
   console.log(
     `⚠️  ${affected.length} baselined file(s) carry ${totalDistinct} globally distinct SAS signature(s).`
   );
-  console.log('   These are gap G-03 in CAPABILITY_ASSESSMENT_R11.6.md and remain OUTSTANDING.');
+  console.log('   These are gap G-03 in docs/audits/CAPABILITY_ASSESSMENT_R11.6.md and remain OUTSTANDING.');
   console.log('   Rotation in Power Automate must happen before removal — deleting a file');
   console.log('   revokes nothing. Not failing the build on already-known exposure.\n');
   for (const a of affected) console.log(`   ${a.file}  (${a.distinct} distinct)`);

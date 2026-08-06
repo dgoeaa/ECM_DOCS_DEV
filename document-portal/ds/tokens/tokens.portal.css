@@ -1,0 +1,23 @@
+/* Portal-only semantic tokens.
+   ---------------------------------------------------------------------------
+   Every other file in this directory is a byte-for-byte copy of
+   styles/dgo-design-system/tokens/, and tests/design-tokens.test.mjs fails the
+   build if that stops being true. This file is the sanctioned escape hatch: the
+   portal's public pages place text and hairlines directly on the brand green
+   surface, which the runtime shell never does, so these five tokens exist here
+   and nowhere else.
+
+   Add a token here only if the runtime genuinely has no use for it. If both
+   apps need it, add it to the shared semantic layer instead so they cannot
+   drift apart. */
+
+:root {
+  /* Foreground on the brand green surface, in descending emphasis. */
+  --dgo-color-fg-on-brand-muted:     rgba(255, 255, 255, 0.78);
+  --dgo-color-fg-on-brand-soft:      rgba(255, 255, 255, 0.66);
+  --dgo-color-fg-on-brand-faint:     rgba(255, 255, 255, 0.55);
+
+  /* Hairline and veil used to separate panels laid over the brand surface. */
+  --dgo-color-border-on-brand-soft:  rgba(255, 255, 255, 0.14);
+  --dgo-color-surface-on-brand-veil: rgba(255, 255, 255, 0.12);
+}

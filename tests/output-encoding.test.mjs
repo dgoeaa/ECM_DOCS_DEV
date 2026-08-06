@@ -2,7 +2,7 @@
 /**
  * Output-encoding regressions.
  *
- * Every case here corresponds to a finding in FORENSIC_ROOT_PLATFORM_AUDIT.md. They are
+ * Every case here corresponds to a finding in docs/audits/FORENSIC_ROOT_PLATFORM_AUDIT.md. They are
  * written as negative controls: each asserts that a specific attacker-supplied string does
  * NOT survive into generated markup intact. Remove the escaping and the matching case fails.
  *

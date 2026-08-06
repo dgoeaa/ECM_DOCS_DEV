@@ -96,7 +96,7 @@ dead code or an undocumented dependency.
    flow still exists and is enabled. Expect some to be already-deleted.
 2. **Rotate or delete, do not merely unwire.** Removing an endpoint from configuration leaves
    the flow running and its published URL valid.
-3. **Re-provision flows that defend themselves.** Per `AUTHENTICATION_CONTRACT.md` §2, every
+3. **Re-provision flows that defend themselves.** Per `docs/architecture/AUTHENTICATION_CONTRACT.md` §2, every
    replacement is callable from a browser — there is no longer anything in front of it — so
    each must validate the token, derive the role, authorise the action, validate its input and
    rate-limit its callers itself. Rotate its signature on a schedule; regenerating is the only

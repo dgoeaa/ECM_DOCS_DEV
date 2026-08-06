@@ -173,7 +173,7 @@ what you will build real authorisation on later.
 **4a** **Settings → Custom Pages.** Copy your team domain (`something.cloudflareaccess.com`)
 and note it in `~/dgo-values.txt` for the record. Nothing consumes it in the pilot — there is
 no Worker verifying tokens — but you will need it if you later enforce authentication per
-`AUTHENTICATION_CONTRACT.md`.
+`docs/architecture/AUTHENTICATION_CONTRACT.md`.
 
 **4b** **Settings → Authentication → Login methods → Add new.** Add your organisation's
 provider. Then **Edit** it and turn on **Add groups to the JWT**. Click **Test** — the result

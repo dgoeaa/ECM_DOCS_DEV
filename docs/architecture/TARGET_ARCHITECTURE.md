@@ -30,7 +30,7 @@
 > place any of them can be enforced.
 >
 > The per-endpoint contract each flow must satisfy is `document-portal/README.md`; the server
-> obligations are `AUTHENTICATION_CONTRACT.md` §2; the current zone model is
+> obligations are `docs/architecture/AUTHENTICATION_CONTRACT.md` §2; the current zone model is
 > `components.html`. The proposal below is left as drawn, because a design edited to match its
 > own outcome stops being evidence of what was decided. Only two kinds of line are touched:
 > the zone table and the rule in §3.1, which asserted a present-tense fact that is no longer
@@ -219,7 +219,7 @@ It already does token validation, role derivation, per-action authorization, ide
 
 > **Amended.** The proxy is gone, so none of the six controls in the sentence above exists any
 > more, and the three additions below have no component to be added *to*. All nine are now
-> obligations of the flow being invoked — see `AUTHENTICATION_CONTRACT.md` §2 for the server
+> obligations of the flow being invoked — see `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 for the server
 > obligations and `document-portal/README.md` for the per-endpoint contract.
 
 | Need | Why |

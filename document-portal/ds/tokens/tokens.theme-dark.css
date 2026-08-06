@@ -15,6 +15,9 @@
   --dgo-color-surface-raised: #122019;
   --dgo-color-surface-sunken: #081109;
   --dgo-color-surface-muted:  #162720;
+  /* The secondary hover/focus wash is a light-theme green tint; unbound it painted a near-white
+     surface under dark-theme brand text (1.7:1). Dark needs its own raised-green wash. */
+  --dgo-color-action-secondary-hover: #16221C;
   --dgo-color-surface-inverse:#FFFFFF;
   --dgo-color-surface-brand:  var(--dgo-green-700);
 
@@ -25,13 +28,14 @@
   --dgo-color-fg-subtle:      #6F7E78;
   --dgo-color-fg-disabled:    #4F5C57;
   --dgo-color-fg-on-brand:    #FFFFFF;
+  --dgo-color-fg-brand:       var(--dgo-smart-300);
   --dgo-color-fg-link:        var(--dgo-smart-300);
   --dgo-color-fg-link-hover:  var(--dgo-smart-200);
 
   /* Borders */
   --dgo-color-border-default: #1F2F27;
-  --dgo-color-border-strong:  #2D3F36;
-  --dgo-color-border-stronger:#42554B;
+  --dgo-color-border-strong:  #6E8A7C;   /* SC 1.4.11: 4.48:1 on the dark card */
+  --dgo-color-border-stronger:#8AA79A;
 
   /* Status — keep subtle bg low-saturation, fg high-contrast */
   --dgo-color-info-subtle-bg:    rgba(42,138,209,0.18);
@@ -64,9 +68,15 @@
   --dgo-card-border:       #1F2F27;
   --dgo-input-bg:          #0E1A14;
   --dgo-input-bg-disabled: #162720;
-  --dgo-input-border:      #2D3F36;
+  --dgo-input-border:      #6E8A7C;
   --dgo-table-header-bg:   #0E1A14;
   --dgo-table-row-hover:   #162720;
+  --dgo-sidebar-bg:        #081109;   /* inverse surface is white in dark mode */
+  --dgo-sidebar-fg:        rgba(255,255,255,0.88);
+  --dgo-topbar-bg:         #0B1410;
+  --dgo-cmdk-item-bg-active: #1B2E25;
+  --dgo-tooltip-bg:        #E8EDEA;
+  --dgo-tooltip-fg:        #0B1410;
 
   /* Shadows lighter in dark */
   --dgo-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.40);
@@ -77,5 +87,13 @@
 
   --dgo-focus-ring: 0 0 0 2px #0B1410, 0 0 0 5px var(--dgo-smart-300);
 
-  color-scheme: dark;
+  /* Theme parity closure (R6 Workstream B/C): semantics that previously fell through to
+     the light baseline and rendered low-contrast surfaces, borders and focus rings. */
+  --dgo-color-surface-overlay:   rgba(2, 10, 7, 0.72);
+  --dgo-color-fg-on-accent:      #04180F;
+  --dgo-color-fg-link-visited:   var(--dgo-smart-200);
+  --dgo-color-border-brand:      var(--dgo-smart-300);
+  --dgo-color-border-accent:     var(--dgo-smart-300);
+  --dgo-color-border-on-brand:   rgba(255, 255, 255, 0.28);
+  --dgo-color-border-focus:      var(--dgo-smart-300);
 }

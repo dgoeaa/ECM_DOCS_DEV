@@ -150,7 +150,7 @@ Whichever is chosen, the sequence that actually closes the exposure is:
 3. Re-provision replacements that authenticate, authorise and validate their own callers.
    Putting them behind a proxy is no longer an option — that tree has been removed, and both
    clients call each flow directly — so a browser *does* hold each replacement credential and
-   the flow is the only place a control can live. See `AUTHENTICATION_CONTRACT.md` §2, and
+   the flow is the only place a control can live. See `docs/architecture/AUTHENTICATION_CONTRACT.md` §2, and
    put every replacement on a rotation schedule from the day it is created.
 4. Re-run `node scripts/flow-inventory.mjs`; update or delete the allow-list entry in
    `tests/secret-exposure.test.mjs` to match.

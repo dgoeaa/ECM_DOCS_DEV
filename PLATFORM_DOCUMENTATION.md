@@ -184,13 +184,13 @@ Complete on the client side and **switched off**. The platform is in development
 
 - **`core/auth.js`** — token acquisition with renewal and in-flight coalescing, claim decoding (never verification — that is the server's job), identity resolution, `ensureAuthenticated()` gating.
 - **`core/current-user.js`** — a server-authoritative path that reads role from claims. This is what closes the escalation: the role is no longer read from local state, so tampering cannot change it.
-- **`AUTHENTICATION_CONTRACT.md`** — the seven server obligations. **The client can only decline to send a request, never prevent one.** Until the backend validates tokens and derives roles itself, nothing is enforced.
+- **`docs/architecture/AUTHENTICATION_CONTRACT.md`** — the seven server obligations. **The client can only decline to send a request, never prevent one.** Until the backend validates tokens and derives roles itself, nothing is enforced.
 
 ### Why there is no proxy
 
 An authenticating proxy was built — `proxy/`, a Cloudflare Worker holding every signed trigger URL server-side — and then removed, because a platform that needs a runtime deployed and kept alive before it can be used is a platform that mostly is not used. Every request now goes **directly** to the configured flow URL.
 
-The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
+The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
 
 ### Regression guarantees
 
@@ -305,15 +305,15 @@ newack/                        Acknowledgement prototype
 ECM_DOCS_DEV.zip               Archive of record — reference material
 ```
 
-Documents: `PLATFORM_DOCUMENTATION.md` · `STATUS_REPORT.md` · `AUTHENTICATION_CONTRACT.md` · `CAPABILITY_ASSESSMENT_R11.6.md` · `REPOSITORY_AUDIT.md` · `FORENSIC_REPOSITORY_AUDIT.md` · `AUDIT.md` · `README.md` · `CONTRIBUTING.md`
+Documents: `PLATFORM_DOCUMENTATION.md` · `docs/STATUS_REPORT.md` · `docs/architecture/AUTHENTICATION_CONTRACT.md` · `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` · `docs/audits/REPOSITORY_AUDIT.md` · `docs/audits/FORENSIC_REPOSITORY_AUDIT.md` · `docs/audits/AUDIT.md` · `README.md` · `CONTRIBUTING.md`
 
 ---
 
 ## 13. Known limitations
 
-Recorded plainly; each is tracked in `STATUS_REPORT.md`.
+Recorded plainly; each is tracked in `docs/STATUS_REPORT.md`.
 
-1. **Nothing is enforced server-side.** All governance is browser-side. Until `AUTHENTICATION_CONTRACT.md` §2 is implemented, controls are advisory.
+1. **Nothing is enforced server-side.** All governance is browser-side. Until `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 is implemented, controls are advisory.
 2. ~~**The ECM Portal has no auth work at all**~~ — moot since D6(b): the tree is deleted, so there is one auth surface rather than two.
 3. **Four signed URLs remain** in `document-portal/js/data.js` and `newack/config.js`; 22 pilot signatures still require rotation.
 4. **The governance spine is untested.**

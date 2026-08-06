@@ -389,7 +389,7 @@ POST with `Content-Type: application/json`, an `X-Correlation-Id` header, and th
 ```
 
 `userEmail` is asserted by the browser from the signed-in profile **only while platform
-authentication is inert**, which is the pilot posture (see `AUTHENTICATION_CONTRACT.md`).
+authentication is inert**, which is the pilot posture (see `docs/architecture/AUTHENTICATION_CONTRACT.md`).
 Anyone who holds the flow URL can send this same request with any address in `userEmail` and
 any values in `payload`, because nothing stands between them and the flow. **Treat
 `userEmail` and everything in `payload` as attacker-controlled.**
@@ -398,7 +398,7 @@ When you later activate authentication (`AuthConfig.enabled = true` in `config/a
 the browser stops sending `userEmail` and instead attaches `Authorization: ******
 At that point the flow must validate the token against the identity provider's JWKS and
 derive both identity and role from its claims — never from the body. That obligation is set
-out in `AUTHENTICATION_CONTRACT.md §2`, and with the proxy gone the flow is the only thing
+out in `docs/architecture/AUTHENTICATION_CONTRACT.md §2`, and with the proxy gone the flow is the only thing
 that can honour it.
 
 **A flow you can no longer restrict to a proxy.** In the proxy design these flows could be
@@ -429,7 +429,7 @@ table, not only to the skeleton. In particular:
   flow issues `NITDA-2026-217`) and must **never** restart the sequence within a year; issues
   one short-lived, single-use upload ticket per
   declared attachment; applies the Universal Filename Policy
-  (`config/filename-policy.config.js`, `universal_filename_policy_deliverables/`) to every
+  (`config/filename-policy.config.js`, `docs/policies/universal-filename-policy/`) to every
   attachment name while keeping what the submitter sent as `originalName`; and rate-limits by
   source;
 - the `STATUS` flow (C8) returns a **byte-identical** `404` for an unknown reference and for a
@@ -519,7 +519,7 @@ it is optional now, because nothing else runs between the anonymous browser and 
   you return and store, not anything the browser sent.
 - **Apply the Universal Filename Policy** to each attachment name, keeping the submitter's
   original name as `originalName`. See `config/filename-policy.config.js` and
-  `universal_filename_policy_deliverables/` for the exact normalisation rules.
+  `docs/policies/universal-filename-policy/` for the exact normalisation rules.
 - **Issue one single-use upload ticket per declared attachment.** You return these in the
   response; the portal redeems each against the upload flow (C9). Bind each ticket to the
   reference, the declared size and the declared SHA-256 so C9 can verify the bytes.
@@ -1211,7 +1211,7 @@ client-asserted and advisory, and the only thing actually stopping an anonymous 
 loading the internal interface is Cloudflare Access in front of the Pages site (Part D and F).
 Do not read more into it than that. Turning real authentication on is out of scope for this
 walkthrough: it needs a registered token provider wired into `core/auth.js`, which this
-document does not set up. `AUTHENTICATION_CONTRACT.md` is the authority on that posture; follow
+document does not set up. `docs/architecture/AUTHENTICATION_CONTRACT.md` is the authority on that posture; follow
 it before you rely on any role for anything but presentation.
 
 ## E2 · Write the portal configuration
@@ -1416,7 +1416,7 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST FETCH_ALL_URL \
 **G5.2** Understand the result honestly:
 
 - If the flow is built to require and verify a token, an anonymous `curl` must come back `401`
-  or `403`. That is the posture `AUTHENTICATION_CONTRACT.md` describes for a hardened
+  or `403`. That is the posture `docs/architecture/AUTHENTICATION_CONTRACT.md` describes for a hardened
   deployment.
 - In the pilot, authentication is **inert** (E1.4). This flow will very likely answer `200`
   and return the register to an anonymous caller, because nothing is checking who is asking.
@@ -1464,7 +1464,7 @@ verified against the Access groups claim, because no token provider is wired up 
 to confirm the interface loads and renders per role, not as proof that privilege is enforced.
 
 **G7.5** If you need role to actually gate what an officer can do — not merely what they see —
-that is the enforced posture in `AUTHENTICATION_CONTRACT.md`: every officer flow must verify a
+that is the enforced posture in `docs/architecture/AUTHENTICATION_CONTRACT.md`: every officer flow must verify a
 token and read the role from its claims, and you must wire a token provider into the front end.
 Neither is done by this walkthrough. Do not launch to a wider audience assuming the role shown
 here restricts anything server-side.

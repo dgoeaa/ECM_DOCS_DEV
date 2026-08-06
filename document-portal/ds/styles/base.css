@@ -12,6 +12,12 @@ html, body {
   background: var(--dgo-color-surface-page);
 }
 
+/* Colour scheme has a single owner, here, matching styles/dgo-design-system/base.css.
+   It used to sit inside tokens.theme-light.css, which is now a byte-for-byte copy of the
+   shared token layer and so may carry only token declarations. `hc` resolves to `light`. */
+:root, [data-theme="light"], [data-theme="hc"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
+
 /* Headings */
 h1, h2, h3, h4, h5, h6,
 .dgo-h1, .dgo-h2, .dgo-h3, .dgo-h4, .dgo-h5, .dgo-h6,

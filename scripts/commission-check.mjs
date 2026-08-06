@@ -345,7 +345,7 @@ if (isDev) {
     'obligation, against a fresh estate. What development buys you is the chance to get ' +
     'the request and response contracts right first, so the production flows are built ' +
     'once against a configuration already proven.',
-    'npm run verify:endpoints -- --include-writes, then AUTHENTICATION_CONTRACT.md §2');
+    'npm run verify:endpoints -- --include-writes, then docs/architecture/AUTHENTICATION_CONTRACT.md §2');
 } else if (posture === 'enforced') {
   if (!declaredEnforced) {
     blocker('auth', 'enforced posture requested but auth is inert',
@@ -385,7 +385,7 @@ if (isDev) {
     'obligation. No check in this repository can verify a Power Automate flow. Until ' +
     'you have tested each one against an anonymous caller and an under-privileged ' +
     'caller, treat enforcement as unproven.',
-    'AUTHENTICATION_CONTRACT.md §2, then verify per docs/deployment/MINIMAL-PILOT.md §7');
+    'docs/architecture/AUTHENTICATION_CONTRACT.md §2, then verify per docs/deployment/MINIMAL-PILOT.md §7');
 } else {
   warn('auth', 'pilot posture: authentication is inert and enforcement is advisory',
     'Caller identity is a client-asserted userEmail from localStorage; editing one ' +
@@ -447,7 +447,7 @@ manual('data-protection', 'personal data of ~785 individuals is in scope',
   'Finding R-01. The repository is private now, which closed the exposure, but live ' +
   'usage puts that data through a channel whose enforcement posture you are choosing ' +
   'above. The pilot posture does not protect it.',
-  'STATUS_REPORT.md R-01');
+  'docs/STATUS_REPORT.md R-01');
 
 /* ------------------------------------------------------------------ *
  * Report

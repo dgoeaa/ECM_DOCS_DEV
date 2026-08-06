@@ -11,7 +11,10 @@ export const ActionOwnership = Object.freeze({
   'meeting-actions-to-tasks': { owner:'meetings', service:'Meetings.actionsToTasks', audit:'audit:meeting-actions-converted', backend:'DYNAMIC_ACTIONS.optional' },
   'create-project': { owner:'projects', service:'Projects.create', audit:'audit:project-created', backend:'DYNAMIC_ACTIONS.optional' },
   'update-project': { owner:'projects', service:'Projects.update', audit:'audit:project-updated', backend:'DYNAMIC_ACTIONS.optional' },
-  'scan-deposit': { owner:'scan-intake', service:'ScanIntakeService.depositScan', audit:'audit:scan-deposited', backend:'SCAN_UPLOAD.required' },
+  // backend is SCAN_INTAKE, the key core/scan-intake-service.js actually resolves. It read
+  // SCAN_UPLOAD, a name that exists nowhere in the endpoint registry, so anyone building a
+  // flow from this governance config would have built against a key the client never calls.
+  'scan-deposit': { owner:'scan-intake', service:'ScanIntakeService.depositScan', audit:'audit:scan-deposited', backend:'SCAN_INTAKE.required' },
   triage: { owner:'correspondence', service:'Entities.transitionStatus', audit:'audit:triage-completed', backend:'DYNAMIC_ACTIONS.optional' },
   'assign-one': { owner:'single-assignment', service:'Entities.create(task)', audit:'audit:assigned', backend:'SINGLE_ASSIGNMENT' },
   'bulk-assign': { owner:'bulk-assignment', service:'OtpService+Idempotency', audit:'audit:bulk-assignment-submitted', backend:'BULK_ASSIGNMENT' },

@@ -100,9 +100,10 @@
   --dgo-family-display: 'Outfit', 'Alwyn New', 'Inter', system-ui, sans-serif; /* @kind font */
   --dgo-family-sans:    'Inter', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif; /* @kind font */
   --dgo-family-body:    Verdana, Geneva, 'DejaVu Sans', sans-serif; /* @kind font */
-  --dgo-family-mono:    'JetBrains Mono', 'SF Mono', Consolas, 'Courier New', monospace; /* @kind font */
+  --dgo-family-mono:    'Cascadia Mono', 'JetBrains Mono', 'SF Mono', Consolas, 'Courier New', monospace; /* @kind font */
 
   /* ---------- Type: modular scale (1.200 ratio, 8 steps) ---------- */
+  --dgo-size-11:  11px;   /* persistent micro-label legibility floor */
   --dgo-size-12:  12px;   /* caption */
   --dgo-size-14:  14px;   /* body sm */
   --dgo-size-16:  16px;   /* body */

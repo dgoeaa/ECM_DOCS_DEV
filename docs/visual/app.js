@@ -402,7 +402,7 @@
     s += wrap('Any stage may refuse, and a refusal is terminal. There is no path that skips a stage, and an unknown contract key requires the highest permission rather than passing through.', 16, 206, 118, 19);
     s += wrap('One handler, two hosts: proxy/src/worker.js (Cloudflare) and proxy/src/server.js (node:http) are adapters. No security decision lives in either.', 16, 248, 118, 19, 't-sub', ' fill="var(--ink-3)"');
     s += '</svg>';
-    return fig(s, 'Clause numbers refer to <code>AUTHENTICATION_CONTRACT.md</code> §2, which this pipeline implements end to end.',
+    return fig(s, 'Clause numbers refer to <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code> §2, which this pipeline implements end to end.',
       sw('var(--z-enforce)', 'authentication & authorization') + sw('var(--crit)', 'refusal of client-asserted trust') + sw('var(--info)', 'integrity of the record'));
   }
 
@@ -1135,7 +1135,7 @@
         ['<b>Role</b>', 'Read from local state; editable by the actor.', 'Derived from claims and mapped server-side. A principal carrying several mapped roles gets the most capable one, decided by permission count — not by array order, which the identity provider controls.'],
         ['<b>Unauthenticated caller</b>', 'Reaches every governed action.', 'Cannot reach a governed action at all.']
       ]);
-      out += '<p data-aud="arch dev ops">Provider <code>' + h(s.provider) + '</code>, scopes <code>' + h(s.scopes.join(' ')) + '</code>. Tenant, client and proxy base URL are injected at deploy time and never committed. The full obligations are in <code>AUTHENTICATION_CONTRACT.md</code>; Diagnostics reports the live posture inside the running platform.</p>';
+      out += '<p data-aud="arch dev ops">Provider <code>' + h(s.provider) + '</code>, scopes <code>' + h(s.scopes.join(' ')) + '</code>. Tenant, client and proxy base URL are injected at deploy time and never committed. The full obligations are in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>; Diagnostics reports the live posture inside the running platform.</p>';
 
       out += '<h3 class="sub">Role and route matrix</h3>';
       out += '<p>' + (P.backend.present
@@ -1358,7 +1358,7 @@
       out += tbl(['Item', 'Why it matters', 'What closes it'],
         (P.backend.present ? [
         ['<b>Rotate every published signature</b>', 'A signed trigger URL is a bearer credential. Deleting a file revokes nothing; neither does rewriting history.', 'Regenerate every trigger in Power Automate, then place the new URLs only in Worker secrets.'],
-        ['<b>Activate authentication</b>', 'Until it is on, every client-side control is an affordance and RBAC is advisory.', 'Deploy the proxy, set <code>auth.enabled</code>, supply tenant configuration, satisfy the server obligations in <code>AUTHENTICATION_CONTRACT.md</code>.'],
+        ['<b>Activate authentication</b>', 'Until it is on, every client-side control is an affordance and RBAC is advisory.', 'Deploy the proxy, set <code>auth.enabled</code>, supply tenant configuration, satisfy the server obligations in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>.'],
         ['<b>Shared store for single-use state</b>', 'Upload tickets and verification proofs are single-use per isolate, which is not single-use.', 'Bind the KV namespace or the state Durable Object sketched in <code>proxy/wrangler.toml</code>.'],
         ['<b>Restrict the flows to proxy egress</b>', 'Until the flows only accept the proxy, a leaked URL still works.', 'IP-restrict or private-endpoint the workflow triggers.'],
       ] : [
@@ -1417,12 +1417,12 @@
       out += '<h3 class="sub">Companion documents</h3>';
       out += tbl(['Document', 'What it carries'], [
         ['<code>README.md</code>', 'How to run it, the repository layout, and the current security status.'],
-        ['<code>AUTHENTICATION_CONTRACT.md</code>', 'The activation specification and every server-side obligation, clause by clause.'],
+        ['<code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>', 'The activation specification and every server-side obligation, clause by clause.'],
         ['<code>docs/architecture/TARGET_ARCHITECTURE.md</code>', 'The full architecture narrative and the numbered build sequence.'],
         ['<code>docs/architecture/components.html</code>', 'The drift-tested component and relationship sheets this atlas expands on.'],
         ['<code>docs/deployment/CLOUDFLARE.md</code>', 'The click-by-click deployment walkthrough, with evidence templates.'],
         ['<code>docs/cutover/FLOW_DECOMMISSION_INVENTORY.md</code>', 'Every published workflow signature and its disposition.'],
-        ['<code>CAPABILITY_ASSESSMENT_R11.6.md</code>', 'The gap analysis behind the open items in sheet 16.']
+        ['<code>docs/audits/CAPABILITY_ASSESSMENT_R11.6.md</code>', 'The gap analysis behind the open items in sheet 16.']
       ]);
 
       out += '<div class="callout"><div class="lbl">How to keep this page true</div>' +

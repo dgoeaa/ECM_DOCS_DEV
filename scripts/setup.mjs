@@ -207,7 +207,7 @@ function renderAuth(auth) {
    * make any decision server-authoritative. Each Power Automate flow must validate the
    * token, derive the role and authorise the action itself — that is gap G-04's server
    * half, and it lives in Power Automate, not in this repository.
-   * See AUTHENTICATION_CONTRACT.md.
+   * See docs/architecture/AUTHENTICATION_CONTRACT.md.
    */
 window.DGO_CONFIG.auth = Object.assign({
 ${lines.join('\n')}

@@ -274,6 +274,95 @@ test.describe('document portal', () => {
       .not.toMatch(/No request matches/);
   });
 
+  /* ------------------------------------------------------------------
+   * Public disclosure. The portal is unauthenticated, so anything it renders is published.
+   *
+   * The landing page listed PF.store.all() — every record, each row a tracking ID linking to
+   * track.html?id= — while the visitor's own requests sat in a separate panel from
+   * PF.store.mine(). And the tracking page offered "sample record" chips carrying data-email,
+   * which the click handler fed straight into the ID+email gate.
+   *
+   * These assert the property, not the wording: no identifier belonging to a record the visitor
+   * did not submit may reach an unauthenticated page. They are written to fail on a
+   * reintroduction, including a differently-shaped one, which is why they read the rendered DOM
+   * and compare it against the store rather than matching a removed string.
+   * ------------------------------------------------------------------ */
+
+  test('the landing page publishes no tracking ID from the register', async ({ page }) => {
+    await page.goto('/document-portal/index.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => window.PF && PF.store && PF.store.all().length);
+
+    // A first visit has submitted nothing, so every record in the store belongs to someone else.
+    const ids = await page.evaluate(() => ({
+      all: PF.store.all().map(r => r.id),
+      mine: PF.store.mine().map(m => m.id),
+    }));
+    expect(ids.mine, 'precondition: a fresh visit owns no submission').toEqual([]);
+    expect(ids.all.length, 'precondition: the store holds records').toBeGreaterThan(0);
+
+    const body = await page.innerText('body');
+    for (const id of ids.all) {
+      expect(body, `tracking ID ${id} is published on an unauthenticated page`).not.toContain(id);
+    }
+
+    // Nor may a row link to one. The deep link is the disclosure even when the ID is not shown.
+    const hrefs = await page.$$eval('a[href]', ns => ns.map(n => n.getAttribute('href')));
+    expect(hrefs.filter(h => /track\.html\?[^"]*\bid=/.test(h)),
+      'no landing-page link may carry a tracking ID').toEqual([]);
+  });
+
+  test('the registry panel still reports the register, in aggregate', async ({ page }) => {
+    await page.goto('/document-portal/index.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#liveFeed li');
+
+    // Removing the leak must not empty the panel — otherwise the fix gets reverted for looking
+    // broken. Counts and status labels are what a registry can say without naming anyone.
+    const rows = await page.$$eval('#liveFeed li', ns => ns.map(n => n.innerText.trim()));
+    expect(rows.length, 'the panel must still say something').toBeGreaterThan(0);
+
+    const known = await page.evaluate(() => Object.keys(PF.STATUS).map(k => PF.STATUS[k].label));
+    for (const row of rows) {
+      expect(known.some(l => row.includes(l)), `"${row}" must be a status label`).toBe(true);
+      expect(row, 'an aggregate row carries no email').not.toMatch(/@/);
+      expect(row, 'an aggregate row carries no tracking ID').not.toMatch(/NITDA-/);
+    }
+  });
+
+  test('no page hands out an email address belonging to a record', async ({ page }) => {
+    const emails = new Set();
+    for (const p of ['index.html', 'track.html']) {
+      await page.goto(`/document-portal/${p}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(() => window.PF && PF.store && PF.store.all().length);
+      const found = await page.evaluate(() => {
+        const submitters = PF.store.all().map(r => String(r.email || '').toLowerCase()).filter(Boolean);
+        const haystack = (document.body.innerHTML + ' ' + document.body.innerText).toLowerCase();
+        return submitters.filter(e => haystack.includes(e));
+      });
+      found.forEach(e => emails.add(`${p}: ${e}`));
+    }
+    // The ID+email gate in track.js is only as strong as the email being unpublished.
+    expect([...emails], 'a submitter email is rendered on an unauthenticated page').toEqual([]);
+  });
+
+  test('the tracking page prefills only requests made on this device', async ({ page }) => {
+    await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => window.PF && PF.store && PF.store.all().length);
+
+    const state = await page.evaluate(() => ({
+      mine: PF.store.mine().length,
+      chips: [...document.querySelectorAll('#quickPicks [data-fill]')].map(b => ({
+        id: b.getAttribute('data-fill'), email: b.getAttribute('data-email'),
+      })),
+    }));
+    expect(state.mine, 'precondition: a fresh visit owns no submission').toBe(0);
+    expect(state.chips, 'with nothing of your own, there is nothing to prefill').toEqual([]);
+
+    // And the panel must still tell the visitor what to do, rather than going blank.
+    const text = await page.innerText('#quickPicks');
+    expect(text).toMatch(/tracking ID/i);
+    expect(text).toMatch(/email/i);
+  });
+
   test('every correspondence type maps to an internal category', async ({ page }) => {
     await page.goto('/document-portal/index.html', { waitUntil: 'domcontentloaded' });
     const types = await page.evaluate(() => PF.CORRESPONDENCE_TYPES);
