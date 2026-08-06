@@ -202,7 +202,7 @@ function routeTable() {
 /* ── backend ───────────────────────────────────────────────────────────────────
    The proxy is the component that turns advisory governance into enforced governance, so
    its inventory is not "some server files" — each module maps to a clause of
-   AUTHENTICATION_CONTRACT.md and that mapping is worth drawing. */
+   docs/architecture/AUTHENTICATION_CONTRACT.md and that mapping is worth drawing. */
 const PROXY_ROLE = {
   'worker.js': 'Cloudflare Worker host — adapter only, no security decision lives here',
   'server.js': 'node:http host — the same handler under a different transport',

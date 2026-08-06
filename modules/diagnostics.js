@@ -23,7 +23,7 @@ function authPanel(){
     <p class="meta">Identity: ${p.identity} &middot; Role source: ${p.roleSource}</p>
     ${p.warning?`<p class="meta"><b>${p.warning}</b></p>`:''}
     <p class="meta">Ready to activate: <b>${p.readyToActivate?'yes':'no'}</b>${missing.length?` &middot; missing configuration: <code>${missing.join('</code>, <code>')}</code>`:''}</p>
-    <p class="meta">Activation procedure: see <code>AUTHENTICATION_CONTRACT.md</code>.</p>
+    <p class="meta">Activation procedure: see <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>.</p>
   </section>`;
 }
 

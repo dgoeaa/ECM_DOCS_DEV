@@ -8,6 +8,7 @@
 @import url("tokens/tokens.theme-hc.css");
 @import url("tokens/tokens.component.css");
 @import url("tokens/tokens.density.css");
+@import url("tokens/tokens.portal.css");
 @import url("styles/reset.css");
 @import url("styles/base.css");
 @import url("styles/layout.css");

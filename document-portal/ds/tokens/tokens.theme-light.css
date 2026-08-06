@@ -17,6 +17,4 @@
   --dgo-color-fg-default:     var(--dgo-ink-900);
   --dgo-color-fg-muted:       var(--dgo-ink-500);
   --dgo-color-border-default: var(--dgo-ink-100);
-
-  color-scheme: light;
 }

@@ -19,7 +19,7 @@ The *engineering substance* is real. 105 ES modules, 25 route modules, and a gen
 
 The *delivered artifact* is broken. **13 configuration modules that the runtime imports were never committed to this repository.** The app hangs on its boot spinner forever, and does so silently — no error is shown to the user. Around it, the entire quality apparatus the README describes (test suite, CI workflows, bundle manifest, deploy gate) is **absent from the repository**, so nothing detected this.
 
-Layered on top is a **credential-exposure problem materially worse than the one the repo documents.** `README.md` and `AUDIT.md` both state that SAS-signed Power Automate URLs have been removed from the working tree and survive only in git history. That is **not correct for this repository**: 22 distinct live SAS signatures are present across 16 tracked files at HEAD, including the client-delivered JavaScript of two shipping portals.
+Layered on top is a **credential-exposure problem materially worse than the one the repo documents.** `README.md` and `docs/audits/AUDIT.md` both state that SAS-signed Power Automate URLs have been removed from the working tree and survive only in git history. That is **not correct for this repository**: 22 distinct live SAS signatures are present across 16 tracked files at HEAD, including the client-delivered JavaScript of two shipping portals.
 
 **Overall posture: NOT DEPLOYABLE.** Three of the four blockers are mechanical and quick. The fourth (authentication) is a genuine engineering commitment.
 
@@ -130,7 +130,7 @@ This is why G-01 could ship unnoticed: the failure mode is indistinguishable fro
 
 ### G-03 — 22 live SAS signatures in tracked files at HEAD
 
-`README.md` states the SAS URLs "have been removed from the working tree, but **15 distinct SAS signatures remain in 5 git blobs**". `AUDIT.md` F-007 similarly reports no `sig=` token in shipped code.
+`README.md` states the SAS URLs "have been removed from the working tree, but **15 distinct SAS signatures remain in 5 git blobs**". `docs/audits/AUDIT.md` F-007 similarly reports no `sig=` token in shipped code.
 
 **Both statements are inaccurate for this repository.** Scanning tracked files at HEAD for `sig=` followed by ≥20 signature-shaped characters:
 
@@ -179,7 +179,7 @@ Identity originates in `core/state.js`, which seeds a **bootstrap `systemAdmin`*
 
 One `localStorage` edit converts a read-only viewer into a system administrator. The route guard is a **UX affordance, not a security control** — which is the correct way to build a client, but only if a server enforces the real boundary. Here, the backend receives an unauthenticated, self-asserted `userEmail` and nothing else.
 
-`AUDIT.md` records exactly this class of failure (F-001/F-002/F-003) **for the ECM Activity Hub Portal only**. The identical — arguably worse, since the runtime ships a hardcoded `systemAdmin` — defect in the R11.6 runtime is **undocumented**.
+`docs/audits/AUDIT.md` records exactly this class of failure (F-001/F-002/F-003) **for the ECM Activity Hub Portal only**. The identical — arguably worse, since the runtime ships a hardcoded `systemAdmin` — defect in the R11.6 runtime is **undocumented**.
 
 **Fix:** authenticate at the edge (Entra ID / OIDC), pass a signed token, and have every Power Automate flow derive identity and role from that token, ignoring `userEmail` entirely. Keep the client RBAC as UX. This is real work — the largest single item in this report — and it is the one gap that cannot be closed by restoring files.
 
@@ -225,7 +225,7 @@ The README documents a UI-contract suite, a baseline ratchet, three GitHub workf
 | `.github/workflows/{ci,ui-contracts,pages}.yml` | **Missing** | No CI, no deploy gate, no bundle drift check |
 | `CLEAN_PACKAGE_MANIFEST.json` | **Missing** | `tools/rebuild_bundle.py` and `expand_bundle.py` are inoperative |
 | `DGO_Target_CLEAN_RUNTIME.state.json` | **Missing** | Nothing to expand or drift-check |
-| `rehydrate.py` | **Missing** | AUDIT.md's integrity procedure cannot be re-run |
+| `rehydrate.py` | **Missing** | docs/audits/AUDIT.md's integrity procedure cannot be re-run |
 | `.gitignore` | **Missing** | `config/config.local.js` is **not** ignored — real endpoint URLs can be committed by accident |
 | `.devcontainer/` | **Missing** | Documented one-click Codespaces setup does not exist |
 | `.nojekyll`, `.gitattributes` | **Missing** | Pages/diff behaviour as documented won't hold |
@@ -236,7 +236,7 @@ The absence of `.gitignore` deserves separate emphasis: the documented secret-ha
 
 ### G-09 — README describes a different repository
 
-`README.md` and `CONTRIBUTING.md` were written for `dgoeaa/DGO_Targets`. This repository is `dgoeaa/ECM_DOCS_DEV`. Beyond the clone URL and the Pages URLs, the documented "Repo structure" tree lists directories that do not exist here, and omits everything that does — `document-portal/`, `document-portal_Central_NITDA_/`, `newack/`, `Flows_Sample/`, `Bespoke platform welcome experience/`, `CLient_Proxy_App_Backend/`, `Consolidate_Merged_Folder_Files_Embed/`, `universal_filename_policy_deliverables/`, and two tracked zip archives (17 MB combined).
+`README.md` and `CONTRIBUTING.md` were written for `dgoeaa/DGO_Targets`. This repository is `dgoeaa/ECM_DOCS_DEV`. Beyond the clone URL and the Pages URLs, the documented "Repo structure" tree lists directories that do not exist here, and omits everything that does — `document-portal/`, `document-portal_Central_NITDA_/`, `newack/`, `Flows_Sample/`, `Bespoke platform welcome experience/`, `CLient_Proxy_App_Backend/`, `Consolidate_Merged_Folder_Files_Embed/`, `docs/policies/universal-filename-policy/`, and two tracked zip archives (17 MB combined).
 
 A reader following the README will clone the wrong repo, run tests that don't exist, and trust a secrets claim that is false.
 
@@ -248,7 +248,7 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 |---|---|---|---|
 | G-01 | 13 config modules never committed; runtime cannot boot | **Critical** | ✅ **Fixed** — `7204da7` |
 | G-03 | 22 live SAS signatures in 16 tracked files at HEAD, 4 client-delivered | **Critical** | 🔴 **Open** — needs rotation in Power Automate first |
-| G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🟡 **Provisioned, inert** — client half complete and tested; server half outstanding. See `AUTHENTICATION_CONTRACT.md` |
+| G-04 | No authentication; privilege escalation demonstrated | **Critical** | 🟡 **Provisioned, inert** — client half complete and tested; server half outstanding. See `docs/architecture/AUTHENTICATION_CONTRACT.md` |
 | G-08 | Test suite, CI, bundle manifest, `.gitignore` all absent | **High** | ✅ **Fixed** — `d728f79`, `ef0e390` (bundle manifest retired, not restored) |
 | G-05 | Dark theme renders content unreadable | **High** | ✅ **Fixed** — `1176d1d` |
 | G-06 | High-contrast theme inert; WCAG claim unsupported | **High** | ✅ **Fixed** — `1176d1d` |
@@ -267,7 +267,7 @@ A reader following the README will clone the wrong repo, run tests that don't ex
 4. Purge signature values from tracked files; replace forensic/sample JSON with redacted copies.
 5. Fix G-05/G-06 — scope `tokens.theme-light.css` to `[data-theme="light"]`, verify computed backgrounds across all three themes.
 6. Add the boot watchdog (G-02) so this failure class is never silent again.
-7. Correct `README.md` and `AUDIT.md`: repository name, structure, `htdocs` paths, and the secrets claim.
+7. Correct `README.md` and `docs/audits/AUDIT.md`: repository name, structure, `htdocs` paths, and the secrets claim.
 
 **Medium term**
 8. **Design and implement real authentication** (G-04). Until a server independently derives identity and role, every governance control in §2.2 is advisory. This is the difference between a well-built prototype and a deployable government system.
@@ -301,7 +301,7 @@ Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`.
 | `99eccea` | G-02 | Added a 15-second boot watchdog to `index.html` that surfaces failing resource URLs. |
 | `a7df402` | G-07 | Aligned `shouldShow()` in `shared/welcome-runtime.js` with `shouldSkip()` in `core/welcome-experience.js`. |
 | `ef0e390` | G-08 | Built the quality gate: `tests/check-imports.mjs`, `tests/smoke.spec.js`, `tests/check-secrets.mjs` + baseline, `.github/workflows/ci.yml`. Fixed the `htdocs/` paths in `package.json` and `scripts/check-links.mjs`. |
-| *(this commit)* | G-09 | Rewrote `README.md` and `CONTRIBUTING.md` for this repository; added a correction note to `AUDIT.md`. |
+| *(this commit)* | G-09 | Rewrote `README.md` and `CONTRIBUTING.md` for this repository; added a correction note to `docs/audits/AUDIT.md`. |
 
 **Verification after all changes:**
 
@@ -325,4 +325,4 @@ Work carried out after the assessment, on branch `claude/quirky-babbage-1nomt5`.
 - **G-03 (secrets).** Not touched. Rotating the 22 signatures in Power Automate must come *first* — scrubbing files or rewriting history revokes nothing and would destroy the evidence trail before rotation is confirmed. This is an operational decision with a live-service blast radius.
 - **G-04 (authentication).** Not attempted. It requires an identity provider, token issuance, and authorization logic inside every Power Automate flow. None of that lives in this repository, and a client-side-only change here would be security theatre.
 - **G-08 (test suite / CI) — since built.** The originals were absent from both the repository and the archived platform copy, so this is a rebuild rather than a restore. What exists now is deliberately narrower than the CSS-contract-and-baseline harness the old README described: three checks (import graph, secret ratchet, smoke) plus CI. **There is still no rendered-appearance regression coverage** beyond the theme assertion, so the cascade debt documented in `styles/index.css` remains unmeasured.
-- **G-09 (documentation) — since corrected.** `README.md` and `CONTRIBUTING.md` were rewritten against verified facts, and every path and command they cite was checked to exist. Genuinely undecided questions — deployment target, whether the flat portal layout is canonical, the fate of the bundle tooling — are recorded under "Not yet decided" rather than guessed at. `AUDIT.md` was **not** rewritten: an audit record should stand as written, so a dated correction note was prepended instead, scoping F-007 accurately and extending F-001/F-002/F-003 to the root runtime.
+- **G-09 (documentation) — since corrected.** `README.md` and `CONTRIBUTING.md` were rewritten against verified facts, and every path and command they cite was checked to exist. Genuinely undecided questions — deployment target, whether the flat portal layout is canonical, the fate of the bundle tooling — are recorded under "Not yet decided" rather than guessed at. `docs/audits/AUDIT.md` was **not** rewritten: an audit record should stand as written, so a dated correction note was prepended instead, scoping F-007 accurately and extending F-001/F-002/F-003 to the root runtime.

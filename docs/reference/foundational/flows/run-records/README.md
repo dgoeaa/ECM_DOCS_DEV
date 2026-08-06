@@ -9,7 +9,7 @@ mobile devices — the originals reached 271 characters, past the 260-character
 The flow name and run id were repeated in both the directory and every file
 inside it; the leaf now states only which artefact it is. Em dashes and spaces
 went with them, per the Universal Filename Policy
-(`universal_filename_policy_deliverables/universal_filename_policy_sop.md`).
+(`docs/policies/universal-filename-policy/universal_filename_policy_sop.md`).
 
 `tests/package-portability.test.mjs` holds the line.
 

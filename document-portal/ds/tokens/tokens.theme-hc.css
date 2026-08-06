@@ -21,6 +21,7 @@
   --dgo-color-fg-muted:       #2D2C2C;
   --dgo-color-fg-subtle:      #4A4849;
   --dgo-color-fg-on-brand:    #FFFFFF;
+  --dgo-color-fg-brand:       #022819;
   --dgo-color-fg-link:        #022819;
   --dgo-color-fg-link-hover:  #000000;
 
@@ -61,7 +62,17 @@
   /* Focus — thicker, black-and-yellow stack */
   --dgo-focus-ring: 0 0 0 2px #FFFFFF, 0 0 0 6px #000000, 0 0 0 9px #E1A100;
 
-  color-scheme: light;
+  /* Theme parity closure (R6 Workstream B/C + D2.4): high contrast must own its own
+     surfaces, disabled text, focus and brand borders instead of inheriting light values. */
+  --dgo-color-surface-brand:     #022819;
+  --dgo-color-surface-overlay:   rgba(0, 0, 0, 0.80);
+  --dgo-color-fg-disabled:       #4A4849;
+  --dgo-color-fg-on-accent:      #FFFFFF;
+  --dgo-color-fg-link-visited:   #000000;
+  --dgo-color-border-brand:      #000000;
+  --dgo-color-border-accent:     #000000;
+  --dgo-color-border-on-brand:   #FFFFFF;
+  --dgo-color-border-focus:      #000000;
 }
 
 /* When the OS asks for forced colors, lean on system colors */

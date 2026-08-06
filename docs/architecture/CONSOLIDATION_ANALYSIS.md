@@ -257,4 +257,4 @@ Found while establishing scope; recorded so they are not lost.
 |---|---|
 | **D4** — email verification before a reference is issued | Recommended in `TARGET_ARCHITECTURE.md` §6, **never executed**. Intake is fully anonymous. |
 | **D5** — move `ECM_DOCS_DEV.zip` out of the repository | Recommended, **never executed**. Still present at 16.7 MB, and it holds the 9 signatures found nowhere else. |
-| `universal_filename_policy_deliverables/` | 6 documents (SOP, memo, handbook, `.docx`). Unrelated to the platform. **No disposition has ever been considered.** |
+| `docs/policies/universal-filename-policy/` | 6 documents (SOP, memo, handbook, `.docx`). Unrelated to the platform. **No disposition has ever been considered.** |

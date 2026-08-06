@@ -35,28 +35,24 @@
 
   /* ---------- Foreground / text ---------- */
   --dgo-color-fg-default:        var(--dgo-ink-900);
-  --dgo-color-fg-strong:         var(--dgo-ink-1000);
+  --dgo-color-fg-strong:         var(--dgo-ink-900);  /* D2: keep legacy #1B1A1A */
   --dgo-color-fg-muted:          var(--dgo-ink-500);
   --dgo-color-fg-subtle:         var(--dgo-ink-400);
   --dgo-color-fg-disabled:       var(--dgo-ink-300);
   --dgo-color-fg-on-brand:       var(--dgo-ink-0);
-  --dgo-color-fg-on-brand-muted: rgba(255, 255, 255, 0.78);
-  --dgo-color-fg-on-brand-soft:  rgba(255, 255, 255, 0.66);
-  --dgo-color-fg-on-brand-faint: rgba(255, 255, 255, 0.55);
-  --dgo-color-fg-on-accent:      var(--dgo-ink-0);
+  --dgo-color-fg-on-accent:      #04180F;   /* SC 1.4.3: ink-0 on Smart Green is 2.79:1 */
+  --dgo-color-fg-brand:          var(--dgo-color-action-primary);
   --dgo-color-fg-link:           var(--dgo-green-700);
   --dgo-color-fg-link-hover:     var(--dgo-smart-500);
   --dgo-color-fg-link-visited:   var(--dgo-green-800);
 
   /* ---------- Border ---------- */
   --dgo-color-border-default:    var(--dgo-ink-100);
-  --dgo-color-border-strong:     var(--dgo-ink-200);
-  --dgo-color-border-stronger:   var(--dgo-ink-300);
+  --dgo-color-border-strong:     var(--dgo-ink-400);   /* SC 1.4.11: control boundary >= 3:1 */
+  --dgo-color-border-stronger:   var(--dgo-ink-500);
   --dgo-color-border-brand:      var(--dgo-green-700);
   --dgo-color-border-accent:     var(--dgo-smart-400);
   --dgo-color-border-on-brand:   rgba(255, 255, 255, 0.20);
-  --dgo-color-border-on-brand-soft: rgba(255, 255, 255, 0.14);
-  --dgo-color-surface-on-brand-veil: rgba(255, 255, 255, 0.12);
   --dgo-color-border-focus:      var(--dgo-smart-400);
 
   /* ---------- Status (subtle + strong pairs) ---------- */
@@ -112,6 +108,7 @@
   --dgo-type-body:        var(--dgo-size-14); /* @kind font */
   --dgo-type-body-sm:     var(--dgo-size-12); /* @kind font */
   --dgo-type-caption:     var(--dgo-size-12); /* @kind font */
+  --dgo-type-floor:       var(--dgo-size-11); /* @kind font — persistent-text legibility floor (DGO-R5-TYPO-01) */
 
   /* ---------- Radius intent ---------- */
   --dgo-radius-sharp:    var(--dgo-r-2);

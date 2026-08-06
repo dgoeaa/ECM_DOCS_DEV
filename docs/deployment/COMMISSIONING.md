@@ -201,7 +201,7 @@ applying and every caller's role comes from the register.
 > 25 routes. That is correct for development and unacceptable anywhere else.
 
 Full request and response contracts, including the OTP identity pair and what each governed
-flow must verify: **[`docs/reference/flow-contracts/IDENTITY.md`](docs/reference/flow-contracts/IDENTITY.md)**.
+flow must verify: **[`docs/reference/flow-contracts/IDENTITY.md`](../reference/flow-contracts/IDENTITY.md)**.
 
 ### 2 · Rotate every exposed signature
 
@@ -309,6 +309,6 @@ remain, and they always require a person:
 
 - `docs/deployment/MINIMAL-PILOT.md` — the 75-minute path
 - `docs/deployment/CLOUDFLARE.md` — the full walkthrough, 229 numbered steps
-- `AUTHENTICATION_CONTRACT.md` — what the server half must do
-- `STATUS_REPORT.md` — the finding register
-- `CAPABILITY_ASSESSMENT_R11.6.md` — the gap analysis behind G-03 and G-04
+- `docs/architecture/AUTHENTICATION_CONTRACT.md` — what the server half must do
+- `docs/STATUS_REPORT.md` — the finding register
+- `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` — the gap analysis behind G-03 and G-04

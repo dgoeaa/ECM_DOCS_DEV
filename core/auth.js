@@ -61,7 +61,7 @@ export async function getAccessToken() {
   if (!_provider) {
     throw new Error(
       'Authentication is enabled but no token provider is registered. ' +
-      'Call registerTokenProvider() during boot — see AUTHENTICATION_CONTRACT.md.'
+      'Call registerTokenProvider() during boot — see docs/architecture/AUTHENTICATION_CONTRACT.md.'
     );
   }
   if (_cached && !_expired(_cached)) return _cached.token;
@@ -96,7 +96,7 @@ export async function getAccessToken() {
  * This is for READING non-sensitive display claims on the client only. It performs NO
  * signature verification and must never be treated as proof of anything. Authorization
  * is decided by the server, which validates the signature, issuer and audience — see
- * AUTHENTICATION_CONTRACT.md §2.
+ * docs/architecture/AUTHENTICATION_CONTRACT.md §2.
  */
 export function _decodeClaims(token) {
   try {

@@ -129,5 +129,5 @@ a real handout rather than a screenshot of a web page.
 | `docs/architecture/components.html` | The original drift-tested component and relationship sheets. Narrower, still current, still tested. |
 | `docs/architecture/architecture.html` | The target-architecture decision sheets, as presented for decision. |
 | `docs/architecture/TARGET_ARCHITECTURE.md` | The full architecture narrative and numbered build sequence. |
-| `AUTHENTICATION_CONTRACT.md` | Activation spec and every server-side obligation, clause by clause. |
+| `docs/architecture/AUTHENTICATION_CONTRACT.md` | Activation spec and every server-side obligation, clause by clause. |
 | `docs/deployment/CLOUDFLARE.md` | The click-by-click deployment walkthrough. |

@@ -1,6 +1,6 @@
 // Universal Filename Policy — the agency standard, made executable.
 //
-// The policy is real and it is written down: `universal_filename_policy_deliverables/`
+// The policy is real and it is written down: `docs/policies/universal-filename-policy/`
 // carries it as an SOP, a memo, a handbook and a machine-readable JSON, dated 2026-06-16,
 // owned by Document Control / Operations. It states a mandatory pattern, a validation regex
 // and ten rules.
@@ -43,7 +43,7 @@ export const FilenamePolicy = Object.freeze({
   version: 'v1.0',
   effective: '2026-06-16',
   owner: 'Document Control / Operations',
-  source: 'universal_filename_policy_deliverables/universal_filename_policy_sop.md',
+  source: 'docs/policies/universal-filename-policy/universal_filename_policy_sop.md',
   pattern: 'subject_document_type[_descriptor][_v#][_yyyy-mm-dd]',
   /** The SOP's own regex, applied to the filename BODY (extension excluded). */
   bodyPattern: /^[a-z0-9]+(?:_[a-z0-9]+)*(?:_v[0-9]+(?:_[0-9]+)?)?(?:_[0-9]{4}-[0-9]{2}-[0-9]{2})?$/,

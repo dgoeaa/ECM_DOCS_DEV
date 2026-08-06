@@ -113,7 +113,7 @@ Change the theme through `setTheme()` / `setDensity()` in `shared/design-system-
 
 Local configuration goes in `config/config.local.js`, which is git-ignored — copy `config/config.example.js` and fill it in. Because it is ignored, real URLs placed there stay local; do not `git add -f` it. Note that git-ignoring protects the repository, not the machine: F-033 records a live signature found sitting in an untracked local config, so delete these when a tree is retired.
 
-`npm run test:secrets` fails if a new signature enters a tracked file. It does *not* fail on the files already listed in `tests/secrets-baseline.txt` — those are known, recorded in `CAPABILITY_ASSESSMENT_R11.6.md` (G-03), and must be **rotated in Power Automate** before removal, since deleting a file revokes nothing. The baseline may only shrink.
+`npm run test:secrets` fails if a new signature enters a tracked file. It does *not* fail on the files already listed in `tests/secrets-baseline.txt` — those are known, recorded in `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` (G-03), and must be **rotated in Power Automate** before removal, since deleting a file revokes nothing. The baseline may only shrink.
 
 ---
 

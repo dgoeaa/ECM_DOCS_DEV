@@ -87,7 +87,7 @@ is required **before the replacement set carries anything real**.
    removed, and both clients now invoke each flow directly from a browser. A leaked URL is
    therefore sufficient to invoke a flow, so the flow must authenticate, authorise, validate
    and rate-limit for itself. See the amendment at the top of `TARGET_ARCHITECTURE.md`,
-   `AUTHENTICATION_CONTRACT.md` §2, and the per-endpoint contract in
+   `docs/architecture/AUTHENTICATION_CONTRACT.md` §2, and the per-endpoint contract in
    `document-portal/README.md`.
 3. **Supply the new URLs at deploy time, never in a commit** — `config/config.local.js` and
    `document-portal/config.local.js`, both git-ignored. They ship to the browser, so treat

@@ -1,4 +1,4 @@
-# AUDIT.md
+# Repository audit record
 
 > ## ⚠️ Correction — 2026-08-01
 >
@@ -10,7 +10,7 @@
 >
 > **2. F-001/F-002/F-003 are scoped too narrowly.** The client-trust failure is recorded against the ECM Activity Hub Portal only. **The DGO R11.6 root runtime has the same defect, and a hardcoded `systemAdmin` besides.** It has no authentication, sends no `Authorization` header, and passes caller identity as a plain `userEmail` field taken from `localStorage`. Escalation from `viewer` to `systemAdmin` by editing one storage key was demonstrated empirically.
 >
-> Full analysis, method and evidence: [`CAPABILITY_ASSESSMENT_R11.6.md`](CAPABILITY_ASSESSMENT_R11.6.md) (G-03 and G-04).
+> Full analysis, method and evidence: [`docs/audits/CAPABILITY_ASSESSMENT_R11.6.md`](./CAPABILITY_ASSESSMENT_R11.6.md) (G-03 and G-04).
 
 > **Superseded in part by [`ECM_ActivityHub_Portal/REVIEW.md`](ECM_ActivityHub_Portal/REVIEW.md)** (full multidimensional review at commit `77cb6af`). Every finding below was independently re-verified there (§6). Summary of changes:
 >

@@ -347,7 +347,7 @@ window.parent.postMessage({ source: SOURCE, type, payload, id }, window.location
 #### R-L2 · No response schema validation
 **Confidence: Confirmed · Status: Open · Area: root platform** · **`core/data-client.js:32`**
 
-Responses are `JSON.parse`d and handed to callers unvalidated. Given the `REFERENCE_SNAPSHOT_REVIEW.md` finding that unmatched actions return a generic default envelope with `200 OK`, malformed or empty payloads propagate into state as success. **Remediation:** validate against the contract before patching state.
+Responses are `JSON.parse`d and handed to callers unvalidated. Given the `docs/audits/REFERENCE_SNAPSHOT_REVIEW.md` finding that unmatched actions return a generic default envelope with `200 OK`, malformed or empty payloads propagate into state as success. **Remediation:** validate against the contract before patching state.
 
 ---
 
@@ -537,7 +537,7 @@ So the scanned-document gap is narrower than "no upload". It is: **nothing in ro
 1. **The system of record is not the system of receipt.** Root can only govern what already reached SharePoint or a mailbox. Two of the three declared channels bypass it.
 2. **Portal submissions cannot be assigned, tracked, acknowledged or archived** — the entire governed lifecycle in `modules/` is unreachable for externally-submitted correspondence.
 3. **SLA claims on the portal are unbacked.** `track.html` shows a working-day SLA meter against a due date computed locally, for a request no internal system has seen.
-4. **`REFERENCE_SNAPSHOT_REVIEW.md` A-1 compounds this.** Even the channels that *are* wired send the nested envelope the flows cannot read, so several root calls already return `200 OK` with empty data.
+4. **`docs/audits/REFERENCE_SNAPSHOT_REVIEW.md` A-1 compounds this.** Even the channels that *are* wired send the nested envelope the flows cannot read, so several root calls already return `200 OK` with empty data.
 
 ### 12.5 Options, with a recommendation
 
@@ -552,7 +552,7 @@ So the scanned-document gap is narrower than "no upload". It is: **nothing in ro
 
 **Recommended path: A then D**, in that order — A closes the externally-facing gap and a Critical security finding in the same change, and D closes the internal one. B is the right choice only if the portal must keep working during a longer migration.
 
-**Prerequisite for all four:** fix the envelope mismatch (`REFERENCE_SNAPSHOT_REVIEW.md` A-1/A-2) first. Building new intake on a transport that silently returns empty results would make the new path look broken for reasons that have nothing to do with it.
+**Prerequisite for all four:** fix the envelope mismatch (`docs/audits/REFERENCE_SNAPSHOT_REVIEW.md` A-1/A-2) first. Building new intake on a transport that silently returns empty results would make the new path look broken for reasons that have nothing to do with it.
 
 ### 12.6 Limitation on this section
 

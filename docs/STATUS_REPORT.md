@@ -1,18 +1,45 @@
 # DGO Digital Operations — Status Report
 
-**As at** 2 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (**private**) · **main** `aa94f2a`
-**Interactive view:** architecture and status console — current vs target state, filterable finding register
+**As at** 6 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (**private**)
+**Interactive view:** [`visual/`](./visual/README.md) — architecture and status console, generated
+from the source tree and drift-tested by `npm run test:visual`. Where this document and the
+console disagree, the console is right: it is regenerated, this is written.
+
+> **This report is written, not generated.** It states a position at a date. It deliberately no
+> longer cites a commit sha — the two it previously named (`aa94f2a`, and the proxy-removal commit
+> in its amendment) have both been superseded, and a stale sha in a status header is worse than
+> none. For the current state of anything mechanical — routes, endpoints, module graph, test gate —
+> run `npm run commission`, which reports it rather than asserting it.
 
 ---
 
-> **Amendment, 4 August 2026.** The authenticating proxy this report treats as the server half of
-> G-04 has been **removed**, not deployed. Both clients now call each Power Automate flow directly,
-> with the signed trigger URL configured into them at deploy time. The rows below that read
-> "implemented in `proxy/`" describe code that no longer exists, and every obligation it discharged —
-> token validation, role derivation, per-action authorisation, rate limiting, reference minting,
-> upload ticketing, the filename policy — now belongs to the flow itself. **G-04's server half is
-> therefore not implemented anywhere in this repository, and cannot be: it lives in Power Automate.**
-> See `AUTHENTICATION_CONTRACT.md` §2 and `document-portal/README.md`.
+## 0. What changed since the last revision
+
+Three things, each of which invalidated part of the text below and has been folded into it:
+
+1. **The authenticating proxy was removed, not deployed.** Both clients now call each Power
+   Automate flow directly, with the signed trigger URL configured into them at deploy time. Every
+   obligation the proxy discharged — token validation, role derivation, per-action authorisation,
+   rate limiting, reference minting, upload ticketing, the filename policy — now belongs to the
+   flow itself. **G-04's server half is therefore not implemented anywhere in this repository, and
+   cannot be: it lives in Power Automate.** See
+   [`architecture/AUTHENTICATION_CONTRACT.md`](./architecture/AUTHENTICATION_CONTRACT.md) §2,
+   [`deployment/FLOW-BUILD-PLAN.md`](./deployment/FLOW-BUILD-PLAN.md), and
+   `document-portal/README.md`.
+
+2. **A public-disclosure defect in `document-portal/` was found and fixed.** The unauthenticated
+   landing page listed the register — every tracking ID, each deep-linking to the record behind it
+   — and the tracking page offered "sample record" chips carrying another submitter's email
+   address into the ID+email gate that page exists to enforce. Both are closed, and
+   `tests/portal.spec.js` now asserts the property rather than the wording: no identifier
+   belonging to a record the visitor did not submit may reach an unauthenticated page.
+
+3. **The reference corpus was trimmed and the audit record moved out of the root.** Recorded flow
+   executions were deleted and the flow contracts kept, per
+   [`cutover/ARCHIVE_DISPOSITION.md`](./cutover/ARCHIVE_DISPOSITION.md). No workflow id lost its
+   signed trigger URL, so **G-03 is unchanged in substance** — the exposure is smaller in file
+   count and identical in effect, because deleting a file revokes nothing. The eight audit
+   documents now live in [`audits/`](./audits/INDEX.md) with a supersession chain.
 
 ---
 
@@ -26,9 +53,9 @@ Two weeks ago the flagship runtime **could not start at all** — and did so sil
 |---|---|---|
 | Runtime | **Could not boot** | Boots; 25/25 routes render clean |
 | Dark / high-contrast themes | Content invisible | Correct in all three themes |
-| Test suite | **Did not exist** | 4 suites, CI on every push |
+| Test suite | **Did not exist** | 23 suites in one gate, CI on every push |
 | CI | **Did not exist** | Green on every run |
-| Tracked files / size | 400 · 51 MB | 266 · 19 MB |
+| Tracked files / size | 400 · 51 MB | 643 · 26 MB |
 | Broken references | 1 | **0** |
 | Authentication | Absent, undocumented | Provisioned on both apps; server enforcement is the flows' obligation, and unverified |
 | ECM Portal identity | Hardcoded, role switchable in-browser | Closed — F-001 … F-005 |
@@ -66,7 +93,7 @@ CI          green on all runs
 | **G-06** | High-contrast theme visually inert | Same fix; hc now reaches pure black |
 | **G-07** | Two welcome layers; `?skipWelcome=1` ignored by one | Both honour the same predicate |
 | **G-08** | No test suite, no CI, no `.gitignore` — 6 of 8 npm scripts referenced an absent runner | Import checker, smoke suite, secret ratchet, CI, `.gitignore` |
-| **G-09** | README/CONTRIBUTING described a different repository | Rewritten against verified facts; `AUDIT.md` given a correction note rather than rewritten |
+| **G-09** | README/CONTRIBUTING described a different repository | Rewritten against verified facts; `docs/audits/AUDIT.md` given a correction note rather than rewritten |
 | **R-01** | Personal data of ~785 individuals exposed in a public repository | Repository private; loose reference copies removed |
 | **R-04/05** | Portal fork drift; 40 MB redundant archives; no licence; 54 fragile filenames | Consolidated; 400→266 files; `LICENSE` added |
 

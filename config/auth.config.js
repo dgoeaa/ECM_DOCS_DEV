@@ -11,7 +11,7 @@
 //   3. Ensure flow endpoints in window.DGO_CONFIG.endpoints enforce required auth/authz.
 //      ⚠  Signed Power Automate endpoint URLs are credentials — restrict, rotate, and
 //      handle them accordingly. Do not expose them unnecessarily.
-//   4. Implement the server side per AUTHENTICATION_CONTRACT.md.
+//   4. Implement the server side per docs/architecture/AUTHENTICATION_CONTRACT.md.
 //
 // Flipping `enabled` changes four behaviours at once, by design:
 //   · every request carries `Authorization: ******

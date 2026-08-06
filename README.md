@@ -2,7 +2,7 @@
 
 Client-side web applications powering NITDA's Digital Operations platform, plus the reference material and flow exports that document it.
 
-> **Read this first.** This README was previously written for a different repository (`dgoeaa/DGO_Targets`) and described a test suite, CI workflows and a bundle manifest that do not exist here. It has been rewritten to describe **this** repository as it actually is. Where something is genuinely undecided it says so rather than guessing. See [`CAPABILITY_ASSESSMENT_R11.6.md`](CAPABILITY_ASSESSMENT_R11.6.md) for the full gap analysis behind these corrections.
+> **Read this first.** This README was previously written for a different repository (`dgoeaa/DGO_Targets`) and described a test suite, CI workflows and a bundle manifest that do not exist here. It has been rewritten to describe **this** repository as it actually is. Where something is genuinely undecided it says so rather than guessing. See [`docs/audits/CAPABILITY_ASSESSMENT_R11.6.md`](docs/audits/CAPABILITY_ASSESSMENT_R11.6.md) for the full gap analysis behind these corrections.
 
 ---
 
@@ -18,11 +18,11 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 2. **Authentication is provisioned but INERT.** The auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
-   Activation is a configuration event, not a development one: set `auth.enabled: true`, supply tenant configuration, and implement the server obligations. See **[`AUTHENTICATION_CONTRACT.md`](AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
+   Activation is a configuration event, not a development one: set `auth.enabled: true`, supply tenant configuration, and implement the server obligations. See **[`docs/architecture/AUTHENTICATION_CONTRACT.md`](docs/architecture/AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
 
 Both items are open. See G-03 and G-04 of the capability assessment.
 
-**Going live?** Read **[`COMMISSIONING.md`](COMMISSIONING.md)** first, and run `npm run commission` — it reports exactly which obligations stand between this repository and a live deployment, and which of them only you can discharge.
+**Going live?** Read **[`docs/deployment/COMMISSIONING.md`](docs/deployment/COMMISSIONING.md)** first, and run `npm run commission` — it reports exactly which obligations stand between this repository and a live deployment, and which of them only you can discharge.
 
 **Running it for development?** `npm run recover` wires 22 of the 24 endpoints from the documented flow estate in `docs/reference/foundational/`, so development runs against flows that already exist instead of throwaway ones built by hand each cycle. `npm run verify:endpoints` then proves that wiring against the live flows. The signatures it uses are the published ones above — the commissioning gate accepts them for development and refuses them for pilot and production.
 
@@ -92,7 +92,7 @@ npm start                                        # serve
 
 Authentication stays **inert** for local testing: no sign-in, no token, identity from the
 local profile. Exactly as the pilot has always behaved. Turning it on is a deploy-time
-decision — see [`COMMISSIONING.md`](COMMISSIONING.md).
+decision — see [`docs/deployment/COMMISSIONING.md`](docs/deployment/COMMISSIONING.md).
 
 Then open:
 
@@ -194,16 +194,24 @@ The runtime reads endpoint URLs from `window.DGO_CONFIG.endpoints`, set before t
 │   ├── commission-check.mjs            Live-usage readiness gate
 │   └── check-links.mjs                 Link / asset checker
 ├── .github/workflows/ci.yml            CI
+├── docs/                               Everything written down — see docs/README.md
+│   ├── architecture/                   Target architecture + AUTHENTICATION_CONTRACT.md
+│   ├── deployment/                     COMMISSIONING.md, MINIMAL-PILOT.md, LOCAL-DEV.md
+│   ├── audits/                         The audit record — start at INDEX.md
+│   ├── reference/                      Flow contracts + the raw estate harvest
+│   ├── cutover/, forensic/, visual/    Disposition, evidence, generated console
+│   ├── policies/                       Universal Filename Policy deliverables
+│   └── STATUS_REPORT.md                Position and finding register
+├── README.md                           This file
+├── CONTRIBUTING.md                     How to work in this repository
+├── PLATFORM_DOCUMENTATION.md           What the platform is and how it fits together
 ├── LICENSE                             Proprietary — NITDA, all rights reserved
-├── AUTHENTICATION_CONTRACT.md          Activation spec + server obligations
-├── AUDIT.md                            Repository audit record (see its correction note)
-├── CAPABILITY_ASSESSMENT_R11.6.md      Runtime capability assessment and gap analysis
-├── REPOSITORY_AUDIT.md                 Repository-wide security/data audit
-├── FORENSIC_REPOSITORY_AUDIT.md        Forensic structural audit and disposition register
-├── CONTRIBUTING.md
 ├── package.json
 └── playwright.config.js
 ```
+
+Those four markdown files are the whole of the repository root. Everything else
+written down lives under `docs/`, indexed by [`docs/README.md`](docs/README.md).
 
 ---
 

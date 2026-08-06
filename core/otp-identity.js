@@ -3,7 +3,7 @@
 // An identity provider built entirely from Power Automate flows: no Entra, no Azure AD, no
 // MSAL, no vendor SDK, and nothing added to a repository whose architecture is zero-build
 // with no runtime dependencies. It satisfies core/auth.js's token-provider contract, so
-// turning it on is the same activation path AUTHENTICATION_CONTRACT.md already describes.
+// turning it on is the same activation path docs/architecture/AUTHENTICATION_CONTRACT.md already describes.
 //
 // THE SHAPE OF THE THING
 //   1. requestCode(email)         -> OTP_GENERATE mails a one-time code.

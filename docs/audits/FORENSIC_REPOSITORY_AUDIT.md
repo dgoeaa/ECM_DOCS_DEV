@@ -4,7 +4,7 @@
 **Date:** 2026-08-01 · **Branch audited:** `claude/quirky-babbage-1nomt5` · **Tracked files:** 400
 **Method:** content-hash duplicate detection across all files; per-application dependency-graph traversal from each HTML entry point through HTML `src`/`href`, ES-module static and dynamic imports, and CSS `@import`/`url()`; orphan detection by set difference; manifest-dependency verification; package and provenance inspection.
 
-**This audit classifies. It does not review security** — that is covered separately in `REPOSITORY_AUDIT.md` and `CAPABILITY_ASSESSMENT_R11.6.md`.
+**This audit classifies. It does not review security** — that is covered separately in `docs/audits/REPOSITORY_AUDIT.md` and `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md`.
 
 ---
 

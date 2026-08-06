@@ -5,7 +5,7 @@
 **Repository visibility at time of audit:** **PUBLIC**
 **Method:** complete file inventory, content classification, PII/secret scanning across the working tree *and* every blob in history, byte-level duplicate comparison, module-graph reachability, and execution of the test gate.
 
-> This audit is repository-wide. It complements [`CAPABILITY_ASSESSMENT_R11.6.md`](CAPABILITY_ASSESSMENT_R11.6.md), which covers the R11.6 runtime application specifically. Findings there are numbered `G-nn`; findings here are numbered `R-nn`.
+> This audit is repository-wide. It complements [`docs/audits/CAPABILITY_ASSESSMENT_R11.6.md`](./CAPABILITY_ASSESSMENT_R11.6.md), which covers the R11.6 runtime application specifically. Findings there are numbered `G-nn`; findings here are numbered `R-nn`.
 
 ---
 
@@ -48,7 +48,7 @@ Correspondents from external bodies appear in the same dumps, including **`ndpc.
 | *(root files)* | 11 | 17 M | Docs, config, **two archives** |
 | `CLient_Proxy_App_Backend/` | 9 | 44 K | **Vite + TypeScript app (build-dependent)** |
 | `shared/` | 8 | 68 K | Application — shell/adapters |
-| `universal_filename_policy_deliverables/` | 6 | 72 K | Policy documents |
+| `docs/policies/universal-filename-policy/` | 6 | 72 K | Policy documents |
 | `newack/` | 6 | 76 K | Prototype |
 | `tests/` | 5 | 36 K | Quality gate (added this branch) |
 | `Consolidate_Merged_Folder_Files_Embed/` | 4 | 568 K | **Requirements + system extractions** |

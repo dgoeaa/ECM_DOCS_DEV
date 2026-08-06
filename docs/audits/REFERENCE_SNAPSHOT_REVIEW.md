@@ -138,7 +138,7 @@ That value flows straight into the response as `request.requestedBy`. There is n
 ## 5. No platform value
 
 - **`ECMAScript2016-Design-Patterns-master`** (26 files) — an unrelated MIT-licensed tutorial repository. No connection to this platform.
-- **`platform-architecture-pack`** (18 files) — generic architecture boilerplate. Its request envelope (`{meta, user, data}`) contradicts both the deployed flow and the verified pilot payload, and it places `user.roles` **in the request body** — the exact anti-pattern `AUTHENTICATION_CONTRACT.md` §2.3 forbids. **Adopting it would reintroduce the vulnerability we just closed.**
+- **`platform-architecture-pack`** (18 files) — generic architecture boilerplate. Its request envelope (`{meta, user, data}`) contradicts both the deployed flow and the verified pilot payload, and it places `user.roles` **in the request body** — the exact anti-pattern `docs/architecture/AUTHENTICATION_CONTRACT.md` §2.3 forbids. **Adopting it would reintroduce the vulnerability we just closed.**
 - **`files_sorted_by_type…`** (28 files) — acknowledgement-slip variants, self-labelled `DUPLICATE_GROUP01`–`06`.
 - **Firebase key** `AIzaSyB2a6leX8…` — a public Firebase *web* apiKey belonging to an unrelated project (`digital-hub-e9acc.firebaseapp.com`), captured inside a saved MHTML page. Public by design in Firebase web configs; not a secret and not ours.
 - **`Notes_260728_213651.pdf`** (4.5 MB, 43% of the payload) — the source screenshots behind the defect register.

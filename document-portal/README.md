@@ -91,7 +91,7 @@ references in the same shape (`core/reference-minter.js`); a flow that issues an
 shape leaves the registry holding two key formats at once, which is the defect F-031 closed.
 
 **Filenames.** The agency's Universal Filename Policy
-(`universal_filename_policy_deliverables/`, implemented in
+(`docs/policies/universal-filename-policy/`, implemented in
 `config/filename-policy.config.js`) applies to every file that enters the registry. The
 `SUBMISSION` flow must normalise each declared attachment name rather than reject it — a
 citizen must not be turned away because their phone named the scan `IMG_20260101(1).jpg` —

@@ -106,7 +106,7 @@ Note the last row. The RBAC model was never the weakness; **its input was.**
 
 ## 6. Known limitation while inert
 
-Until activation, the platform trusts client-asserted identity and RBAC is advisory. This is recorded as **G-04** in `CAPABILITY_ASSESSMENT_R11.6.md` and remains open by design during development.
+Until activation, the platform trusts client-asserted identity and RBAC is advisory. This is recorded as **G-04** in `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` and remains open by design during development.
 
 `authPosture()` returns this warning at runtime, and Diagnostics surfaces it, so the state is visible in the product rather than only in documentation:
 
