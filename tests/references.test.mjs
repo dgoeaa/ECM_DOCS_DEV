@@ -112,6 +112,19 @@ for (const file of files) {
   let text;
   try { text = fs.readFileSync(path.join(ROOT, file), 'utf8'); } catch { continue; }
 
+  /* Comments are stripped from code before extraction. A path named in a comment is prose
+     about a reference, not a reference — and this file proved it: the paragraph explaining
+     how `import('./core/state.js')` resolves inside `page.evaluate()` was itself matched,
+     so the gate reported its own documentation as a broken link. Left unfixed, the standing
+     incentive is to stop explaining things in comments, which is the wrong lesson entirely.
+
+     Markdown is not stripped: a link inside an HTML comment in a document is still a link a
+     reader can find by viewing source, and a dangling one is still worth reporting. */
+  if (/\.(js|mjs|css)$/i.test(file)) {
+    text = text.replace(/\/\*[\s\S]*?\*\//g, '');
+    if (!/\.css$/i.test(file)) text = text.replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  }
+
   const refs = [];
   if (ext === '.md') {
     for (const m of text.matchAll(MD_LINK)) refs.push(m[1]);
