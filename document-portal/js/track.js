@@ -8,18 +8,27 @@ PF.page = function () {
     return '<button type="button" class="dgo-chip" data-fill="' + PF.esc(id) + '" data-email="' + PF.esc(email) + '" style="cursor:pointer;border:0' + (tone ? ';background:var(--dgo-color-surface-sunken);color:var(--dgo-color-fg-default)' : '') + '">' +
       '<svg class="icon-sm" aria-hidden="true"><use href="#i-id"></use></svg>' + PF.esc(label) + '</button>';
   }
+  /* Quick picks are the visitor's own requests and nothing else.
+     There was a second block here — "Or open a sample record" — built from
+     PF.store.all().filter(seeded) and rendered through the same chip(), so each chip carried
+     data-email: another submitter's address. The handler below fills both fields from the chip
+     and calls lookup(). The gate in lookup() is deliberate work — it requires the ID and the
+     email together, and refuses to say which of the two was wrong so the register cannot be
+     enumerated — and these chips handed a visitor the pair, on the page that enforces it.
+
+     A convenience for reviewing the demo end to end is not worth teaching the portal that
+     publishing ID-plus-email is acceptable. Reviewers can read a seed from PF.SEEDS. */
   function renderQuick() {
     var mine = PF.store.mine();
-    var demos = PF.store.all().filter(function (r) { return r.seeded; }).slice(0, 3);
-    var html = '';
-    if (mine.length) {
-      html += '<div class="dgo-stack dgo-stack--2"><span class="dgo-field__label">Your requests from this device</span><div class="dgo-cluster dgo-cluster--2">' +
-        mine.slice(0, 4).map(function (m) { return chip(m.id, m.id, m.email); }).join('') + '</div></div>';
+    if (!mine.length) {
+      PF.$('#quickPicks').innerHTML =
+        '<p class="pf-note">Enter the tracking ID from your confirmation email, and the email address you ' +
+        'submitted with. Requests you track on this device will appear here for one-tap access.</p>';
+      return;
     }
-    html += '<div class="dgo-stack dgo-stack--2" style="margin-top:' + (mine.length ? '14px' : '0') + '"><span class="dgo-field__label">Or open a sample record</span><div class="dgo-cluster dgo-cluster--2">' +
-      demos.map(function (r) { return chip(PF.status(r.status).label + ' · ' + r.category, r.id, r.email, true); }).join('') + '</div>' +
-      '<p class="pf-note">Sample records ship with the portal so the tracking experience can be reviewed end to end.</p></div>';
-    PF.$('#quickPicks').innerHTML = html;
+    PF.$('#quickPicks').innerHTML =
+      '<div class="dgo-stack dgo-stack--2"><span class="dgo-field__label">Your requests from this device</span><div class="dgo-cluster dgo-cluster--2">' +
+      mine.slice(0, 4).map(function (m) { return chip(m.id, m.id, m.email); }).join('') + '</div></div>';
   }
   renderQuick();
 

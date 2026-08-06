@@ -15,6 +15,11 @@ Then:
   parts the minimal path points at. What to DO. A click-by-click walkthrough in nine
   parts (A to I), 229 numbered steps, from checking Node.js to reading the logs after
   go-live. Follow it top to bottom.
+- **[`LOCAL-DEV.md`](./LOCAL-DEV.md)** — how to run both applications end to end with nothing
+  provisioned. `npm run dev` starts one Node process that serves the platform, the portal and
+  a stand-in for every endpoint they call. It authenticates nobody, binds loopback only and
+  refuses to start under `NODE_ENV=production`; use it to read the code, review a screen or
+  reproduce a bug, never to carry real correspondence.
 - **[`pilot-sanitized-template/`](./pilot-sanitized-template/README.md)** — what to RECORD.
   Registers for each flow regenerated, deleted or rebuilt, the value register, endpoint
   configuration status and verification results. Fill these in as you work through
