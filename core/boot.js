@@ -8,9 +8,28 @@ import { PerformanceMonitor } from './performance-monitor.js';
 import { PendingQueue } from './pending-queue.js';
 import './nitda-module-adapter.js';
 const modules = {'home':()=>import('../modules/home.js'),'ecm-erp-charter':()=>import('../modules/ecm-erp-charter.js'),'activities':()=>import('../modules/activities.js'),'correspondence':()=>import('../modules/correspondence.js'),'response-tracking':()=>import('../modules/response-tracking.js'),'orchestrator':()=>import('../modules/orchestrator.js'),'single-assignment':()=>import('../modules/single-assignment.js'),'bulk-assignment':()=>import('../modules/bulk-assignment.js'),'fasttrack':()=>import('../modules/fasttrack.js'),'approvals':()=>import('../modules/approvals.js'),'acknowledgment':()=>import('../modules/acknowledgment.js'),'dispatch':()=>import('../modules/dispatch.js'),'correspondence-email':()=>import('../modules/correspondence-email.js'),'scan-intake':()=>import('../modules/scan-intake.js'),'registry':()=>import('../modules/registry.js'),'briefs':()=>import('../modules/briefs.js'),'meetings':()=>import('../modules/meetings.js'),'projects':()=>import('../modules/projects.js'),'comments':()=>import('../modules/comments.js'),'reports':()=>import('../modules/reports.js'),'statistics':()=>import('../modules/statistics.js'),'executive':()=>import('../modules/executive.js'),'assistant':()=>import('../modules/assistant.js'),'lookup':()=>import('../modules/lookup.js'),'archive':()=>import('../modules/archive.js'),'operator-hud':()=>import('../modules/operator-hud.js'),'settings':()=>import('../modules/settings.js'),'diagnostics':()=>import('../modules/diagnostics.js'),'user-admin':()=>import('../modules/user-admin.js')};
+/* H-02 — the icon sprite is fetched once and parked in the document so every <use href="#i-…">
+   in the shell and in modules resolves. Fetched rather than inlined so the same file serves
+   both packages and neither can drift from the other. A failure leaves the icons blank
+   rather than stopping the platform: an icon is not worth a boot failure. */
+async function installIconSprite(){
+  if (document.getElementById('dgo-icon-sprite')) return;
+  try{
+    const res = await fetch(new URL('../assets/icons/sprite.svg', import.meta.url));
+    if(!res.ok) return;
+    const holder = document.createElement('div');
+    holder.id = 'dgo-icon-sprite';
+    holder.setAttribute('aria-hidden','true');
+    holder.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+    holder.innerHTML = await res.text();
+    document.body.insertBefore(holder, document.body.firstChild);
+  }catch{ /* icons degrade to empty; the platform does not */ }
+}
+
 async function boot(){
   const host=document.getElementById('app');
   try{
+    await installIconSprite();
     PlatformProvisioner.ensure();
     window.__DGO_PROVISIONING__ = PlatformProvisioner.validate();
     // Identity. Inert posture registers nothing and behaves exactly as before. Enforced
