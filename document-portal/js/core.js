@@ -838,6 +838,18 @@
     var nojs = PF.$('#nojs');
     if (nojs) nojs.remove();
 
+    /* P-05 — the footer submit list is rendered from the catalogue, not authored per page.
+       It had drifted: four pages published "Regulatory or compliance filing" in the third
+       slot and submit.html published "Proposal or EOI", an abbreviation of a name the
+       catalogue spells out. A list built from one source cannot disagree with itself, and
+       the six-or-eight question does not arise because the catalogue answers it. */
+    var footSubmit = PF.$('#footSubmit');
+    if (footSubmit) {
+      footSubmit.innerHTML = PF.CORRESPONDENCE_TYPES.map(function (t) {
+        return '<li><a href="submit.html?type=' + encodeURIComponent(t.key) + '">' + PF.esc(t.label) + '</a></li>';
+      }).join('');
+    }
+
     /* current page nav state */
     var page = document.body.getAttribute('data-page');
     PF.$$('[data-nav]').forEach(function (a) {
@@ -859,6 +871,21 @@
 
     var tb = PF.$('#themeBtn');
     if (tb) tb.addEventListener('click', PF.theme.cycle);
+
+    /* P-01 — the header action cluster collapses below 640px and the theme control goes
+       with it. It reappears here, inside the mobile drawer, where it can carry a visible
+       name. Injected rather than authored into five pages so the drawer cannot drift
+       between them the way the footer submit list did (P-05). */
+    var drawer = PF.$('.pf-mobile__in');
+    if (drawer && !PF.$('#themeBtnMobile')) {
+      var mt = document.createElement('button');
+      mt.id = 'themeBtnMobile';
+      mt.type = 'button';
+      mt.className = 'pf-mobile__act';
+      mt.textContent = 'Change theme';
+      mt.addEventListener('click', PF.theme.cycle);
+      drawer.appendChild(mt);
+    }
     var kb = PF.$('#cmdkBtn');
     if (kb) kb.addEventListener('click', function () { PF.cmdk.open(); });
 

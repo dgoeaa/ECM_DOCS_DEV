@@ -54,8 +54,12 @@ PF.page = function () {
       for (var i = 0; i < n.length; i++) n[i].checked = (n[i].value === v);
     } else n.value = v;
   }
-  function err(id, msg) {
-    var p = PF.$('#' + id + '-err'), f = PF.$('#' + id);
+  function err(id, msg, fieldId) {
+    /* fieldId is separate from id because a radio group has no element carrying the group
+       name: the choices are radios named "service" inside #serviceList. Resolving both
+       from one id meant step 1 wrote its message but flagged nothing — no aria-invalid,
+       and nothing for focus to land on (P-03, V-07). */
+    var p = PF.$('#' + id + '-err'), f = PF.$('#' + (fieldId || id));
     if (!p) return;
     if (msg) { p.textContent = msg; p.hidden = false; if (f) f.setAttribute('aria-invalid', 'true'); }
     else { p.hidden = true; p.textContent = ''; if (f) f.removeAttribute('aria-invalid'); }
@@ -68,7 +72,7 @@ PF.page = function () {
     clearErrors();
     var bad = [];
     if (n === 1) {
-      if (!val('service')) { err('service', 'Choose the kind of correspondence you are submitting.'); bad.push('serviceList'); }
+      if (!val('service')) { err('service', 'Choose the kind of correspondence you are submitting.', 'serviceList'); bad.push('serviceList'); }
     }
     if (n === 2) {
       if (val('name').length < 2) { err('name', 'Enter the full name of the person submitting.'); bad.push('name'); }
