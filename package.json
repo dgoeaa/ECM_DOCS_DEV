@@ -51,7 +51,8 @@
     "package:verify": "node scripts/package.mjs",
     "test:packaging": "node tests/packaging.test.mjs",
     "test:refs": "node tests/references.test.mjs",
-    "rotation": "node scripts/rotation-register.mjs"
+    "rotation": "node scripts/rotation-register.mjs",
+    "package:bundle": "node scripts/package-bundle.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",

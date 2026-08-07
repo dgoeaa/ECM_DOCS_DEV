@@ -28,3 +28,7 @@ ECM_DOCS_DEV.zip
 # Built deployment packages (npm run package). Each carries a provisioned
 # config.local.js — a credential. Never commit one.
 dist/
+
+# Package bundles (npm run package:bundle). These embed the endpoint
+# configuration UNREDACTED — signed trigger URLs in full. Never commit one.
+*.bundle.json
