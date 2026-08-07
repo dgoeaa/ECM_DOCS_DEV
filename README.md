@@ -63,7 +63,10 @@ works from a tablet or phone.
 
 ### Option B — on your own machine
 
-Needs Node 20 or newer.
+Needs Node 22 or newer — the tooling's floor, not the platform's. The two delivered
+platforms are static sites with no build step and need no runtime at all; Node is here
+for the test suite, the packager and the link checker, one of whose dependencies now
+requires 22.
 
 **One command:**
 

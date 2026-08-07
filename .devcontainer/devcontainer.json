@@ -1,6 +1,6 @@
 {
   "name": "DGO Digital Operations",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
 
   // Installs dependencies and wires the pilot endpoints automatically, so the
   // codespace is ready to use the moment it finishes building. Nothing to configure.

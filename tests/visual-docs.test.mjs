@@ -21,6 +21,7 @@
 
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -58,6 +59,49 @@ t('every file of the atlas is present', () => {
   for (const f of [PAGE, APP, CSS, DATA, `${DIR}/README.md`]) {
     assert.ok(has(f), `${f} is missing`);
   }
+});
+
+t('the generator still runs', () => {
+  /* THE GAP THIS CLOSES. Every other assertion in this file reads the COMMITTED
+     platform-data.js and compares it with the live configuration. That catches a figure
+     going stale. It cannot catch the generator being broken, because a broken generator
+     writes nothing and the committed file keeps answering — correctly, for as long as
+     nothing has changed.
+
+     That is not hypothetical. Removing Entra deleted `AuthConfig.scopes`, and
+     `scripts/visual-docs-data.mjs` still spread it: `npm run visual` died with
+     "AuthConfig.scopes is not iterable" while this suite stayed green on the last file it
+     had successfully produced. A drift test that cannot tell "nothing drifted" from
+     "nothing was measured" is reporting success over a narrower scope than it claims —
+     which is the exact failure this repository keeps finding in its own controls.
+
+     Run it read-only. `--write` would repair the drift this suite exists to detect. */
+  const run = spawnSync(process.execPath, [path.join(ROOT, 'scripts/visual-docs-data.mjs')],
+    { cwd: ROOT, encoding: 'utf8' });
+  assert.equal(run.status, 0,
+    `npm run visual cannot produce the dataset:\n       ${(run.stderr || run.stdout || '').trim().split('\n').slice(0, 4).join('\n       ')}`);
+});
+
+t('the committed dataset is what the generator produces now', () => {
+  /* And the other half: a generator that RUNS but whose output no longer matches what is
+     committed means someone changed the tree and did not re-run `npm run visual`.
+
+     Compared on the DERIVED values only. `provenance` — commit sha, branch, commit date —
+     is read from git HEAD rather than from the tree, so it changes on every commit
+     including the one that adds this test. Comparing it would make the assertion fail
+     permanently and for a reason that is not drift, which is how a test gets marked flaky
+     and then ignored on the run where it is right. */
+  const run = spawnSync(process.execPath, [path.join(ROOT, 'scripts/visual-docs-data.mjs'), '--print'],
+    { cwd: ROOT, encoding: 'utf8' });
+  if (run.status !== 0) return;   // the assertion above owns that failure
+  const fresh = run.stdout.trim();
+  if (!fresh.startsWith('{')) return;  // no --print support; the check above still holds
+  const committed = /=\s*(\{[\s\S]*?\});?\s*$/.exec(read(DATA));
+  if (!committed) return;
+  const VOLATILE = new Set(['provenance', 'generatedAt', 'builtAt']);
+  const strip = o => JSON.stringify(o, (k, v) => (VOLATILE.has(k) ? undefined : v));
+  assert.equal(strip(JSON.parse(fresh)), strip(JSON.parse(committed[1])),
+    'docs/visual/platform-data.js is stale — run `npm run visual`');
 });
 
 const html = read(PAGE);

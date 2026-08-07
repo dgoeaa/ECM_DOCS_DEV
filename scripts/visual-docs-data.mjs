@@ -373,7 +373,6 @@ function security() {
     postureName: posture ? posture.posture : (AuthConfig.enabled ? 'enforced' : 'development'),
     enabled: AuthConfig.enabled,
     provider: AuthConfig.provider,
-    scopes: [...AuthConfig.scopes],
     clientAssertsIdentityWhileInert: !AuthConfig.enabled,
     secretsBaseline: baseline,
     roles: rbac.RoleList.map(r => ({ id: r.id, label: r.label, permissions: r.permissions })),
