@@ -43,11 +43,13 @@
       "group": "START HERE",
       "handoffs": [
         "correspondence",
-        "single-assignment",
         "orchestrator",
         "approvals",
         "dispatch",
-        "response-tracking"
+        "response-tracking",
+        "activities",
+        "fasttrack",
+        "assistant"
       ]
     },
     {
@@ -68,16 +70,19 @@
       "group": "OPERATIONS",
       "handoffs": [
         "registry",
-        "bulk-assignment"
+        "single-assignment",
+        "bulk-assignment",
+        "scan-intake"
       ]
     },
     {
       "route": "orchestrator",
-      "label": "My Work / Departmental Work",
+      "label": "My Work",
       "group": "OPERATIONS",
       "handoffs": [
         "acknowledgment",
-        "comments"
+        "comments",
+        "lookup"
       ]
     },
     {
@@ -86,7 +91,8 @@
       "group": "CONTROL",
       "handoffs": [
         "reports",
-        "statistics"
+        "statistics",
+        "projects"
       ]
     },
     {
@@ -95,12 +101,14 @@
       "group": "CONTROL",
       "handoffs": [
         "executive",
+        "briefs",
+        "meetings",
         "dispatch"
       ]
     },
     {
       "route": "dispatch",
-      "label": "Dispatch & Archive",
+      "label": "Dispatch",
       "group": "CLOSURE",
       "handoffs": [
         "archive",
@@ -257,21 +265,22 @@
   },
   "layers": {
     "files": {
-      "config": 33,
-      "core": 65,
+      "config": 34,
+      "core": 66,
       "shared": 8,
       "modules": 29
     },
     "edges": {
-      "core->config": 40,
-      "shared->core": 13,
-      "shared->config": 8,
-      "modules->core": 242,
-      "modules->config": 28,
+      "core->config": 41,
+      "shared->core": 14,
+      "shared->config": 9,
+      "modules->core": 243,
+      "modules->config": 29,
       "modules->shared": 1
     },
     "dynamicEdges": {
       "core->modules": 29,
+      "core->config": 1,
       "core->shared": 3,
       "modules->core": 1
     },
@@ -290,7 +299,7 @@
       "components": [
         {
           "name": "document-portal/",
-          "detail": "39 files · 5 pages · service worker",
+          "detail": "41 files · 5 pages · service worker",
           "note": "Carries the signed URLs it calls, in a file every visitor can read"
         }
       ]
@@ -298,11 +307,11 @@
     {
       "id": "internal",
       "label": "Internal",
-      "auth": "Entra ID, mandatory (provisioned, inert until step 8)",
+      "auth": "One-time-code proof, verified by the flow (provisioned, inert)",
       "components": [
         {
           "name": "root platform",
-          "detail": "29 routes · 29 modules · 65 core",
+          "detail": "29 routes · 29 modules · 66 core",
           "note": "The single system of record, since D6(b)"
         }
       ]
