@@ -293,10 +293,12 @@ if (!QUIET) {
   if (VALUES_FILE) console.log(`  Reading values from ${VALUES_FILE}\n`);
 
   if (RECOVERED) {
-    console.log('  RECOVERED FROM THE REFERENCE CORPUS — development use only.');
+    console.log('  RECOVERED FROM THE REFERENCE CORPUS — the documented estate.');
     console.log('  These signatures are committed to this repository and are therefore');
-    console.log('  published. `npm run commission` will refuse pilot and enforced');
-    console.log('  postures while any of them is wired.\n');
+    console.log('  published: anyone with repository access holds them. That is a');
+    console.log('  deliberate decision for live testing, and `npm run commission`');
+    console.log('  reports it in every posture rather than blocking the only');
+    console.log('  configuration that can be exercised.\n');
 
     for (const [surface, label] of [['runtime', 'Internal runtime'], ['portal', 'Public portal']]) {
       const { found, missing } = RECOVERED[surface];
@@ -305,9 +307,12 @@ if (!QUIET) {
         console.log(`  ${label} — ${keys.length} recovered`);
         for (const k of keys) {
           const r = found[k];
-          console.log(`    ✅ ${pad(k, 24)} ${r.workflowId?.slice(0, 8) ?? '?'}  via ${r.via}`);
+          console.log(`    ✅ ${pad(k, 24)} ${r.workflowId?.slice(0, 8) ?? '?'}  ${r.flow || r.via}`);
           if (r.alternates?.length) {
-            console.log(`       ${r.alternates.length} older signature(s) for the same flow were not chosen`);
+            console.log(`       ${r.alternates.length} alternate URL(s) available — see FLOW_CATALOGUE.json in a built package`);
+          }
+          if (r.warning) {
+            for (const line of wrap(r.warning, 68)) console.log(`       ⚠  ${line}`);
           }
           if (r.caveat) {
             for (const line of wrap(r.caveat, 68)) console.log(`       ⚠  ${line}`);

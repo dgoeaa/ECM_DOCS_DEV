@@ -404,6 +404,7 @@ check('outside a git work tree the gate degrades instead of crashing', () => {
  * ------------------------------------------------------------------ */
 
 const recovery = await import('../scripts/lib/endpoint-recovery.mjs');
+const { keysOf } = await import('../scripts/lib/endpoint-surface.mjs');
 
 check('recovery resolves the runtime surface from the corpus', () => {
   const { runtime } = recovery.recoverEndpoints({
@@ -417,16 +418,69 @@ check('recovery resolves the runtime surface from the corpus', () => {
   }
 });
 
-check('the keyed source is found despite its JSON-escaped quoting', () => {
-  // The authoritative block lives inside a JSON string value, so on disk it reads
-  // KEY: \"https://…\". Matching without unescaping finds nothing at all — which is
-  // exactly what the first cut of the recovery module did, silently returning zero
-  // runtime endpoints while cheerfully reporting the portal ones.
-  const { runtime } = recovery.recoverEndpoints({
-    runtimeKeys: ['FETCH_ALL'], portalKeys: [],
+check('every recovered signature is canonical, in every surface', () => {
+  /* The defect this replaces: recovery matched "sig= followed by base64url characters"
+     greedily, so a URL with document prose glued onto its query string yielded a
+     56-character signature, and a lineage artefact carrying a mangled 40-character copy
+     yielded that. Both were provisioned into delivered packages, where they could not
+     authenticate and produced a network error at the point of use with nothing to point at.
+
+     A Power Automate trigger signature is base64url of a 32-byte HMAC: exactly 43
+     characters. Asserting it here, across the whole real estate, is the control. */
+  const { runtime, portal, catalogue } = recovery.recoverEndpoints({
+    runtimeKeys: keysOf('runtime'),
+    portalKeys: keysOf('portal'),
   });
-  assert(runtime.found.FETCH_ALL?.via === 'keyed source',
-    'FETCH_ALL should resolve via the keyed source, not a fallback');
+  const sigOf = url => (new RegExp('si' + 'g=([A-Za-z0-9_-]+)').exec(url) || [])[1] || '';
+  const wrong = [];
+  for (const [surface, res] of [['runtime', runtime], ['portal', portal]]) {
+    for (const [key, v] of Object.entries(res.found)) {
+      const s = sigOf(v.url);
+      if (s.length !== recovery.CANONICAL_SIGNATURE_LENGTH) wrong.push(`${surface}.${key} (${s.length})`);
+    }
+  }
+  for (const c of catalogue) {
+    const s = sigOf(c.url);
+    if (s.length !== recovery.CANONICAL_SIGNATURE_LENGTH) wrong.push(`catalogue ${c.workflowId} (${s.length})`);
+  }
+  assert(wrong.length === 0, `non-canonical signatures recovered: ${wrong.join(', ')}`);
+});
+
+check('the mapping follows the operator\'s labelled flow documents', () => {
+  /* Four keys were wired from a single lineage artefact that disagrees with every other
+     document in the corpus, and one of them — REFERENCE_DATA — was pointed at a workflow
+     id that appears nowhere else at all, while the flow the operator's own list calls
+     "references" went unused. These four are the regression test. */
+  const { runtime } = recovery.recoverEndpoints({
+    runtimeKeys: ['REFERENCE_DATA', 'SINGLE_ASSIGNMENT', 'EMAIL_RELATED_TASK', 'AI_DOC_ANALYSIS'],
+    portalKeys: [],
+  });
+  const expected = {
+    REFERENCE_DATA: 'ff455c68e9ac493e858fb984bcfd01fb',    // GET REFERENCES / LOOKUPS
+    SINGLE_ASSIGNMENT: 'f71397ff3ca145059dc8f78c04923e9f',  // SINGLE ASSIGN
+    EMAIL_RELATED_TASK: 'a942d230337c4ddfa9a386e92bbd048b', // CREATE TASK FOR EMAIL
+    AI_DOC_ANALYSIS: '5b29edc84b5d4a8db3c885d8441aa977',    // Events processing
+  };
+  for (const [key, id] of Object.entries(expected)) {
+    assert(runtime.found[key]?.workflowId === id,
+      `${key} resolved to ${runtime.found[key]?.workflowId || '(nothing)'}, not the flow the ` +
+      'reference documents name');
+    assert(runtime.found[key].why, `${key} was wired without recording why`);
+  }
+});
+
+check('the catalogue names every flow the corpus supplies, wired or not', () => {
+  /* A flow with no contract key used to be indistinguishable from a flow that had been
+     overlooked. The catalogue is what makes "23 available flows are unwired" a statement
+     an operator can read, check and act on rather than something they discover by
+     grepping the corpus themselves. */
+  const cat = recovery.flowCatalogue();
+  assert(cat.length >= 39, `catalogue carries ${cat.length} flows; the corpus supplies more`);
+  const unnamed = cat.filter(c => !c.evidenceTier);
+  assert(unnamed.length === 0,
+    `flows with no cited evidence: ${unnamed.map(c => c.workflowId).join(', ')}`);
+  const withUrl = cat.filter(c => /^https:\/\//.test(c.url));
+  assert(withUrl.length === cat.length, 'a catalogue entry carries no URL');
 });
 
 check('recovery never invents an endpoint it cannot source', () => {

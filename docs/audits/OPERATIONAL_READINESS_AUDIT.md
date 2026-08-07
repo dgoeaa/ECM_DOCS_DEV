@@ -1,6 +1,7 @@
 # Operational readiness audit — both platforms, every branch
 
-**Date** 6 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV` (private) · **Anchor** `main`
+**Date** 6 August 2026, amended 7 August 2026 · **Repository** `dgoeaa/ECM_DOCS_DEV`
+(private) · **Anchor** `main`
 **Scope** Every branch, folder, file, configuration, integration, workflow, dependency and
 platform surface. Both delivered platforms, assessed independently.
 **Question** Is this ready for live operationalization — real production usage against live
@@ -21,6 +22,13 @@ computed across the subset a control happens to know about is the failure mode t
 codebase is otherwise unusually careful about, which is why it is worth naming as a pattern
 rather than as four unrelated bugs. Each is closed with an assertion that fails if it
 returns.
+
+> **Amendment, 7 August 2026.** The first packages this audit produced were provisioned
+> with **wrong endpoint URLs** — four contract keys routed to the wrong flow, one signature
+> mangled — and reported as runnable. The operator found it by trying to run them; no check
+> here did. **O-21** and **O-22** record it in full. The pattern named two paragraphs below
+> was the cause again: a signature-length check built on a guessed threshold where an exact
+> figure was available, reporting success over a scope narrower than its claim.
 
 The one structural gap was the architecture's own delivery step. The decision is that every
 endpoint is called directly, with its complete URL provisioned into the artefact that is
@@ -48,6 +56,9 @@ callers. No code change here can close either.
 | Dependency advisories | 3 (1 high) | **0** |
 | Entra / Azure dependency | tenant + client id + app roles | **removed — identity is two flows** |
 | Default package | demo, transmits nothing | **live, 22 of 24 endpoints wired** |
+| Endpoint signatures provisioned | 1 mangled, 1 with prose glued on, accepted by the gate | **43-character canonical, exact-length refusal** |
+| Contract key to flow | inferred from one lineage snapshot | **explicit table, every entry citing its document** |
+| Estate flows visible in a package | the 16 with a contract key | **all 39, with complete URLs** |
 | Unmerged branch work | 1 commit | **0** |
 
 ---
@@ -425,6 +436,74 @@ flow in the corpus and the portal's `UPLOAD` has no ticket-redeeming flow. Both 
 BUILT, not rotated — the commission gate now says so rather than sending someone to
 regenerate a trigger that does not exist.
 
+### O-21 · The provisioned URLs were wrong, and the gate could not see it — **corrected**
+
+**Severity: critical, and it was my error.** It was found by the operator, not by me, and
+not by any check in this repository: they downloaded the packages, tried to run them, and
+found endpoints that could not authenticate and flows that were wired to nothing.
+
+Three distinct defects, all in `scripts/lib/endpoint-recovery.mjs`:
+
+**1 · Signatures were extracted greedily, so malformed ones shipped.** The scanner matched
+"`sig=` followed by base64url characters" and took whatever it found. A Power Automate
+trigger signature is HMAC-SHA256 in base64url — **exactly 43 characters**. The reference
+corpus contains URLs with document prose glued straight onto the query string
+(`…sig=<43 chars>getEmailsPOST`) and one lineage artefact carrying a **40-character copy
+with characters altered mid-string**. Both were provisioned verbatim. `EMAIL_RELATED_TASK`
+went out with a signature that could not authenticate under any circumstances.
+
+**2 · Validation was too loose to catch it.** `endpoint-validation.mjs` refused a signature
+shorter than 20 characters. Forty is longer than twenty, so the mangled copy passed the one
+check whose whole purpose is catching truncated pastes. The threshold was a guess where an
+exact figure was available.
+
+**3 · The mapping was inferred from the wrong document.** Contract keys were matched by
+scanning one lineage artefact for `KEY: "https://…"` pairs. That artefact is a single
+build's snapshot, and where it disagrees with the operator's own labelled flow lists it is
+the one that is wrong. Four keys were misrouted:
+
+| Key | Was wired to | Should be | What settled it |
+|---|---|---|---|
+| `REFERENCE_DATA` | `d67f2acb` — one line, one document, no corroboration anywhere | `ff455c68` | Defined twice in the specification document, as LOOKUPS and GET REFERENCES, both with schema and response; 22 occurrences across three documents |
+| `SINGLE_ASSIGNMENT` | `6b3bad30` | `f71397ff` | Named SINGLE ASSIGN by the specification document, "create task and update activity" by the consolidated list, "Create task" by the numbered flow list |
+| `AI_DOC_ANALYSIS` | `20e3b003` — which the specification document's own index calls LOOKUPS | `5b29edc8` | Documented trigger `{ DocId, TaskId }` and response `{ event_name, ai_summary, accept_url }` — exactly the `aiAnalyseEventDocs` contract |
+| `EMAIL_RELATED_TASK` | the right flow, the mangled signature | `a942d230`, 43-char | Two documents carry the same 43-character value |
+
+**Corrected.** Extraction now takes exactly 43 characters and **rebuilds** the URL from its
+parts, so glued prose, entity residue and reordered query strings cannot survive into a
+package. Validation refuses any other length as `non-canonical-signature`, in every posture.
+The mapping is an explicit table where **every entry cites the document that establishes
+it**, and where documents disagree the entry records which reading was taken and why.
+Evidence is weighed in a stated order: a documented schema beats a prose label, the
+operator's own lists beat an application artefact, and corroboration breaks ties.
+
+Two negative controls guard it: loosening extraction back to greedy fails
+`tests/commissioning.test.mjs`, and reverting any of the four keys to its old id fails the
+same suite by name.
+
+### O-22 · Twenty-three available flows were invisible — **corrected**
+
+The documented estate has **39 flows**. The two platforms' 22 contract keys reach **16** of
+them. The other 23 — including **GET EMAILS, GET TASKS, BULK OPS GET DOCS** and *"get
+correspondence (flat response)"* — are called by nothing, because the platform routes those
+reads through `SUBSIDIARY_ACTIONS` and `FETCH_ALL` rather than through dedicated flows.
+
+That is a design decision and not in itself a defect. **The defect was that it was
+invisible.** Every document a package carried redacted its signatures, so the complete URLs
+existed in exactly one place — `config.local.js`, in the form the browser reads — and a flow
+that exists and answers was indistinguishable from a flow that had been overlooked. During
+live testing, "this probe answered wrongly, what else could this key point at?" had no
+answer short of grepping the reference corpus.
+
+**Corrected.** Every package now carries `FLOW_CATALOGUE.json`: all 39 flows with their
+complete URLs, the reference documents that name each one, which contract keys call it, and
+the alternates for each wired key. Repointing a key is one line in a values file and a
+rebuild. The file is a credential and says so; it adds no exposure beyond what serving the
+package already creates, since the same URLs are in the configuration the browser downloads.
+
+Negative controls: filtering the unwired flows out of the catalogue, or redacting its URLs,
+each fail `tests/packaging.test.mjs`.
+
 ### O-11 · Stale figures in live prose — **closed**
 
 Six documents and two scripts stated 25 routes; there are 29. Historical audits keep their
@@ -638,3 +717,13 @@ Recorded because they change conclusions.
 4. **`endpoint.packaged-signature` was not a warning about a risk.** It was a warning about
    the approved architecture, left behind by a component that was withdrawn. Removing it is a
    correction, not a relaxation.
+5. **The first packages this audit produced carried wrong endpoint URLs.** Four contract keys
+   were routed to the wrong flow and one signature was mangled; the packages were reported as
+   provisioned and runnable, and they were neither. The operator found it while trying to run
+   them. See O-21. The lesson recorded here is narrower than the fix: **a validator built on
+   a guessed threshold — "longer than 20 is probably fine" — checks nothing when the exact
+   figure was available and unused.**
+6. **"17 of 18 endpoints provisioned" was true and misleading.** It counted contract keys
+   against contract keys. Measured against the estate, 16 of 39 available flows were reached
+   and 23 were called by nothing, which is the figure an operator preparing to test live
+   actually needs. See O-22.

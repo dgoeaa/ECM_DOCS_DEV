@@ -7,6 +7,7 @@
  *   npm run verify:endpoints -- --only FETCH_ALL,GET_DOCS
  *   npm run verify:endpoints -- --surface portal
  *   npm run verify:endpoints -- --json report.json
+ *   npm run verify:endpoints -- --catalogue dist/dgo-internal-platform/FLOW_CATALOGUE.json
  *
  * Calls each configured Power Automate flow for real and reports what came back: status,
  * latency, whether the body parsed, and which top-level keys it carried against the shape
@@ -23,6 +24,11 @@
  * NO SECRET IS PRINTED. Endpoints are identified by contract key and workflow id; the
  * signature is never written to the terminal or to the JSON report, so a report can be
  * pasted into an issue without leaking a credential.
+ *
+ * --catalogue additionally probes EVERY flow a built package's FLOW_CATALOGUE.json names,
+ * including the 23 in the documented estate that no contract key calls, and reports which
+ * signatures still authenticate. Those are reachability probes only — they answer "is this
+ * URL live?", never "does this flow work?" — and the report keeps the two apart.
  *
  * Exit 0 = every probed endpoint answered acceptably. Exit 1 = at least one did not.
  */
@@ -46,6 +52,22 @@ const ONLY = (opt('--only') || '').split(',').map(s => s.trim()).filter(Boolean)
 const SURFACE = opt('--surface');
 const JSON_OUT = opt('--json');
 const TIMEOUT_MS = Number(opt('--timeout') || 60_000);
+/**
+ * A FLOW_CATALOGUE.json from a built package. With it, the run additionally answers
+ * "which of the flows in the estate are still live?" for EVERY flow the catalogue names,
+ * including the ones no contract key calls.
+ *
+ * That question had no answer before, and it is the first one live testing asks. The
+ * documented estate has 39 flows; the two platforms' contract keys reach 16. When a probe
+ * on a wired key comes back wrong, the next move is to point it at a different flow — and
+ * pointing it at one whose signature was revoked six months ago wastes a cycle.
+ *
+ * ⚠  These are REACHABILITY probes, not contract probes. An unwired flow has no declared
+ * contract here, so the body is empty and the only thing read off the answer is whether
+ * the signature authenticated. A 200 means the URL is live; it does NOT mean the flow does
+ * what its name suggests.
+ */
+const CATALOGUE = opt('--catalogue');
 
 const RUN_ID = `probe-${Date.now().toString(36)}`;
 const PROBE_EMAIL = process.env.DGO_PROBE_EMAIL || 'dgo.probe@example.invalid';
@@ -352,15 +374,22 @@ for (const [surface, endpoints, probes] of [
   }
 }
 
-if (!targets.length) {
+/* `--catalogue` is a mode of its own: it needs no configured endpoint, because the URLs
+   come from the catalogue file. Exiting here on an empty target list made the two passes
+   inseparable, so "which flows in the estate are still live?" could only be asked from a
+   tree that already had a working configuration — which is backwards, since the answer is
+   what you need in order to build one. */
+if (!targets.length && !CATALOGUE) {
   console.log('\n  Nothing to verify — no endpoint is configured.\n');
-  console.log('  npm run setup -- --recover --force     # wire the documented estate\n');
+  console.log('  npm run setup -- --recover --force     # wire the documented estate');
+  console.log('  npm run verify:endpoints -- --catalogue <pkg>/FLOW_CATALOGUE.json\n');
   process.exit(1);
 }
 
 console.log(`\nDGO Digital Operations — live endpoint verification`);
 console.log(`  run id ${RUN_ID}`);
 console.log(`  ${targets.length} endpoint(s) configured${INCLUDE_WRITES ? '' : ', read-only probes only'}\n`);
+if (!targets.length) console.log('  No contract endpoint is configured — estate reachability only.\n');
 
 if (INCLUDE_WRITES) {
   console.log('  ⚠  WRITE PROBES ENABLED. Real records will be created, tagged');
@@ -392,6 +421,89 @@ for (const t of targets) {
 }
 
 /* ------------------------------------------------------------------ *
+ * The rest of the estate
+ * ------------------------------------------------------------------ */
+
+/**
+ * Probe every flow a package's FLOW_CATALOGUE.json names, and report which are live.
+ *
+ * Deliberately separate from the run above and deliberately weaker. The probes above know
+ * what each endpoint is FOR — they send a contract-shaped body and check the answer
+ * against the shape the client reads. A flow no contract key calls has no such contract
+ * here, so this sends nothing and reads one thing off the answer: did the signature
+ * authenticate?
+ *
+ * The distinction is the point. Reporting "GET EMAILS: live" from an empty POST is honest.
+ * Reporting "GET EMAILS: working" from the same probe would not be, and this function must
+ * never grow into claiming the second.
+ */
+async function probeCatalogue() {
+  if (!CATALOGUE) return;
+  let cat;
+  try {
+    cat = JSON.parse(fs.readFileSync(path.resolve(ROOT, CATALOGUE), 'utf8'));
+  } catch (e) {
+    console.log(`  ⚠  Could not read ${CATALOGUE}: ${e.message}\n`);
+    return;
+  }
+  const flows = (cat.availableFlows || []).filter(f => f.url);
+  if (!flows.length) return;
+
+  console.log(`  Estate reachability — ${flows.length} flow(s) from ${CATALOGUE}\n`);
+  console.log('  Empty-body probes. These say whether a signature still authenticates.');
+  console.log('  They say nothing about whether a flow does what its name suggests.\n');
+
+  const rows = [];
+  for (const f of flows) {
+    const r = await probe(f.workflowId, f.url, { body: {} });
+    /* Reuse the main verdict rather than re-deriving one. The first cut of this loop wrote
+       its own `status < 500` test, and against this machine's egress policy — which answers
+       every call with its own 403 and a plain-text body — it reported all 39 signatures
+       REFUSED and advised against repointing any key at them. Not one packet had reached
+       the tenant. That is the exact failure `verdictOf` was written to prevent, reproduced
+       fifty lines further down the same file because the classification was duplicated
+       instead of called. */
+    const v = verdictOf(r, {});
+    /* `ok` here means "the flow answered as a working flow would". For a contract probe
+       that is the finding; for an empty-body probe it is only evidence the signature
+       authenticated, which is all this pass claims. */
+    const state = !v.reached ? 'unreached' : v.ok || r.status === 400 ? 'live' : 'refused';
+    const wired = f.wiredTo?.length ? f.wiredTo.join(', ') : '—';
+    rows.push({ workflowId: f.workflowId, flow: f.flow, wiredTo: f.wiredTo || [],
+      status: r.status ?? null, ms: r.ms, error: r.error || null, state, why: v.why });
+    const icon = state === 'unreached' ? '⚠ ' : state === 'live' ? '✅' : '⛔';
+    console.log(`  ${icon} ${String(r.status ?? '---').padEnd(4)} ${f.workflowId.slice(0, 8)}  `
+      + `${(f.flow || '').slice(0, 44).padEnd(46)}${wired}`);
+  }
+
+  const by = state => rows.filter(r => r.state === state);
+  const [live, refused, unreached] = ['live', 'refused', 'unreached'].map(by);
+  console.log('');
+  if (unreached.length === rows.length) {
+    console.log('  ⚠  NONE of these reached Power Automate. Every call was answered by');
+    console.log(`     something else — ${rows[0].why}.`);
+    console.log('     This measured the network, not the estate: no signature here has been');
+    console.log('     shown to be either live or revoked, and none should be treated as');
+    console.log('     either. Re-run from a machine whose egress policy allows');
+    console.log('     *.environment.api.powerplatform.com.\n');
+  } else {
+    console.log(`  ${live.length} live · ${refused.length} refused · ${unreached.length} unreached\n`);
+    if (refused.length) {
+      console.log('  Refused signatures cannot serve any key. Do not repoint a key at one:\n');
+      for (const d of refused) console.log(`     ${d.workflowId.slice(0, 8)}  ${d.flow} — ${d.why}`);
+      console.log('');
+    }
+    if (unreached.length) {
+      console.log(`  ${unreached.length} never reached Power Automate and are unverified rather`);
+      console.log('  than broken.\n');
+    }
+  }
+  catalogueRows = rows;
+}
+
+let catalogueRows = [];
+
+/* ------------------------------------------------------------------ *
  * Report
  * ------------------------------------------------------------------ */
 
@@ -418,16 +530,27 @@ if (shapeGaps.length) {
   console.log('  Power Automate now, in development, rather than discovering it in production.\n');
 }
 
-if (JSON_OUT) {
+/** Written after the catalogue pass so the report carries it too. */
+function writeReport() {
+  if (!JSON_OUT) return;
   // Deliberately without `url` — a report must be safe to paste into an issue.
   const safe = results.map(({ url, spec, ...rest }) => rest);
-  fs.writeFileSync(JSON_OUT, JSON.stringify({ runId: RUN_ID, at: new Date().toISOString(), results: safe }, null, 2));
+  fs.writeFileSync(JSON_OUT, JSON.stringify({
+    runId: RUN_ID, at: new Date().toISOString(), results: safe, estate: catalogueRows,
+  }, null, 2));
   console.log(`  Report written to ${JSON_OUT} (no signatures included)\n`);
 }
 
 const unreachable = failed.filter(r => !r.verdict.reached);
 
+if (!probed.length) {
+  await probeCatalogue();
+  writeReport();
+  process.exit(catalogueRows.some(r => r.state === 'refused') ? 1 : 0);
+}
+
 if (unreachable.length === probed.length && probed.length) {
+  writeReport();
   console.log('  ⛔ NOTHING REACHED POWER AUTOMATE.\n');
   console.log('  Every probe was answered by something other than the tenant, so this run');
   console.log('  verified nothing about your configuration — it verified your network.');
@@ -438,6 +561,8 @@ if (unreachable.length === probed.length && probed.length) {
 }
 
 if (failed.length) {
+  await probeCatalogue();
+  writeReport();
   console.log(`  ⛔ ${failed.length} of ${probed.length} probed endpoint(s) did not answer acceptably:\n`);
   for (const r of failed) console.log(`     ${r.key} — ${r.verdict.why}`);
   if (unreachable.length) {
@@ -447,6 +572,9 @@ if (failed.length) {
   console.log('');
   process.exit(1);
 }
+
+await probeCatalogue();
+writeReport();
 
 console.log(`  ✅ ${probed.length} endpoint(s) answered acceptably.\n`);
 if (skipped.length) {

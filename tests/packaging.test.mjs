@@ -44,15 +44,23 @@ const section = s => console.log(`\n${s}`);
  * Fixtures
  * ------------------------------------------------------------------ */
 
-/** A syntactically complete Power Automate trigger URL. Assembled, never written out. */
+/**
+ * A syntactically complete Power Automate trigger URL. Assembled, never written out.
+ *
+ * The signature is exactly 43 characters because that is what a real one is — base64url of
+ * a 32-byte HMAC — and the validator now checks it exactly. The earlier fixture used 40-odd
+ * characters and passed, which is precisely how a genuinely truncated 40-character
+ * signature reached a delivered package: the test could not tell the two apart either.
+ */
 const SIG_PARAM = 'si' + 'g';
+const CANONICAL_SIG = 43;
 const triggerUrl = (n = 1, overrides = {}) => {
   const workflow = String(n).padStart(2, '0').repeat(16).slice(0, 32);
   const q = new URLSearchParams({
     'api-version': '1',
     sp: '/triggers/manual/run',
     sv: '1.0',
-    [SIG_PARAM]: 'A'.repeat(40) + n,
+    [SIG_PARAM]: String(n).padStart(CANONICAL_SIG, 'A'),
     ...overrides,
   });
   return `https://dgo.environment.api.powerplatform.com/powerautomate/automations/direct`
@@ -183,7 +191,11 @@ const REFUSALS = [
   ['a URL that kept its signature but lost api-version',
     triggerUrl(1).replace('api-version=1&', ''), 'no-api-version'],
   ['a signature truncated mid-value',
-    triggerUrl(1).replace(new RegExp(`${SIG_PARAM}=A+1`), `${SIG_PARAM}=AAAA`), 'short-signature'],
+    triggerUrl(1, { [SIG_PARAM]: 'A'.repeat(CANONICAL_SIG - 3) }), 'non-canonical-signature'],
+  ['a signature three characters short — the corpus contains exactly this defect',
+    triggerUrl(1, { [SIG_PARAM]: 'A'.repeat(40) }), 'non-canonical-signature'],
+  ['a signature with document prose glued onto it by an export',
+    triggerUrl(1, { [SIG_PARAM]: 'A'.repeat(CANONICAL_SIG) + 'getEmailsPOST' }), 'non-canonical-signature'],
   ['a URL addressing no flow',
     'https://dgo.environment.api.powerplatform.com/powerautomate/automations/direct/triggers/manual/paths/invoke?api-version=1',
     'no-workflow-id'],
@@ -320,6 +332,69 @@ t('a package wired to published signatures is stamped, not refused', () => {
     const deploy = fs.readFileSync(path.join(dir, 'DEPLOY.md'), 'utf8');
     assert.match(deploy, /disclosed/i, `${id}: DEPLOY.md must carry the same warning as the manifest`);
     assert.match(deploy, /RUNNABLE NOW/, `${id}: DEPLOY.md must say the package is runnable`);
+  }
+});
+
+t('the package carries every available flow URL, in full, wired or not', () => {
+  /* Everything else in a package redacts, because the manifest and the provisioning record
+     travel. That left the complete URLs in `config.local.js` alone, in the form the browser
+     reads, and left the 23 estate flows no contract key calls — GET EMAILS, GET TASKS,
+     BULK OPS GET DOCS among them — with nowhere to appear at all. A flow that exists and
+     answers was indistinguishable from one that had been overlooked, and a package was
+     delivered for live testing with no way to see what else it could have been pointed at.
+
+     Asserted on the DEFAULT build, because that is the one somebody downloads. */
+  const out = path.join(work, 'catalogue');
+  const r = pack(['--out', out, '--quiet']);
+  assert.equal(r.code, 0, r.stdout);
+
+  const SIG = new RegExp(`${SIG_PARAM}=([A-Za-z0-9_-]+)`);
+  for (const id of SURFACE_IDS) {
+    const dir = path.join(out, SURFACES[id].packageName);
+    const file = path.join(dir, 'FLOW_CATALOGUE.json');
+    assert.ok(fs.existsSync(file), `${id}: no FLOW_CATALOGUE.json in the package`);
+    const cat = JSON.parse(fs.readFileSync(file, 'utf8'));
+
+    /* Counted off the array itself, not off the summary fields beside it. A first cut of
+       this test read `availableFlowCount`, which is computed independently — so filtering
+       the array down to the wired flows left every assertion green while deleting the
+       exact thing the file exists to carry. */
+    assert.ok(cat.availableFlows.length >= 39,
+      `${id}: the catalogue carries ${cat.availableFlows.length} flows; the estate has more`);
+    assert.equal(cat.availableFlowCount, cat.availableFlows.length,
+      `${id}: the catalogue's own count disagrees with what it lists`);
+    const unwired = cat.availableFlows.filter(f => !f.wiredTo.length);
+    assert.equal(unwired.length, cat.unwiredFlowCount,
+      `${id}: ${cat.unwiredFlowCount} flows are reported unwired but ${unwired.length} are listed`);
+    assert.ok(unwired.length >= 20,
+      `${id}: only ${unwired.length} unwired flows listed — flows no key calls are being dropped`);
+    for (const name of ['GET EMAILS', 'GET TASKS', 'BULK OPS GET DOCS']) {
+      assert.ok(unwired.some(f => f.flow === name),
+        `${id}: ${name} exists in the estate and is called by no key — it must still be listed`);
+    }
+
+    /* Unredacted is the whole point of this file. */
+    for (const f of cat.availableFlows) {
+      const sig = SIG.exec(f.url)?.[1] || '';
+      assert.equal(sig.length, 43,
+        `${id}: ${f.workflowId} carries a ${sig.length}-character signature in the catalogue`);
+      assert.ok(f.evidence?.length, `${id}: ${f.workflowId} is listed with no citation`);
+    }
+
+    /* Every wired key appears with the same URL the browser will actually call. */
+    const cfg = fs.readFileSync(path.join(dir, SURFACES[id].configPath), 'utf8');
+    for (const p of cat.provisioned.filter(x => x.url)) {
+      assert.ok(cfg.includes(p.url),
+        `${id}: ${p.key}'s catalogue URL is not the one written into the configuration`);
+      assert.ok(p.flow, `${id}: ${p.key} is wired without naming the flow it reached`);
+    }
+    assert.ok(cat.howToRepoint.includes(SURFACES[id].envPrefixes[0]),
+      `${id}: the catalogue must say how to repoint a key on THIS surface`);
+
+    /* And the manifest must still redact, or the split has collapsed. */
+    const m = JSON.parse(fs.readFileSync(path.join(dir, 'PACKAGE_MANIFEST.json'), 'utf8'));
+    assert.ok(!SIG.test(JSON.stringify(m)),
+      `${id}: a signature reached PACKAGE_MANIFEST.json, which is meant to be shareable`);
   }
 });
 

@@ -108,6 +108,9 @@ function bundle(pkgDir) {
     endpoints = sandbox.window[globalName]?.endpoints || {};
   }
 
+  const catalogueFile = files.find(f => f.path === 'FLOW_CATALOGUE.json');
+  const catalogue = catalogueFile ? JSON.parse(catalogueFile.content) : null;
+
   return {
     bundleFormat: 'dgo.package-bundle/1',
     generatedAt: new Date().toISOString(),
@@ -133,6 +136,12 @@ function bundle(pkgDir) {
     },
     /** Resolved endpoint URLs, in full. This is the credential half of the bundle. */
     endpointUrls: endpoints,
+    /* Every flow in the documented estate, wired or not, lifted to the top level from the
+       package's own FLOW_CATALOGUE.json. It is already embedded below in `files`; this is
+       the same bytes surfaced where a reader will find them, because "which other flow can
+       this key point at?" is the question a live test asks first and it should not require
+       walking a 162-entry file array to answer. */
+    flowCatalogue: catalogue,
     fileCount: files.length,
     totalBytes: files.reduce((n, f) => n + f.bytes, 0),
     integrity: manifest.integrity,

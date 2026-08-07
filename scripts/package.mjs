@@ -59,7 +59,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 import { SURFACES, SURFACE_IDS, pilotKeysOf } from './lib/endpoint-surface.mjs';
-import { validateSurface, redact } from './lib/endpoint-validation.mjs';
+import { validateSurface, redact, workflowIdOf } from './lib/endpoint-validation.mjs';
 import { trackedFiles, publishedSignatures, reusedSignatures } from './lib/published-signatures.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -537,6 +537,14 @@ function buildSurface(surfaceId, tracked, published) {
     sha256: sha256(provisioningDoc),
   });
 
+  const catalogueBody = renderFlowCatalogue(surfaceId, values, meta);
+  fs.writeFileSync(path.join(dir, 'FLOW_CATALOGUE.json'), catalogueBody);
+  manifestFiles.push({
+    path: 'FLOW_CATALOGUE.json',
+    bytes: Buffer.byteLength(catalogueBody),
+    sha256: sha256(catalogueBody),
+  });
+
   const missing = missingReferences(dir, spec.entry);
   if (missing.length) {
     record.blockers.push(...missing.slice(0, 10).map(m => ({
@@ -664,12 +672,32 @@ Nothing else in the request path can do it for them.
 |---|---|---|---|---|
 ${rows.join('\n')}
 
+Each wired key names the flow it reached and the reference document that establishes the
+mapping in **\`FLOW_CATALOGUE.json\`**, which also carries **every URL in full, unredacted** —
+this table redacts, because it travels.
+
 ${unprovisioned.length ? `## Not provisioned — ${unprovisioned.length}
 
 Each of these reports itself unconfigured at runtime rather than failing mid-action:
 
-${unprovisioned.map(e => `- \`${e.key}\` — ${e.note}`).join('\n')}
+${unprovisioned.map(e => {
+    const reason = RECOVERED?.unavailable?.[surfaceId]?.[e.key];
+    return `- \`${e.key}\` — ${e.note}${reason ? `\n  ${reason}` : ''}`;
+  }).join('\n')}
 ` : 'Every endpoint on this surface is provisioned.\n'}
+## Flows available but not called
+
+The documented estate contains ${RECOVERED?.catalogue?.length ?? 0} flows with complete trigger
+URLs. ${RECOVERED?.catalogue?.filter(c => !c.wiredTo.length).length ?? 0} of them are reached
+by no contract key on either platform — GET EMAILS, GET TASKS, BULK OPS GET DOCS and
+"get correspondence (flat response)" among them — because the platform routes those reads
+through \`SUBSIDIARY_ACTIONS\` and \`FETCH_ALL\` rather than calling dedicated flows.
+
+They are **not** omitted. All of them are listed in \`FLOW_CATALOGUE.json\` with their
+complete URLs and the documents that name them, so if a live probe shows a route is not
+implemented on the shared flow, repointing a key at the dedicated flow is one line in a
+values file and a rebuild.
+
 ## Flow routes reached from this package
 
 One URL can carry several routes: the flow switches on \`action\`, so provisioning a URL
@@ -702,6 +730,86 @@ Provisioned with \`enabled: ${auth.enabled === true}\`. This is the **client hal
 the browser acquires a token and sends it. Each flow must still validate that token, derive
 the role and authorise the action itself. See \`docs/architecture/AUTHENTICATION_CONTRACT.md\` §2.
 ` : ''}`;
+}
+
+/**
+ * FLOW_CATALOGUE.json — every endpoint URL this package could use, in full.
+ *
+ * WHY THIS FILE EXISTS. Everything else a package carries redacts its signatures, because
+ * `PACKAGE_MANIFEST.json` and `ENDPOINT_PROVISIONING.md` are meant to be shareable — pasted
+ * into an issue, attached to a ticket. That left the complete URLs in exactly one place,
+ * `config.local.js`, in the form the browser reads rather than a form anyone can work with,
+ * and it left the flows the platform has NO contract key for — twenty-three of them in the
+ * documented estate, including GET EMAILS, GET TASKS and BULK OPS GET DOCS — with nowhere
+ * to appear at all. A flow that exists and answers was therefore indistinguishable from a
+ * flow that had been overlooked.
+ *
+ * During live testing that distinction is the whole game: when a probe comes back wrong,
+ * the next question is always "which other flow should this key point at?", and the answer
+ * has to be readable without going back to the reference corpus. This file answers it, with
+ * each flow's complete URL, the documents that name it, and where the documents disagree.
+ *
+ * ⚠  IT IS A CREDENTIAL. Every URL in it is a bearer token for the flow behind it. It ships
+ * inside the package because the package is already carrying those same URLs in
+ * `config.local.js` — this adds no exposure that serving the package does not — but it must
+ * not be extracted and circulated on its own.
+ */
+function renderFlowCatalogue(surfaceId, values, meta) {
+  const surface = SURFACES[surfaceId];
+  const recovered = RECOVERED?.[surfaceId]?.found || {};
+
+  const provisioned = surface.endpoints.map(e => {
+    const r = recovered[e.key];
+    return {
+      key: e.key,
+      transport: e.transport,
+      pilot: Boolean(e.pilot),
+      actions: e.actions,
+      url: values[e.key] || null,
+      workflowId: workflowIdOf(values[e.key]) || null,
+      flow: r?.flow || null,
+      source: values[e.key]
+        ? (r && r.url === values[e.key] ? 'documented estate' : 'supplied explicitly')
+        : 'not provisioned',
+      why: r && r.url === values[e.key] ? r.why : undefined,
+      caveat: r && r.url === values[e.key] ? r.caveat : undefined,
+      warning: r && r.url === values[e.key] ? r.warning : undefined,
+      unavailable: RECOVERED?.unavailable?.[surfaceId]?.[e.key],
+      /* Other complete URLs that could serve this key: a second signature on the same flow,
+         or a different flow the documents put forward for the same function. */
+      alternates: (r && r.url === values[e.key] ? r.alternates : []) || [],
+    };
+  });
+
+  const catalogue = RECOVERED?.catalogue || [];
+
+  return JSON.stringify({
+    catalogueFormat: 'dgo.flow-catalogue/1',
+    package: surface.packageName,
+    platform: surface.label,
+    buildId: meta.buildId,
+    builtAt: meta.builtAt,
+    posture: meta.posture,
+    warning:
+      'Every url in this file is a signed Power Automate trigger URL, which is a bearer '
+      + 'credential for the flow behind it. This file adds no exposure beyond what serving '
+      + 'this package already creates — the same URLs are in the configuration the browser '
+      + 'downloads — but do not extract it and circulate it on its own.',
+    howToRepoint:
+      'To point a key at a different flow: copy the url of the flow you want from '
+      + 'availableFlows below, write "<PREFIX><KEY>=<url>" into a values file (prefix '
+      + `${surface.envPrefixes[0]}), and rebuild with `
+      + '`npm run package -- --values <file>`. Supplied values always beat the documented '
+      + 'estate, and only the keys you name change.',
+    provisioned,
+    /* The whole documented estate, wired or not. `wiredTo` says which contract keys, if
+       any, currently call each flow; an empty array is a flow that exists and answers and
+       that no key on either platform reaches today. */
+    availableFlows: catalogue,
+    availableFlowCount: catalogue.length,
+    unwiredFlowCount: catalogue.filter(c => !c.wiredTo.length).length,
+    unavailable: RECOVERED?.unavailable?.[surfaceId] || {},
+  }, null, 2) + '\n';
 }
 
 function renderDeployDoc(surfaceId, manifest) {
@@ -750,7 +858,13 @@ set. A package that does not verify must not be deployed.
 - \`PACKAGE_MANIFEST.json\` — every file, its size and its SHA-256, plus the endpoint
   provisioning record. Signatures are redacted; the manifest is safe to share.
 - \`ENDPOINT_PROVISIONING.md\` — what is wired, what is not, and how to rotate.
-- \`${surface.configPath}\` — the provisioned endpoint URLs. **This is a credential.**
+- \`FLOW_CATALOGUE.json\` — **every endpoint URL in full, unredacted**: the ${manifest.provisionedCount}
+  wired here, the flow each one reached and the reference document that establishes it, and
+  every other flow in the documented estate that no key currently calls. This is what you
+  read when a live probe answers wrongly and you need to point a key somewhere else.
+  **This is a credential.**
+- \`${surface.configPath}\` — the provisioned endpoint URLs, in the form the browser reads.
+  **This is a credential.**
 
 ## The obligation this package cannot discharge
 

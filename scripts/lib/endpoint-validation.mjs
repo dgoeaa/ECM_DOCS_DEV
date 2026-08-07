@@ -35,6 +35,15 @@ const POWER_AUTOMATE_HOST =
 
 const WORKFLOW_ID = /\/workflows\/([0-9a-f]{32})\b/i;
 
+/**
+ * A complete Power Automate trigger signature, in characters.
+ *
+ * HMAC-SHA256 is 32 bytes; base64url of 32 bytes is 43 characters with no padding. This is
+ * not a heuristic and there is no legitimate variation, which is what makes it a usable
+ * check — see the note at the point of use.
+ */
+export const CANONICAL_SIGNATURE_LENGTH = 43;
+
 /** Remove signature material before a URL is printed, written to a manifest or logged. */
 export function redact(url) {
   const raw = String(url || '');
@@ -135,9 +144,26 @@ export function validateEndpointUrl(url, { key = '(unnamed)', required = false }
       return fail('no-signature',
         'has no sig parameter, so the trigger will refuse it — the usual symptom of a truncated paste');
     }
-    if (sig.length < 20) {
-      return fail('short-signature', `has a ${sig.length}-character sig, which is too short to be complete`);
+    /* A Power Automate trigger signature is HMAC-SHA256 in base64url: 32 bytes, so EXACTLY
+       43 characters, optionally with one '=' of padding. Any other length is a defect, and
+       this check is the one that was too loose to catch the two the reference corpus
+       actually contains — a 40-character copy with characters altered mid-string, and 43
+       characters with prose glued onto the end by a document export. A "> 20 is probably
+       fine" threshold passed both, and a package shipped with a signature that could never
+       authenticate. Length is cheap and exact; use it. */
+    const unpadded = sig.replace(/=+$/, '');
+    if (unpadded.length !== CANONICAL_SIGNATURE_LENGTH) {
+      return fail('non-canonical-signature',
+        `has a ${unpadded.length}-character sig; a Power Automate trigger signature is `
+        + `always ${CANONICAL_SIGNATURE_LENGTH} base64url characters, so this one is `
+        + `${unpadded.length < CANONICAL_SIGNATURE_LENGTH ? 'truncated' : 'carrying extra text'} `
+        + 'and the trigger will refuse it');
     }
+    if (!/^[A-Za-z0-9_-]+$/.test(unpadded)) {
+      return fail('malformed-signature',
+        'has a sig containing characters that are not base64url — it has been mangled in transit');
+    }
+    if (sig !== unpadded) notes.push('sig carries base64 padding, which the estate omits');
     for (const p of ['sp', 'sv']) {
       if (!parsed.searchParams.get(p)) notes.push(`no ${p} parameter — unusual for a manual trigger`);
     }

@@ -67,6 +67,31 @@ nothing. Posture is a fact about what got wired, so it is read off the result:
    not the ceiling — replacing it later is a values file and a rebuild.
 3. `--no-estate` disables the fallback: use only what you supplied.
 
+### How a contract key is matched to a flow
+
+`scripts/lib/endpoint-recovery.mjs` carries the mapping as an explicit table, and every
+entry cites the document that establishes it. It used to *infer* the mapping, and both
+halves of the inference were wrong in ways that reached delivered packages:
+
+| What was inferred | What it produced |
+|---|---|
+| "a signature is whatever base64url characters follow `sig=`" | Prose glued onto a URL by a document export became part of the signature; a lineage artefact's mangled 40-character copy shipped verbatim. Neither could ever authenticate. |
+| "the lineage artefact naming contract keys is authoritative" | `REFERENCE_DATA` was wired to a workflow id that appears nowhere else in the corpus, while the flow the operator's own list calls *"references"* — 22 occurrences across three documents — went unused. `SINGLE_ASSIGNMENT` and `AI_DOC_ANALYSIS` were wrong the same way. |
+
+A trigger signature is base64url of a 32-byte HMAC: **exactly 43 characters**. Extraction
+now takes exactly 43 and rebuilds the URL from its parts, so glued prose, entity residue
+and reordered query strings cannot survive into a package. `endpoint-validation.mjs` refuses
+any other length as `non-canonical-signature`, in every posture — the old threshold was
+"longer than 20 is probably fine", which is exactly why the 40-character one got through.
+
+Where documents disagree about which flow an id is, they are weighed in this order and the
+catalogue records which tier settled it:
+
+1. a documented trigger schema or response body tied to the id;
+2. the operator's own labelled URL lists;
+3. a contract-key name next to the URL in an application artefact;
+4. corroboration across separate documents.
+
 ### Why the estate, and not a fresh one
 
 Those signatures are **published** — committed to this repository, so anyone with access
@@ -137,9 +162,39 @@ legitimate migration gets deleted, and a deleted validator checks nothing.
 | File | What it is |
 |---|---|
 | `PACKAGE_MANIFEST.json` | Every file, its size and its SHA-256; the endpoint provisioning record; the build id. **Signatures are redacted** — the manifest is safe to paste into an issue. |
-| `ENDPOINT_PROVISIONING.md` | What is wired, what is not, which flow routes each URL carries, and how to rotate. |
+| `ENDPOINT_PROVISIONING.md` | What is wired, what is not, which flow routes each URL carries, and how to rotate. Redacted. |
+| `FLOW_CATALOGUE.json` | **Every endpoint URL in full, unredacted** — the ones wired here, and every other flow in the documented estate. **This is a credential.** |
 | `DEPLOY.md` | How to deploy it and what to verify first. |
-| `config/config.local.js` *or* `config.local.js` | The provisioned endpoint URLs. **This is a credential.** |
+| `config/config.local.js` *or* `config.local.js` | The provisioned endpoint URLs, in the form the browser reads. **This is a credential.** |
+
+### `FLOW_CATALOGUE.json`, and why a package needs it
+
+Everything else redacts, because the manifest and the provisioning record are meant to
+travel. That left the complete URLs in one place — `config.local.js` — in the form the
+browser reads rather than a form anyone can work with, and it left the flows the platform
+has **no contract key for** with nowhere to appear at all.
+
+That mattered more than it sounds. The documented estate has **39 flows**. Twenty-two
+contract keys across the two platforms reach **16** of them. The other **23 — including
+GET EMAILS, GET TASKS, BULK OPS GET DOCS and "get correspondence (flat response)" — are
+called by nothing**, because the platform routes those reads through `SUBSIDIARY_ACTIONS`
+and `FETCH_ALL` rather than through dedicated flows. A flow that exists and answers was
+therefore indistinguishable from a flow that had been overlooked, and the only way to tell
+was to grep the reference corpus.
+
+The catalogue names all 39, each with its complete URL, the reference documents that name
+it, which contract keys (if any) call it, and — where the documents disagree about what a
+flow is — which reading was taken and why. During live testing, "this probe answered
+wrongly, what else could this key point at?" is answered by reading one file:
+
+```
+FETCH_ALL → point it at "all data and references" instead
+  1. copy that flow's url out of FLOW_CATALOGUE.json
+  2. echo "DGO_ENDPOINT_FETCH_ALL=<url>" >> ~/dgo-values.txt
+  3. npm run package -- --values ~/dgo-values.txt
+```
+
+Supplied values always beat the documented estate, and only the keys named change.
 
 The platform's own `README.md` is preserved. The repository's scaffolding — `tests/`,
 `scripts/`, `docs/`, `package.json`, the reference corpus — is not shipped.
@@ -197,13 +252,22 @@ The seven server-side obligations are specified in
 ## Before handing a package over
 
 ```
-npm test                                                     # 25 suites, 100 browser assertions
+npm test                                                     # 26 suites, 103 browser assertions
 npm run package -- --values <file>
 npm run package:verify -- --verify dist/dgo-internal-platform
 npm run package:verify -- --verify dist/dgo-document-portal
-npm run verify:endpoints -- --include-writes                 # the flows answer, live
+npm run verify:endpoints -- --include-writes \
+  --catalogue dist/dgo-internal-platform/FLOW_CATALOGUE.json # the flows answer, live
 npm run commission                                           # obligations a person must sign
 ```
+
+`--catalogue` adds a second pass over **every** flow in the estate, including the 23 no
+contract key calls, and reports which signatures still authenticate. Those are reachability
+probes with an empty body: a `200` means the URL is live, not that the flow does what its
+name suggests. The report keeps the two apart, and it keeps a third case apart from both —
+a call answered by an egress filter rather than by Power Automate is reported **unreached**,
+never as a revoked signature. That distinction has been got wrong in this script twice, in
+opposite directions, and `tests/endpoint-verification.test.mjs` now holds it in place.
 
 The last two are the ones that cannot be skipped. `verify:endpoints` is the difference
 between "the configuration looks right" and "the configuration was exercised against the
