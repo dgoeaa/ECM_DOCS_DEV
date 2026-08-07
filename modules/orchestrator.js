@@ -16,7 +16,7 @@ function exportList(list) {
 }
 function render(el) {
   const s = State.get(); const u = UIState.get('orchestrator', { q: '', selected: null, md: 'list' }); const list = rows(s, u.q); const sel = list.find(t => t.id === u.selected) || null;
-  el.innerHTML = `<div class="workspace">${head('Task Orchestrator', 'Cross-linked task lens — status, ownership and downstream routing.')}
+  el.innerHTML = `<div class="workspace">${head('My Work', 'Cross-linked task lens — status, ownership and downstream routing.')}
     <div class="toolbar"><input data-q placeholder="Search tasks" value="${esc(u.q)}"><div><button class="btn ghost" data-export>Export CSV</button></div></div>
     <div class="split" ${mdSwitch(sel?u.md:'list')}><div class="panel">${table([
       { key: 'referenceId', label: 'Reference' }, { key: 'title', label: 'Title' }, { key: 'assignedTo', label: 'Assigned To' },

@@ -89,7 +89,10 @@ export async function mount(el) {
 
 function render(el) {
   el.innerHTML = `<div class="workspace">
-    ${head(CHARTER_TITLE, 'Authoritative scope and governance boundary for ERP and ECM.')}
+    ${/* I-02 — the screen is named once, in routes.config.js. The charter's full document
+          title is the document's, not the screen's, and stays where it belongs: on the
+          instrument below and in the subtitle. */''}
+    ${head('ERP–ECM Charter', CHARTER_TITLE + '. Authoritative scope and governance boundary for ERP and ECM.')}
     <section class="panel">
       <div class="eyebrow panel-eyebrow">Executive decision</div>
       <h2>${esc(CHARTER_TITLE)}</h2>

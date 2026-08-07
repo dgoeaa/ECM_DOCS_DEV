@@ -48,6 +48,13 @@ class Shell extends HTMLElement{
           <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(s.profile.persona)}</small></span></button>
         </header>
         <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
+        ${/* I-01 — the twenty guided routes are declared as handoffs of a visible workspace
+             but had no link anywhere in the shell, so the only way to reach them was the
+             command palette or a typed hash. This strip renders the current workspace's
+             declared handoffs as links. It does not decide which of the twenty belong in
+             the sidebar — that is the agency's triage — but it does mean no built screen
+             is reachable only by knowing its URL. */''}
+        <nav class="dgo-related" data-related aria-label="Related workspaces" hidden></nav>
         <footer class="dgo-footer"><span>DGO Digital Operations</span><small>Governed runtime · ${esc(fmtDateTime(new Date().toISOString()))}</small></footer>
       </section>
     </div>
@@ -160,8 +167,23 @@ class Shell extends HTMLElement{
   // A dialog that carries a pending promise (confirm) must be dismissed through its own
   // _dismiss() so the awaiting governed action is cancelled rather than stranded.
   closeTransientSurfaces(){ this.closeNav(); this.closeCommandPalette(); this.querySelectorAll('[data-dialog]').forEach(d=>{ if(d._dismiss){ d._dismiss(); return; } d._releaseTrap?.(); d.remove(); }); }
-  active(route){ applyRootAttributes(route); this.querySelectorAll('.dgo-sidebar__item').forEach(a=>{ const on=a.dataset.route===route; a.classList.toggle('active',on); if(on)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); }); const ctx=this.querySelector('[data-context]'); if(ctx)ctx.textContent=this.routeLabel(route); const mainEl=this.querySelector('#main'); if(mainEl)mainEl.setAttribute('aria-label',this.routeLabel(route)); afterRouteChange(); }
+  active(route){ applyRootAttributes(route); this.querySelectorAll('.dgo-sidebar__item').forEach(a=>{ const on=a.dataset.route===route; a.classList.toggle('active',on); if(on)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); }); const ctx=this.querySelector('[data-context]'); if(ctx)ctx.textContent=this.routeLabel(route); const mainEl=this.querySelector('#main'); if(mainEl)mainEl.setAttribute('aria-label',this.routeLabel(route)); this.renderRelated(route); this.applyTitle(route); afterRouteChange(); }
   routeLabel(route){ return Routes.find(r=>r.path===route)?.label || route || 'Command Center'; }
+  // I-17 — the tab title names the screen, matching the portal's own pattern
+  // ("Track a request — NITDA Intelligent Portal"). It used to be one static string on
+  // every screen, and that string was the internal release codename and design-system
+  // version: "R11.6 Obsidian Harmonized Design System Runtime". A tab title is how a user
+  // finds the right window among ten.
+  applyTitle(route){ document.title=`${this.routeLabel(route)} — DGO Digital Operations`; }
+  // I-01 — render the current workspace's declared handoffs as links.
+  renderRelated(route){
+    const host=this.querySelector('[data-related]'); if(!host) return;
+    const g=guideFor(route);
+    const targets=(g?.handoffs||[]).filter(p=>p!==route&&Routes.some(r=>r.path===p)&&canCurrentUserAccess(p));
+    if(!targets.length){ host.hidden=true; host.innerHTML=''; return; }
+    host.hidden=false;
+    host.innerHTML=`<span class="dgo-related__label">Continue in</span>${targets.map(p=>`<a class="dgo-related__link" href="#/${esc(p)}"><span aria-hidden="true">${I[p]||'•'}</span>${esc(this.routeLabel(p))}</a>`).join('')}`;
+  }
   refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${s.profile.persona} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
   openCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(!p)return; p.hidden=false; this.renderCommandResults(''); this._trapFocus(p); requestAnimationFrame(()=>this.querySelector('[data-command-input]')?.focus()); }
   closeCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(p){ p.hidden=true; p._releaseTrap?.(); } }

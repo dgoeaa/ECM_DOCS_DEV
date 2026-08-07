@@ -14,11 +14,13 @@ export const VisibleWorkspaces = Object.freeze([
     ],
     "handoffs": [
       "correspondence",
-      "single-assignment",
       "orchestrator",
       "approvals",
       "dispatch",
-      "response-tracking"
+      "response-tracking",
+      "activities",
+      "fasttrack",
+      "assistant"
     ]
   },
   {
@@ -57,13 +59,15 @@ export const VisibleWorkspaces = Object.freeze([
     ],
     "handoffs": [
       "registry",
-      "bulk-assignment"
+      "single-assignment",
+      "bulk-assignment",
+      "scan-intake"
     ]
   },
   {
     "id": "my-work",
     "route": "orchestrator",
-    "label": "My Work / Departmental Work",
+    "label": "My Work",
     "group": "OPERATIONS",
     "purpose": "Acknowledge, start, update, comment on and complete assigned work.",
     "owns": [
@@ -75,7 +79,8 @@ export const VisibleWorkspaces = Object.freeze([
     ],
     "handoffs": [
       "acknowledgment",
-      "comments"
+      "comments",
+      "lookup"
     ]
   },
   {
@@ -92,7 +97,8 @@ export const VisibleWorkspaces = Object.freeze([
     ],
     "handoffs": [
       "reports",
-      "statistics"
+      "statistics",
+      "projects"
     ]
   },
   {
@@ -110,13 +116,15 @@ export const VisibleWorkspaces = Object.freeze([
     ],
     "handoffs": [
       "executive",
+      "briefs",
+      "meetings",
       "dispatch"
     ]
   },
   {
     "id": "dispatch-archive",
     "route": "dispatch",
-    "label": "Dispatch & Archive",
+    "label": "Dispatch",
     "group": "CLOSURE",
     "purpose": "Prepare dispatch, send/no-dispatch, capture receipt, close and hand off to archive.",
     "owns": [

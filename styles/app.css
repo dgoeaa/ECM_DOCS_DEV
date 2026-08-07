@@ -1019,3 +1019,13 @@ dgo-shell[data-route-pending] .dgo-workarea::after{
 @media (max-width:480px){
   .dgo-notify-panel{inset-inline:10px;inline-size:auto;}
 }
+
+/* I-01 — related-workspace strip. The twenty guided routes are declared as handoffs of a
+   visible workspace; this is where that declaration becomes a link the user can see. It
+   sits between the work area and the footer so it is present on every screen without any
+   module having to render it. */
+.dgo-related{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 16px;border-top:1px solid var(--bd);background:var(--sunken,var(--s));min-height:40px}
+.dgo-related[hidden]{display:none}
+.dgo-related__label{font:700 var(--dgo-type-floor) var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-right:2px}
+.dgo-related__link{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid var(--bd);border-radius:var(--rc,8px);font:600 11px var(--sans);color:var(--fg);text-decoration:none;background:var(--s)}
+.dgo-related__link:hover,.dgo-related__link:focus-visible{border-color:var(--a);color:var(--p)}

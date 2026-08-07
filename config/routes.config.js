@@ -36,7 +36,7 @@ export const Routes = [
   },
   {
     "path": "orchestrator",
-    "label": "My Work / Departmental Work",
+    "label": "My Work",
     "group": "OPERATIONS",
     "kind": "workspace",
     "kpi": false
@@ -78,14 +78,14 @@ export const Routes = [
   },
   {
     "path": "dispatch",
-    "label": "Dispatch & Archive",
+    "label": "Dispatch",
     "group": "CLOSURE",
     "kind": "workspace",
     "kpi": false
   },
   {
     "path": "scan-intake",
-    "label": "Scan Intake",
+    "label": "Registry Scan Intake",
     "group": "OPERATIONS",
     "kind": "form",
     "kpi": false
@@ -141,7 +141,7 @@ export const Routes = [
   },
   {
     "path": "executive",
-    "label": "Executive Dashboard",
+    "label": "DGCEO Correspondence & Decision Hub",
     "group": "CONTROL",
     "kind": "dashboard",
     "kpi": true
@@ -155,7 +155,7 @@ export const Routes = [
   },
   {
     "path": "lookup",
-    "label": "Lookup",
+    "label": "Lookup & Direct Action",
     "group": "OPERATIONS",
     "kind": "workspace",
     "kpi": false
@@ -176,7 +176,7 @@ export const Routes = [
   },
   {
     "path": "diagnostics",
-    "label": "Diagnostics",
+    "label": "System health (IT only)",
     "group": "SYSTEM",
     "kind": "dashboard",
     "kpi": true
@@ -190,14 +190,14 @@ export const Routes = [
   },
   {
     "path": "archive",
-    "label": "Archive",
+    "label": "Archive Evidence",
     "group": "CLOSURE",
     "kind": "workspace",
     "kpi": true
   },
   {
     "path": "correspondence-email",
-    "label": "Email Desk",
+    "label": "Correspondence Email Desk",
     "group": "CLOSURE",
     "kind": "workspace",
     "kpi": true
