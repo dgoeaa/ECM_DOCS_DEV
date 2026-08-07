@@ -6,6 +6,7 @@
 @import url("tokens/tokens.theme-light.css");
 @import url("tokens/tokens.theme-dark.css");
 @import url("tokens/tokens.theme-hc.css");
+@import url("tokens/tokens.breakpoint.css");
 @import url("tokens/tokens.component.css");
 @import url("tokens/tokens.density.css");
 @import url("tokens/tokens.portal.css");

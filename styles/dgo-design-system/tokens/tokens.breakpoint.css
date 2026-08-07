@@ -1,0 +1,39 @@
+/* H-01 — one breakpoint scale, expressed as design-system tokens beside the colour and
+   type tokens, and shared by both platforms.
+ *
+ * Measured before this file existed:
+ *
+ *   internal platform  480 520 560 600 720 768 820 900 980 1000 1024 1100 1180 1280 1500
+ *                      — fifteen width values, several within 24px of each other
+ *   document portal    600 640 900 960 1080
+ *                      — five, of which two (600, 900) were shared, and both of those only
+ *                        because the two packages ship the same base.css and layout.css
+ *
+ * The same shared component reflowed at a different width in each platform, so no reflow
+ * behaviour could be reasoned about or tested once. Four values now, one meaning each:
+ *
+ *   sm  640   phone            below this, one column and the compact chrome
+ *   md  900   tablet           below this, the sidebar becomes a drawer and the portal nav
+ *                              becomes a menu control
+ *   lg  1200  laptop           below this, two-pane and multi-column layouts collapse
+ *   xl  1536  wide desktop     above this, layouts stop growing and centre
+ *
+ * CSS custom properties cannot be used inside a media query's condition, so these tokens do
+ * not enforce themselves — tests/breakpoint-scale.test.mjs does. It reads every stylesheet in
+ * both packages and fails on any width-based media query that is not one of these four
+ * values. Add a fifth here and to that test, deliberately, or not at all.
+ *
+ * Height and orientation rules are a separate axis and are not governed by this scale.
+ */
+:root {
+  --dgo-bp-sm: 640px;
+  --dgo-bp-md: 900px;
+  --dgo-bp-lg: 1200px;
+  --dgo-bp-xl: 1536px;
+
+  /* The min-width side of each boundary, so a pair of rules cannot overlap by a pixel. */
+  --dgo-bp-sm-up: 641px;
+  --dgo-bp-md-up: 901px;
+  --dgo-bp-lg-up: 1201px;
+  --dgo-bp-xl-up: 1537px;
+}
