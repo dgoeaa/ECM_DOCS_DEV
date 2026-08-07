@@ -504,6 +504,29 @@ package already creates, since the same URLs are in the configuration the browse
 Negative controls: filtering the unwired flows out of the catalogue, or redacting its URLs,
 each fail `tests/packaging.test.mjs`.
 
+### O-23 · The atlas drift test could not see its own generator break — **corrected**
+
+**Severity: medium, and it was my error, found by sweeping rather than by any check.**
+
+Removing Entra deleted `AuthConfig.scopes`. `scripts/visual-docs-data.mjs` still spread it,
+so `npm run visual` died with `TypeError: AuthConfig.scopes is not iterable` — and
+`tests/visual-docs.test.mjs` stayed green throughout, because every assertion in it reads the
+**committed** `docs/visual/platform-data.js` and compares that with the live configuration.
+The committed file kept answering correctly for as long as nothing else changed.
+
+That is the pattern this audit named at the front, occurring inside a control this audit
+itself relies on: **a check reporting success over a narrower scope than the one it claims.**
+"Nothing has drifted" and "nothing was measured" are different findings and the suite could
+not tell them apart.
+
+**Corrected.** The suite now runs the generator as a subprocess and fails if it cannot
+produce a dataset, read-only — `--write` would repair the very drift the suite exists to
+detect. Negative control: restoring the `scopes` spread fails the new assertion by name.
+
+Seven statements in `docs/visual/app.js` were corrected at the same time, each of which
+described a request path or an identity provider this repository no longer ships. They are
+listed under the proxy-residue closure in §4.
+
 ### O-11 · Stale figures in live prose — **closed**
 
 Six documents and two scripts stated 25 routes; there are 29. Historical audits keep their
@@ -590,45 +613,65 @@ single source of truth.**
 | `archive/repo-hygiene-audit` | 49 | Hygiene audit | **Keep as archive.** Narrative recovered into `docs/audits/repository-hygiene/` |
 | `archive/proxy-harness` | 3 | Local proxy harness | **Keep as archive** or retire with `platform/with-proxy` |
 
-### Executing the retirement
+### Executing the retirement — **executed 7 August 2026, four of eight**
 
-**This could not be done from here.** The session's git credentials are scoped to the
-designated working branch: pushing a tag and deleting a branch both return `HTTP 403`,
-verified rather than assumed. The retirement tags were created locally and are listed below
-with the commit each preserves, so the whole disposition is one paste for someone with
-write access.
+The owner performed the deletions. Four branches are gone; four remain. Recorded here as
+fact rather than as instructions, because the instructions have now been partly carried out
+and a document that still reads like a to-do list is a document nobody can use to tell what
+happened.
 
-Tag first. The five branches carry no content `main` lacks — verified by content diff, not
-by commit topology — but `platform/with-proxy` holds 20 commits of a real implementation
-that was withdrawn by decision rather than abandoned, and deleting it without a tag is the
-one irreversible step in this table.
+| Branch | Tip | State | Content verified in `main` |
+|---|---|---|---|
+| `claude/platform-parity-check-xp2028` | `0fa6a88` | **deleted** | Yes — `docs/audits/FRONTEND_REVIEW_PARITY_VERDICT.md` is on `main` and was never on the branch |
+| `claude/platform-commissioning-live-5vnn9n` | `7a84fde` | **deleted** | Yes — the `SCAN_UPLOAD` phantom key is corrected on `main` and a governance assertion guards it |
+| `claude/platform-package-unzip-a0bfbe` | `b175775` | **deleted** | Yes — `tests/package-portability.test.mjs` is on `main` |
+| `platform/no-proxy` | `8c90967` | **deleted** | Yes — it was 0 ahead |
+| `platform/with-proxy` | `3469b2f` | remains | n/a — the rejected architecture, kept nowhere |
+| `archive/proxy-harness` | `fe197ff` | remains | n/a |
+| `archive/forensic-audit-gen1` | `22033ec` | remains | Narrative recovered into `docs/audits/` |
+| `archive/repo-hygiene-audit` | `73d1e0f` | remains | Narrative recovered into `docs/audits/repository-hygiene/` |
+
+**The retirement tags were never applied.** Tagging returns `HTTP 403` from this environment
+— the session's git credentials are scoped to the designated working branch, verified on
+both the tag write and the ref delete, twice, on separate days. So the four deleted tips
+above are preserved by **this table and nothing else**: two of them are still reachable
+through the closed pull requests that carried them (`#12` → `0fa6a88`, `#15` → `7a84fde`),
+and `b175775` and `8c90967` are reachable only by SHA.
+
+That is acceptable and is stated rather than glossed: every one was verified **by content
+diff against `main`, not by commit topology**, before deletion. Nothing unique was lost. But
+if the tips are wanted as refs, they must be tagged from a machine with write access, and
+GitHub will not keep unreachable objects indefinitely:
 
 ```sh
-git tag retired/platform-no-proxy                          8c90967
-git tag retired/platform-with-proxy                        3469b2f
+git tag retired/claude-platform-parity-check-xp2028        0fa6a88
 git tag retired/claude-platform-commissioning-live-5vnn9n  7a84fde
 git tag retired/claude-platform-package-unzip-a0bfbe       b175775
-git tag retired/claude-platform-parity-check-xp2028        0fa6a88
+git tag retired/platform-no-proxy                          8c90967
+git tag retired/platform-with-proxy                        3469b2f
 git push origin --tags
-
-git push origin --delete platform/no-proxy
-git push origin --delete platform/with-proxy
-git push origin --delete claude/platform-commissioning-live-5vnn9n
-git push origin --delete claude/platform-package-unzip-a0bfbe
-git push origin --delete claude/platform-parity-check-xp2028
 ```
 
-The three `archive/*` branches are **kept**, not retired: they are the audit record's own
-provenance, and their narrative content was recovered into `docs/audits/` rather than
-duplicated.
+The four that remain can be deleted at the owner's discretion. `platform/with-proxy` should
+be tagged first — it holds 20 commits of an implementation withdrawn by decision rather than
+abandoned, and deleting it untagged is the one irreversible step here. The three `archive/*`
+branches carry no content `main` lacks; their narrative was recovered into `docs/audits/`.
 
-**Residual from the retired proxy variant:** `scripts/visual-docs-data.mjs` and
-`tests/visual-docs.test.mjs` still branch on `exists('proxy/src')` to render either topology,
-and `docs/visual/app.js` still draws the proxy request pipeline. This is dead code on `main`
-and correct behaviour for a branch that no longer exists. It is recorded rather than removed:
-the generator's dual-variant handling is deliberate, tested, and harmless, and deleting it is
-a decision about whether the proxy variant may ever return — which is the owner's, not this
-audit's.
+### The proxy variant residue — **closed 7 August 2026**
+
+Previously left open as the owner's decision, on the grounds that the generator's
+dual-variant handling was "deliberate, tested and harmless". Two of those three were true.
+
+`scripts/visual-docs-data.mjs` and `tests/visual-docs.test.mjs` already assert the absence of
+a proxy tier correctly, and that stays. What was not harmless was the **prose**: seven
+statements in `docs/visual/app.js` described a request path this repository does not ship —
+configuration "readable by the proxy", a 404 on `config.local.js` because "endpoints may come
+from the proxy instead", a KPI counting proxy test suites that is structurally always zero,
+and an auth paragraph naming an Entra tenant, a client id and a proxy base URL after all
+three had been removed. Each is now either corrected to what is in force or, where it
+explains why there is no proxy, kept deliberately. The one comparison table that contrasts
+"with a proxy" against "here" is retained: it is the record of a decision, not a description
+of the tree.
 
 ---
 
@@ -723,7 +766,10 @@ Recorded because they change conclusions.
    them. See O-21. The lesson recorded here is narrower than the fix: **a validator built on
    a guessed threshold — "longer than 20 is probably fine" — checks nothing when the exact
    figure was available and unused.**
-6. **"17 of 18 endpoints provisioned" was true and misleading.** It counted contract keys
+6. **A green drift test is not evidence its generator runs.** `npm run visual` was broken
+   for the whole of the Entra-removal work and `npm run test:visual` never noticed, because
+   it read the last dataset the generator had successfully written. See O-23.
+7. **"17 of 18 endpoints provisioned" was true and misleading.** It counted contract keys
    against contract keys. Measured against the estate, 16 of 39 available flows were reached
    and 23 were called by nothing, which is the figure an operator preparing to test live
    actually needs. See O-22.

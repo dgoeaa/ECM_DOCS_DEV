@@ -620,7 +620,7 @@
 
       out += '<h3 class="sub">The rules the graph enforces</h3>';
       out += tbl(['Rule', 'Why', 'How it is checked'], [
-        ['<b>config/ imports nothing from core, shared or modules</b>', 'A declaration that imports behaviour is not a declaration. Configuration must be readable by a test, a script and the proxy without booting an app.', '<code>npm run test:imports</code> plus the measured graph — <code>config→*</code> has no edge.'],
+        ['<b>config/ imports nothing from core, shared or modules</b>', 'A declaration that imports behaviour is not a declaration. Configuration must be readable by a test and a build script without booting an app.', '<code>npm run test:imports</code> plus the measured graph — <code>config→*</code> has no edge.'],
         ['<b>modules/ never import each other</b>', 'A module that reaches into a sibling has taken ownership of something it does not own, and the boundary contract stops meaning anything.', 'Measured: <code>modules→shared</code> is ' + (L.edges['modules->shared'] || 0) + ' and there is no <code>modules→modules</code> cross-import edge in the graph.'],
         ['<b>Static graph stays acyclic</b>', 'A cycle means no layer can be built, tested or deleted alone.', '<code>tests/architecture.test.mjs</code> fails on a static cycle — the import gets fixed, not the diagram.'],
         ['<b>The composition root is disclosed</b>', '<code>core/boot.js</code> dynamically imports every module to register it. That is a genuine upward reference and pretending otherwise is the failure these checks exist to catch.', 'The test asserts exactly ' + L.compositionRoot.dynamicModuleImports + ' dynamic module imports — one per route — and that the dynamic graph is <em>not</em> acyclic.']
@@ -629,7 +629,7 @@
       out += '<h3 class="sub" data-aud="dev">Boot sequence</h3>';
       out += '<div class="grid g2" data-aud="dev">' + [
         ['1 · Stylesheet', 'A single <code>@layer</code> entry point, <code>styles/index.css</code>. Six ordered layers replace 19 unordered links.'],
-        ['2 · Runtime config', '<code>config/config.local.js</code> is optional and loaded with <code>onerror</code>. A 404 here is expected — endpoints may come from the proxy instead.'],
+        ['2 · Runtime config', '<code>config/config.local.js</code> is optional and loaded with <code>onerror</code>. A 404 is the unprovisioned case and the platform degrades to demo rather than hanging; a delivered package always carries it.'],
         ['3 · Design-system runtime', '<code>shared/figma-uiux-runtime.js</code> applies theme, density and root attributes before first paint.'],
         ['4 · Composition', '<code>core/boot.js</code> hydrates state, then dynamically imports all ' + L.compositionRoot.dynamicModuleImports + ' modules to register them with the router.'],
         ['5 · Route', 'The router resolves the hash, checks <code>canAccess()</code>, and hands the workspace its slice.'],
@@ -778,7 +778,7 @@
       }));
 
       out += '<h3 class="sub">config/ — declarations only</h3>';
-      out += '<p>' + P.layers.files.config + ' files, ' + n(P.layers.sloc.config) + ' lines, and no behaviour. Configuration is importable by a test, a build script and the proxy without booting an application — which is exactly why the proxy can import the RBAC matrix instead of restating it.</p>';
+      out += '<p>' + P.layers.files.config + ' files, ' + n(P.layers.sloc.config) + ' lines, and no behaviour. Configuration is importable by a test and a build script without booting an application \u2014 which is what lets the packager provision endpoints from the same definition the runtime resolves, instead of restating it.</p>';
       out += tbl(['File', 'Lines', 'Exports'], P.inventory.config.map(function (f) {
         return ['<code>' + h(f.name) + '</code>', '<span class="num">' + f.lines + '</span>',
           '<span class="mono" style="font-size:11px">' + h(f.exports.slice(0, 6).join(' · ') || '—') + (f.exports.length > 6 ? ' <b>+' + (f.exports.length - 6) + '</b>' : '') + '</span>'];
@@ -1039,7 +1039,12 @@
         ['<b>Role</b>', 'Read from local state; editable by the actor.', 'Derived from claims and mapped server-side. A principal carrying several mapped roles gets the most capable one, decided by permission count — not by array order, which the identity provider controls.'],
         ['<b>Unauthenticated caller</b>', 'Reaches every governed action.', 'Cannot reach a governed action at all.']
       ]);
-      out += '<p data-aud="arch dev ops">Provider <code>' + h(s.provider) + '</code>, scopes <code>' + h(s.scopes.join(' ')) + '</code>. Tenant, client and proxy base URL are injected at deploy time and never committed. The full obligations are in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>; Diagnostics reports the live posture inside the running platform.</p>';
+      /* No scopes, no tenant, no client id, no proxy base URL. Identity is OTP_GENERATE and
+         OTP_VERIFY — two Power Automate flows that arrive in the delivered package with
+         every other URL — so activation is a flag rather than a procurement. This sentence
+         named all four until the generator that fed it stopped producing `scopes` and
+         started throwing instead. */
+      out += '<p data-aud="arch dev ops">Provider <code>' + h(s.provider) + '</code> \u2014 a one-time code mailed by <code>OTP_GENERATE</code> and exchanged for a signed expiring proof by <code>OTP_VERIFY</code>. There is no directory to register, no tenant to provision and nothing between the browser and the flow. The full obligations are in <code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>; Diagnostics reports the live posture inside the running platform.</p>';
 
       out += '<h3 class="sub">Role and route matrix</h3>';
       out += '<p>One matrix, one consumer today: the client renders navigation from it. With nothing in front of the flows to authorize against it, RBAC here is <strong>advisory</strong> — which is exactly what the auth posture above reports, and why it says so rather than implying enforcement. Each flow must apply the same matrix for it to become enforcement.</p>';
@@ -1128,10 +1133,9 @@
     note: 'Tests here are written as negative controls wherever they can be: reverting a fix must fail its matching case rather than passing silently. A test that cannot fail is documentation with a green tick.',
     render: function () {
       var q = P.quality, out = '';
-      out += '<div class="grid g4">' +
+      out += '<div class="grid g3">' +
         kpi(q.suites.length, 'npm test suites', 'all gated on every push') +
         kpi(q.ciJobs.length, 'CI jobs', q.ciJobs.map(function (j) { return j.name; }).join(' · ')) +
-        kpi(q.proxyTests.length, 'proxy suites', 'real RSA tokens, signed at run time') +
         kpi(q.playwrightSpecs.length, 'browser specs', 'the app actually booting') +
         '</div>';
       out += '<h3 class="sub">The suites</h3>';
@@ -1141,7 +1145,7 @@
       out += '<h3 class="sub">Continuous integration</h3>';
       out += tbl(['Job', 'What it establishes'], q.ciJobs.map(function (j) {
         var why = {
-          'Module graph': 'Fails fast and gates everything else. This is the check that would have caught 12 config modules imported but never committed — a failure that threw nothing, logged nothing, and shipped as a permanent boot spinner. It also carries the governance, encoding, hardening, auth-posture and proxy suites.',
+          'Module graph': 'Fails fast and gates everything else. This is the check that would have caught 12 config modules imported but never committed — a failure that threw nothing, logged nothing, and shipped as a permanent boot spinner. It also carries the governance, encoding, hardening, packaging and auth-posture suites.',
           'Smoke tests': 'The application actually boots in a real browser and the themes apply. Uploads the Playwright report on failure.',
           'Link check': 'Crawls both entry points. Informational only — it depends on external hosts being reachable, so a flaky CDN cannot block a merge.',
           'Secret scan': 'A ratchet, not a gate: fails on a <em>new</em> signature and reports the already-known ones. Failing on the baselined set would make CI permanently red without improving anything — those need rotation, which no test can perform.'
@@ -1193,7 +1197,7 @@
       out += tbl(['Variable', 'Value', 'What it governs'], w.vars.map(function (v) {
         var why = {
           'DGO_INTAKE_REF_PREFIX': 'The registry reference prefix.',
-          'DGO_UPSTREAM_TIMEOUT_MS': 'How long the proxy waits on a workflow before giving up.',
+          'DGO_UPSTREAM_TIMEOUT_MS': 'How long the intake Worker waits on a workflow before giving up. It applies to the public intake path only \u2014 the operations platform calls its flows directly and has nothing in the middle to time out.',
           'DGO_TRUST_FORWARDED_FOR': 'False on purpose. The edge sets <code>cf-connecting-ip</code>; <code>X-Forwarded-For</code> can be spoofed by the caller, and a rate limiter keyed on a spoofable value is not one.',
           'DGO_REQUIRE_VERIFICATION': 'Email round-trip before a reference is minted. Requires the verify secret; the Worker refuses to serve if this is true without it, rather than taking the public channel offline.',
           'DGO_REQUIRE_DURABLE_REFERENCES': 'Set true once the Durable Object is bound. The Worker then refuses to serve rather than issue a reference it cannot promise is unique — the register being wrong is worse than the channel being down.'
