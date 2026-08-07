@@ -38,6 +38,19 @@ const _pillTone = (text, passed) => {
 };
 export const badge = (text, tone='') => { const t=_pillTone(text,tone); return `<span class="dgo-pill${t?` dgo-pill--${t}`:''}">${esc(text)}</span>`; };
 export const emptyState = (title, body) => `<div class="empty dgo-empty"><h2 class="dgo-empty__title">${esc(title)}</h2><p>${esc(body)}</p></div>`;
+/* I-13 — one empty-state contract. "No official records found." states a fact and stops: it
+   does not say whether the cause is an active filter, an empty queue or a failed load, and
+   it offers nothing to do. During an offline audit every list was empty for the same reason
+   — no data had loaded — and no empty state said so, so an operator would conclude the queue
+   was clear when the platform had failed to reach its data. Three distinct causes, each with
+   one action. */
+export const emptyFor = ({filtered=false, failed=false, loaded=true, noun='records', createLabel='', createAttr='', clearAttr='data-clear-filters'} = {}) => {
+  const act = (label, attr) => label && attr ? `<p><button type="button" class="btn" ${attr}>${esc(label)}</button></p>` : '';
+  if (failed) return `<div class="empty dgo-empty"><h2 class="dgo-empty__title">Could not load ${esc(noun)}</h2><p>The registry could not be reached, so this list is not showing what is there. It is not empty.</p>${act('Try again','data-retry-load')}</div>`;
+  if (filtered) return `<div class="empty dgo-empty"><h2 class="dgo-empty__title">No ${esc(noun)} match these filters</h2><p>There are ${esc(noun)} here, but none match what you have filtered to.</p>${act('Clear filters', clearAttr)}</div>`;
+  if (!loaded) return `<div class="empty dgo-empty"><h2 class="dgo-empty__title">No ${esc(noun)} loaded yet</h2><p>Nothing has been loaded from the registry in this session.</p>${act('Load now','data-retry-load')}</div>`;
+  return `<div class="empty dgo-empty"><h2 class="dgo-empty__title">No ${esc(noun)} yet</h2><p>Nothing has been recorded here.</p>${act(createLabel, createAttr)}</div>`;
+};
 export const chips = (items, active, attr='data-chip') => `<div class="chips">${items.map(i=>`<button type="button" class="chip dgo-chip ${i.value===active?'active':''}" ${attr}="${esc(i.value)}">${esc(i.label)}</button>`).join('')}</div>`;
 export const table = (cols, rows, rowAttr) => rows.length
   ? `<div class="tablewrap dgo-table-wrap"><table class="dgo-table"><thead><tr>${cols.map(c=>`<th>${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr ${rowAttr?rowAttr(r):''}>${cols.map(c=>`<td>${c.render?c.render(r):esc(r[c.key]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`

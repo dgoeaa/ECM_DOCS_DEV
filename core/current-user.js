@@ -18,6 +18,22 @@ export function roleToPersona(role='viewer'){
   return 'general';
 }
 
+/* I-08 / I-19 — a persona is stored as a lowercase slug and was rendered as one in three
+   places: the sidebar identity block, the top-bar persona button and the Administration
+   form. Users read the identity block to confirm they are acting as the right person, and
+   "admin" is a database value, not a role a person recognises as theirs. */
+const PERSONA_LABELS=Object.freeze({admin:'Administrator',executive:'Executive',registry:'Registry Officer',general:'Officer'});
+export function personaLabel(persona=''){
+  const p=String(persona||'').trim();
+  return PERSONA_LABELS[p] || (p ? p.charAt(0).toUpperCase()+p.slice(1) : 'Officer');
+}
+
+/* I-19 — a shared mailbox is not a person, and greeting one by name reads as an error.
+   The bootstrap identity is the registry mailbox; greet the workspace, not the account. */
+export function isSharedAccount(user){
+  return !user || user.pilotCohort==='bootstrap' || /^bootstrap-/.test(String(user.id||''));
+}
+
 export function bootstrapAdmin(profile={}){
   const email=normalizeEmail(profile.email||BOOTSTRAP_ADMIN_EMAIL);
   return {

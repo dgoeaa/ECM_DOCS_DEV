@@ -16,7 +16,7 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-main{flex:1 1 auto}
 .pf-wrap{width:100%;max-width:1220px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px)}
 .pf-wrap--narrow{max-width:920px}
-.pf-wrap--text{max-width:720px}
+.pf-wrap--text{max-width:900px}
 .pf-section{padding-block:clamp(40px,5.5vw,80px)}
 .pf-section--tight{padding-block:clamp(28px,3.5vw,48px)}
 .pf-hr{height:1px;background:var(--dgo-color-border-default);border:0;margin:0}
@@ -40,12 +40,20 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-ribbon b,.pf-ribbon strong,.pf-band b,.pf-band strong,.pf-foot b,.pf-foot strong,.pf-result__head b,.dgo-bulk-bar b,.dgo-bulk-bar strong{color:var(--dgo-color-fg-on-brand)}
 .pf-ribbon a:hover{border-bottom-color:var(--dgo-smart-400);color:var(--dgo-smart-300)}
 .pf-ribbon__end{margin-left:auto;display:flex;align-items:center;gap:18px;flex:none}
-.pf-ribbon__in>span:nth-child(2){min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* The sovereignty statement is a national identity line, so it is never allowed to
+   truncate: a clipped "…the Federal Republic of Niger" names a different country. The
+   short form below 640px is a second authored string, not an ellipsis (P-07). */
+.pf-ribbon__gov{min-width:0}
+.pf-gov-short{display:none}
 
 /* ---- topbar ---- */
 .pf-top{position:sticky;top:0;z-index:var(--dgo-z-sticky);background:var(--dgo-color-surface-page);border-bottom:1px solid var(--dgo-color-border-default)}
 .pf-top__in{display:flex;align-items:center;gap:20px;min-height:68px}
-.pf-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;flex:none}
+/* Every child of the header row must be allowed to compress. Without this, a flex item's
+   automatic minimum size is its content width, the row acquires a floor wider than a phone
+   viewport, and the whole document scrolls sideways on every page (P-01). */
+.pf-top__in>*{min-inline-size:0}
+.pf-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;flex:0 1 auto;min-inline-size:0}
 .pf-brand__mark{width:38px;height:38px;flex:none;object-fit:contain}
 [data-theme="dark"] .pf-brand__mark,[data-theme="dark"] .pf-hero__mark{filter:brightness(0) invert(1)}
 .pf-brand__txt{display:flex;flex-direction:column;min-width:0}
@@ -56,7 +64,7 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-nav a:hover{color:var(--dgo-color-fg-strong);background:var(--dgo-color-surface-muted)}
 .pf-nav a[aria-current="page"]{color:var(--dgo-color-action-primary);font-weight:600}
 .pf-nav a[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--dgo-color-action-accent);border-radius:2px}
-.pf-top__acts{display:flex;align-items:center;gap:6px;flex:none}
+.pf-top__acts{display:flex;align-items:center;gap:6px;flex:none;min-inline-size:0}
 .pf-kbd-trigger{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 12px;border-radius:var(--dgo-radius-control);border:1px solid var(--dgo-color-border-default);background:var(--dgo-color-surface-sunken);color:var(--dgo-color-fg-muted);font-family:var(--dgo-family-sans);font-size:13px;cursor:pointer;transition:border-color var(--dgo-motion-state),color var(--dgo-motion-state)}
 .pf-kbd-trigger:hover{border-color:var(--dgo-color-border-strong);color:var(--dgo-color-fg-default)}
 .pf-kbd-trigger span{min-width:64px;text-align:left}
@@ -66,6 +74,10 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-mobile__in{display:flex;flex-direction:column;padding:10px 0 16px}
 .pf-mobile a{display:flex;align-items:center;gap:10px;padding:12px 4px;min-height:48px;font-family:var(--dgo-family-sans);font-size:15px;font-weight:500;color:var(--dgo-color-fg-default);text-decoration:none;border-bottom:1px solid var(--dgo-color-border-default)}
 .pf-mobile a[aria-current="page"]{color:var(--dgo-color-action-primary)}
+/* V-01 — demonstration-mode notice. Deliberately not dismissible: it qualifies every
+   number on the page, so it stays for as long as the numbers do. */
+.pf-demo-note{padding:10px 24px;background:var(--dgo-color-status-action-bg,#FDF3E3);color:var(--dgo-color-status-action-fg,#7A4B00);border-bottom:1px solid var(--dgo-color-border-default);font-family:var(--dgo-family-sans);font-size:13px;line-height:1.5}
+.pf-mobile__act{display:flex;align-items:center;gap:10px;padding:12px 4px;min-height:48px;width:100%;border:0;background:none;text-align:left;font-family:var(--dgo-family-sans);font-size:15px;font-weight:500;color:var(--dgo-color-fg-default);cursor:pointer}
 
 /* ---- hero ---- */
 .pf-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--dgo-color-border-default);background:var(--dgo-color-surface-page)}
@@ -262,7 +274,7 @@ a:hover{color:var(--dgo-color-fg-link-hover)}
 [hidden]{display:none!important}
 
 /* ---- responsive ---- */
-@media (max-width:1080px){
+@media (max-width:1200px){
   .pf-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pf-rail__item{border-right:1px solid var(--dgo-color-border-default);border-bottom:1px solid var(--dgo-color-border-default)}
   .pf-rail__item:nth-child(2n){border-right:0}
@@ -271,7 +283,7 @@ a:hover{color:var(--dgo-color-fg-link-hover)}
   .pf-flow,.pf-cat{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pf-foot__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
 }
-@media (max-width:960px){
+@media (max-width:900px){
   .pf-two{grid-template-columns:1fr}
 }
 @media (max-width:900px){
@@ -292,6 +304,24 @@ a:hover{color:var(--dgo-color-fg-link-hover)}
   .pf-foot__grid{grid-template-columns:1fr}
   .pf-top__in{min-height:60px}
   .pf-toasts{left:16px;right:16px;max-width:none}
+
+  /* P-01 — below 640px the action cluster is one search icon and the menu control.
+     The keyboard hint is meaningless on a phone and the theme control moves into the
+     mobile drawer, where it has a visible name instead of a bare glyph. */
+  .pf-kbd-trigger{width:36px;padding:0;justify-content:center}
+  .pf-kbd-trigger .dgo-kbd{display:none}
+  #themeBtn{display:none}
+  /* The brand text yields before the document does; the mark and the agency name stay. */
+  .pf-brand__sub{display:none}
+  .pf-brand__name{overflow:hidden;text-overflow:ellipsis}
+  .pf-brand__txt{min-inline-size:0}
+
+  /* P-07 — the full sovereignty line does not fit; show the authored short form, and
+     yield the ribbon's trailing link so even the short form never clips. The link is on
+     every page in the footer, so nothing is lost. */
+  .pf-gov-long{display:none}
+  .pf-gov-short{display:inline}
+  .pf-ribbon__end{display:none}
 }
 
 /* ---- print (submission receipt / request record) ---- */

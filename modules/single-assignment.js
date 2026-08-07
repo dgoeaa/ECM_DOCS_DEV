@@ -44,7 +44,7 @@ function summaryCard(a,draft){
     </tbody></table>
   </aside>`;
 }
-function noSelection(el){ el.innerHTML=`<div class="workspace">${head('Assignment Desk','Select a source matter before creating an assignment.')}<section class="panel"><div class="eyebrow panel-eyebrow">Create task from source</div><div class="source-guidance-grid">${SourceViews.filter(x=>x.id!=='all').map(x=>`<a class="source-guidance-card" href="${x.id==='customer-service-emails'?'#/lookup':'#/activities'}"><b>${x.icon} ${x.label}</b><span class="meta">${x.purpose}</span></a>`).join('')}</div></section><div class="empty"><a class="btn" href="#/activities">Select correspondence</a></div></div>`; }
+function noSelection(el){ el.innerHTML=`<div class="workspace">${head('Assignment Desk','Select a source matter before creating an assignment.')}<section class="panel"><div class="eyebrow panel-eyebrow">Create task from source</div><div class="source-guidance-grid">${SourceViews.filter(x=>x.id!=='all').map(x=>`<a class="source-guidance-card" href="${x.id==='customer-service-emails'?'#/lookup':'#/activities'}"><b><svg class="dgo-icon" aria-hidden="true" focusable="false"><use href="#${x.icon}"></use></svg> ${x.label}</b><span class="meta">${x.purpose}</span></a>`).join('')}</div></section><div class="empty"><a class="btn" href="#/activities">Select correspondence</a></div></div>`; }
 
 // Reusable governed single-assignment cascade form. Renders into `host` and operates on
 // the source item `a` ({id,title,referenceId,...}). Used both by the standalone Assignment

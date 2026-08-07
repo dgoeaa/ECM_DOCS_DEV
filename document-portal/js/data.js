@@ -45,6 +45,11 @@ PF.CONFIG = Object.assign({ endpoints: {} },
 /* ---------------------------------------------------------------
    Status model — four visible stages, seven internal states.
    --------------------------------------------------------------- */
+/* V-04 — this is the governed status vocabulary, shared with the internal platform.
+   The canonical list is config/status-vocabulary.config.js at the repository root; the two
+   are held in step by tests/status-vocabulary.test.mjs, which fails if a label is added,
+   removed or reworded on one side only. The portal's lifecycle is canonical because it is
+   the one published to the public. */
 PF.STATUS = {
   received:          { label: 'Received',        pill: 'pending',  stage: 1, blurb: 'Logged in the registry and queued for validation.' },
   validation:        { label: 'Validation',      pill: 'routed',   stage: 2, blurb: 'Documents are being checked for completeness.' },

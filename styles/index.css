@@ -24,6 +24,7 @@
    theme re-binds (card, input, table, sidebar, command palette) would be silently overridden
    by source order. No static contract asserts this ordering; it is only caught after the fact,
    by tests/tools/cascade-snapshot.mjs reporting the theme re-binds as changed digests. */
+@import url("dgo-design-system/tokens/tokens.breakpoint.css") layer(tokens);
 @import url("dgo-design-system/tokens/tokens.component.css") layer(tokens);
 @import url("dgo-design-system/tokens/tokens.density.css") layer(tokens);
 @import url("dgo-design-system/tokens/tokens.enhanced.css") layer(tokens);

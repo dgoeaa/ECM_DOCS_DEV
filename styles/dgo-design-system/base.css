@@ -138,6 +138,6 @@ code, kbd, samp, pre {
 .dgo-container--content { max-width: var(--dgo-c-content); }
 .dgo-container--full    { max-width: var(--dgo-c-full); }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .dgo-container { padding-inline: var(--dgo-s-4); }
 }

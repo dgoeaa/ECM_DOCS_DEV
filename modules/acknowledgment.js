@@ -34,7 +34,7 @@ function render(el) {
 function bind(el, sel){
   el.querySelectorAll('tbody tr').forEach(tr => tr.onclick = () => { UIState.set('acknowledgment', { selected: tr.dataset.id, md: 'detail' }); render(el); resetDetailScroll(el); });
   el.querySelector('[data-md-back]')?.addEventListener('click', () => { UIState.set('acknowledgment', { md: 'list' }); render(el); });
-  el.querySelectorAll('[data-refresh-data]').forEach(b=>b.addEventListener('click',async()=>{ b.disabled=true; try{ await requestSync({source:'acknowledgment',mode:'deeplink-refresh'}); toast('Runtime data synchronization requested','success'); render(el); }catch(e){ toast(e.message,'error'); }finally{ b.disabled=false; } }));
+  el.querySelectorAll('[data-refresh-data]').forEach(b=>b.addEventListener('click',async()=>{ b.disabled=true; try{ await requestSync({source:'acknowledgment',mode:'deeplink-refresh'}); toast('Refreshing records from the registry','success'); render(el); }catch(e){ toast(e.message,'error'); }finally{ b.disabled=false; } }));
   el.querySelector('[data-retry-ack]')?.addEventListener('click',async e=>{ e.currentTarget.disabled=true; try{ const r=await retryQueuedAcknowledgements(); toast(`Acknowledgement retry complete: ${r.ok} sent, ${r.fail} failed`, r.fail?'error':'success'); render(el); }catch(x){ toast(x.message,'error'); }finally{ e.currentTarget.disabled=false; } });
   el.querySelector('[data-export-receipts]')?.addEventListener('click',()=>downloadText('dgo-acknowledgement-receipts.json', exportAcknowledgementReceipts('json')));
   el.querySelector('[data-export-receipts-csv]')?.addEventListener('click',()=>downloadText('dgo-acknowledgement-receipts.csv', exportAcknowledgementReceipts('csv'), 'text/csv'));

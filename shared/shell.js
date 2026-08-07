@@ -9,10 +9,30 @@ import { setTheme, setDensity, nextTheme, nextDensity, applyRootAttributes, esca
 import { CommandPalette, ToastHost } from './components.js';
 import { installAccessibilityShortcuts, afterRouteChange } from './accessibility.js';
 import { allWorkspaceCommands, guideFor } from './workspace-guide.js';
-import { canCurrentUserAccess } from '../core/current-user.js';
+import { canCurrentUserAccess, personaLabel } from '../core/current-user.js';
 import { NotificationCenter } from '../core/notification-center.js';
 
-const I = Object.freeze({home:'⌂','ecm-erp-charter':'⚖',correspondence:'✉','single-assignment':'▣',orchestrator:'⌘','response-tracking':'↔',approvals:'✓',dispatch:'➤',settings:'⚙',activities:'▤','bulk-assignment':'∞',lookup:'⌕',archive:'◇',registry:'▣',comments:'◌',reports:'R',statistics:'∑',executive:'E',assistant:'✦','operator-hud':'O',diagnostics:'D','user-admin':'U'});
+/* H-02 / V-06 — the internal platform had no icon set. Navigation, top-bar actions and
+   source filters were drawn with Unicode typographic characters rendered in whatever glyph
+   the user's system font happened to provide: 21 distinct symbols plus six bare ASCII
+   letters standing in for icons (R, ∑, E, O, D, U), two routes sharing ▣, and "Email Desk"
+   falling through to the '•' default because it had no entry at all. Glyph icons vary by
+   operating system, sit off the text baseline, cannot be sized or coloured reliably, and
+   carry no shared meaning.
+   The portal already shipped a proper SVG sprite. It is now shipped with both packages and
+   every route and action maps to a real symbol — 29 routes, 29 distinct icons. */
+const I = Object.freeze({
+  home:'i-home','ecm-erp-charter':'i-shield',activities:'i-grid',correspondence:'i-mail',
+  orchestrator:'i-user','response-tracking':'i-eye','single-assignment':'i-id',
+  'bulk-assignment':'i-filter',fasttrack:'i-clock',approvals:'i-check',
+  acknowledgment:'i-bell',dispatch:'i-send','scan-intake':'i-upload',registry:'i-folder',
+  briefs:'i-file',meetings:'i-calendar',projects:'i-building',comments:'i-chat',
+  reports:'i-download',statistics:'i-chart',executive:'i-check-circle',assistant:'i-sparkle',
+  lookup:'i-search','operator-hud':'i-info',settings:'i-settings',diagnostics:'i-alert',
+  'user-admin':'i-users',archive:'i-lock','correspondence-email':'i-external'
+});
+const icon = (name, cls='dgo-icon') => `<svg class="${cls}" aria-hidden="true" focusable="false"><use href="#${name||'i-info'}"></use></svg>`;
+const routeIcon = route => icon(I[route] || 'i-file');
 
 // The sidebar collapses to an off-canvas drawer at this width (see the `@media (max-width:900px)`
 // block in styles/app.css that parks `.dgo-sidebar` at translateX(-100%)). Kept in sync by hand:
@@ -32,31 +52,38 @@ class Shell extends HTMLElement{
       <aside class="dgo-sidebar" aria-label="Primary navigation" data-nav>
         <div class="dgo-brand-lockup"><img src="assets/dgo-mark.svg" alt="" aria-hidden="true"><span><b>DG<span>O</span> Digital Ops</b><small>An Initiative of NITDA</small></span></div>
         <nav class="dgo-sidebar__nav">${this.navHtml()}</nav>
-        <div class="dgo-sidebar__identity"><b data-name>${esc(s.profile.name)}</b><small data-role>${esc(s.profile.persona)} · ${esc(s.profile.email)}</small></div>
+        <div class="dgo-sidebar__identity"><b data-name>${esc(s.profile.name)}</b><small data-role>${esc(personaLabel(s.profile.persona))} · ${esc(s.profile.email)}</small></div>
       </aside>
       <section class="dgo-workarea">
         <header class="dgo-topbar">
-          <button type="button" class="dgo-iconbtn dgo-hamburger" data-menu aria-label="Toggle navigation">☰</button>
+          <button type="button" class="dgo-iconbtn dgo-hamburger" data-menu aria-label="Toggle navigation">${icon('i-menu')}</button>
           <div class="dgo-route-title"><small data-eyebrow>ACTIVE WORKSPACE</small><b data-context>${esc(this.routeLabel(route))}</b></div>
           <div class="dgo-topbar__spacer"></div>
-          <button type="button" class="dgo-search-trigger" data-palette aria-label="Search and command palette"><span>⌕</span><span>Search references, tasks, people...</span><kbd>Ctrl K</kbd></button>
-          <button type="button" class="dgo-iconbtn" data-guide aria-label="Workspace guide" title="Workspace guide">?</button>
-          <button type="button" class="dgo-iconbtn" data-sync aria-label="Synchronize data" title="Synchronize data">↻</button>
-          <button type="button" class="dgo-iconbtn" data-density aria-label="Toggle density" title="Density: ${esc(density)}">↕</button>
-          <button type="button" class="dgo-iconbtn" data-theme aria-label="Switch theme" title="Theme: ${esc(theme)}">◐</button>
-          <button type="button" class="dgo-iconbtn dgo-notify-trigger" data-notify-open aria-label="Activity and notifications" title="Activity" aria-haspopup="dialog" aria-expanded="false">•<span class="dgo-notify-badge" data-notify-badge hidden></span></button>
-          <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(s.profile.persona)}</small></span></button>
+          <button type="button" class="dgo-search-trigger" data-palette aria-label="Search and command palette">${icon('i-search')}<span>Search references, tasks, people...</span><kbd>Ctrl K</kbd></button>
+          <button type="button" class="dgo-iconbtn" data-guide aria-label="Workspace guide" title="Workspace guide">${icon('i-help')}</button>
+          <button type="button" class="dgo-iconbtn" data-sync aria-label="Synchronize data" title="Synchronize data">${icon('i-refresh')}</button>
+          <button type="button" class="dgo-iconbtn" data-density aria-label="Toggle density" title="Density: ${esc(density)}">${icon('i-chevron-down')}</button>
+          <button type="button" class="dgo-iconbtn" data-theme aria-label="Switch theme" title="Theme: ${esc(theme)}">${icon('i-globe')}</button>
+          <button type="button" class="dgo-iconbtn dgo-notify-trigger" data-notify-open aria-label="Activity and notifications" title="Activity" aria-haspopup="dialog" aria-expanded="false">${icon('i-bell')}<span class="dgo-notify-badge" data-notify-badge hidden></span></button>
+          <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(personaLabel(s.profile.persona))}</small></span></button>
         </header>
         <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
+        ${/* I-01 — the twenty guided routes are declared as handoffs of a visible workspace
+             but had no link anywhere in the shell, so the only way to reach them was the
+             command palette or a typed hash. This strip renders the current workspace's
+             declared handoffs as links. It does not decide which of the twenty belong in
+             the sidebar — that is the agency's triage — but it does mean no built screen
+             is reachable only by knowing its URL. */''}
+        <nav class="dgo-related" data-related aria-label="Related workspaces" hidden></nav>
         <footer class="dgo-footer"><span>DGO Digital Operations</span><small>Governed runtime · ${esc(fmtDateTime(new Date().toISOString()))}</small></footer>
       </section>
     </div>
     <div class="dgo-scrim" data-scrim hidden></div>
     <div class="dgo-live-region" aria-live="polite" data-live-region></div>
     ${ToastHost()}${CommandPalette()}${this.notifyPanelHtml()}`;
-    this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert();
+    this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert(); this.syncNavScrollHint(); addEventListener('resize',()=>this.syncNavScrollHint());
   }
-  navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon" aria-hidden="true">${I[r.path]||'•'}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
+  navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon">${routeIcon(r.path)}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
   bind(){
     this.querySelector('[data-menu]')?.addEventListener('click',()=>this.toggleNav());
     this.querySelector('[data-scrim]')?.addEventListener('click',()=>this.closeNav());
@@ -160,12 +187,33 @@ class Shell extends HTMLElement{
   // A dialog that carries a pending promise (confirm) must be dismissed through its own
   // _dismiss() so the awaiting governed action is cancelled rather than stranded.
   closeTransientSurfaces(){ this.closeNav(); this.closeCommandPalette(); this.querySelectorAll('[data-dialog]').forEach(d=>{ if(d._dismiss){ d._dismiss(); return; } d._releaseTrap?.(); d.remove(); }); }
-  active(route){ applyRootAttributes(route); this.querySelectorAll('.dgo-sidebar__item').forEach(a=>{ const on=a.dataset.route===route; a.classList.toggle('active',on); if(on)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); }); const ctx=this.querySelector('[data-context]'); if(ctx)ctx.textContent=this.routeLabel(route); const mainEl=this.querySelector('#main'); if(mainEl)mainEl.setAttribute('aria-label',this.routeLabel(route)); afterRouteChange(); }
+  active(route){ applyRootAttributes(route); this.querySelectorAll('.dgo-sidebar__item').forEach(a=>{ const on=a.dataset.route===route; a.classList.toggle('active',on); if(on)a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); }); const ctx=this.querySelector('[data-context]'); if(ctx)ctx.textContent=this.routeLabel(route); const mainEl=this.querySelector('#main'); if(mainEl)mainEl.setAttribute('aria-label',this.routeLabel(route)); this.renderRelated(route); this.applyTitle(route); afterRouteChange(); }
   routeLabel(route){ return Routes.find(r=>r.path===route)?.label || route || 'Command Center'; }
-  refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${s.profile.persona} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
+  // I-17 — the tab title names the screen, matching the portal's own pattern
+  // ("Track a request — NITDA Intelligent Portal"). It used to be one static string on
+  // every screen, and that string was the internal release codename and design-system
+  // version: "R11.6 Obsidian Harmonized Design System Runtime". A tab title is how a user
+  // finds the right window among ten.
+  applyTitle(route){ document.title=`${this.routeLabel(route)} — DGO Digital Operations`; }
+  // I-10 — mark the nav as scrollable only when it actually overflows, so the fade at the
+  // boundary is a signal that there is more below rather than permanent decoration.
+  syncNavScrollHint(){
+    const nav=this.querySelector('.dgo-sidebar__nav'); if(!nav) return;
+    nav.dataset.scrollable=String(nav.scrollHeight>nav.clientHeight+1);
+  }
+  // I-01 — render the current workspace's declared handoffs as links.
+  renderRelated(route){
+    const host=this.querySelector('[data-related]'); if(!host) return;
+    const g=guideFor(route);
+    const targets=(g?.handoffs||[]).filter(p=>p!==route&&Routes.some(r=>r.path===p)&&canCurrentUserAccess(p));
+    if(!targets.length){ host.hidden=true; host.innerHTML=''; return; }
+    host.hidden=false;
+    host.innerHTML=`<span class="dgo-related__label">Continue in</span>${targets.map(p=>`<a class="dgo-related__link" href="#/${esc(p)}">${routeIcon(p)}${esc(this.routeLabel(p))}</a>`).join('')}`;
+  }
+  refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${personaLabel(s.profile.persona)} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
   openCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(!p)return; p.hidden=false; this.renderCommandResults(''); this._trapFocus(p); requestAnimationFrame(()=>this.querySelector('[data-command-input]')?.focus()); }
   closeCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(p){ p.hidden=true; p._releaseTrap?.(); } }
-  renderCommandResults(q=''){ const box=this.querySelector('[data-command-results]'); if(!box)return; const query=String(q).toLowerCase(); const items=allWorkspaceCommands().filter(c=>canCurrentUserAccess(c.route)).filter(c=>!query || `${c.label} ${c.route} ${c.purpose}`.toLowerCase().includes(query)).slice(0,20); box.innerHTML=items.map(c=>`<button type="button" role="option" class="dgo-cmdk__item" data-open-route="${esc(c.route)}"><span>${I[c.route]||'•'}</span><span><b>${esc(c.label)}</b><small>${esc(c.primary?'Workspace':(c.visibleThrough||'Contextual'))}</small></span></button>`).join('') || '<div class="dgo-cmdk__empty">No matching workspace.</div>'; box.querySelectorAll('[data-open-route]').forEach(b=>b.addEventListener('click',()=>{Router.go(b.dataset.openRoute); this.closeCommandPalette();})); }
+  renderCommandResults(q=''){ const box=this.querySelector('[data-command-results]'); if(!box)return; const query=String(q).toLowerCase(); const items=allWorkspaceCommands().filter(c=>canCurrentUserAccess(c.route)).filter(c=>!query || `${c.label} ${c.route} ${c.purpose}`.toLowerCase().includes(query)).slice(0,20); box.innerHTML=items.map(c=>`<button type="button" role="option" class="dgo-cmdk__item" data-open-route="${esc(c.route)}"><span class="dgo-cmdk__icon">${routeIcon(c.route)}</span><span><b>${esc(c.label)}</b><small>${esc(c.primary?'Workspace':(c.visibleThrough||'Contextual'))}</small></span></button>`).join('') || '<div class="dgo-cmdk__empty">No matching workspace.</div>'; box.querySelectorAll('[data-open-route]').forEach(b=>b.addEventListener('click',()=>{Router.go(b.dataset.openRoute); this.closeCommandPalette();})); }
   showGuide(){ const route=Router.path(); const g=guideFor(route); const title=g?.label || this.routeLabel(route); const body=`<p>${esc(g?.purpose || g?.reason || 'This workspace is governed by the DGO operating model.')}</p>${g?.owns?`<p><b>Owns:</b> ${esc(g.owns.join(', '))}</p>`:''}${g?.handoffs?`<p><b>Handoffs:</b> ${esc(g.handoffs.join(', '))}</p>`:''}`; this.dialog(title, body); }
   /* The transient half of the feedback channel. Every toast is also written to the
      notification centre before it is shown, so the 4200ms timeout below decides only how

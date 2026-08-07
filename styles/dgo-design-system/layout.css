@@ -59,7 +59,7 @@
   .dgo-grid--3, .dgo-grid--4, .dgo-grid--6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dgo-grid--12 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .dgo-grid--2, .dgo-grid--3, .dgo-grid--4, .dgo-grid--6 { grid-template-columns: 1fr; }
   .dgo-grid--12 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

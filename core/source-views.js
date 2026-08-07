@@ -49,7 +49,8 @@ export function sourceCounts(items=[]){
 }
 export function sourceFilterChips(active=SourceViewAll, attr='data-source-view', items=null){
   const counts = Array.isArray(items) ? sourceCounts(items) : null;
-  return `<section class="source-view-switcher" aria-label="Filter by ingestion source"><div class="eyebrow panel-eyebrow">Source view</div><div class="chips source-view-chips">${SourceViews.map(s=>`<button type="button" class="chip dgo-chip source-chip ${s.id===active?'active':''}" ${attr}="${escapeHtml(s.id)}" title="${escapeHtml(s.purpose)}"><span class="source-icon">${escapeHtml(s.icon)}</span><span>${escapeHtml(s.short)}</span>${counts?`<b>${counts[s.id]||0}</b>`:''}</button>`).join('')}</div></section>`;
+  return `<section class="source-view-switcher" aria-label="Filter by ingestion source"><div class="eyebrow panel-eyebrow">Source view</div><div class="chips source-view-chips">${SourceViews.map(s=>`<button type="button" class="chip dgo-chip source-chip ${s.id===active?'active':''}" ${attr}="${escapeHtml(s.id)}" title="${escapeHtml(s.purpose)}"><span class="source-icon">${srcIcon(s.icon)}</span><span>${escapeHtml(s.short)}</span>${counts?`<b>${counts[s.id]||0}</b>`:''}</button>`).join('')}</div></section>`;
 }
-export function sourceBadge(item){ const s=sourceView(inferSourceId(item)); return `<span class="pill dgo-pill source-badge" title="${escapeHtml(s.purpose)}">${escapeHtml(s.icon)} ${escapeHtml(s.short)}</span>`; }
+const srcIcon = n => /^i-[a-z-]+$/.test(String(n||'')) ? `<svg class="dgo-icon" aria-hidden="true" focusable="false"><use href="#${n}"></use></svg>` : '';
+export function sourceBadge(item){ const s=sourceView(inferSourceId(item)); return `<span class="pill dgo-pill source-badge" title="${escapeHtml(s.purpose)}">${srcIcon(s.icon)} ${escapeHtml(s.short)}</span>`; }
 export function sourceViewSummary(sourceId=SourceViewAll){ const s=sourceView(sourceId); return `${s.label}: ${s.purpose}`; }

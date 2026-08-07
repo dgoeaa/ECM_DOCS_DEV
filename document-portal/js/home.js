@@ -15,10 +15,13 @@ PF.page = function () {
     return '<div><div class="pf-mono" style="font-size:26px;font-weight:600;line-height:1;color:' + tone + '">' + v + '</div>' +
       '<div style="margin-top:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dgo-color-fg-muted)">' + l + '</div></div>';
   }
+  /* P-04 / V-03 — a tile whose value is unavailable is not rendered as a zero. With nothing
+     closed there is no on-time rate, and publishing one ("0% on time", or the old 100%
+     fallback) is a claim about the agency's performance that no measurement supports. */
   PF.$('#liveCounts').innerHTML =
     tile(m.open, 'In progress', 'var(--dgo-color-fg-strong)') +
     tile(m.action, 'Action needed', 'var(--dgo-color-status-action-fg)') +
-    tile(m.onTimeRate + '%', 'On time', 'var(--dgo-color-action-accent)');
+    (m.onTimeRate === null ? '' : tile(m.onTimeRate + '%', 'On time', 'var(--dgo-color-action-accent)'));
 
   /* ---- where the register currently stands ----
      This panel used to list PF.store.all() — every record, newest first, each row carrying a
@@ -63,14 +66,21 @@ PF.page = function () {
   }
 
   /* ---- headline statistics (counted up) ---- */
+  /* P-04 — the tile renders its real value, and the count-up animates over the top of it.
+     It used to render a literal 0 and only reach the true number when an
+     IntersectionObserver fired at 40% visibility, so anyone who did not scroll — or who
+     printed, screenshotted or crawled the page — read "0 requests in the registry, 0
+     correspondence types" on the front door of the agency's document service. An
+     enhancement must not be the only path to the truth. Unavailable values are dropped
+     rather than rendered as zero (V-03). */
   var stats = [
     { v: m.total, l: 'Requests in the registry' },
     { v: m.onTimeRate, l: 'Closed within target', suffix: '%' },
     { v: PF.CORRESPONDENCE_TYPES.length, l: 'Correspondence types' },
     { v: m.week, l: 'Received in the last 7 days' }
-  ];
-  PF.$('#heroStats').innerHTML = stats.map(function (s, i) {
-    return '<div><div class="pf-stat__v" data-count="' + s.v + '" data-suffix="' + (s.suffix || '') + '">0' + (s.suffix || '') + '</div><div class="pf-stat__l">' + s.l + '</div></div>';
+  ].filter(function (s) { return s.v !== null && s.v !== undefined; });
+  PF.$('#heroStats').innerHTML = stats.map(function (s) {
+    return '<div><div class="pf-stat__v" data-count="' + s.v + '" data-suffix="' + (s.suffix || '') + '">' + s.v + (s.suffix || '') + '</div><div class="pf-stat__l">' + s.l + '</div></div>';
   }).join('');
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -54,8 +54,12 @@ PF.page = function () {
       for (var i = 0; i < n.length; i++) n[i].checked = (n[i].value === v);
     } else n.value = v;
   }
-  function err(id, msg) {
-    var p = PF.$('#' + id + '-err'), f = PF.$('#' + id);
+  function err(id, msg, fieldId) {
+    /* fieldId is separate from id because a radio group has no element carrying the group
+       name: the choices are radios named "service" inside #serviceList. Resolving both
+       from one id meant step 1 wrote its message but flagged nothing — no aria-invalid,
+       and nothing for focus to land on (P-03, V-07). */
+    var p = PF.$('#' + id + '-err'), f = PF.$('#' + (fieldId || id));
     if (!p) return;
     if (msg) { p.textContent = msg; p.hidden = false; if (f) f.setAttribute('aria-invalid', 'true'); }
     else { p.hidden = true; p.textContent = ''; if (f) f.removeAttribute('aria-invalid'); }
@@ -68,7 +72,7 @@ PF.page = function () {
     clearErrors();
     var bad = [];
     if (n === 1) {
-      if (!val('service')) { err('service', 'Choose the kind of correspondence you are submitting.'); bad.push('serviceList'); }
+      if (!val('service')) { err('service', 'Choose the kind of correspondence you are submitting.', 'serviceList'); bad.push('serviceList'); }
     }
     if (n === 2) {
       if (val('name').length < 2) { err('name', 'Enter the full name of the person submitting.'); bad.push('name'); }
@@ -291,7 +295,9 @@ PF.page = function () {
         '<dt>Subject</dt><dd>' + PF.esc(val('title')) + '</dd>' +
         '<dt>From</dt><dd>' + PF.esc(val('name')) + ' · ' + PF.esc(val('org')) + '</dd>' +
         '<dt>Notifications to</dt><dd>' + PF.esc(val('email')) + '</dd>' +
-        '</dl><p class="pf-note" style="margin-top:12px">A tracking ID is issued the moment the registry accepts the record.</p>'
+        /* V-02 — the ID is minted locally, before the registry has seen anything. Saying
+           otherwise set the expectation the old receipt then confirmed falsely. */
+        '</dl><p class="pf-note" style="margin-top:12px">A tracking ID is issued as soon as your submission is recorded. The receipt then tells you whether it reached the registry.</p>'
     }).then(function (ok) { if (ok) doSubmit(); });
   }
 
@@ -357,17 +363,20 @@ PF.page = function () {
       .catch(function () { return ''; });
   }
 
+  /* Returns a promise for the delivery state — 'delivered', 'queued' or 'held' — because the
+     receipt is not entitled to claim an outcome it has not observed (V-02). It used to
+     return nothing, and the caller told the citizen "Submission received" either way. */
   function dispatchToWorkflow(rec) {
     if (!PF.backendConfigured()) {
       PF.store.log('integration', rec.id, 'No registry endpoint configured — submission held locally');
-      return;
+      return Promise.resolve('held');
     }
 
     /* Declare a digest per attachment so the upload flow can verify that what arrives is what
        was described. Files restored from a draft have no bytes and are declared without
        one — they are reported as undelivered below rather than silently skipped. */
     var withBytes = files.filter(function (f) { return f && f.file; });
-    Promise.all(withBytes.map(function (f) { return digestOf(f.file); }))
+    return Promise.all(withBytes.map(function (f) { return digestOf(f.file); }))
       .then(function (digests) {
         var declared = withBytes.map(function (f, i) {
           return { name: f.name, size: f.size, sha256: digests[i] || '' };
@@ -388,7 +397,7 @@ PF.page = function () {
           attachments: declared,
           submittedAt: rec.submittedAt
         }).then(function (res) {
-          if (!res.delivered) return;
+          if (!res.delivered) return 'queued';
 
           /* The registry reference supersedes the local id. Recording it is what makes a
              later status lookup possible at all — a local id means nothing to the registry. */
@@ -401,11 +410,13 @@ PF.page = function () {
             PF.store.log('integration', res.referenceId || rec.id,
               missing.length + ' attachment(s) could not be sent — bytes were not available after a draft restore');
           }
-          return uploadAll(res.uploads || [], withBytes, res.referenceId || rec.id);
+          return Promise.resolve(uploadAll(res.uploads || [], withBytes, res.referenceId || rec.id))
+            .then(function () { return 'delivered'; });
         });
       })
       .catch(function () {
         PF.store.log('integration', rec.id, 'Submission could not be prepared — queued for delivery');
+        return 'queued';
       });
   }
 
@@ -457,7 +468,7 @@ PF.page = function () {
     };
     PF.store.add(rec);
     PF.store.draft.clear();
-    dispatchToWorkflow(rec);
+    var delivery = dispatchToWorkflow(rec);
 
     PF.$('#uploadPanel').hidden = true;
     form.hidden = true;
@@ -471,8 +482,8 @@ PF.page = function () {
       '<div class="pf-print-head" style="margin-bottom:18px"><img src="ds/logo/nitda-lockup.png" alt="National Information Technology Development Agency" style="height:56px"><p style="margin:10px 0 0;font-size:12px">Submission receipt · generated ' + PF.dateTime(rec.submittedAt) + '</p></div>' +
       '<div class="pf-result">' +
         '<div class="pf-result__head"><span class="pf-result__ic"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg></span>' +
-        '<div><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:24px;line-height:1.15">Submission received</h2>' +
-        '<p style="margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.78);max-width:52ch">' + PF.esc(rec.typeLabel) + ' has been logged with the ' + PF.esc(rec.unit) + ' unit. A confirmation is on its way to ' + PF.esc(rec.email) + '.</p></div></div>' +
+        '<div><h2 style="margin:0;font-family:var(--dgo-family-display);font-size:24px;line-height:1.15" id="resultTitle">Submission recorded</h2>' +
+        '<p style="margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.78);max-width:52ch" id="deliveryState">' + PF.esc(rec.typeLabel) + ' is being sent to the registry…</p></div></div>' +
         '<div style="padding:22px;display:grid;gap:20px;background:var(--dgo-color-surface-raised)">' +
           '<div class="pf-idplate"><div style="flex:1"><div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dgo-color-fg-muted);margin-bottom:6px">Your tracking ID</div><code>' + rec.id + '</code></div>' +
           '<button class="dgo-btn dgo-btn--secondary dgo-btn--sm pf-no-print" id="copyId"><svg class="icon-sm" aria-hidden="true"><use href="#i-id"></use></svg>Copy</button></div>' +
@@ -495,9 +506,41 @@ PF.page = function () {
         '</div>' +
       '</div>';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    PF.toast('success', 'Submission received', 'Tracking ID ' + rec.id, 9000);
     PF.$('#copyId').addEventListener('click', function () { PF.copy(rec.id, 'Tracking ID ' + rec.id + ' copied.'); });
     PF.$('#printBtn').addEventListener('click', function () { window.print(); });
+
+    /* V-02 — the receipt states what actually happened. It used to say "Submission
+       received" and fire a success toast on the local write alone, so a citizen whose
+       document never left the browser was told the registry had it, given a tracking ID,
+       and sent to a tracking page that resolved that ID against the local store. The
+       outcome is now reported only once dispatch has been observed, and each state names
+       the next action rather than an internal cause. */
+    var OUTCOME = {
+      delivered: {
+        title: 'Submission received',
+        note: PF.esc(rec.typeLabel) + ' has been delivered to the registry. A confirmation is on its way to ' + PF.esc(rec.email) + '.',
+        toast: ['success', 'Submission received', 'Tracking ID ' + rec.id]
+      },
+      queued: {
+        title: 'Saved — not yet delivered',
+        note: 'We could not reach the registry. Your submission is saved and will be sent automatically — do not submit it again. '
+            + 'If no confirmation reaches ' + PF.esc(rec.email) + ' within one working day, contact the helpdesk quoting this tracking ID and the time above.',
+        toast: ['warn', 'Saved — not yet delivered', 'We could not reach the registry. Your submission will be sent automatically.']
+      },
+      held: {
+        title: 'Saved on this device only',
+        note: 'This portal is not connected to the registry, so your submission has not been sent. '
+            + 'It is saved in this browser only. Contact the helpdesk quoting the date and time above, or use the walk-in registry.',
+        toast: ['error', 'Not sent to the registry', 'This portal is not connected. Your answers are saved on this device.']
+      }
+    };
+    Promise.resolve(delivery).catch(function () { return 'queued'; }).then(function (state) {
+      var o = OUTCOME[state] || OUTCOME.queued;
+      var title = PF.$('#resultTitle'), note = PF.$('#deliveryState');
+      if (title) title.textContent = o.title;
+      if (note) note.innerHTML = o.note;
+      PF.toast(o.toast[0], o.toast[1], o.toast[2], 9000);
+    });
   }
 
   /* ---------- boot ---------- */

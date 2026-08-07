@@ -27,6 +27,10 @@ const PORTAL_TOKENS = 'document-portal/ds/tokens';
 
 /** Files that must be identical in both trees. */
 const SHARED = [
+  // H-01 — the agreed breakpoint scale. Shared because the whole point of it is that the
+  // same component reflows at the same width in both platforms; a copy that drifts is the
+  // defect this file was created to end.
+  'tokens.breakpoint.css',
   'tokens.primitive.css',
   'tokens.semantic.css',
   'tokens.component.css',

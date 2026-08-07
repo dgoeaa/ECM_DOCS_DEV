@@ -103,16 +103,19 @@ test.describe('registry scan intake', () => {
     await withoutScanEndpoint(page);
     await openWorkspace(page);
     const text = await page.textContent('.workspace');
-    expect(text).toMatch(/Deposit unavailable/);
-    /* Assert the substance, not the sentence — and variant-agnostically. One platform
-       variant is unavailable because no proxy is configured, this one because no scan
-       endpoint is; what both must do is name WHAT is missing and WHICH setting fixes it.
-       An earlier version pinned one phrase of the copy and broke when it was reworded,
-       while the behaviour was never in question. */
-    expect(text, 'the reason must be stated, not merely the symptom')
-      .toMatch(/No (?:proxy|scan endpoint) is configured/);
-    expect(text, 'and it must name the setting that fixes it')
-      .toMatch(/proxyBaseUrl|SCAN_INTAKE/);
+    /* Assert the substance, not the sentence. This test used to require the screen to name
+       the setting that fixes it — `SCAN_INTAKE` in `config/config.local.js` — and that is
+       exactly what design-audit finding I-05 objected to: a registry clerk is given a
+       developer instruction they have no way to act on. The contract inverted. The screen
+       must still say the deposit is unavailable and why, but the remedy it offers has to be
+       one the person reading it can carry out, and the configuration key belongs on the
+       IT-only System health screen instead. See docs/audits/DESIGN_AUDIT_BRIEF_ASSESSMENT.md. */
+    expect(text, 'the state must be named, not merely implied')
+      .toMatch(/not switched on|unavailable|not configured/i);
+    expect(text, 'the operator must be told what to do about it')
+      .toMatch(/Contact IT support/i);
+    expect(text, 'and must not be handed a configuration key they cannot act on')
+      .not.toMatch(/SCAN_INTAKE|config\.local\.js|DGO_CONFIG|proxyBaseUrl/);
     await expect(page.locator('[data-files]')).toBeDisabled();
   });
 

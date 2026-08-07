@@ -124,7 +124,24 @@
     return d.toISOString();
   }
 
+  /* V-01 — the sixteen seed records exist to make a demonstration deployment readable.
+     They are not registry activity, and every public figure on the front door is computed
+     from PF.store.all(): the "9 in progress", the "2 action needed", the status mix, the
+     per-type counts. Installing them unconditionally meant a live deployment published
+     invented statistics — with plausible submitter names, employers and officer
+     assignments — to every citizen who opened the page.
+
+     They now install only in demo mode, which config.example.js already defines as "no
+     SUBMISSION endpoint configured": the same condition under which the portal transmits
+     nothing and holds everything locally. A configured deployment starts with an empty
+     register and says so, which is what a registry can honestly publish on day one. */
+  PF.demoMode = function () {
+    var endpoints = (PF.CONFIG && PF.CONFIG.endpoints) || {};
+    return !String(endpoints.SUBMISSION || '').trim();
+  };
+
   function install() {
+    if (!PF.demoMode()) { write(K.recs, []); return []; }
     var out = PF.SEEDS.map(function (s, i) {
       var ct = PF.correspondenceType(s.type);
       var submitted = agoISO(s.days, i + 3);
@@ -187,7 +204,7 @@
     tickets: function () {
       var t = read(K.tick, null);
       if (!t) {
-        t = (PF.SUPPORT_SEEDS || []).map(function (s, i) {
+        t = (PF.demoMode() ? (PF.SUPPORT_SEEDS || []) : []).map(function (s, i) {
           var topic = (PF.SUPPORT_TOPICS.filter(function (x) { return x.key === s.topic; })[0] || PF.SUPPORT_TOPICS[0]);
           return {
             ref: s.ref, topic: s.topic, topicLabel: topic.label, name: s.name, email: s.email,
@@ -537,7 +554,10 @@
       if ((now - new Date(r.submittedAt)) / 86400000 <= 7) m.week++;
       if (!PF.isOpen(r)) { m.closed++; if (new Date(r.updatedAt) <= new Date(r.ackDueAt)) m.onTime++; }
     });
-    m.onTimeRate = m.closed ? Math.round((m.onTime / m.closed) * 100) : 100;
+    /* V-03 — null, not 100. With nothing closed there is no on-time rate to state, and the
+       old fallback published a perfect score to the public on an empty register. Every
+       caller suppresses the tile rather than rendering a number nobody measured. */
+    m.onTimeRate = m.closed ? Math.round((m.onTime / m.closed) * 100) : null;
     m.clearanceRate = (m.approved + m.declined) ? Math.round((m.approved / (m.approved + m.declined)) * 100) : 0;
     return m;
   };
@@ -838,6 +858,31 @@
     var nojs = PF.$('#nojs');
     if (nojs) nojs.remove();
 
+    /* V-01 — if this build is running on demonstration records, every figure it publishes
+       says so. A citizen must never mistake seeded counts for registry activity. */
+    if (PF.demoMode() && !PF.$('#demoNote')) {
+      var note = document.createElement('div');
+      note.id = 'demoNote';
+      note.className = 'pf-demo-note';
+      note.setAttribute('role', 'note');
+      note.innerHTML = '<b>Demonstration mode.</b> This portal is not connected to the registry. '
+        + 'Figures on this site are sample data, and nothing you submit is transmitted.';
+      var top = PF.$('.pf-top');
+      if (top && top.parentNode) top.parentNode.insertBefore(note, top.nextSibling);
+    }
+
+    /* P-05 — the footer submit list is rendered from the catalogue, not authored per page.
+       It had drifted: four pages published "Regulatory or compliance filing" in the third
+       slot and submit.html published "Proposal or EOI", an abbreviation of a name the
+       catalogue spells out. A list built from one source cannot disagree with itself, and
+       the six-or-eight question does not arise because the catalogue answers it. */
+    var footSubmit = PF.$('#footSubmit');
+    if (footSubmit) {
+      footSubmit.innerHTML = PF.CORRESPONDENCE_TYPES.map(function (t) {
+        return '<li><a href="submit.html?type=' + encodeURIComponent(t.key) + '">' + PF.esc(t.label) + '</a></li>';
+      }).join('');
+    }
+
     /* current page nav state */
     var page = document.body.getAttribute('data-page');
     PF.$$('[data-nav]').forEach(function (a) {
@@ -859,6 +904,21 @@
 
     var tb = PF.$('#themeBtn');
     if (tb) tb.addEventListener('click', PF.theme.cycle);
+
+    /* P-01 — the header action cluster collapses below 640px and the theme control goes
+       with it. It reappears here, inside the mobile drawer, where it can carry a visible
+       name. Injected rather than authored into five pages so the drawer cannot drift
+       between them the way the footer submit list did (P-05). */
+    var drawer = PF.$('.pf-mobile__in');
+    if (drawer && !PF.$('#themeBtnMobile')) {
+      var mt = document.createElement('button');
+      mt.id = 'themeBtnMobile';
+      mt.type = 'button';
+      mt.className = 'pf-mobile__act';
+      mt.textContent = 'Change theme';
+      mt.addEventListener('click', PF.theme.cycle);
+      drawer.appendChild(mt);
+    }
     var kb = PF.$('#cmdkBtn');
     if (kb) kb.addEventListener('click', function () { PF.cmdk.open(); });
 

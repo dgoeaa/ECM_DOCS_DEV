@@ -3,6 +3,7 @@ import { State } from '../core/state.js';
 import { status } from '../core/domain.js';
 import { head, kpis, esc } from '../core/ui.js';
 import { VisibleWorkspaces } from '../config/workflow-clarity.config.js';
+import { getCurrentUser, isSharedAccount } from '../core/current-user.js';
 function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening'}
 export async function mount(el){hydrateGovernance();render(el);}
 function card(w, count='', note='', priority='normal'){
@@ -10,7 +11,7 @@ function card(w, count='', note='', priority='normal'){
   return `<a class="panel action-card cc-action ${priority==='primary'?'cc-primary-action':''}" href="#/${w.route}" data-cc-card="${esc(w.id)}"><div><div class="eyebrow">${esc(w.group)}</div><h2>${esc(w.label)}</h2><p>${esc(note||w.purpose)}</p></div>${count!==''?`<b class="kpi-inline">${esc(count)}</b>`:''}</a>`
 }
 function render(el){const s=State.get();const open=s.activities.filter(a=>!['Treated','Processed'].includes(status(a)));const unassigned=s.activities.filter(a=>!a.assignedTo&&!['Treated','Processed'].includes(status(a)));const active=s.tracking.filter(t=>t.status!=='Completed');const overdue=s.tracking.filter(t=>t.due&&new Date(t.due)<new Date()&&t.status!=='Completed');const approvals=(s.approvals||[]).filter(a=>['Pending','Draft'].includes(a.status||'Pending'));const dispatchedTotal=s.dispatches.length;const dispatches=(s.dispatches||[]).filter(d=>!d.closedAt);const by=Object.fromEntries(VisibleWorkspaces.map(w=>[w.id,w]));
-  el.innerHTML=`<div class="workspace cc-workspace">${head('Command Center',`${greeting()}, ${esc(s.profile.name)}. Start here: manage all four ingestion sources through one DGCEO operating lifecycle.`)}
+  el.innerHTML=`<div class="workspace cc-workspace">${head('Command Center',`${isSharedAccount(getCurrentUser(s))?`${greeting()}.`:`${greeting()}, ${esc(s.profile.name)}.`} Start here: manage all four ingestion sources through one DGCEO operating lifecycle.`)}
   <section class="cc-hero-grid" aria-label="Command Center overview">
     <div class="cc-kpi-band" data-critical="true">
       ${kpis([['Open References',open.length],['Unassigned',unassigned.length],['Active Tasks',active.length],['Overdue',overdue.length],['Dispatched',dispatchedTotal]])}

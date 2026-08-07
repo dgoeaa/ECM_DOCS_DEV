@@ -14,7 +14,7 @@
 <body data-page="404">
 <div class="pf-ribbon"><div class="pf-wrap pf-ribbon__in">
 <span class="pf-ribbon__flag"><i style="background:#008751"></i><i style="background:#fff"></i><i style="background:#008751"></i></span>
-<span>An official portal of the Federal Republic of Nigeria</span>
+<span class="pf-ribbon__gov"><span class="pf-gov-long">An official portal of the Federal Republic of Nigeria</span><span class="pf-gov-short">Official Nigerian government portal</span></span>
 <span class="pf-ribbon__end"><a href="https://nitda.gov.ng" target="_blank" rel="noopener">nitda.gov.ng</a></span>
 </div></div>
 <header class="pf-top"><div class="pf-wrap pf-top__in">
@@ -25,7 +25,18 @@
 <a href="track.html">Track</a>
 <a href="support.html">Support</a>
 </nav>
+<div class="pf-top__acts">
+<button class="pf-kbd-trigger" id="cmdkBtn" type="button" aria-label="Search the portal"><svg class="icon-sm" aria-hidden="true"><use href="#i-search"></use></svg><span>Search</span><kbd class="dgo-kbd" data-mac-key>Ctrl K</kbd></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon" id="themeBtn" type="button" aria-label="Change theme"></button>
+<button class="dgo-btn dgo-btn--ghost dgo-btn--sm dgo-btn--icon pf-burger" id="burger" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu"></button>
+</div>
 </div></header>
+<nav class="pf-mobile" id="mobileNav" data-open="false" aria-label="Mobile"><div class="pf-wrap pf-mobile__in">
+<a href="index.html" data-nav="home">Home</a>
+<a href="submit.html" data-nav="submit">Submit a document</a>
+<a href="track.html" data-nav="track">Track a request</a>
+<a href="support.html" data-nav="support">Support and helpdesk</a>
+</div></nav>
 <main id="main" class="pf-main">
 <section class="pf-section"><div class="pf-wrap" style="max-width:720px">
 <div class="dgo-stack dgo-stack--5">
@@ -43,8 +54,26 @@
 </div></section>
 </main>
 <footer class="pf-foot"><div class="pf-wrap">
-<div class="pf-foot__bar" style="border-top:0">
-<span>© <span data-year>2026</span> National Information Technology Development Agency.</span>
+<div class="pf-foot__grid">
+<div>
+<img src="ds/logo/nitda-lockup-white.png" alt="National Information Technology Development Agency" style="height:52px;width:auto;margin-bottom:16px">
+<p>The Intelligent Portal is the single front door for document submission, status tracking and support across the agency.</p>
+<p style="margin-top:12px">No. 28 Port Harcourt Crescent, Off Gimbiya Street, Area 11, Garki, Abuja.</p>
+</div>
+<div><h3>Submit</h3><ul id="footSubmit"></ul></div>
+<div><h3>Portal</h3><ul>
+<li><a href="submit.html">Submit a document</a></li>
+<li><a href="track.html">Track a request</a></li>
+<li><a href="support.html">Support</a></li>
+</ul></div>
+<div><h3>Contact</h3><ul>
+<li><a href="mailto:portal@nitda.gov.ng">portal@nitda.gov.ng</a></li>
+<li><a href="tel:+2347000006483">+234 700 000 6483</a></li>
+<li>Monday &#8211; Friday, 08:00 &#8211; 17:00 WAT</li>
+</ul></div>
+</div>
+<div class="pf-foot__bar">
+<span>&#169; <span data-year></span> National Information Technology Development Agency. All rights reserved.</span>
 <span class="pf-status"><i></i> All portal services operational</span>
 <span style="margin-left:auto">NITDA Design System v2.1</span>
 </div>

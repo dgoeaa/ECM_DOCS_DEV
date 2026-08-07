@@ -9,7 +9,7 @@ function render(el) {
   const s = State.get(); const u = UIState.get('approvals', { selected: null, creating: false, view: 'pending', md: 'list' });
   const list = u.view === 'pending' ? pending(s) : decided(s);
   const sel = list.find(a => a.id === u.selected) || null;
-  el.innerHTML = `<div class="workspace">${head('Approvals', 'Executive sign-off desk — approve or reject with a recorded minute.')}
+  el.innerHTML = `<div class="workspace">${head('Review & Approval', 'Executive sign-off desk — approve or reject with a recorded minute.')}
     <div class="toolbar">${chips([{ value: 'pending', label: `Pending (${pending(s).length})` }, { value: 'decided', label: `Decided (${decided(s).length})` }], u.view, 'data-view')}<span class="meta flex-1">${list.length} in view</span><div><button class="btn" data-new>New Approval Request</button> <a class="btn ghost" href="#/executive">Open Executive Exceptions</a></div></div>
     <div class="split" ${mdSwitch((sel||u.creating)?u.md:'list')}><div class="list-col">${list.length ? list.map(a => `<div class="list-item ${sel && sel.id === a.id ? 'active' : ''}" data-ref="${esc(a.id)}">
       <div class="meta">${esc(a.ref || '—')} · ${badge(a.status === 'pending' ? 'Pending' : a.status === 'approved' ? 'Approved' : 'Rejected', a.status === 'approved' ? 'ok' : a.status === 'rejected' ? 'danger' : '')}</div><h4>${esc(a.title)}</h4><div class="meta">From ${esc(a.from || '—')}</div></div>`).join('') :
