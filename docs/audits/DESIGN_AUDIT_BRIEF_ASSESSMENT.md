@@ -18,6 +18,19 @@ document portal, build `912dd39dae014544`.
 > packages, not against this tree, so drift between the two is expected and is called out
 > wherever it changes a number.
 
+> **Remediation status, as at 7 August 2026.** Every finding this assessment confirmed or found
+> half right has been fixed, along with all seven of the `V-nn` defects the report missed.
+> Thirty-one browser assertions in `tests/audit-remediation.spec.js` hold them, one per finding,
+> written against the numbers below; `tests/breakpoint-scale.test.mjs` and
+> `tests/status-vocabulary.test.mjs` join the main suite. The three findings that did not
+> reproduce are recorded as such rather than "fixed" — `P-06`'s string is gone from the
+> submission path because `V-02` replaced the whole receipt, `P-04`'s real defects are closed
+> under `V-01`/`V-03`, and `I-11` is withdrawn.
+>
+> **Three decisions remain open and are the agency's, not this document's.** They are listed
+> under *Decisions this remediation did not make* at the end. Nothing below was settled by
+> assuming an answer to any of them.
+
 ---
 
 ## Headline
@@ -530,3 +543,111 @@ The report's two limitations are correctly stated and both survive: **every popu
 both platforms remains unvalidated**, and the closing note about packaged endpoint URLs acting as
 bearer credentials is a real security matter that this assessment did not examine beyond confirming
 the 19-endpoint registry it refers to.
+
+---
+
+## Decisions this remediation did not make
+
+Three questions in the report are the agency's to answer. The engineering that does not
+presuppose an answer has been done; the answer itself has not been assumed.
+
+### 1 · Which of the twenty guided routes ship, hide or are removed — `I-01`
+
+The report asks for each of the twenty to be triaged into ship / defer / delete. That is a
+product decision about what the pilot offers, and it was not taken here.
+
+What was done instead: the handoff graph in `config/workflow-clarity.config.js` already
+declared which visible workspace each guided route belongs to, and it has been completed —
+`scan-intake` under Intake, `briefs` and `meetings` under Review & Approval, `projects` under
+Tracking. The shell renders the current workspace's handoffs as a "Continue in" strip, so all
+twenty are reachable by a link from their declared parent and none is reachable only by
+knowing its URL. The sidebar still holds nine.
+
+**What the agency decides:** which of the twenty are promoted into the sidebar, which stay as
+guided routes, and which have their route registration removed so an addressable but
+unsupported screen cannot be reached by a shared link.
+
+### 2 · Whether DGO Digital Ops is NITDA-branded or a sub-brand — `H-03`, `H-04`
+
+The report puts this plainly: *"Decide whether DGO Digital Ops is a NITDA-branded product or a
+sub-brand, then apply one lockup to both."* The two packages currently carry two different
+agency identities — the portal ships the full NITDA lockup in three PNGs, the internal
+platform ships a 329-byte generic circular mark and a wordmark reading "DGO Digital Ops"
+subtitled "AN INITIATIVE OF NITDA". The portal bundles Cascadia Mono at 143,932 bytes; the
+internal platform ships no fonts and inherits the system stack, so reference numbers and
+tracking IDs render in different typefaces on the two sides of the same record.
+
+Copying the NITDA lockup into the internal package would settle a brand question by
+implementation, which is not this remediation's to settle. The icon sprite was shared,
+because an icon set is not a brand.
+
+**What the agency decides:** one lockup for both, and then whether both packages ship the
+webfont or both standardise on the system stack. Either answer closes `H-03` and `H-04`; the
+current state answers neither.
+
+### 3 · Two edges of the status mapping — `V-04`
+
+`config/status-vocabulary.config.js` maps the internal platform's stored statuses onto the
+governed public vocabulary. Three edges are unambiguous. Two are readings:
+
+| Internal | Mapped to | The question |
+|---|---|---|
+| `Accepted` | Under review | Does "Accepted" mean the registry accepted the item for handling, or that the request itself was granted? If the latter, it maps to **Approved**. |
+| `Archived` | Approved | Archive is a closure step and the internal model records no outcome with it. If a matter can be archived without being granted, the public vocabulary needs a state it does not currently have. |
+
+Both are marked in the config file at the point of the decision. `governedStatusLabel()` shows
+an unmapped status verbatim rather than relabelling it, so a wrong answer here is visible
+rather than silent.
+
+---
+
+## What changed, by finding
+
+| Finding | Verdict at assessment | Now |
+|---|---|---|
+| P-01 | Confirmed, worse than reported (75px / 128px) | Fixed — 0px overflow at eight widths on five pages |
+| P-02 | Half right — true only below 768px | Fixed — 404 keeps navigation at every width, plus the full footer |
+| P-03 | Half right — true on step 1 only | Fixed — step 1 focuses and flags its radiogroup |
+| P-04 | Not reproducible as stated | Real defects underneath fixed: no pre-scroll zeros, unavailable tiles suppressed |
+| P-05 | Confirmed exactly | Fixed — one list rendered from the catalogue, all eight types, full names |
+| P-06 | Not reproducible | Superseded by V-02; the string is gone from the submission path |
+| P-07 | Confirmed | Fixed — authored short form below 640px, never truncates |
+| I-01 | Half right — palette and Command Center already linked some | Fixed — all 29 routes reachable by link; sidebar triage left to the agency |
+| I-02 | Confirmed exactly (13 of 29) | Fixed — 0 of 29 |
+| I-03 | Confirmed at ≤1024 only | Fixed — one row to 876px pane; a wrapped tile fills its row |
+| I-04 | Confirmed, one structural correction | Fixed — duplicate chips gone, role off the counter row |
+| I-05 | Confirmed verbatim | Fixed — operator copy, configuration detail moved to System health |
+| I-06 | Confirmed verbatim | Fixed — plain notice and retry, diagnostics behind a disclosure |
+| I-07 | Confirmed verbatim (all four strings) | Fixed — rewritten in terms of the record and the outcome |
+| I-08 | Confirmed | Fixed — human labels, endpoint editor behind an IT-only disclosure |
+| I-09 | Half right — only the placeholder clipped | Fixed — filters labelled, overflow control named |
+| I-10 | Confirmed, understated (5 of 9 below the fold) | Fixed — fade at the boundary, no sliced rows |
+| I-11 | Not reproducible | Withdrawn — the router already does what the fix asked for |
+| I-12 | Confirmed verbatim | Fixed — "Continue with NITDA single sign-on" |
+| I-13 | Half right — one exemplar did not exist | Fixed — one empty-state contract, three causes, one action each |
+| I-14 | Confirmed verbatim | Fixed — loads on entry, Refresh secondary |
+| I-15 | Confirmed | Fixed — brand mark, progress indicator, 5-second slow notice |
+| I-16 | Half right — failures were already badged | Fixed — failures first, one consequence each |
+| I-17 | Confirmed | Fixed — "{Screen} — DGO Digital Operations" on all 29 |
+| I-18 | Confirmed verbatim | Fixed — screen renamed, file path replaced with an IT instruction |
+| I-19 | Confirmed | Fixed — shared accounts not greeted by name, roles in title case |
+| I-20 | Half right — the controls had accessible names | Fixed — visible names too |
+| I-21 | Half right — the accent never varied | Fixed — KPI tiles restricted to numeric measures |
+| I-22 | Confirmed — settled the report's open question | Fixed — underline removed from card prose |
+| H-01 | Confirmed, one correction (600px also shared) | Fixed — four values, migrated in both packages, enforced by test |
+| H-02 | Confirmed, understated (21 symbols, not 17) | Fixed — portal sprite in both packages, 29 unique route icons |
+| H-03 | Confirmed byte-exact | **Open** — brand decision, see above |
+| H-04 | Confirmed byte-exact | **Open** — follows the brand decision |
+| V-01 | New — blocker | Fixed — seed data only in demo mode, and labelled when present |
+| V-02 | New — blocker | Fixed — the receipt reports the observed delivery state |
+| V-03 | New — high | Fixed — `onTimeRate` returns null, callers suppress the tile |
+| V-04 | New — high | Fixed — one governed vocabulary; two mapping edges open, see above |
+| V-05 | New — medium | Fixed — the palette uses route labels |
+| V-06 | New — medium | Fixed — no shared or letter icons |
+| V-07 | New — low | Fixed — step 1 sets `aria-invalid` on a real element |
+
+The report's two limitations still stand and neither is closed by any of this: **every
+populated-data state in both platforms remains unvalidated** and must be audited against a
+staging environment carrying representative records; and the closing note about packaged
+endpoint URLs acting as bearer credentials is a security matter this assessment did not
+examine beyond confirming the 19-endpoint registry it refers to.
