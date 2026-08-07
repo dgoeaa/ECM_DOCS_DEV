@@ -1,0 +1,17 @@
+Design audit brief - AI input verification report
+
+source_pdf_pages: 16
+source_sha256_current: ef1645ac6dde4bf8609607ad7f64687284c244b5b28ed0ce72e26f33aedc940a
+source_sha256_matches_manifest: True
+output_sha256_current: b21a2d491105dbc0a706bc2a54f0270a76378d95a83460a642a5adb448fde6f8
+output_sha256_matches_manifest: True
+exact_regeneration_matches_output: True
+page_start_markers_complete_and_ordered: True
+page_end_markers_complete_and_ordered: True
+all_required_phrases_present: True
+missing_required_phrases: []
+per_page_extracted_character_counts: [1974, 2650, 1862, 2803, 2104, 2257, 2464, 2554, 3553, 3280, 2609, 2923, 2967, 3125, 2577, 2430]
+total_output_characters_current: 42979
+manifest_integrity_checks_all_pass: True
+
+Result: PASS - the AI input file is byte-for-byte identical to a fresh extraction using the documented conversion recipe.
