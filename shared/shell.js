@@ -61,7 +61,7 @@ class Shell extends HTMLElement{
     <div class="dgo-scrim" data-scrim hidden></div>
     <div class="dgo-live-region" aria-live="polite" data-live-region></div>
     ${ToastHost()}${CommandPalette()}${this.notifyPanelHtml()}`;
-    this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert();
+    this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert(); this.syncNavScrollHint(); addEventListener('resize',()=>this.syncNavScrollHint());
   }
   navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon" aria-hidden="true">${I[r.path]||'•'}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
   bind(){
@@ -175,6 +175,12 @@ class Shell extends HTMLElement{
   // version: "R11.6 Obsidian Harmonized Design System Runtime". A tab title is how a user
   // finds the right window among ten.
   applyTitle(route){ document.title=`${this.routeLabel(route)} — DGO Digital Operations`; }
+  // I-10 — mark the nav as scrollable only when it actually overflows, so the fade at the
+  // boundary is a signal that there is more below rather than permanent decoration.
+  syncNavScrollHint(){
+    const nav=this.querySelector('.dgo-sidebar__nav'); if(!nav) return;
+    nav.dataset.scrollable=String(nav.scrollHeight>nav.clientHeight+1);
+  }
   // I-01 — render the current workspace's declared handoffs as links.
   renderRelated(route){
     const host=this.querySelector('[data-related]'); if(!host) return;

@@ -10,7 +10,7 @@
 
 import { hydrateGovernance, executeOwnedAction } from '../core/governed-actions.js';
 import { State } from '../core/state.js';
-import { head, kpis, esc, badge, toast, confirmAction, fmtDateTime, mdBack, mdSwitch, resetDetailScroll } from '../core/ui.js';
+import { emptyFor, head, kpis, esc, badge, toast, confirmAction, fmtDateTime, mdBack, mdSwitch, resetDetailScroll } from '../core/ui.js';
 import { UIState, pageSlice, pager } from '../core/ui-state.js';
 import { audit } from '../core/enterprise-domain.js';
 import { invoke } from '../core/api.js';
@@ -52,7 +52,7 @@ function render(el) {
           <div>${badge(b.status)}</div>
           <h4>${esc(b.title)}</h4>
           <div class="meta">${esc(b.theme || 'No theme')} · ${esc(b.raisedBy || 'Unattributed')}</div>
-        </article>`).join('') || '<div class="empty">No briefs in this queue.</div>'}</div>${pager(p)}</div>
+        </article>`).join('') || emptyFor({loaded:!!State.get().runtime?.lastLoad,failed:!!State.get().runtime?.lastError,noun:'briefs',createLabel:'New brief',createAttr:'data-new-brief'})}</div>${pager(p)}</div>
       <div class="detail-col panel-stack">${sel ? detail(sel, u) : '<section class="panel"><p class="meta">Select a brief to read it.</p></section>'}</div>
     </div>
   </div>`;
