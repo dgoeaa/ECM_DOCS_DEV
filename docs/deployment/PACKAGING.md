@@ -164,11 +164,12 @@ legitimate migration gets deleted, and a deleted validator checks nothing.
 | `PACKAGE_MANIFEST.json` | Every file, its size and its SHA-256; the endpoint provisioning record; the build id. **Signatures are redacted** — the manifest is safe to paste into an issue. |
 | `ENDPOINT_PROVISIONING.md` | What is wired, what is not, which flow routes each URL carries, and how to rotate. Redacted. |
 | `FLOW_CATALOGUE.json` | **Every endpoint URL in full, unredacted** — the ones wired here, and every other flow in the documented estate. **This is a credential.** |
-| `ENDPOINT-CHECK.html` | The endpoint check, run from your own browser. Serve the directory, open it, press the button. |
+| `ENDPOINT-CHECK.html` | The endpoint workbench, run from your own browser. Serve the directory and open it. |
+| `ENDPOINT-CHECK-STANDALONE.html` | The same workbench with the configuration and the whole flow catalogue inlined. No server, no sibling file. **This is a credential.** |
 | `DEPLOY.md` | How to deploy it and what to verify first. |
 | `config/config.local.js` *or* `config.local.js` | The provisioned endpoint URLs, in the form the browser reads. **This is a credential.** |
 
-### `ENDPOINT-CHECK.html` — the check that runs where the deployment is
+### `ENDPOINT-CHECK.html` — the workbench that runs where the deployment is
 
 `npm run verify:endpoints` answers "do these flows work?" from a terminal, and that is the
 wrong machine. It needs a checkout, Node, and a network path to Power Automate. Whoever is
@@ -186,10 +187,36 @@ python3 -m http.server 8080
 # open http://localhost:8080/ENDPOINT-CHECK.html and press Run
 ```
 
-It calls each flow the same way the platform does — same URL out of the same
-`config.local.js`, same method, same body, from `scripts/lib/endpoint-probes.mjs`, which the
-terminal check reads too. Write probes are behind a tick box. A second tick box probes the
-23 flows no contract key calls.
+Six tabs, each because the alternative was a message to somebody with a terminal:
+
+| Tab | Answers |
+|---|---|
+| **Endpoints** | Is each key wired to something that responds? Same URL, method and body the platform sends, from `scripts/lib/endpoint-probes.mjs` — the terminal check reads the same table. |
+| **Routes** | One URL carries many routes; `SUBSIDIARY_ACTIONS` carries eighteen. **38 routes probed separately.** A flow that answers on its first route and has no case for the rest passes the Endpoints tab and fails at an officer's desk. |
+| **Console** | Free-form. Pick any URL the package knows — contract endpoint or estate flow — edit the body, send it, read the whole response with headers and timing. Every canned probe is a guess; when it's wrong you need to try something else. |
+| **Estate** | All 39 flows, filterable, with a reachability probe and a **repoint helper** that writes the values-file line for you. |
+| **Report** | Everything the session did, downloadable as JSON. No URL and no signature reaches it, so it can be pasted into an issue. |
+| **Environment** | Origin, protocol, secure context, whether the configuration loaded — because half of "it doesn't work" is the page having been opened the wrong way. |
+
+Write probes are behind a tick box on both the Endpoints and Routes tabs.
+
+**A route probe proves the flow accepted a request carrying that discriminator. It cannot
+prove the flow implements it** — a permissive default answers 200 to a route it does nothing
+with. The page says so where the results appear, not only here.
+
+### `ENDPOINT-CHECK-STANDALONE.html` — when the obstacle is the server, not the endpoints
+
+The served copy reads `config.local.js` and `FLOW_CATALOGUE.json` from beside it. That is
+right for a page inside a served package: it reads the same bytes the platform does, so the
+two can never disagree.
+
+It is useless to somebody with a phone, a downloaded folder and no server. The first person
+to open it got `404 File not found`, because a static server serves the directory it was
+started in and theirs was one level up — a mistake the page cannot detect and cannot explain.
+
+So the packager emits a second copy with the configuration and the whole catalogue folded
+in. **Open it from anywhere, including from disk.** It carries the endpoint URLs, which makes
+it exactly as sensitive as the configuration file it inlines.
 
 **It keeps four outcomes apart, because collapsing any two sends someone to fix the wrong
 thing:**

@@ -198,12 +198,29 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = decodeURIComponent(url.pathname);
 
-  // Same origin means no preflight in practice, but a stray one must not 404.
+  /* PREFLIGHT.
+     Same origin means no preflight in practice when the platform is served from here, but
+     two callers are cross-origin and both matter: the ENDPOINT-CHECK.html workbench, served
+     from wherever a package happens to be, and any harness pointing a built package at this
+     server. A preflight this server refuses is indistinguishable from an unreachable host —
+     the browser throws with no status and no body — so a header missing from the allow-list
+     reads as "the flow is down".
+
+     `Access-Control-Allow-Headers` is echoed from the request rather than enumerated. The
+     enumerated list had already fallen behind: it named X-DGO-Filename, X-DGO-Sha256 and
+     X-DGO-Size but not X-DGO-Probe, so every scan-intake probe from the workbench failed
+     preflight and was reported as unreachable. Echoing cannot fall behind, and this is a
+     development server bound to localhost that authenticates nobody — there is nothing here
+     an allow-list would protect. A REAL flow must enumerate. */
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': req.headers.origin || '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-Id, X-Upload-Ticket, X-DGO-Filename, X-DGO-Sha256, X-DGO-Size',
+      'Access-Control-Allow-Headers':
+        req.headers['access-control-request-headers']
+        || 'Content-Type, Authorization, X-Correlation-Id, X-Upload-Ticket, '
+           + 'X-DGO-Filename, X-DGO-Sha256, X-DGO-Size, X-DGO-Probe',
+      'Access-Control-Max-Age': '600',
     });
     return res.end();
   }

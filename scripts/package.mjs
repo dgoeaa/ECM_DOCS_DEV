@@ -61,7 +61,7 @@ import { fileURLToPath } from 'node:url';
 import { SURFACES, SURFACE_IDS, pilotKeysOf } from './lib/endpoint-surface.mjs';
 import { validateSurface, redact, workflowIdOf } from './lib/endpoint-validation.mjs';
 import { trackedFiles, publishedSignatures, reusedSignatures } from './lib/published-signatures.mjs';
-import { renderEndpointCheckPage } from './lib/endpoint-check-page.mjs';
+import { renderEndpointCheckPage, inlineCheckPage } from './lib/endpoint-check-page.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -556,6 +556,17 @@ function buildSurface(surfaceId, tracked, published) {
     sha256: sha256(catalogueBody),
   });
 
+  /* The same workbench with its two siblings folded in, for the case where getting a server
+     and a path right is the obstacle rather than the endpoints. It carries the URLs, so it
+     is as sensitive as the configuration it inlines — DEPLOY.md says so. */
+  const standalone = inlineCheckPage(checkPage, configBody, catalogueBody, configRel);
+  fs.writeFileSync(path.join(dir, 'ENDPOINT-CHECK-STANDALONE.html'), standalone);
+  manifestFiles.push({
+    path: 'ENDPOINT-CHECK-STANDALONE.html',
+    bytes: Buffer.byteLength(standalone),
+    sha256: sha256(standalone),
+  });
+
   const missing = missingReferences(dir, spec.entry);
   if (missing.length) {
     record.blockers.push(...missing.slice(0, 10).map(m => ({
@@ -859,8 +870,14 @@ Open **http://localhost:8080/ENDPOINT-CHECK.html** and press *Run the check*. It
 flow from your browser — the same URL, method and request shape the platform uses — and tells
 you which answered, which refused the signature, and which were never reached at all.
 
+**No server, or the wrong directory?** Open \`ENDPOINT-CHECK-STANDALONE.html\` instead. It has
+the configuration and the whole flow catalogue inlined and needs no other file — you can open
+it straight off the disk.
+
 Read probes run on their own. Writes are behind a tick box, and anything they create is
-tagged \`__DGO_PROBE__\` so it can be found and deleted.
+tagged \`__DGO_PROBE__\` so it can be found and deleted. The other tabs go further: every
+declared route probed separately, a console for sending your own request, the whole estate
+with a repoint helper, and a downloadable report that carries no URLs.
 
 ## Deploy
 
@@ -882,11 +899,16 @@ set. A package that does not verify must not be deployed.
 - \`PACKAGE_MANIFEST.json\` — every file, its size and its SHA-256, plus the endpoint
   provisioning record. Signatures are redacted; the manifest is safe to share.
 - \`ENDPOINT_PROVISIONING.md\` — what is wired, what is not, and how to rotate.
-- \`ENDPOINT-CHECK.html\` — **the check you can actually run.** Serve this directory and open
-  it in a browser; it calls every flow the same way the platform does and reports what came
-  back. It keeps four outcomes apart — the flow answered, the signature was refused, the flow
-  is gone, and *nothing was reached* — because a CORS rejection and a revoked signature look
-  identical and lead to opposite actions.
+- \`ENDPOINT-CHECK.html\` — **the workbench you can actually run.** Serve this directory and
+  open it in a browser. Six tabs: every endpoint probed the way the platform calls it; every
+  declared route probed separately; a console for sending anything you like and reading the
+  whole response; the full estate with a repoint helper; a downloadable report carrying no
+  URLs; and what this browser is. It keeps four outcomes apart — the flow answered, the
+  signature was refused, the flow is gone, and *nothing was reached* — because a CORS
+  rejection and a revoked signature look identical and lead to opposite actions.
+- \`ENDPOINT-CHECK-STANDALONE.html\` — the same workbench with the configuration and the
+  whole flow catalogue inlined. **No server and no other file: open it from anywhere,
+  including straight off the disk.** It carries the endpoint URLs. **This is a credential.**
 - \`FLOW_CATALOGUE.json\` — **every endpoint URL in full, unredacted**: the ${manifest.provisionedCount}
   wired here, the flow each one reached and the reference document that establishes it, and
   every other flow in the documented estate that no key currently calls. This is what you
