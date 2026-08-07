@@ -25,11 +25,14 @@ PF.page = function () {
   var m = PF.metrics();
   var tickets = PF.store.tickets();
   var openCases = tickets.filter(function (t) { return t.status !== 'resolved'; }).length;
+  /* P-04 / V-03 — the third tile is dropped when no request has been closed. It published
+     "REQUESTS CLOSED 0% on time" on an empty register, which is a performance claim the
+     data does not support in either direction. */
   PF.$('#supportStats').innerHTML = [
     ['1', 'day', 'Reply target'],
-    [String(openCases), openCases === 1 ? 'case' : 'cases', 'With the helpdesk'],
-    [m.onTimeRate + '%', 'on time', 'Requests closed']
-  ].map(function (s) {
+    [String(openCases), openCases === 1 ? 'case' : 'cases', 'With the helpdesk']
+  ].concat(m.onTimeRate === null ? [] : [[m.onTimeRate + '%', 'on time', 'Requests closed']])
+  .map(function (s) {
     return '<div class="dgo-metric" style="padding:14px 16px;gap:6px">' +
       '<div class="dgo-metric__label">' + s[2] + '</div>' +
       '<div class="pf-mono" style="font-size:20px;font-weight:600;line-height:1.1;color:var(--dgo-color-fg-strong);white-space:nowrap">' + s[0] +

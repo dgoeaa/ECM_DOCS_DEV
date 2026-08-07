@@ -74,6 +74,9 @@ body{background:var(--dgo-color-surface-page);color:var(--dgo-color-fg-default);
 .pf-mobile__in{display:flex;flex-direction:column;padding:10px 0 16px}
 .pf-mobile a{display:flex;align-items:center;gap:10px;padding:12px 4px;min-height:48px;font-family:var(--dgo-family-sans);font-size:15px;font-weight:500;color:var(--dgo-color-fg-default);text-decoration:none;border-bottom:1px solid var(--dgo-color-border-default)}
 .pf-mobile a[aria-current="page"]{color:var(--dgo-color-action-primary)}
+/* V-01 — demonstration-mode notice. Deliberately not dismissible: it qualifies every
+   number on the page, so it stays for as long as the numbers do. */
+.pf-demo-note{padding:10px 24px;background:var(--dgo-color-status-action-bg,#FDF3E3);color:var(--dgo-color-status-action-fg,#7A4B00);border-bottom:1px solid var(--dgo-color-border-default);font-family:var(--dgo-family-sans);font-size:13px;line-height:1.5}
 .pf-mobile__act{display:flex;align-items:center;gap:10px;padding:12px 4px;min-height:48px;width:100%;border:0;background:none;text-align:left;font-family:var(--dgo-family-sans);font-size:15px;font-weight:500;color:var(--dgo-color-fg-default);cursor:pointer}
 
 /* ---- hero ---- */
