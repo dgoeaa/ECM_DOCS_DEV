@@ -14,6 +14,12 @@
  * Exit:   0 = all assertions hold, 1 = otherwise
  */
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
 let passed = 0;
 const failures = [];
 const group = n => console.log(`\n── ${n}`);
@@ -210,6 +216,86 @@ group("Boundary integrity — cross-config consistency");
   // Hub. All three are HIDDEN technical routes, so the visible-workspace count is unchanged.
   check("29 routes are declared", declared.length === 29, `got ${declared.length}`);
   check("9 visible workspaces", VisibleWorkspaces.length === 9, `got ${VisibleWorkspaces.length}`);
+}
+
+/* ═══════════════ PROVISIONING PARITY ═══════════════ */
+group("Provisioning parity — config/platform-provisioning.config.js");
+{
+  /* The activation manifest is what core/platform-provisioner.js validates at boot and
+     modules/diagnostics.js renders as provisioning health. It had drifted five routes
+     behind the router: briefs, meetings, projects (D6(b)), scan-intake and
+     ecm-erp-charter had no entry, so `validate()` enumerated 24 modules, computed `ok`
+     over those 24 and returned true while the platform served 29. A module that was never
+     provisioned could not make the report false — the failure mode is not a broken
+     workspace, it is a readiness surface that cannot see what it is missing. */
+  const { PlatformProvisioning } = await import("../config/platform-provisioning.config.js");
+  const { Routes } = await import("../config/routes.config.js");
+  const { ActionOwnership } = await import("../config/action-ownership.config.js");
+
+  const routeIds = Routes.map(r => r.path);
+  const provisioned = Object.keys(PlatformProvisioning);
+
+  const unprovisioned = routeIds.filter(id => !provisioned.includes(id));
+  check("every declared route has a provisioning entry",
+    unprovisioned.length === 0, unprovisioned.join(", "));
+
+  const phantom = provisioned.filter(id => !routeIds.includes(id));
+  check("every provisioning entry has a declared route",
+    phantom.length === 0, phantom.join(", "));
+
+  /* NEGATIVE CONTROL for the `readOnly` escape hatch. A workspace may declare no actions
+     only when it says it is read-only; otherwise an empty action list is indistinguishable
+     from a module whose actions were lost, and ActionRuntime.canRun() would refuse every
+     one of them at the desk while provisioning health stayed green. */
+  const silentlyActionless = Object.entries(PlatformProvisioning)
+    .filter(([, s]) => !s.readOnly && (s.actions || []).length === 0)
+    .map(([m]) => m);
+  check("no workspace declares an empty action list without declaring itself read-only",
+    silentlyActionless.length === 0, silentlyActionless.join(", "));
+
+  const readOnlyWithActions = Object.entries(PlatformProvisioning)
+    .filter(([, s]) => s.readOnly && (s.actions || []).length > 0)
+    .map(([m]) => m);
+  check("a read-only workspace declares no actions",
+    readOnlyWithActions.length === 0, readOnlyWithActions.join(", "));
+
+  /* ActionRuntime.canRun() gates on this list, so a call site naming an action the
+     manifest does not carry throws "Action X is not enabled for Y" at the moment a user
+     presses the button — the one place the failure is most expensive and least
+     diagnosable. Read from the module sources rather than asserted from memory.
+
+     Note that two vocabularies coexist by design and are NOT interchangeable:
+     config/action-ownership.config.js names governance actions (`bulk-assign`), while this
+     manifest names what a workspace offers (`submit-bulk`). They overlap where a workspace
+     surfaces its governed action directly. Only the ActionRuntime path is checkable
+     mechanically, because only it resolves a name against this list at runtime. */
+  const moduleSources = fs.readdirSync(path.join(ROOT, "modules"))
+    .filter(f => f.endsWith(".js"))
+    .map(f => fs.readFileSync(path.join(ROOT, "modules", f), "utf8"))
+    .join("\n");
+  const runCalls = [...moduleSources.matchAll(/ActionRuntime\.run\(\s*'([^']+)'\s*,\s*'([^']+)'/g)]
+    .map(m => ({ module: m[1], action: m[2] }));
+  const unrunnable = runCalls
+    .filter(c => !(PlatformProvisioning[c.module]?.actions || []).includes(c.action))
+    .map(c => `${c.module}:${c.action}`);
+  check(`every ActionRuntime.run() call names a provisioned action (${runCalls.length} call sites)`,
+    runCalls.length > 0 && unrunnable.length === 0, unrunnable.join(", "));
+
+  /* Every owner named by the governance config must be a workspace this manifest knows
+     about. A governed action owned by a module with no entry is unreachable through
+     ActionRuntime and invisible to provisioning health. */
+  const unknownOwners = [...new Set(Object.values(ActionOwnership).map(s => s.owner))]
+    .filter(owner => !provisioned.includes(owner));
+  check("every action owner is a provisioned workspace",
+    unknownOwners.length === 0, unknownOwners.join(", "));
+
+  const { PlatformProvisioner } = await import("../core/platform-provisioner.js");
+  const report = PlatformProvisioner.validate();
+  check("provisioning health enumerates every route",
+    report.modules.length === routeIds.length, `${report.modules.length} of ${routeIds.length}`);
+  check("every provisioned module reports healthy",
+    report.modules.every(m => m.ok),
+    report.modules.filter(m => !m.ok).map(m => m.module).join(", "));
 }
 
 /* ═══════════════ ENDPOINT CONTRACTS ═══════════════ */

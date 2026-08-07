@@ -107,7 +107,7 @@ An externally submitted document today cannot be assigned, tracked, acknowledged
 |---|---|---|---|
 | **Public** | `document-portal/` | Anyone on the internet | None — anonymous submission is the point |
 | ~~**Enforcement**~~ | ~~`proxy/`~~ — **removed**, see the amendment | — | — |
-| **Internal** | root platform — the only internal application, since **D6(b)** | NITDA staff | Entra ID, mandatory |
+| **Internal** | root platform — the only internal application, since **D6(b)** | NITDA staff | One-time-code proof, verified by the flow |
 | **Systems of record** | SharePoint lists + document library, Power Automate | **Both clients, directly** | Each flow authenticates, authorises and validates its own callers — nothing else can |
 
 **The rule that makes this an architecture rather than a diagram: no client, internal or external, holds a credential for the systems of record.** The proxy was the only component that did, and it has been removed — so the rule is currently **unmet**, and the SAS-in-client-code problem class is rotated rather than retired. That is a stated cost, not an oversight; see the amendment.

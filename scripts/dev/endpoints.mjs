@@ -492,20 +492,37 @@ function aiDocAnalysis(store, payload) {
   };
 }
 
+/*
+ * The reply the assistant actually reads.
+ *
+ * This returned `{ result: { message } }`, and modules/assistant.js reads
+ * `res?.reply || res?.message` off the unwrapped envelope — so `reply` was undefined,
+ * `message` was undefined (it was `result.message`, one level down), and the assistant
+ * rendered its own fallback: "No reply was returned by the AI flow." Every local run of the
+ * Assistant reported failure against an endpoint that had answered correctly.
+ *
+ * Nothing caught it because nothing had ever called this endpoint and compared the answer
+ * with what the client reads. `npm run verify:endpoints -- --include-writes` does, and this
+ * is the defect that run produced.
+ *
+ * `message` is kept alongside `reply` because the client accepts either and a real flow may
+ * well send the other; dropping it would make this stand-in stricter than the contract.
+ */
 function aiChat(store, payload) {
   const messages = Array.isArray(payload.messages) ? payload.messages : [];
   const last = str(messages[messages.length - 1]?.content || payload.message);
   const d = store.get();
+  const reply =
+    `[dev server — no model is connected] You asked: "${last.slice(0, 200)}". ` +
+    `The local registry currently holds ${d.activities.length} correspondence records, ` +
+    `${d.tracking.length} tasks and ${d.approvals.length} approvals. ` +
+    `Connect a real AI_CHAT endpoint for substantive answers.`;
   return {
-    result: {
-      message:
-        `[dev server — no model is connected] You asked: "${last.slice(0, 200)}". ` +
-        `The local registry currently holds ${d.activities.length} correspondence records, ` +
-        `${d.tracking.length} tasks and ${d.approvals.length} approvals. ` +
-        `Connect a real AI_CHAT endpoint for substantive answers.`,
-      citations: [],
-      devServer: true,
-    },
+    reply,
+    message: reply,
+    citations: [],
+    devServer: true,
+    result: { message: reply, citations: [], devServer: true },
   };
 }
 

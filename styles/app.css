@@ -500,16 +500,25 @@ dgo-shell,
   .dgo-search-trigger span:nth-child(2),
   .dgo-search-trigger kbd,
   .dgo-persona-button span:not(.dgo-avatar){display:none !important;}
-  .dgo-persona-button{padding:3px;inline-size:40px;max-inline-size:40px;}
+  /* Collapsed to its avatar, but not below the touch floor — 40px was under
+     --dgo-control-target-min for the same reason the sidebar override was. */
+  .dgo-persona-button{padding:3px;inline-size:var(--dgo-control-target-min);max-inline-size:var(--dgo-control-target-min);}
   .dgo-feedback-surface summary span{display:none;}
 }
+/* Short landscape viewports — a phone or small tablet held sideways.
+   The touch-target floor is NOT reclaimed here to buy vertical space. This block used to
+   override .dgo-sidebar__item to min-height:36px and shrink .dgo-iconbtn to 34px, against
+   platform-authority.css's declared --dgo-control-target-min of 44px. It applied to 29
+   navigation items and every icon button, on touch devices, which is the one context where
+   the floor is load-bearing rather than decorative — and it was silent: the declaration
+   above sets the token, and this overrode it 300 lines later.
+   Type size and padding are still reduced; those cost nothing a finger can miss. */
 @media (max-width:980px) and (orientation:landscape){
   :root{--dgo-shell-sidebar-w:224px;}
   .dgo-brand-lockup{padding:12px 14px;}
-  .dgo-sidebar__item{font-size:12.5px;min-height:36px;}
+  .dgo-sidebar__item{font-size:12.5px;padding-block:4px;}
   .dgo-topbar{padding-inline:10px;gap:7px;}
   .dgo-route-title{flex-basis:170px;}
-  .dgo-iconbtn{inline-size:34px;block-size:34px;}
   .dgo-main{padding:14px;}
 }
 @media (max-width:820px) and (orientation:landscape){

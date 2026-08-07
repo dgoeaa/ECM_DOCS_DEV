@@ -3,7 +3,7 @@
 //
 // One process, one origin, no dependencies. It serves both applications and answers every
 // endpoint they call, so the platform runs end to end with nothing installed and nothing
-// provisioned: no Entra tenant, no Power Automate, no SharePoint, no Cloudflare.
+// provisioned: no Power Automate, no SharePoint, no Cloudflare, and no identity provider.
 //
 //   http://127.0.0.1:8080/          the operations platform
 //   http://127.0.0.1:8080/portal/   the public document portal

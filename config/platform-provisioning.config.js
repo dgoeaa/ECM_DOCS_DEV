@@ -1,3 +1,21 @@
+/*
+ * The activation manifest: what each workspace is provisioned to do.
+ *
+ * `core/platform-provisioner.js` validates against it at boot and publishes the result on
+ * `window.__DGO_PROVISIONING__`; `modules/diagnostics.js` renders it as provisioning
+ * health; `core/action-runtime.js` reads `actions` to decide whether a module may run one.
+ *
+ * IT MUST COVER EVERY ROUTE. Five did not. D6(b) brought `briefs`, `meetings` and
+ * `projects` across from the retired ECM Activity Hub, `scan-intake` and
+ * `ecm-erp-charter` arrived after, and none was entered here — so the platform's own
+ * readiness report enumerated 24 modules, computed `ok` over those 24, and returned true
+ * while serving 29. A module that was never provisioned could not make it false. That is
+ * the same defect as a green control with a narrowed scope, in the surface an operator
+ * uses to decide whether the platform is ready.
+ *
+ * `tests/governance.test.mjs` now asserts route ↔ provisioning parity in both directions,
+ * so the next workspace added cannot be forgotten here.
+ */
 export const PlatformProvisioning = Object.freeze({
   "home": {
     "purpose": "Operational command landing",
@@ -923,6 +941,170 @@ export const PlatformProvisioning = Object.freeze({
       "act",
       "audit",
       "feedback"
+    ]
+  },
+  "scan-intake": {
+    "purpose": "Registry counter scan deposit — channel C",
+    "features": [
+      "scan-tray",
+      "deposit-control",
+      "endpoint-availability",
+      "retry-queue",
+      "custody-attribution"
+    ],
+    "functions": [
+      "scanIntakeConfigured",
+      "validateScan",
+      "digestOf",
+      "depositScan"
+    ],
+    /* `create-correspondence` is invoked here but OWNED by correspondence, which is why it
+       is absent: this list is what the module may run as owner, and listing a borrowed
+       action would let ActionRuntime bypass the ownership check in
+       config/action-ownership.config.js. */
+    "actions": [
+      "scan-deposit"
+    ],
+    "enabled": true,
+    "stateKeys": [
+      "correspondence",
+      "audit",
+      "pending",
+      "profile"
+    ],
+    "behaviours": [
+      "load",
+      "render",
+      "validate",
+      "act",
+      "audit",
+      "feedback"
+    ]
+  },
+  "briefs": {
+    "purpose": "Executive briefing packs — draft, submit, decide",
+    "features": [
+      "brief-register",
+      "draft-form",
+      "theme-filter",
+      "lifecycle-guard",
+      "decision-panel"
+    ],
+    "functions": [
+      "Briefs.create",
+      "Briefs.transition"
+    ],
+    "actions": [
+      "create-brief",
+      "submit-brief",
+      "decide-brief"
+    ],
+    "enabled": true,
+    "stateKeys": [
+      "briefs",
+      "audit",
+      "profile",
+      "selectedId"
+    ],
+    "behaviours": [
+      "load",
+      "render",
+      "validate",
+      "act",
+      "audit",
+      "feedback"
+    ]
+  },
+  "meetings": {
+    "purpose": "Meeting requests, decisions and action conversion",
+    "features": [
+      "meeting-register",
+      "request-form",
+      "decision-panel",
+      "agreed-actions",
+      "action-to-task-conversion"
+    ],
+    "functions": [
+      "Meetings.create",
+      "Meetings.transition",
+      "Meetings.actionsToTasks"
+    ],
+    "actions": [
+      "request-meeting",
+      "decide-meeting",
+      "meeting-actions-to-tasks"
+    ],
+    "enabled": true,
+    "stateKeys": [
+      "meetings",
+      "operations",
+      "audit",
+      "profile",
+      "selectedId"
+    ],
+    "behaviours": [
+      "load",
+      "render",
+      "validate",
+      "act",
+      "audit",
+      "feedback"
+    ]
+  },
+  "projects": {
+    "purpose": "Project register with owner, status and KPI note",
+    "features": [
+      "project-register",
+      "create-form",
+      "status-filter",
+      "allow-listed-patch"
+    ],
+    "functions": [
+      "Projects.create",
+      "Projects.update"
+    ],
+    "actions": [
+      "create-project",
+      "update-project"
+    ],
+    "enabled": true,
+    "stateKeys": [
+      "projects",
+      "audit",
+      "profile",
+      "selectedId"
+    ],
+    "behaviours": [
+      "load",
+      "render",
+      "validate",
+      "act",
+      "audit",
+      "feedback"
+    ]
+  },
+  "ecm-erp-charter": {
+    "purpose": "ERP–ECM scope, capability and operating boundary charter",
+    /* A reference surface, not a workflow: it renders the charter and changes nothing.
+       `actions` is therefore empty by intent rather than by omission — the parity test in
+       tests/governance.test.mjs allows an empty action list only where `readOnly` says so,
+       so a workspace that lost its actions cannot hide here. */
+    "readOnly": true,
+    "features": [
+      "boundary-comparison",
+      "ownership-matrix",
+      "integration-contract",
+      "charter-tables"
+    ],
+    "functions": [
+      "renderCharter"
+    ],
+    "actions": [],
+    "enabled": true,
+    "stateKeys": [],
+    "behaviours": [
+      "load",
+      "render"
     ]
   },
   "user-admin": {

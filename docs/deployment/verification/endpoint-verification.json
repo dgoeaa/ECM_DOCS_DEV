@@ -1,0 +1,435 @@
+{
+  "ranAt": "2026-08-06T21:45:14.495Z",
+  "runId": "probe-msi1o6f7",
+  "substrate": "scripts/dev-server.mjs — the local conforming endpoint implementation. NOT a Power Automate tenant.",
+  "probed": 26,
+  "acceptable": 26,
+  "note": "No signature appears in this file. Endpoints are identified by contract key only.",
+  "results": [
+    {
+      "key": "FETCH_ALL",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 66,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "satisfied (inside data)"
+    },
+    {
+      "key": "GET_DOCS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 3,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "satisfied (inside data)"
+    },
+    {
+      "key": "REFERENCE_DATA",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "satisfied (inside data)"
+    },
+    {
+      "key": "FETCH_ACTIVITIES",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "FETCH_EMAIL_ATTACHMENTS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "SUBSIDIARY_ACTIONS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "DYNAMIC_ACTIONS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "SINGLE_ASSIGNMENT",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 3,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "BULK_ASSIGNMENT",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 4,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "BULK_ASSIGNMENT_DIRECT",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "EMAIL",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "EMAIL_RELATED_TASK",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "AI_EMAIL_ANALYSIS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "AI_DOC_ANALYSIS",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "AI_CHAT",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "satisfied (inside data)"
+    },
+    {
+      "key": "OTP_GENERATE",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "OTP_VERIFY",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "DISPATCH_OUTBOUND",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "ARCHIVE_REFERENCE",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "status",
+        "request",
+        "timing",
+        "meta",
+        "data"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "SCAN_INTAKE",
+      "surface": "runtime",
+      "status": 200,
+      "ms": 3,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "referenceId",
+        "attachmentLink",
+        "stored",
+        "depositedBy",
+        "sha256",
+        "bytes"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "STATUS",
+      "surface": "portal",
+      "status": 404,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "404 — the uniform denial — the flow refuses to say whether the reference exists",
+      "keys": [
+        "ok",
+        "error"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "SUBMISSION",
+      "surface": "portal",
+      "status": 400,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "refused (400) — the flow is live and validating",
+      "keys": [
+        "ok",
+        "error",
+        "reasons"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "SUPPORT",
+      "surface": "portal",
+      "status": 200,
+      "ms": 2,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "caseRef",
+        "receivedAt",
+        "delivered"
+      ],
+      "contract": "satisfied"
+    },
+    {
+      "key": "VERIFY",
+      "surface": "portal",
+      "status": 200,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "answered",
+      "keys": [
+        "ok",
+        "sent",
+        "expiresAt",
+        "devCode"
+      ],
+      "contract": "satisfied"
+    },
+    {
+      "key": "VERIFY_CONFIRM",
+      "surface": "portal",
+      "status": 400,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "refused (400) — the flow is live and validating",
+      "keys": [
+        "ok",
+        "error"
+      ],
+      "contract": "not declared"
+    },
+    {
+      "key": "UPLOAD",
+      "surface": "portal",
+      "status": 403,
+      "ms": 1,
+      "verdict": "acceptable",
+      "why": "403 — refused a deposit carrying no upload ticket — the ticket check is live",
+      "keys": [
+        "ok",
+        "stored",
+        "error"
+      ],
+      "contract": "not declared"
+    }
+  ]
+}

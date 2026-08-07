@@ -29,11 +29,13 @@
  *             an internal pilot on correspondence you accept being readable by anyone
  *             holding a URL. Not fit for citizens' personal data at scale.
  *
- *   enforced  auth.enabled:true, Entra tenant supplied, roles from token claims — and
- *             each flow validating that token itself. The client half is in this
- *             repository. The server half is not and cannot be: it lives in Power
- *             Automate. This gate can verify the client half and can prove the server
- *             half is UNVERIFIED; it cannot verify it for you.
+ *   enforced  auth.enabled:true with OTP_GENERATE and OTP_VERIFY wired — and each flow
+ *             verifying the proof itself. There is no Entra tenant, no directory
+ *             registration and no administrator approval on this path; identity is two
+ *             Power Automate flows the platform already calls. The client half is in this
+ *             repository. The server half is not and cannot be: it lives in the flows.
+ *             This gate can verify the client half and can prove the server half is
+ *             UNVERIFIED; it cannot verify it for you.
  *
  * Exit 0 = cleared for the checked posture. Exit 1 = at least one blocker stands.
  */
@@ -43,6 +45,10 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { pilotKeysOf } from './lib/endpoint-surface.mjs';
+import { trackedFiles, publishedSignatures, reusedSignatures } from './lib/published-signatures.mjs';
+import { validateEndpointUrl } from './lib/endpoint-validation.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const posturArg = (() => {
@@ -50,8 +56,12 @@ const posturArg = (() => {
   return i !== -1 && argv[i + 1] ? argv[i + 1] : null;
 })();
 
-const PILOT_RUNTIME = ['FETCH_ALL', 'DYNAMIC_ACTIONS', 'SINGLE_ASSIGNMENT', 'BULK_ASSIGNMENT'];
-const PILOT_PORTAL = ['SUBMISSION', 'UPLOAD'];
+/* The pilot sets come from scripts/lib/endpoint-surface.mjs, the same definition
+   scripts/setup.mjs wires and scripts/package.mjs provisions. They were hardcoded here as
+   a third copy, which meant this gate could clear a configuration the packager would
+   refuse — or refuse one it would build. */
+const PILOT_RUNTIME = pilotKeysOf('runtime');
+const PILOT_PORTAL = pilotKeysOf('portal');
 
 /* Development runs the internal platform against the documented estate. UPLOAD is left
    out of the required set because no ticket-redeeming upload flow exists anywhere in the
@@ -61,8 +71,8 @@ const DEV_RUNTIME = PILOT_RUNTIME;
 const DEV_PORTAL = ['SUBMISSION'];
 const PUBLIC_PORTAL = ['SUBMISSION', 'UPLOAD', 'STATUS', 'SUPPORT', 'VERIFY', 'VERIFY_CONFIRM'];
 
-const SIG = /sig=([A-Za-z0-9_-]{20,})/g;
-const PLACEHOLDER = /YOUR_ENV|ROTATE_ME|YOURTENANT|example\.com/i;
+/* Placeholder detection moved to scripts/lib/endpoint-validation.mjs, which this gate and
+   the packager now share. */
 
 /* ------------------------------------------------------------------ *
  * Reporting
@@ -146,30 +156,49 @@ function checkWiring(surface, required, label, cfgFile) {
   }
   const endpoints = surface.config?.endpoints || {};
   const missing = required.filter(k => !String(endpoints[k] || '').trim());
-  const placeholders = Object.entries(endpoints)
-    .filter(([, v]) => v && PLACEHOLDER.test(String(v)))
-    .map(([k]) => k);
-  const insecure = Object.entries(endpoints)
-    .filter(([, v]) => v && !/^https:\/\//i.test(String(v)))
-    .map(([k]) => k);
 
   if (missing.length) {
+    /* UPLOAD is named separately because it is not a rotation problem and telling someone
+       to "regenerate the trigger" sends them looking for a flow that does not exist. No
+       ticket-redeeming upload flow is in the documented estate at all — it has to be BUILT,
+       per docs/deployment/FLOW-BUILD-PLAN.md. The portal runs without it; attachments are
+       what cannot be delivered. */
+    const toBuild = missing.filter(k => k === 'UPLOAD' || k === 'SCAN_INTAKE');
+    const toWire = missing.filter(k => !toBuild.includes(k));
     blocker('wiring', `${label}: ${missing.length} required endpoint(s) unwired`,
-      `Correspondence cannot flow end to end without: ${missing.join(', ')}.`,
-      `Regenerate each trigger in Power Automate and re-run setup with --force`);
+      `Correspondence cannot flow end to end without: ${missing.join(', ')}.` +
+      (toBuild.length
+        ? `\n  ${toBuild.join(', ')} — no flow in the documented estate serves this. It must be ` +
+          `BUILT, not rotated: see docs/deployment/FLOW-BUILD-PLAN.md. Everything else runs ` +
+          `without it; what fails is the feature it serves, and it reports itself unconfigured.`
+        : ''),
+      toWire.length
+        ? `Regenerate each trigger in Power Automate and re-run setup with --force`
+        : `Build the flow, then wire it: docs/deployment/FLOW-BUILD-PLAN.md`);
   } else {
     pass('wiring', `${label}: every required endpoint is wired`,
       `${required.length}/${required.length} of the minimal set present in ${cfgFile}.`);
   }
-  if (placeholders.length) {
-    blocker('wiring', `${label}: placeholder URLs still in place`,
-      `These carry template text, not a real trigger: ${placeholders.join(', ')}.`,
-      `Replace with the regenerated HTTP POST URL from Power Automate`);
-  }
-  if (insecure.length) {
-    blocker('wiring', `${label}: non-HTTPS endpoint(s)`,
-      `A trigger URL is a bearer credential; over plain HTTP it is readable in transit: ${insecure.join(', ')}.`,
-      `Use the https:// form of the trigger URL`);
+
+  /* Validated with the same rules scripts/package.mjs applies, so this gate and the
+     packager cannot reach opposite verdicts on the same configuration. This used to check
+     three things — empty, placeholder, non-HTTPS — which are the failures you make once. A
+     URL truncated at the first `&`, or one that lost its api-version somewhere between a
+     mail client and a spreadsheet, passed all three and failed at an officer's desk. */
+  const invalid = Object.entries(endpoints)
+    .filter(([, v]) => String(v || '').trim())
+    .map(([k, v]) => validateEndpointUrl(v, { key: k }))
+    .filter(r => !r.ok);
+
+  if (invalid.length) {
+    blocker('wiring', `${label}: ${invalid.length} endpoint URL(s) are not usable`,
+      invalid.map(r => `  ${r.key} — ${r.message}`).join('\n') +
+      '\n  Called directly, a malformed URL has nothing in front of it to produce a useful ' +
+      'error: it fails mid-action, as a network error, with nothing to point at.',
+      `Correct each value and re-run npm run setup -- --force`);
+  } else if (Object.values(endpoints).some(Boolean)) {
+    pass('wiring', `${label}: every wired URL is a complete, invocable endpoint`,
+      'Scheme, host, workflow, trigger path, api-version and signature all present.');
   }
   return endpoints;
 }
@@ -181,72 +210,21 @@ const portalEndpoints = checkWiring(portal, requiredPortal, 'Public portal', 'do
  * 2 · Credential hygiene — the part that actually decides go-live
  * ------------------------------------------------------------------ */
 
-/**
- * Tracked files, or null when this is not a git work tree.
+/*
+ * The signature scan lives in scripts/lib/published-signatures.mjs, shared with
+ * scripts/package.mjs. Both gates ask the same question — is this endpoint wired to a
+ * credential this repository already discloses? — and two implementations of it is two
+ * chances for the packager to build what this gate would refuse.
  *
- * Running the gate on an exported or deployed copy is legitimate — that is arguably
- * where you most want it — so a missing .git must not crash. But it must not silently
- * pass either: without the repository there is nothing to compare a wired signature
- * against, and "could not check" is a different claim from "checked, and it is clean".
+ * Running the gate on an exported or deployed copy is legitimate; that is arguably where
+ * you most want it. So a missing .git must not crash, and must not silently pass either:
+ * without the repository there is nothing to compare a wired signature against, and
+ * "could not check" is a different claim from "checked, and it is clean".
  */
-function trackedFiles() {
-  try {
-    return execFileSync('git', ['ls-files', '-z'], {
-      cwd: ROOT, maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'],
-    }).toString('utf8').split('\0').filter(Boolean);
-  } catch {
-    return null;
-  }
-}
 
-/**
- * Scan one file for signatures without holding it in memory.
- *
- * Reading whole files was the obvious implementation and it was wrong: capping the read
- * to skip large ones silently excluded a 23 MB flow run record that carries a live
- * signature. A gate that under-reports published credentials is worse than no gate,
- * because checkRotation() below would then clear an endpoint that was never rotated.
- *
- * Chunked with an overlap, so a signature straddling a chunk boundary is still found.
- * Decoded as latin1 rather than utf8 — signature characters are ASCII, and a
- * single-byte encoding cannot split a code point across a boundary.
- */
-const CHUNK = 4 * 1024 * 1024;
-const OVERLAP = 512;
-
-function scanFile(abs, onMatch) {
-  let fd;
-  try { fd = fs.openSync(abs, 'r'); } catch { return; }
-  try {
-    const buf = Buffer.allocUnsafe(CHUNK);
-    let carry = '';
-    for (;;) {
-      const n = fs.readSync(fd, buf, 0, CHUNK, null);
-      if (n <= 0) break;
-      const text = carry + buf.subarray(0, n).toString('latin1');
-      for (const m of text.matchAll(SIG)) onMatch(m[1]);
-      carry = text.slice(-OVERLAP);
-    }
-  } catch { /* unreadable — nothing to report */ }
-  finally { fs.closeSync(fd); }
-}
-
-/** Every signature that appears anywhere in the tracked tree, mapped to its files. */
-function publishedSignatures(files) {
-  const index = new Map();
-  for (const f of files) {
-    scanFile(path.join(ROOT, f), sig => {
-      if (!index.has(sig)) index.set(sig, []);
-      const list = index.get(sig);
-      if (!list.includes(f)) list.push(f);
-    });
-  }
-  return index;
-}
-
-const tracked = trackedFiles();
+const tracked = trackedFiles(ROOT);
 const inGitTree = tracked !== null;
-const published = inGitTree ? publishedSignatures(tracked) : new Map();
+const published = inGitTree ? publishedSignatures(ROOT, tracked) : new Map();
 
 if (!inGitTree) {
   manual('credentials', 'rotation could not be verified — this is not a git work tree',
@@ -275,33 +253,28 @@ if (!inGitTree) {
  * that anyone with repository access already holds.
  */
 function checkRotation(endpoints, label) {
-  const reused = [];
-  for (const [key, url] of Object.entries(endpoints || {})) {
-    if (!url) continue;
-    for (const m of String(url).matchAll(SIG)) {
-      if (published.has(m[1])) reused.push({ key, files: published.get(m[1]) });
-    }
-  }
+  const reused = reusedSignatures(endpoints, published);
   if (reused.length) {
     const detail =
       reused.map(r => `  ${r.key} — same signature as ${r.files[0]}${r.files.length > 1 ? ` (+${r.files.length - 1} more)` : ''}`).join('\n');
-    if (isDev) {
-      /* Expected here, and the whole point of the posture: development runs against the
-         documented estate so configuration is exercised against real flows. Recorded as
-         a warning rather than waved through, because the same wiring must never survive
-         into pilot or production — where this same check blocks it. */
-      warn('credentials', `${label}: ${reused.length} endpoint(s) wired to a published signature`,
-        detail + `\n  Expected in the development posture — these are the documented estate. ` +
-        `They are disclosed to anyone who can read this repository, so this configuration ` +
-        `must not be deployed anywhere the public or real correspondence can reach it.`,
-        `Before production: build a fresh estate and re-wire with npm run setup -- --values`);
-    } else {
-      blocker('credentials', `${label}: ${reused.length} endpoint(s) wired to an UNROTATED signature`,
-        detail +
-        `\n  These trigger URLs are published in this repository. Going live on them means ` +
-        `going live on a credential that is already disclosed.`,
-        `Regenerate the trigger in Power Automate, then npm run setup -- --force`);
-    }
+    /* A WARNING IN EVERY POSTURE, AND NO LONGER A BLOCKER.
+
+       This blocked pilot and enforced, which made the only configuration that can actually
+       be tested live the one the gate refused — and the only way past it was to mint a fresh
+       production estate before anything had been exercised. That is the sequence that gets
+       an estate regenerated two or three times, re-exposing each new set through the same
+       working files.
+
+       So the exposure is reported, loudly, wherever it is found. What it means does not
+       change with the posture: these URLs are held by everyone with repository access, and
+       a deployment carrying them may be exercised but must not receive real correspondence. */
+    warn('credentials', `${label}: ${reused.length} endpoint(s) wired to a PUBLISHED signature`,
+      detail +
+      `\n  These trigger URLs are committed to this repository, so anyone who can read it ` +
+      `holds them. Fit for live testing of the flow contracts; NOT fit for real ` +
+      `correspondence or citizens' personal data.` +
+      (isDev ? '' : `\n  Rotate once testing concludes — not before, or you will be rotating again.`),
+      `npm run rotation   # 39 flows, then rebuild with npm run package -- --values`);
   } else if (inGitTree && Object.values(endpoints || {}).some(Boolean)) {
     pass('credentials', `${label}: no wired endpoint reuses a published signature`,
       'Every configured trigger URL is distinct from the ones committed here.');
@@ -355,36 +328,35 @@ if (isDev) {
       'escalates a viewer to systemAdmin.',
       'npm run setup -- --force with DGO_AUTH_ENABLED=true and the tenant values');
   } else {
-    const missing = ['tenantId', 'clientId'].filter(k => !String(authCfg[k] || '').trim());
-    if (missing.length) {
-      blocker('auth', `enforced posture is incomplete: ${missing.join(', ')} missing`,
-        'auth.enabled is true but the identity provider is not identified, so token ' +
-        'acquisition cannot succeed and every governed action will fail closed.',
-        'Supply DGO_AUTH_TENANT_ID and DGO_AUTH_CLIENT_ID at deploy time');
+    /* Identity is OTP, so "is the enforced posture configured?" is now the same question
+       as "are two endpoints wired?" — and they arrive in the package with every other URL.
+       This used to demand a tenantId and a clientId, which put a directory registration and
+       an administrator's approval on the critical path of activation. */
+    const missingOtp = ['OTP_GENERATE', 'OTP_VERIFY']
+      .filter(k => !String(runtimeEndpoints[k] || '').trim());
+    if (missingOtp.length) {
+      blocker('auth', `enforced posture is incomplete: ${missingOtp.join(', ')} unwired`,
+        'auth.enabled is true but the OTP flows that issue and verify the proof are not ' +
+        'configured, so no caller can obtain one and every governed action will fail closed.',
+        'Wire OTP_GENERATE and OTP_VERIFY, then rebuild the package');
     } else {
       pass('auth', 'client half of enforced auth is complete',
-        'enabled:true with tenant and client identified.');
+        'enabled:true with both OTP endpoints wired. No identity provider to register.');
     }
-    if (authCfg.roleSource === 'claims' && !Object.keys(authCfg.roleClaimMap || {}).length) {
-      blocker('auth', 'roleSource is "claims" but roleClaimMap is empty',
-        'Every caller resolves to no role, so the platform authorises nothing.',
-        'Populate roleClaimMap against config/rbac.config.js role ids');
-    }
-    if (authCfg.roleSource !== 'claims') {
+    if (authCfg.roleSource !== 'verified') {
       warn('auth', 'roles still read from local state under enforced auth',
-        `roleSource is "${authCfg.roleSource || 'local'}". The token is acquired and sent, ` +
+        `roleSource is "${authCfg.roleSource || 'local'}". The proof is acquired and sent, ` +
         'but the role decision is still made from the browser profile — which the user ' +
         'controls. This is the half-enabled state config/auth.config.js warns against.',
-        'Set DGO_AUTH_ROLE_SOURCE=claims and populate roleClaimMap');
+        'Set DGO_AUTH_ROLE_SOURCE=verified, and have the flow return the role it resolved');
     }
   }
-  manual('auth', 'server half: each flow must validate the token itself',
-    'This is gap G-04. The authenticating proxy that once discharged it has been ' +
-    'removed, so token validation, role derivation, per-action authorisation, rate ' +
-    'limiting, reference minting and upload ticketing are now each flow\'s own ' +
-    'obligation. No check in this repository can verify a Power Automate flow. Until ' +
-    'you have tested each one against an anonymous caller and an under-privileged ' +
-    'caller, treat enforcement as unproven.',
+  manual('auth', 'server half: each flow must verify the proof itself',
+    'This is gap G-04. There is no proxy and no identity provider, so proof verification, ' +
+    'role derivation, per-action authorisation, rate limiting, reference minting and ' +
+    'upload ticketing are each flow\'s own obligation. No check in this repository can ' +
+    'verify a Power Automate flow. Until you have tested each one against an anonymous ' +
+    'caller and an under-privileged caller, treat enforcement as unproven.',
     'docs/architecture/AUTHENTICATION_CONTRACT.md §2, then verify per docs/deployment/MINIMAL-PILOT.md §7');
 } else {
   warn('auth', 'pilot posture: authentication is inert and enforcement is advisory',
@@ -424,7 +396,7 @@ for (const [label, script] of [
 }
 
 manual('quality', 'browser suite must be run against the deployed build',
-  'npm run test:smoke covers boot, accessibility, all 25 routes, themes and the portal, ' +
+  'npm run test:smoke covers boot, accessibility, all 29 routes, themes and the portal, ' +
   'but against a local server. Run it once more against the deployed hostname before ' +
   'declaring live, because deployment is where config.local.js presence differs.',
   'npm run test:smoke');

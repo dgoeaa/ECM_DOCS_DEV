@@ -245,6 +245,135 @@ test.describe('document portal', () => {
       .not.toMatch(/does not match this request|registered to a different address/i);
   });
 
+  /* Verified status lookup. The portal gated SUBMISSION behind a verified address and left
+     STATUS ungated — but the reference-and-email pair is the entire gate on reading a
+     record back, and a forwarded receipt is the ordinary way a correct pair reaches someone
+     it does not belong to.
+
+     The client cannot close that; only the flow can. What these assert is that the client
+     is CAPABLE when the flow asks, so enabling it is a flow-side configuration event rather
+     than a development one — the same dormant-provisioning pattern as auth.enabled. A flow
+     that never asks never triggers any of this. */
+  const VERIFY_ENDPOINT = 'http://flow.test/verify';
+  const CONFIRM_ENDPOINT = 'http://flow.test/verify-confirm';
+
+  async function withVerification(page, { statusHandler, verifyOk = true, sent = true, proof = 'PROOF-OK' }) {
+    await page.addInitScript(([s, v, c]) => {
+      window.PF_CONFIG = { endpoints: { STATUS: s, VERIFY: v, VERIFY_CONFIRM: c } };
+    }, [STATUS_ENDPOINT, VERIFY_ENDPOINT, CONFIRM_ENDPOINT]);
+    await page.route(STATUS_ENDPOINT, statusHandler);
+    await page.route(VERIFY_ENDPOINT, route => route.fulfill({
+      status: verifyOk ? 200 : 429, contentType: 'application/json',
+      body: JSON.stringify(verifyOk ? { ok: true, sent } : { error: 'rate_limited' }),
+    }));
+    await page.route(CONFIRM_ENDPOINT, route => route.fulfill({
+      status: 200, contentType: 'application/json', body: JSON.stringify({ verification: proof }),
+    }));
+  }
+
+  test('a flow demanding proof is answered with verification, not reported as no match', async ({ page }) => {
+    let sawProof = null;
+    let sawEmailWithProof = null;
+    await withVerification(page, {
+      statusHandler: route => {
+        const body = JSON.parse(route.request().postData() || '{}');
+        if (!body.verification) {
+          return route.fulfill({
+            status: 403, contentType: 'application/json',
+            body: JSON.stringify({ error: 'verification_required' }),
+          });
+        }
+        sawProof = body.verification;
+        // Property 1 of the verified-read-back contract in document-portal/README.md: the
+        // address is resolved from the proof, so the body must not also carry one. A flow
+        // that sees both will eventually be called with `email` alone by something, and the
+        // unverified path survives inside the verified one.
+        sawEmailWithProof = Object.prototype.hasOwnProperty.call(body, 'email');
+        return route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ ok: true, record: {
+            referenceId: 'NITDA-2026-000318', status: 'review', statusLabel: 'Under review by the registry',
+            category: 'Application', subject: 'Verified lookup', receivedAt: '2026-07-20T09:00:00Z',
+            updatedAt: '2026-07-30T09:00:00Z', actionRequired: false, timeline: [],
+          } }),
+        });
+      },
+    });
+
+    await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
+    await page.fill('#trackId', 'NITDA-2026-000318');
+    await page.fill('#trackEmail', 'someone@example.org');
+    await page.click('#lookupBtn');
+
+    // THE PROPERTY: a demand for proof is not a denial. Saying "no match" here would tell a
+    // legitimate submitter their own reference does not exist.
+    await page.waitForSelector('#sendCode');
+    const prompt = await page.innerText('#trackOut');
+    expect(prompt).toMatch(/Confirm your email address/);
+    expect(prompt, 'a verification demand must never read as a denial')
+      .not.toMatch(/No request matches/);
+
+    await page.click('#sendCode');
+    await page.waitForSelector('#verifyCode');
+    await page.fill('#verifyCode', '123456');
+    await page.click('#confirmCode');
+    await page.waitForSelector('#trackOut .pf-kv');
+
+    expect(sawProof, 'the proof must be carried on the retry').toBe('PROOF-OK');
+    expect(sawEmailWithProof, 'the email must leave the body once a proof is sent').toBe(false);
+    expect(await page.innerHTML('#trackOut')).toMatch(/Verified lookup/);
+
+    // And it must not survive in the URL bar, the history entry or the Referer header.
+    expect(page.url(), 'a verified lookup must not leave the address in the URL')
+      .not.toMatch(/email=/);
+    expect(page.url()).toMatch(/id=NITDA-2026-000318/);
+  });
+
+  test('a flow that does not ask for proof is unaffected', async ({ page }) => {
+    let calls = 0;
+    await withVerification(page, {
+      statusHandler: route => {
+        calls++;
+        return route.fulfill({
+          status: 200, contentType: 'application/json',
+          body: JSON.stringify({ ok: true, record: {
+            referenceId: 'NITDA-2026-000318', status: 'review', statusLabel: 'Under review',
+            category: 'Application', subject: 'Unverified lookup', receivedAt: '2026-07-20T09:00:00Z',
+            updatedAt: '2026-07-30T09:00:00Z', actionRequired: false, timeline: [],
+          } }),
+        });
+      },
+    });
+    await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
+    await page.fill('#trackId', 'NITDA-2026-000318');
+    await page.fill('#trackEmail', 'someone@example.org');
+    await page.click('#lookupBtn');
+    await page.waitForSelector('#trackOut .pf-kv');
+
+    expect(calls, 'one call, no verification round-trip').toBe(1);
+    expect(await page.innerHTML('#trackOut')).toMatch(/Unverified lookup/);
+    expect(await page.locator('#sendCode').count(), 'nothing may be asked of the submitter').toBe(0);
+  });
+
+  test('a deployment that cannot send a code says so rather than starting a flow it cannot finish', async ({ page }) => {
+    // STATUS demands proof, but VERIFY/VERIFY_CONFIRM are unconfigured.
+    await page.addInitScript(s => { window.PF_CONFIG = { endpoints: { STATUS: s } }; }, STATUS_ENDPOINT);
+    await page.route(STATUS_ENDPOINT, route => route.fulfill({
+      status: 403, contentType: 'application/json', body: JSON.stringify({ error: 'verification_required' }),
+    }));
+    await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });
+    await page.fill('#trackId', 'NITDA-2026-000318');
+    await page.fill('#trackEmail', 'someone@example.org');
+    await page.click('#lookupBtn');
+    await page.waitForSelector('#trackOut .dgo-alert');
+
+    const out = await page.innerText('#trackOut');
+    expect(out).toMatch(/needs email verification/);
+    expect(out, 'the submitter must not be told the request was not received')
+      .toMatch(/does not mean/i);
+    expect(await page.locator('#sendCode').count(), 'no code button when there is nowhere to redeem it').toBe(0);
+  });
+
   test('an unreachable registry falls back to device data and says so', async ({ page }) => {
     await withStatusEndpoint(page, route => route.abort('connectionrefused'));
     await page.goto('/document-portal/track.html', { waitUntil: 'domcontentloaded' });

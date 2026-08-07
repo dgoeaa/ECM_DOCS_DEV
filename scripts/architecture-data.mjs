@@ -122,7 +122,7 @@ const countFiles = (dir, ext) => {
 const zones = [
   { id: 'public', label: 'Public', auth: 'None — anonymous submission is the point',
     components: [{ name: 'document-portal/', detail: `${countFiles('document-portal')} files · 5 pages · service worker`, note: 'Carries the signed URLs it calls, in a file every visitor can read' }] },
-  { id: 'internal', label: 'Internal', auth: 'Entra ID, mandatory (provisioned, inert until step 8)',
+  { id: 'internal', label: 'Internal', auth: 'One-time-code proof, verified by the flow (provisioned, inert)',
     components: [{ name: 'root platform', detail: `${Routes.length} routes · ${countFiles('modules', '.js')} modules · ${countFiles('core', '.js')} core`, note: 'The single system of record, since D6(b)' }] },
   { id: 'record', label: 'Systems of record', auth: 'Each flow authenticates, authorises and validates its own callers — nothing else can',
     components: [{ name: 'Power Automate', detail: `25 workflows (dev/pilot, to be decommissioned) · ${EndpointKeys.length} contract keys`, note: 'Invoked directly by the browser · F-001 · cutover scope' },

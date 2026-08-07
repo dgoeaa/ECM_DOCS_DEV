@@ -22,6 +22,7 @@ Four kinds of document live here, and they are not interchangeable.
 ## Procedures
 
 - [`deployment/COMMISSIONING.md`](./deployment/COMMISSIONING.md) — what stands between this repository and a live deployment. `npm run commission` checks it mechanically
+- [`deployment/PACKAGING.md`](./deployment/PACKAGING.md) — `npm run package`: building the two artefacts that get handed over, with their endpoint URLs provisioned into them and a manifest hashing every byte. The build gate that refuses a package with a malformed or unrotated endpoint
 - [`deployment/MINIMAL-PILOT.md`](./deployment/MINIMAL-PILOT.md) — the smallest real deployment, including the **G-03** signature rotation
 - [`deployment/FLOW-BUILD-PLAN.md`](./deployment/FLOW-BUILD-PLAN.md) — building the flows that discharge the authentication contract
 - [`deployment/LOCAL-DEV.md`](./deployment/LOCAL-DEV.md) — `npm run dev`: a local server that stands in for the flow estate, so you can exercise both apps end to end without a tenant
@@ -29,8 +30,9 @@ Four kinds of document live here, and they are not interchangeable.
 
 ## Records
 
+- [`audits/OPERATIONAL_READINESS_AUDIT.md`](./audits/OPERATIONAL_READINESS_AUDIT.md) — **the current audit.** Both platforms, every branch, and what stands between here and live operationalization
 - [`STATUS_REPORT.md`](./STATUS_REPORT.md) — position and finding register, written at a date
-- [`audits/INDEX.md`](./audits/INDEX.md) — the eight audit documents, their supersession chain, and the two findings that remain open
+- [`audits/INDEX.md`](./audits/INDEX.md) — the audit documents, their supersession chain, and the two findings that remain open
 - [`forensic/dd2e909/`](./forensic/) — a forensic snapshot of one commit. **Deliberately not rewritten** by later reorganisations; correcting its paths would falsify it
 - [`visual/`](./visual/README.md) — generated architecture and status console, drift-tested by `npm run test:visual`. Where it and a written document disagree, it is right
 

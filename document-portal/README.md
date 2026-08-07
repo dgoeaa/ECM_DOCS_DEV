@@ -110,8 +110,8 @@ submission **and says so on the record**. Presenting device data as the registry
 the failure this replaced; an unreachable registry is also never reported as "not found",
 because it is not evidence the submission was never received.
 
-**Proposed — verified read-back. Not implemented; the client does not send this yet.** Today
-`STATUS` authorises on `{ referenceId, email }`, so possession of the two fields *is* the
+**Verified read-back — the CLIENT HALF IS IMPLEMENTED AND DORMANT. The flow decides.** Where
+`STATUS` authorises on `{ referenceId, email }`, possession of the two fields *is* the
 authorisation. Both are printed inside the record the call returns, and the email is the least
 secret field a submitter has: it appears on their letterhead, in the CC line of every thread about
 the matter, and in any correspondence the agency itself sends onward. The portal already proves
@@ -120,7 +120,12 @@ returns a proof, and the intake flow answers `403 {"error":"verification_require
 proof is absent. The read path asks for no such proof. So the portal is stricter about accepting a
 document from a citizen than about handing that citizen's file to a stranger, which is backwards.
 
-The change is to reuse the mechanism that already exists rather than invent a second one:
+The mechanism that already exists is reused rather than a second one invented. **The portal
+now sends a proof when the flow asks for one**: a `STATUS` flow that answers
+`403 {"error":"verification_required"}` triggers the same code round-trip the submission
+wizard runs, and the page retries with the proof. A flow that does not ask is unaffected and
+nothing changes for it — which is why turning this on is a flow-side configuration event
+rather than a development one, the same pattern as `auth.enabled`.
 
 | Endpoint | Method | Request | Response | What the flow must enforce |
 | --- | --- | --- | --- | --- |
@@ -141,17 +146,35 @@ Three properties this must keep, each of which is easy to lose in implementation
    than "no request matches" — an outage is not evidence a submission was never received. This
    is the distinction `PF.intake.status()` already draws and it must not narrow to two states.
 
-Client-side, `PF.intake.status(referenceId, email)` becomes `status(referenceId, verification)`,
-and the tracking form's second field changes from "the email you submitted with" to a code
-challenge: enter the reference, receive a code at the address on file, then read the record. That
-is one extra step for a citizen checking their own case, and it is the step that makes the answer
-theirs alone. `keepUrl()` must stop writing the address into `location.search` at the same time —
-a verified session that leaves the identifier in the URL bar, the browser history and the
-`Referer` header has moved the disclosure rather than closed it.
+### What is done, and what is left
 
-Sequencing: this lands with, or before, the wiring of `STATUS` to the live registry. While the
-store is `localStorage` the current contract discloses nothing between citizens, which is exactly
-the window in which the shape can be changed cheaply.
+Client-side, `PF.intake.status(referenceId, email, { verification })` sends
+`{ referenceId, verification }` when a proof is present and `{ referenceId, email }` when it is
+not — so property 1 holds by construction: **the email leaves the body the moment a proof
+enters it.** On a verified lookup `keepUrl()` writes only the reference, because a verified
+session that leaves the address in the URL bar, the browser history and the `Referer` header has
+moved the disclosure rather than closed it.
+
+`PF.intake.verificationAvailable()` requires *both* `VERIFY` and `VERIFY_CONFIRM`. Where the flow
+demands a proof and the deployment cannot send a code, the page says the lookup cannot be
+completed here rather than starting a round-trip it cannot finish — a code with nowhere to
+redeem it leaves the submitter waiting for an outcome that will never arrive.
+
+Covered by five assertions in `tests/hardening.test.mjs` and three in `tests/portal.spec.js`:
+a demand for proof is answered and never rendered as a denial; a flow that does not ask sees
+exactly one call and the submitter is asked for nothing; an unsendable code is reported
+honestly; the proof is carried on the retry; the email is absent from that request; and the
+address does not reach the URL.
+
+**What is left is the flow half, and only the flow half.** Until the `STATUS` flow answers
+`403 verification_required` and resolves the address from the proof, the read path is still
+authorised by a pair the submitter's own correspondent may hold. No client change can close
+that, which is why this is specified here as the flow's obligation rather than fixed in the
+browser.
+
+Sequencing: land the flow half with, or before, the wiring of `STATUS` to the live registry.
+While the store is `localStorage` the current contract discloses nothing between citizens, which
+is exactly the window in which the flow can be built to the stricter shape at no cost.
 
 Respond / add-a-note / withdraw still write only to `localStorage`, so they are offered on a
 device-sourced record only. A registry-sourced record routes the submitter to the helpdesk,

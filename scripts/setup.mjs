@@ -44,6 +44,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { RUNTIME_ENDPOINTS, PORTAL_ENDPOINTS } from './lib/endpoint-surface.mjs';
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const argv = process.argv.slice(2);
@@ -56,63 +58,35 @@ const VALUES_FILE = (() => {
 })();
 
 /* ------------------------------------------------------------------ *
- * The two endpoint surfaces.
+ * The two endpoint surfaces come from scripts/lib/endpoint-surface.mjs.
+ *
+ * They used to be declared here, and again in scripts/package.mjs, and the pilot subset
+ * a third time in scripts/commission-check.mjs. Three copies of a list that must agree is
+ * three chances to disagree, and the consequence is not cosmetic: a wired working tree and
+ * a delivered package would provision different endpoint sets while both reported success.
  *
  * `pilot: true` marks the endpoints docs/deployment/MINIMAL-PILOT.md treats as the
- * irreducible set — correspondence cannot flow end to end without them. Everything
- * else is a feature you add later with one line here and a redeploy, which is why an
- * unset key is reported rather than treated as an error.
+ * irreducible set — correspondence cannot flow end to end without them. Everything else is
+ * a feature you add later with one value and a re-run, which is why an unset key is
+ * reported rather than treated as an error.
  * ------------------------------------------------------------------ */
-
-const RUNTIME_ENDPOINTS = [
-  { key: 'FETCH_ALL', pilot: true, note: 'the register itself — officers see nothing without it' },
-  { key: 'DYNAMIC_ACTIONS', pilot: true, note: 'every governed write: register, triage, treat, approve, dispatch, close, archive' },
-  { key: 'SINGLE_ASSIGNMENT', pilot: true, note: 'assign one correspondence to one officer' },
-  { key: 'BULK_ASSIGNMENT', pilot: true, note: 'assign many at once' },
-  { key: 'FETCH_ACTIVITIES', note: 'activity feed' },
-  { key: 'REFERENCE_DATA', note: 'lookups and reference data' },
-  { key: 'GET_DOCS', note: 'document retrieval' },
-  { key: 'FETCH_EMAIL_ATTACHMENTS', note: 'email attachment retrieval' },
-  { key: 'BULK_ASSIGNMENT_DIRECT', note: 'direct bulk assignment variant' },
-  { key: 'EMAIL', note: 'outward correspondence email' },
-  { key: 'EMAIL_RELATED_TASK', note: 'email-to-task assignment' },
-  { key: 'AI_EMAIL_ANALYSIS', note: 'AI analysis of inbound email' },
-  { key: 'AI_DOC_ANALYSIS', note: 'AI analysis of event documents' },
-  { key: 'AI_CHAT', note: 'AI chat' },
-  { key: 'OTP_GENERATE', note: 'one-time passcode issue' },
-  { key: 'OTP_VERIFY', note: 'one-time passcode check' },
-  { key: 'SUBSIDIARY_ACTIONS', note: 'multi-route subsidiary action flow' },
-  { key: 'SCAN_INTAKE', note: 'registry counter scan deposit (raw-bytes PUT, not a JSON contract)' },
-];
 
 /**
  * Authentication, injected the same way the endpoints are.
  *
  * config/auth.config.js reads `window.DGO_CONFIG.auth` and holds every structure the
- * enforced posture needs, switched off. `tenantId` and `clientId` are deliberately
- * empty in the committed file and must never be committed, so deploy-time injection
- * through this git-ignored file is the supported route to turning auth on.
+ * enforced posture needs, switched off. There is no tenantId or clientId to supply — Entra
+ * is removed, and identity is the OTP_GENERATE / OTP_VERIFY pair, which arrives with every
+ * other endpoint. Activation is therefore a flag, not a registration.
  *
  * Flipping `enabled` changes four behaviours at once, by design — see the header of
  * config/auth.config.js. It does NOT make anything server-authoritative on its own:
- * the flows still have to validate the token. That is what `npm run commission`
+ * the flows still have to verify the proof. That is what `npm run commission`
  * refuses to let you forget.
  */
 const AUTH_KEYS = [
   { key: 'enabled', env: 'DGO_AUTH_ENABLED', cast: v => v === 'true' || v === '1' },
-  { key: 'tenantId', env: 'DGO_AUTH_TENANT_ID' },
-  { key: 'clientId', env: 'DGO_AUTH_CLIENT_ID' },
-  { key: 'authority', env: 'DGO_AUTH_AUTHORITY' },
   { key: 'roleSource', env: 'DGO_AUTH_ROLE_SOURCE' },
-];
-
-const PORTAL_ENDPOINTS = [
-  { key: 'SUBMISSION', pilot: true, note: 'register a submission, mint its reference, issue upload tickets' },
-  { key: 'UPLOAD', pilot: true, note: 'redeem one ticket with the bytes of one attachment' },
-  { key: 'STATUS', note: 'citizens tracking a submission (reference + email pair)' },
-  { key: 'SUPPORT', note: 'public help desk — CASE- references, never enters the registry' },
-  { key: 'VERIFY', note: 'mail a one-time code to a submitter' },
-  { key: 'VERIFY_CONFIRM', note: 'exchange that code for the proof SUBMISSION accepts' },
 ];
 
 /* ------------------------------------------------------------------ *
@@ -319,10 +293,12 @@ if (!QUIET) {
   if (VALUES_FILE) console.log(`  Reading values from ${VALUES_FILE}\n`);
 
   if (RECOVERED) {
-    console.log('  RECOVERED FROM THE REFERENCE CORPUS — development use only.');
+    console.log('  RECOVERED FROM THE REFERENCE CORPUS — the documented estate.');
     console.log('  These signatures are committed to this repository and are therefore');
-    console.log('  published. `npm run commission` will refuse pilot and enforced');
-    console.log('  postures while any of them is wired.\n');
+    console.log('  published: anyone with repository access holds them. That is a');
+    console.log('  deliberate decision for live testing, and `npm run commission`');
+    console.log('  reports it in every posture rather than blocking the only');
+    console.log('  configuration that can be exercised.\n');
 
     for (const [surface, label] of [['runtime', 'Internal runtime'], ['portal', 'Public portal']]) {
       const { found, missing } = RECOVERED[surface];
@@ -331,9 +307,12 @@ if (!QUIET) {
         console.log(`  ${label} — ${keys.length} recovered`);
         for (const k of keys) {
           const r = found[k];
-          console.log(`    ✅ ${pad(k, 24)} ${r.workflowId?.slice(0, 8) ?? '?'}  via ${r.via}`);
+          console.log(`    ✅ ${pad(k, 24)} ${r.workflowId?.slice(0, 8) ?? '?'}  ${r.flow || r.via}`);
           if (r.alternates?.length) {
-            console.log(`       ${r.alternates.length} older signature(s) for the same flow were not chosen`);
+            console.log(`       ${r.alternates.length} alternate URL(s) available — see FLOW_CATALOGUE.json in a built package`);
+          }
+          if (r.warning) {
+            for (const line of wrap(r.warning, 68)) console.log(`       ⚠  ${line}`);
           }
           if (r.caveat) {
             for (const line of wrap(r.caveat, 68)) console.log(`       ⚠  ${line}`);

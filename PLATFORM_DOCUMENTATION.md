@@ -31,7 +31,7 @@ Four independently bootable applications share the repository. Only the first us
 
 | Application | Entry | Scale | Role |
 |---|---|---|---|
-| **DGO R11.6 Runtime** | `index.html` | 137 files reachable · 25 routes | The platform shell |
+| **DGO R11.6 Runtime** | `index.html` | 135 modules reachable · 29 routes | The platform shell |
 | ~~**ECM Activity Hub Portal**~~ | — | — | **Retired at D6(b)**; briefs, meetings and projects are now root modules |
 | **Document Portal** | `document-portal/index.html` | 34 files | Public submission & tracking (PWA) |
 | **AckFlow** | `newack/index.html` | 5 files | Acknowledgement prototype |
@@ -51,7 +51,7 @@ GOVERNANCE     core/action-authority.js · audit-log · idempotency
      │           · receipt-ledger · offline-action-queue · otp-service
 INTEGRATION    core/auth.js · endpoint-registry · data-client · fetch-manager
      │           contract resolution, redaction, retry, dedupe, queueing
-BACKEND        Power Automate (19 contracts) · SharePoint · [Entra ID at release]
+BACKEND        Power Automate (19 contracts) · SharePoint · one-time-code identity
 ```
 
 ### 3.1 Boot sequence
@@ -192,6 +192,10 @@ An authenticating proxy was built — `proxy/`, a Cloudflare Worker holding ever
 
 The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
 
+**The URLs travel in the package, not alongside it.** `npm run package` builds each platform into a self-contained directory with its endpoint configuration written in, a manifest hashing every byte, and a provisioning record naming what is wired. It refuses to emit a pilot or enforced package with a required endpoint missing, a malformed URL, two keys resolving to one flow, or a signature this repository already publishes. `npm run package:verify` checks a delivered package against its manifest before it is deployed. See `docs/deployment/PACKAGING.md`.
+
+This is the part the direct model makes load-bearing. With no proxy to normalise a URL or turn a malformed one into a useful error, a subtly wrong value fails for the first time at an officer's desk, mid-action, as a network error naming nothing — so it is caught at build time instead. Rotation is the only revocation, and rebuilding changes the package's build id, which is what tells one deployment apart from the one it replaced and what invalidates the portal's service-worker cache.
+
 ### Regression guarantees
 
 `tests/auth-posture.test.mjs` — 25 assertions across both postures, in CI. The demonstrated **viewer → systemAdmin escalation is encoded as a test**: with auth enforced, rewriting `localStorage` leaves the effective role at `viewer`. An unmapped role claim is denied rather than defaulted.
@@ -259,7 +263,7 @@ npm run test:links    # linkinator crawl
 | `check-imports.mjs` | Every relative import resolves. **167 modules, 0 broken edges.** The check that would have caught the original boot failure in one second. |
 | `check-secrets.mjs` | A ratchet, not a gate — fails on *new* signatures, reports known ones. Deleting a file revokes nothing, so failing on known exposure would only make CI permanently red. |
 | `auth-posture.test.mjs` | Both postures, 25 assertions, one child process each. |
-| `smoke.spec.js` | Boot, accessibility entry points, all 25 routes, theme repaint, `?skipWelcome=1`, ECM portal. Gated on `__DGO_BOOTED__`, **not** HTTP 200 — a 200 proves the server served `index.html` and nothing more. |
+| `smoke.spec.js` | Boot, accessibility entry points, all 29 routes, theme repaint, `?skipWelcome=1`, ECM portal. Gated on `__DGO_BOOTED__`, **not** HTTP 200 — a 200 proves the server served `index.html` and nothing more. |
 
 CI (`.github/workflows/ci.yml`): `imports` gates `smoke` and `links`; `secrets` runs independently.
 

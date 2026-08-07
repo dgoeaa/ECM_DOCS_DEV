@@ -102,14 +102,19 @@ PF.page = function () {
        submission made on a phone did not exist on a laptop. The device store is now a
        fallback, and when it is used the page says so — presenting device data as though it
        came from the registry is the failure this replaces. */
-    PF.intake.status(id, email).then(function (res) {
+    PF.intake.status(id, email, { verification: proof }).then(function (res) {
       btn.removeAttribute('data-loading'); btn.disabled = false;
       PF.store.log('lookup', id, 'Status lookup for ' + id);
 
       if (res.resolution === 'found') {
-        keepUrl(id, email);
+        /* A verified lookup must not leave the address in the URL bar, the browser history
+           or the Referer header — that moves the disclosure rather than closing it, which is
+           README.md's explicit warning on this contract. */
+        keepUrl(id, proof ? null : email);
+        proof = null;               // single use — the flow burns it, so the page must too
         return render(fromRegistry(res.record, id), 'registry');
       }
+      if (res.resolution === 'verification-required') return requireVerification(id, email);
       if (res.resolution === 'denied') return denied(id);
 
       // Unavailable: no read-back configured, offline, or the registry could not be
@@ -125,7 +130,84 @@ PF.page = function () {
   }
 
   function keepUrl(id, email) {
-    history.replaceState(null, '', location.pathname + '?id=' + encodeURIComponent(id) + '&email=' + encodeURIComponent(email));
+    var q = '?id=' + encodeURIComponent(id);
+    if (email) q += '&email=' + encodeURIComponent(email);
+    history.replaceState(null, '', location.pathname + q);
+  }
+
+  /* ---------- verified lookup (dormant until the flow asks) ---------- */
+
+  /* The single-use proof, held only for the retry that follows. Never persisted: writing it
+     to localStorage would turn a one-shot proof into a durable credential sitting on a
+     shared machine, which is the opposite of what it is for. */
+  var proof = null;
+
+  /**
+   * The STATUS flow refused the pair without proof that this caller reads that mailbox.
+   *
+   * This is NOT a denial. The reference and the email may both be exactly right — a
+   * forwarded receipt is the ordinary way a correct pair reaches someone it does not
+   * belong to, and that is the case this exists to catch. Saying "no match" here would
+   * tell a legitimate submitter their own reference does not exist.
+   */
+  function requireVerification(id, email) {
+    if (!PF.intake.verificationAvailable()) {
+      /* Refusing to start a round-trip that cannot finish. A code with nowhere to redeem it
+         leaves the submitter waiting for an outcome that will never arrive. */
+      out.innerHTML = '<div class="dgo-alert dgo-alert--warning"><span class="dgo-alert__icon"><svg class="icon" aria-hidden="true"><use href="#i-warning"></use></svg></span>' +
+        '<div class="dgo-alert__body"><div class="dgo-alert__title">This lookup needs email verification</div>' +
+        '<p style="margin:0 0 10px">The registry requires proof that you read ' + PF.esc(email) +
+        ' before it will show this request, and this site is not configured to send that code. ' +
+        'This does <strong>not</strong> mean ' + PF.esc(id) + ' was not received.</p>' +
+        '<a class="dgo-btn dgo-btn--secondary dgo-btn--sm" href="support.html">Ask the helpdesk</a></div></div>';
+      PF.toast('warning', 'Verification required', 'This site cannot send the code needed for this lookup.');
+      return;
+    }
+
+    out.innerHTML = '<div class="pf-panel"><div class="pf-panel__body dgo-stack dgo-stack--3">' +
+      '<h3 style="margin:0">Confirm your email address</h3>' +
+      '<p style="margin:0">To protect the request, the registry needs to know you read <strong>' +
+      PF.esc(email) + '</strong>. We will send a one-time code to that address.</p>' +
+      '<div id="verifyStep"><button class="dgo-btn dgo-btn--primary" id="sendCode" type="button">Send the code</button></div>' +
+      '</div></div>';
+
+    PF.$('#sendCode').addEventListener('click', function () {
+      var b = PF.$('#sendCode');
+      b.setAttribute('data-loading', 'true'); b.disabled = true;
+      PF.intake.verifyRequest(email).then(function (r) {
+        if (!r.ok || !r.sent) {
+          b.removeAttribute('data-loading'); b.disabled = false;
+          /* `sent:false` means the flow issued a challenge it could not deliver. Telling
+             the submitter to check their inbox would be a lie — the same rule the
+             submission wizard applies. */
+          PF.toast('error', 'Could not send the code',
+            r.reason === 'too-many-requests'
+              ? 'Too many requests from this connection. Wait a minute and try again.'
+              : 'The code could not be sent to that address just now.');
+          return;
+        }
+        PF.$('#verifyStep').innerHTML =
+          '<label class="dgo-field"><span class="dgo-field__label">Six-digit code</span>' +
+          '<input class="dgo-input" id="verifyCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>' +
+          '<button class="dgo-btn dgo-btn--primary" id="confirmCode" type="button" style="margin-top:8px">Confirm and look up</button>';
+        PF.$('#confirmCode').addEventListener('click', function () {
+          var code = PF.$('#verifyCode').value.trim();
+          if (!/^\d{6}$/.test(code)) { PF.toast('error', 'Check the code', 'Enter the six digits from the email.'); return; }
+          var c = PF.$('#confirmCode');
+          c.setAttribute('data-loading', 'true'); c.disabled = true;
+          PF.intake.verifyConfirm(email, code).then(function (v) {
+            c.removeAttribute('data-loading'); c.disabled = false;
+            if (!v.ok || !v.verification) {
+              PF.toast('error', 'That code was not accepted', 'Check the digits, or send a new code.');
+              return;
+            }
+            proof = v.verification;   // consumed by the retry below, then discarded
+            lookup();
+          });
+        });
+        PF.$('#verifyCode').focus();
+      });
+    });
   }
 
   /* One denial for both cases. The registry deliberately does not distinguish "no such

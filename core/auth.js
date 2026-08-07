@@ -16,7 +16,7 @@
 //   ensureAuthenticated() throws rather than proceeding unauthenticated.
 //
 // The token acquisition adapter is intentionally pluggable. `registerTokenProvider()`
-// accepts any function returning { token, expiresAt, claims } — MSAL, a broker endpoint,
+// accepts any function returning { token, expiresAt, claims }. core/otp-identity.js is the
 // or an injected host token. Nothing here hard-binds a vendor SDK, so activation does not
 // require adding a runtime dependency to a repository whose stated architecture is
 // zero-build with no runtime dependencies.
@@ -69,7 +69,7 @@ export async function getAccessToken() {
 
   _inflight = (async () => {
     try {
-      const result = await _provider({ scopes: AuthConfig.scopes });
+      const result = await _provider();
       if (!result?.token) throw new Error('Token provider returned no token');
       _cached = {
         token: result.token,
@@ -135,7 +135,7 @@ export function clientMayAssertIdentity() {
 /**
  * Effective identity.
  *   inert    -> local profile (development behaviour preserved)
- *   enforced -> token claims, with role mapped through AuthConfig.roleClaimMap
+ *   enforced -> the identity the verified proof resolves to
  */
 export function getIdentity() {
   if (!isAuthEnforced()) {
@@ -149,29 +149,32 @@ export function getIdentity() {
     });
   }
   const c = getClaims();
-  const email = String(c.preferred_username || c.email || c.upn || '').toLowerCase();
+  const email = String(c.email || c.sub || '').toLowerCase();
   return Object.freeze({
     email,
     name: c.name || email,
-    role: mapClaimRole(c),
-    source: 'token-claims',
+    role: verifiedRole(c),
+    source: 'verified-proof',
     verified: true,
   });
 }
 
 /**
- * Map identity-provider role/group values onto a platform role id.
- * Returns null when nothing maps — callers must then treat the user as unauthorised
- * rather than falling back to a local role, which would reopen the escalation path.
+ * The platform role the verified proof carries.
+ *
+ * This was `mapClaimRole()`: it read an identity provider's group values out of a token
+ * claim and translated them through `AuthConfig.roleClaimMap`. Both the claim and the map
+ * were Entra-shaped — they needed a directory to issue the groups and an administrator to
+ * maintain the translation — and both are gone with it.
+ *
+ * The OTP flow resolves the caller against DGO_UserDirectory and returns the role it found,
+ * so there is nothing to map. Returning null when the proof carries no role is unchanged and
+ * load-bearing: callers must treat that as unauthorised rather than falling back to a local
+ * role, which would reopen the escalation path the enforced posture exists to close.
  */
-export function mapClaimRole(claims = getClaims()) {
-  const raw = claims?.[AuthConfig.rolesClaim];
-  const values = Array.isArray(raw) ? raw : raw ? [raw] : [];
-  for (const v of values) {
-    const mapped = AuthConfig.roleClaimMap[v];
-    if (mapped) return mapped;
-  }
-  return null;
+export function verifiedRole(claims = getClaims()) {
+  const role = claims?.role;
+  return typeof role === 'string' && role.trim() ? role.trim() : null;
 }
 
 /**
@@ -190,7 +193,7 @@ export async function ensureAuthenticated(action = 'governed-action') {
     AuditLog.record({
       event: 'audit:auth-role-unmapped',
       actor: { email: identity.email },
-      meta: { action, rolesClaim: AuthConfig.rolesClaim },
+      meta: { action, provider: AuthConfig.provider },
     });
     throw new Error('No platform role is mapped for this account.');
   }
@@ -199,6 +202,6 @@ export async function ensureAuthenticated(action = 'governed-action') {
 
 export const Auth = Object.freeze({
   registerTokenProvider, hasTokenProvider, getAccessToken, getClaims, getIdentity,
-  authHeaders, clientMayAssertIdentity, mapClaimRole, ensureAuthenticated, clearToken,
+  authHeaders, clientMayAssertIdentity, verifiedRole, ensureAuthenticated, clearToken,
 });
 export default Auth;

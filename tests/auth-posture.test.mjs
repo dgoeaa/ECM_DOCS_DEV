@@ -132,24 +132,29 @@ if (POSTURE === 'inert') {
   const posture = cfg.authPosture();
   check('posture reports "development"', posture.posture === 'development');
   check('posture warns that controls are NOT enforced', /INERT/.test(posture.warning));
+  /* Activation used to require a tenantId and a clientId — a directory registration and an
+     administrator's approval on the critical path. Identity is OTP now, so what activation
+     needs is two endpoints, and they arrive in the package with every other URL. */
   check('missing activation config is reported',
-    cfg.missingActivationConfig().includes('tenantId'));
+    cfg.missingActivationConfig().includes('OTP_GENERATE'));
+  check('activation asks for endpoints, not for a tenant',
+    !cfg.missingActivationConfig().some(k => /tenant|client/i.test(k)));
 }
 
 if (POSTURE === 'enforced') {
   console.log('=== POSTURE 2: ENFORCED (release) ===');
   installGlobals({
     enabled: true,
-    tenantId: 't-guid', clientId: 'c-guid',
-    roleSource: 'claims', rolesClaim: 'roles',
-    roleClaimMap: { 'DGO.Viewer': 'viewer', 'DGO.SystemAdmin': 'systemAdmin' },
-  }, { FETCH_ALL: TEST_FLOW_URL });
+    roleSource: 'verified',
+  }, { FETCH_ALL: TEST_FLOW_URL, OTP_GENERATE: TEST_FLOW_URL, OTP_VERIFY: TEST_FLOW_URL });
   const cfg = await import(`../config/auth.config.js`);
   const auth = await import(`../core/auth.js`);
 
   check('auth is enabled', cfg.AuthConfig.enabled === true);
   check('proxyBaseUrl is NOT required for activation',
     !cfg.missingActivationConfig().includes('proxyBaseUrl'));
+  check('no identity provider is required for activation',
+    cfg.AuthConfig.provider === 'otp' && !('tenantId' in cfg.AuthConfig) && !('clientId' in cfg.AuthConfig));
   check('activation config is complete', cfg.missingActivationConfig().length === 0,
     cfg.missingActivationConfig().join(', '));
   check('posture reports "enforced"', cfg.authPosture().posture === 'enforced');
@@ -164,8 +169,11 @@ if (POSTURE === 'enforced') {
   check('ensureAuthenticated() BLOCKS when unauthenticated', gateThrew);
 
   // Register a provider issuing a low-privilege token.
+  /* The OTP flow resolves the caller against DGO_UserDirectory and returns the role it
+     found, so the proof carries `role` directly. There is no claim to map and no map to
+     maintain — that was the Entra-shaped path. */
   auth.registerTokenProvider(async () => ({
-    token: fakeJwt({ preferred_username: 'viewer@nitda.gov.ng', name: 'Low Priv', roles: ['DGO.Viewer'] }),
+    token: fakeJwt({ email: 'viewer@nitda.gov.ng', name: 'Low Priv', role: 'viewer' }),
     expiresAt: Date.now() + 3_600_000,
   }));
 
@@ -178,9 +186,9 @@ if (POSTURE === 'enforced') {
     auth.clientMayAssertIdentity() === false);
 
   const id = auth.getIdentity();
-  check('identity derives from token claims', id.source === 'token-claims');
+  check('identity derives from the verified proof', id.source === 'verified-proof');
   check('identity is marked verified', id.verified === true);
-  check('role is mapped from the claim', id.role === 'viewer', `got ${id.role}`);
+  check('role comes from the proof', id.role === 'viewer', `got ${id.role}`);
 
   // THE ESCALATION REGRESSION.
   // Rewriting local state to systemAdmin must not change the effective role, because
@@ -195,7 +203,7 @@ if (POSTURE === 'enforced') {
   // An unmapped claim must deny, never fall back to a local role.
   auth.clearToken();
   auth.registerTokenProvider(async () => ({
-    token: fakeJwt({ preferred_username: 'x@nitda.gov.ng', roles: ['Unmapped.Role'] }),
+    token: fakeJwt({ email: 'x@nitda.gov.ng' }),
     expiresAt: Date.now() + 3_600_000,
   }));
   await auth.getAccessToken();

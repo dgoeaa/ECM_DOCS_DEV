@@ -200,85 +200,27 @@ function routeTable() {
 }
 
 /* ── backend ───────────────────────────────────────────────────────────────────
-   The proxy is the component that turns advisory governance into enforced governance, so
-   its inventory is not "some server files" — each module maps to a clause of
-   docs/architecture/AUTHENTICATION_CONTRACT.md and that mapping is worth drawing. */
-const PROXY_ROLE = {
-  'worker.js': 'Cloudflare Worker host — adapter only, no security decision lives here',
-  'server.js': 'node:http host — the same handler under a different transport',
-  'handler.js': 'The request pipeline: verify → identify → authorize → strip → idempotency → audit',
-  'jwt.js': 'JWKS cache, signature verification, and explicit iss/aud/exp/nbf checks',
-  'crypto.js': 'WebCrypto-only primitives, so one implementation runs on Node and on Workers',
-  'authorize.js': 'Role derivation from claims and per-action authorization, matrix imported from config/rbac.config.js',
-  'intake.js': 'The single unauthenticated path: anonymous submission, rate limited, create-only, server-minted references',
-  'upload.js': 'Upload brokering — HMAC ticket, single use, bytes relayed and verified against the declared digest',
-  'verification.js': 'Email round-trip before a reference is minted (decision D4)',
-  'reference-store.js': 'The registry sequence in a Durable Object, because a counter in memory mints collisions',
-  'config.js': 'Environment-sourced configuration; refuses to start rather than boot unenforcing',
-};
+   THERE IS NO BACKEND TIER, AND SAYING SO IS THE POINT.
 
-/* THE TOPOLOGY IS DETECTED, NOT ASSUMED.
-   Two platform variants are maintained deliberately: one that fronts the flows with an
-   enforcing proxy, one that calls them directly. This generator has to serve both, because
-   an atlas that only builds on one branch is an atlas that goes stale on the other — which
-   is the exact failure the whole generated-documentation approach exists to prevent.
+   This generator used to detect `proxy/src` and draw either topology, because two platform
+   variants were maintained: one fronting the flows with an enforcing proxy, one calling
+   them directly. That variant is retired — the architecture decision is direct invocation,
+   the proxy branch was withdrawn rather than deployed, and no branch carrying it remains
+   live. Detection code for a topology that cannot occur is not flexibility; it is a second
+   description of the system that nobody exercises, in the one artefact whose whole purpose
+   is to be checkable against the tree.
 
-   Detection is by the presence of `proxy/src`, not by a flag someone has to remember to
-   set. A flag can disagree with the tree; a directory cannot. */
-const HAS_PROXY = exists('proxy/src');
-
+   Returning an empty object would render as "0 proxy modules", which reads as a proxy that
+   lost its files rather than a platform that has none. The absence is therefore stated. */
 function backend() {
-  if (!HAS_PROXY) {
-    /* No proxy in this variant, so there is no backend inventory to draw — and saying so
-       explicitly is the point. Returning an empty object would render as "0 proxy modules",
-       which reads as a proxy that lost its files rather than a platform that has none. */
-    return {
-      present: false,
-      modules: [], tests: [], totalLines: 0, worker: null,
-      note: 'This variant calls the Power Automate flows directly. There is no proxy tier: '
-          + 'each flow enforces its own contract, and the enforcement boundary sits at the '
-          + 'flow endpoint rather than in a component this repository ships.',
-    };
-  }
-  const dir = 'proxy/src';
-  const modules = fs.readdirSync(path.join(ROOT, dir)).filter(f => f.endsWith('.js')).sort().map(name => {
-    const rel = `${dir}/${name}`;
-    const src = read(rel);
-    return {
-      file: rel,
-      name,
-      lines: src.split('\n').length,
-      exports: [...new Set([...src.matchAll(EXPORTED)].map(m => m[1]))],
-      role: PROXY_ROLE[name] || '',
-      doc: leadingDoc(src),
-    };
-  });
-  const tests = fs.readdirSync(path.join(ROOT, 'proxy/test')).filter(f => f.endsWith('.mjs')).sort();
-
-  /* wrangler.toml is committed and carries no secret, so the deployment surface can be
-     read rather than described: bindings, non-secret vars, and the NAMES of the secrets. */
-  const toml = read('proxy/wrangler.toml');
-  const bindings = [...toml.matchAll(/^name\s*=\s*"(DGO_[A-Z_]+)"/gm)].map(m => m[1]);
-  const vars = [...toml.matchAll(/^(DGO_[A-Z_]+)\s*=\s*"([^"]*)"/gm)].map(m => ({ key: m[1], value: m[2] }));
-  const secrets = [...toml.matchAll(/^#\s+(DGO_[A-Z_]+(?:<KEY>)?)\s{2,}(.+)$/gm)]
-    .map(m => ({ key: m[1], note: m[2].trim() }));
-
   return {
-    present: true,
-    note: '',
-    modules,
-    tests,
-    totalLines: modules.reduce((n, m) => n + m.lines, 0),
-    worker: {
-      name: (toml.match(/^name\s*=\s*"([^"]+)"/m) || [])[1] || '',
-      entry: (toml.match(/^main\s*=\s*"([^"]+)"/m) || [])[1] || '',
-      compatibilityDate: (toml.match(/^compatibility_date\s*=\s*"([^"]+)"/m) || [])[1] || '',
-      nodeCompat: /compatibility_flags/.test(toml.replace(/^#.*$/gm, '')),
-      durableObjects: [...toml.matchAll(/^class_name\s*=\s*"([^"]+)"/gm)].map(m => m[1]),
-      bindings,
-      vars,
-      secrets,
-    },
+    present: false,
+    modules: [], tests: [], totalLines: 0, worker: null,
+    note: 'This platform calls the Power Automate flows directly. There is no proxy tier '
+        + 'and no intermediary in the request path: each flow enforces its own contract, '
+        + 'and the enforcement boundary sits at the flow endpoint rather than in a '
+        + 'component this repository ships. The complete trigger URLs are provisioned into '
+        + 'the delivered package by scripts/package.mjs.',
   };
 }
 
@@ -407,9 +349,10 @@ function quality() {
     ciJobs: jobs,
     ciSteps: steps,
     testFiles,
-    proxyTests: HAS_PROXY
-      ? fs.readdirSync(path.join(ROOT, 'proxy/test')).filter(f => f.endsWith('.mjs')).sort()
-      : [],
+    /* Kept as an explicit empty list rather than removed: the atlas schema is consumed by
+       tests/visual-docs.test.mjs, and a key that disappears is harder to read than a key
+       that is empty and says why. There is no proxy tier — see backend(). */
+    proxyTests: [],
     playwrightSpecs: fs.readdirSync(path.join(ROOT, 'tests')).filter(f => f.endsWith('.spec.js')).sort(),
   };
 }
@@ -447,7 +390,7 @@ function security() {
 const channels = [
   { id: 'A', label: 'Public portal', origin: 'External submitter, no account',
     entry: 'document-portal/submit.html',
-    path: HAS_PROXY ? 'proxy /intake/submission' : 'INTAKE_SUBMISSION flow (direct)',
+    path: 'SUBMISSION flow (direct)',
     channelValue: 'Portal',
     auth: 'Anonymous — rate limited, size capped, create only', status: 'built, awaiting deployment' },
   { id: 'B', label: 'Email', origin: 'Monitored mailbox',
@@ -455,7 +398,7 @@ const channels = [
     auth: 'Server-side flow', status: 'implemented' },
   { id: 'C', label: 'Scan / physical counter', origin: 'Registry counter clerk',
     entry: 'modules/scan-intake.js',
-    path: HAS_PROXY ? 'proxy /documents/scan' : 'SCAN_INTAKE flow (direct)',
+    path: 'SCAN_INTAKE flow (direct)',
     channelValue: 'Document',
     auth: 'Authenticated staff', status: 'built, awaiting deployment' },
   { id: 'D', label: 'Internal origination', origin: 'NITDA staff',
@@ -463,25 +406,21 @@ const channels = [
     auth: 'Authenticated staff', status: 'implemented' },
 ];
 
-/* The zones follow the topology. Removing the proxy does not merely delete a box — it
-   moves the enforcement boundary from a component this repository ships to the flow
-   endpoint itself, and the rule attached to the systems-of-record zone changes with it.
-   Emitting four zones on a three-zone tree is how a diagram starts lying, so the shape is
-   derived rather than listed. */
+/* Three zones, and the enforcement boundary is at the flow endpoint.
+
+   Removing the proxy did not merely delete a box — it moved the enforcement boundary from
+   a component this repository ships to the flow itself, and the rule attached to the
+   systems-of-record zone moved with it. Emitting four zones on a three-zone tree is how a
+   diagram starts lying, which is why the fourth is gone rather than conditional. */
 const zones = [
   { id: 'public', label: 'Public', tone: 'public',
     rule: 'Holds no credential. Anonymous by design — a citizen writing to NITDA has no account.',
     components: [{ name: 'document-portal/', detail: `${countFilesIn('document-portal')} files · 5 pages · PWA` }] },
-  ...(HAS_PROXY ? [{ id: 'enforcement', label: 'Enforcement', tone: 'enforce',
-    rule: 'The only component that holds a credential for a system of record, and the only path onward.',
-    components: [{ name: 'proxy/', detail: 'Worker or node:http host' }] }] : []),
   { id: 'internal', label: 'Internal', tone: 'internal',
-    rule: 'NITDA staff. Entra ID mandatory once activated; provisioned and inert today.',
+    rule: 'NITDA staff. A one-time-code proof once activated — no directory, no tenant; provisioned and inert today.',
     components: [{ name: 'DGO R11.6 runtime', detail: `${Routes.length} routes · system of record` }] },
   { id: 'record', label: 'Systems of record', tone: 'record',
-    rule: HAS_PROXY
-      ? 'Reachable from the enforcement zone only. Private endpoint / IP restricted.'
-      : 'The enforcement boundary sits here, at the flow endpoint. Each flow authenticates '
+    rule: 'The enforcement boundary sits here, at the flow endpoint. Each flow authenticates '
         + 'and authorises its own caller; no shipped component stands in front of it.',
     components: [{ name: 'SharePoint', detail: 'lists + document library' },
                  { name: 'Power Automate', detail: 'workflows · cutover scope' }] },
@@ -613,7 +552,7 @@ if (process.argv.includes('--write')) {
   console.log(
     `platform-data.js — ${h.routes} routes · ${h.visibleWorkspaces} workspaces · ` +
     `${data.layers.files.core + data.layers.files.modules + data.layers.files.config + data.layers.files.shared} front-end files · ` +
-    `${data.backend.present ? `${data.backend.modules.length} proxy modules` : 'no proxy tier'} · ` +
+    'no proxy tier · ' +
     `${data.dataModel.listCount} lists / ${data.dataModel.fieldCount} fields · ` +
     `layers ${data.layers.acyclic ? 'acyclic' : 'CYCLIC'}`);
 } else {

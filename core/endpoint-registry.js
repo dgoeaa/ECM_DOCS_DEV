@@ -5,9 +5,22 @@
 //   1. a deployment-injected runtime manifest (globalThis.__DGO_ENDPOINT_MANIFEST__),
 //   2. an audited operator override stored in settings,
 //   3. the packaged default carried in config/endpoints.config.js.
-// The packaged defaults are signed Power Automate URLs and are therefore treated as a
-// TEMPORARY posture (upgrade plan F2.1 option 4): the registry reports them through
-// diagnostics so the rotation to a broker or injected manifest stays visible.
+//
+// THE PACKAGED DEFAULT IS THE TARGET STATE, not a way-station. Every URL is invoked
+// directly by the browser, with the complete trigger URL provisioned into the delivered
+// package by `npm run package`; there is no proxy, broker or other intermediary in the
+// request path, and none is to be introduced. An earlier revision of this file described
+// packaged URLs as a "TEMPORARY posture" and told diagnostics to warn until they were
+// moved to a broker. That broker was built, withdrawn and its branch retired, so the
+// warning survived its own subject: it flagged the approved architecture as a defect and
+// pointed operators at a component that does not exist.
+//
+// What diagnostics reports instead is what an operator can act on — which contracts have
+// no resolvable target, and where each resolved target came from. The consequence of the
+// direct model is stated where it belongs, in the package's own provisioning record: the
+// signed URL reaches the browser, so it can be rotated but never retired, and the flow
+// behind it is the only place authentication, authorisation, validation and rate limiting
+// can happen.
 import { EndpointContracts, EndpointUrls, EndpointKeys } from '../config/endpoints.config.js';
 import { fetchPolicyFor } from '../config/fetch-policy.config.js';
 
@@ -92,20 +105,40 @@ export function describeAll(overrides = {}) {
       configured: !!url(key, { overrides }),
     };
   });
-  const packaged = entries.filter(e => e.source === 'packaged-default');
   const warnings = [];
-  if (packaged.length) {
-    warnings.push({
-      code: 'endpoint.packaged-signature',
-      severity: 'warn',
-      message: `${packaged.length} endpoint(s) still resolve to packaged signed URLs. Inject ${MANIFEST_GLOBAL} at deployment time or move to the endpoint broker; see evidence/ENDPOINT_CONTRACT_AUDIT.json for the rotation procedure.`,
-      keys: packaged.map(e => e.key),
-    });
-  }
+
+  /* The only endpoint condition an operator can act on from inside the platform. Anything
+     unconfigured is a feature that will report itself unavailable at the moment of use;
+     naming the keys here is what turns "the action failed" into "SCAN_INTAKE was never
+     provisioned in this package". */
   const unconfigured = entries.filter(e => !e.configured);
   if (unconfigured.length) {
-    warnings.push({ code: 'endpoint.unconfigured', severity: 'error', message: 'Endpoints without a resolvable target', keys: unconfigured.map(e => e.key) });
+    warnings.push({
+      code: 'endpoint.unconfigured',
+      severity: 'error',
+      message: `${unconfigured.length} endpoint(s) have no resolvable target in this deployment. `
+        + 'Rebuild the package with those values supplied (npm run package -- --values <file>); '
+        + 'the features they serve report themselves unavailable until you do.',
+      keys: unconfigured.map(e => e.key),
+    });
   }
+
+  /* Reported, never warned on. An operator override is a legitimate diagnostic tool and a
+     deployment-injected manifest is a supported provisioning path — but a target that did
+     not come from the package is a target the package manifest does not describe, and an
+     operator reading diagnostics should be able to see that without inferring it. */
+  const overridden = entries.filter(e => e.configured && e.source !== 'packaged-default');
+  if (overridden.length) {
+    warnings.push({
+      code: 'endpoint.not-from-package',
+      severity: 'info',
+      message: `${overridden.length} endpoint(s) resolve to a target supplied at runtime rather than `
+        + 'the one provisioned into this package, so PACKAGE_MANIFEST.json does not describe where '
+        + 'they point.',
+      keys: overridden.map(e => e.key),
+    });
+  }
+
   return { entries, warnings };
 }
 

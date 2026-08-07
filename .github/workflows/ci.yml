@@ -68,6 +68,26 @@ jobs:
       - name: Check commissioning path
         run: node tests/commissioning.test.mjs
 
+      # Packaging and endpoint provisioning. The architecture decision is that every
+      # endpoint is called directly with its complete URL configured into the delivered
+      # artefact; this is the suite that holds the build step to it. Negative controls
+      # throughout: a truncated trigger URL must be REFUSED, a tampered package must FAIL
+      # verification, and a key added to the runtime but not to the shared endpoint surface
+      # must break the build rather than ship as a silently unprovisioned endpoint.
+      - name: Check packaging and endpoint provisioning
+        run: node tests/packaging.test.mjs
+
+      # Build both packages for real. The suite above builds into a temp directory with
+      # synthetic values; this proves the repository as committed can still produce the two
+      # artefacts that get handed over, and that each resolves its own module graph.
+      - name: Build the delivered packages
+        run: node scripts/package.mjs --quiet
+
+      - name: Verify the packages against their manifests
+        run: |
+          node scripts/package.mjs --verify dist/dgo-internal-platform
+          node scripts/package.mjs --verify dist/dgo-document-portal
+
   smoke:
     name: Smoke tests
     runs-on: ubuntu-latest
