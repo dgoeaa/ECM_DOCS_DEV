@@ -83,17 +83,23 @@ t('the generator still runs', () => {
 });
 
 t('the committed dataset is what the generator produces now', () => {
-  /* And the other half: a generator that runs but whose output no longer matches what is
-     committed means someone changed the tree and did not re-run it. Compared on the
-     derived values rather than byte-for-byte, because the file carries a timestamp. */
+  /* And the other half: a generator that RUNS but whose output no longer matches what is
+     committed means someone changed the tree and did not re-run `npm run visual`.
+
+     Compared on the DERIVED values only. `provenance` — commit sha, branch, commit date —
+     is read from git HEAD rather than from the tree, so it changes on every commit
+     including the one that adds this test. Comparing it would make the assertion fail
+     permanently and for a reason that is not drift, which is how a test gets marked flaky
+     and then ignored on the run where it is right. */
   const run = spawnSync(process.execPath, [path.join(ROOT, 'scripts/visual-docs-data.mjs'), '--print'],
     { cwd: ROOT, encoding: 'utf8' });
   if (run.status !== 0) return;   // the assertion above owns that failure
   const fresh = run.stdout.trim();
   if (!fresh.startsWith('{')) return;  // no --print support; the check above still holds
-  const committed = /=\s*(\{[\s\S]*\});?\s*$/.exec(read(DATA));
+  const committed = /=\s*(\{[\s\S]*?\});?\s*$/.exec(read(DATA));
   if (!committed) return;
-  const strip = o => JSON.stringify(o, (k, v) => (k === 'generatedAt' || k === 'builtAt' ? undefined : v));
+  const VOLATILE = new Set(['provenance', 'generatedAt', 'builtAt']);
+  const strip = o => JSON.stringify(o, (k, v) => (VOLATILE.has(k) ? undefined : v));
   assert.equal(strip(JSON.parse(fresh)), strip(JSON.parse(committed[1])),
     'docs/visual/platform-data.js is stale — run `npm run visual`');
 });
