@@ -18,7 +18,17 @@
 </head>
 <body>
   <a class="skip" href="#main">Skip to main content</a>
-  <div id="app"><div class="boot" role="status">Loading DGO Digital Operations…</div></div>
+  <!-- I-15. This was unstyled left-aligned body text on a white page, with the 15-second
+       watchdog below as the only other feedback — fifteen seconds of an apparently blank
+       page reads as a broken link. It now shows the brand mark, an indeterminate progress
+       indicator, and a "still loading" line that appears at 5 seconds. -->
+  <div id="app"><div class="boot" role="status" aria-live="polite">
+    <img class="boot__mark" src="assets/dgo-mark.svg" alt="" aria-hidden="true">
+    <p class="boot__title">DGO Digital Operations</p>
+    <div class="boot__bar" aria-hidden="true"><i></i></div>
+    <p class="boot__note">Starting your governed workspace…</p>
+    <p class="boot__slow" id="bootSlow" hidden>Still loading. This is taking longer than usual.</p>
+  </div></div>
   <noscript><div class="fatal">JavaScript is required to run DGO Digital Operations.</div></noscript>
   <script type="module" src="shared/figma-uiux-runtime.js"></script>
   <script type="module" src="core/boot.js"></script>
@@ -46,6 +56,10 @@
             return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m];
           });
         };
+        /* I-06. The screen a user sees when the platform is down used to speak only to a
+           developer: ES module resolution, file:// versus HTTP, directory names. An
+           operator can act on none of it. The plain notice and the retry come first; the
+           diagnostic text is still here, in full, behind a disclosure for IT support. */
         var detail = failed.length
           ? '<p>The following resources failed to load:</p><ul>' +
             failed.map(function (u) { return '<li><code>' + esc(u) + '</code></li>'; }).join('') +
@@ -53,12 +67,24 @@
           : '<p>No failing resource was reported. Check the browser console and the network ' +
             'panel — an ES module in the graph most likely failed to resolve.</p>';
         host.innerHTML =
-          '<div class="fatal"><h1>DGO could not start</h1>' +
+          '<div class="fatal">' +
+          '<h1>DGO Digital Operations could not start</h1>' +
+          '<p>The workspace did not finish loading. This is usually temporary.</p>' +
+          '<p><button type="button" class="fatal__retry" onclick="location.reload()">Try again</button></p>' +
+          '<p>If it happens again, contact IT support and tell them the time you saw this ' +
+          'message.</p>' +
+          '<details class="fatal__tech"><summary>Technical details (for IT support)</summary>' +
           '<p>The runtime did not finish booting within 15 seconds.</p>' + detail +
           '<p>Serve the app over HTTP (not <code>file://</code>) and confirm every module ' +
           'under <code>config/</code>, <code>core/</code>, <code>modules/</code> and ' +
-          '<code>shared/</code> is present.</p></div>';
+          '<code>shared/</code> is present.</p></details></div>';
       }, 15000);
+      /* I-15 — surface a "still loading" line well before the watchdog fires. */
+      setTimeout(function () {
+        if (window.__DGO_BOOTED__) return;
+        var slow = document.getElementById('bootSlow');
+        if (slow) slow.hidden = false;
+      }, 5000);
     })();
   </script>
 </body>

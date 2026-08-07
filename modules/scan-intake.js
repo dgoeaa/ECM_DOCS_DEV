@@ -65,13 +65,11 @@ function render(el) {
       ['In tray', tray.length],
       ['Deposited', deposited.length],
       ['Failed', failed.length],
-      ['Byte path', configured ? 'Configured' : 'Not configured'],
     ])}
     ${configured ? '' : `<section class="panel">
-      <div class="eyebrow panel-eyebrow">Deposit unavailable</div>
-      <p>No scan endpoint is configured. Set <code>SCAN_INTAKE</code> in
-         <code>config/config.local.js</code> under <code>window.DGO_CONFIG.endpoints</code>
-         to enable counter deposits.</p>
+      <div class="eyebrow panel-eyebrow">Counter deposit is not switched on</div>
+      <p>Scan deposit has not been switched on for this site yet. Contact IT support to
+         enable it. The configuration detail is on <a href="#/diagnostics">System health</a>.</p>
       <p class="meta">Correspondence can still be logged from <b>Intake &amp; Assignment</b>, but a
          record logged there carries no document. This workspace will not create one either —
          a registry record pointing at a document that was never filed is not a custody record.</p>
@@ -279,7 +277,7 @@ function recordFor(res, entry, d) {
 function failureText(res) {
   if (!res) return 'The deposit did not run.';
   switch (res.reason) {
-    case 'not-configured':   return 'No scan endpoint is configured. Set SCAN_INTAKE in window.DGO_CONFIG.endpoints.';
+    case 'not-configured':   return 'Scan deposit is not switched on for this site. Contact IT support.';
     case 'unauthenticated':  return 'Your session was not accepted. Sign in again and retry.';
     case 'forbidden':        return 'Your role may not deposit documents into the registry.';
     case 'unreachable':      return 'The endpoint could not be reached. The document was not filed.';

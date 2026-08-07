@@ -9,7 +9,7 @@ import { setTheme, setDensity, nextTheme, nextDensity, applyRootAttributes, esca
 import { CommandPalette, ToastHost } from './components.js';
 import { installAccessibilityShortcuts, afterRouteChange } from './accessibility.js';
 import { allWorkspaceCommands, guideFor } from './workspace-guide.js';
-import { canCurrentUserAccess } from '../core/current-user.js';
+import { canCurrentUserAccess, personaLabel } from '../core/current-user.js';
 import { NotificationCenter } from '../core/notification-center.js';
 
 const I = Object.freeze({home:'⌂','ecm-erp-charter':'⚖',correspondence:'✉','single-assignment':'▣',orchestrator:'⌘','response-tracking':'↔',approvals:'✓',dispatch:'➤',settings:'⚙',activities:'▤','bulk-assignment':'∞',lookup:'⌕',archive:'◇',registry:'▣',comments:'◌',reports:'R',statistics:'∑',executive:'E',assistant:'✦','operator-hud':'O',diagnostics:'D','user-admin':'U'});
@@ -32,7 +32,7 @@ class Shell extends HTMLElement{
       <aside class="dgo-sidebar" aria-label="Primary navigation" data-nav>
         <div class="dgo-brand-lockup"><img src="assets/dgo-mark.svg" alt="" aria-hidden="true"><span><b>DG<span>O</span> Digital Ops</b><small>An Initiative of NITDA</small></span></div>
         <nav class="dgo-sidebar__nav">${this.navHtml()}</nav>
-        <div class="dgo-sidebar__identity"><b data-name>${esc(s.profile.name)}</b><small data-role>${esc(s.profile.persona)} · ${esc(s.profile.email)}</small></div>
+        <div class="dgo-sidebar__identity"><b data-name>${esc(s.profile.name)}</b><small data-role>${esc(personaLabel(s.profile.persona))} · ${esc(s.profile.email)}</small></div>
       </aside>
       <section class="dgo-workarea">
         <header class="dgo-topbar">
@@ -45,7 +45,7 @@ class Shell extends HTMLElement{
           <button type="button" class="dgo-iconbtn" data-density aria-label="Toggle density" title="Density: ${esc(density)}">↕</button>
           <button type="button" class="dgo-iconbtn" data-theme aria-label="Switch theme" title="Theme: ${esc(theme)}">◐</button>
           <button type="button" class="dgo-iconbtn dgo-notify-trigger" data-notify-open aria-label="Activity and notifications" title="Activity" aria-haspopup="dialog" aria-expanded="false">•<span class="dgo-notify-badge" data-notify-badge hidden></span></button>
-          <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(s.profile.persona)}</small></span></button>
+          <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(personaLabel(s.profile.persona))}</small></span></button>
         </header>
         <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
         ${/* I-01 — the twenty guided routes are declared as handoffs of a visible workspace
@@ -184,7 +184,7 @@ class Shell extends HTMLElement{
     host.hidden=false;
     host.innerHTML=`<span class="dgo-related__label">Continue in</span>${targets.map(p=>`<a class="dgo-related__link" href="#/${esc(p)}"><span aria-hidden="true">${I[p]||'•'}</span>${esc(this.routeLabel(p))}</a>`).join('')}`;
   }
-  refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${s.profile.persona} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
+  refreshIdentityAndNav(){ const s=State.get(); const n=this.querySelector('[data-name]'), r=this.querySelector('[data-role]'); if(n)n.textContent=s.profile.name; if(r)r.textContent=`${personaLabel(s.profile.persona)} · ${s.profile.email}`; applyRootAttributes(Router.path()); }
   openCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(!p)return; p.hidden=false; this.renderCommandResults(''); this._trapFocus(p); requestAnimationFrame(()=>this.querySelector('[data-command-input]')?.focus()); }
   closeCommandPalette(){ const p=this.querySelector('[data-command-palette]'); if(p){ p.hidden=true; p._releaseTrap?.(); } }
   renderCommandResults(q=''){ const box=this.querySelector('[data-command-results]'); if(!box)return; const query=String(q).toLowerCase(); const items=allWorkspaceCommands().filter(c=>canCurrentUserAccess(c.route)).filter(c=>!query || `${c.label} ${c.route} ${c.purpose}`.toLowerCase().includes(query)).slice(0,20); box.innerHTML=items.map(c=>`<button type="button" role="option" class="dgo-cmdk__item" data-open-route="${esc(c.route)}"><span>${I[c.route]||'•'}</span><span><b>${esc(c.label)}</b><small>${esc(c.primary?'Workspace':(c.visibleThrough||'Contextual'))}</small></span></button>`).join('') || '<div class="dgo-cmdk__empty">No matching workspace.</div>'; box.querySelectorAll('[data-open-route]').forEach(b=>b.addEventListener('click',()=>{Router.go(b.dataset.openRoute); this.closeCommandPalette();})); }
