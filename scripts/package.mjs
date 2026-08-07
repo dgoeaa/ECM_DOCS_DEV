@@ -61,6 +61,7 @@ import { fileURLToPath } from 'node:url';
 import { SURFACES, SURFACE_IDS, pilotKeysOf } from './lib/endpoint-surface.mjs';
 import { validateSurface, redact, workflowIdOf } from './lib/endpoint-validation.mjs';
 import { trackedFiles, publishedSignatures, reusedSignatures } from './lib/published-signatures.mjs';
+import { renderEndpointCheckPage } from './lib/endpoint-check-page.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -537,6 +538,16 @@ function buildSurface(surfaceId, tracked, published) {
     sha256: sha256(provisioningDoc),
   });
 
+  /* The check an operator can actually run. It goes in before the manifest is sealed, so
+     it is hashed like everything else and `npm run package:verify` covers it. */
+  const checkPage = renderEndpointCheckPage(surfaceId, surface, meta);
+  fs.writeFileSync(path.join(dir, 'ENDPOINT-CHECK.html'), checkPage);
+  manifestFiles.push({
+    path: 'ENDPOINT-CHECK.html',
+    bytes: Buffer.byteLength(checkPage),
+    sha256: sha256(checkPage),
+  });
+
   const catalogueBody = renderFlowCatalogue(surfaceId, values, meta);
   fs.writeFileSync(path.join(dir, 'FLOW_CATALOGUE.json'), catalogueBody);
   manifestFiles.push({
@@ -838,6 +849,19 @@ correspondence or citizens' personal data.** When testing concludes, run \`npm r
 for the worklist, rebuild with \`--values\`, and redeploy.
 ` : ''}
 
+## First: check the endpoints answer
+
+\`\`\`
+python3 -m http.server 8080          # or any static server, from this directory
+\`\`\`
+
+Open **http://localhost:8080/ENDPOINT-CHECK.html** and press *Run the check*. It calls each
+flow from your browser — the same URL, method and request shape the platform uses — and tells
+you which answered, which refused the signature, and which were never reached at all.
+
+Read probes run on their own. Writes are behind a tick box, and anything they create is
+tagged \`__DGO_PROBE__\` so it can be found and deleted.
+
 ## Deploy
 
 Serve this directory as a static site. There is nothing to build, install or keep running:
@@ -858,6 +882,11 @@ set. A package that does not verify must not be deployed.
 - \`PACKAGE_MANIFEST.json\` — every file, its size and its SHA-256, plus the endpoint
   provisioning record. Signatures are redacted; the manifest is safe to share.
 - \`ENDPOINT_PROVISIONING.md\` — what is wired, what is not, and how to rotate.
+- \`ENDPOINT-CHECK.html\` — **the check you can actually run.** Serve this directory and open
+  it in a browser; it calls every flow the same way the platform does and reports what came
+  back. It keeps four outcomes apart — the flow answered, the signature was refused, the flow
+  is gone, and *nothing was reached* — because a CORS rejection and a revoked signature look
+  identical and lead to opposite actions.
 - \`FLOW_CATALOGUE.json\` — **every endpoint URL in full, unredacted**: the ${manifest.provisionedCount}
   wired here, the flow each one reached and the reference document that establishes it, and
   every other flow in the documented estate that no key currently calls. This is what you

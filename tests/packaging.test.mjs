@@ -33,6 +33,8 @@ import { validateEndpointUrl, validateSurface, redact } from '../scripts/lib/end
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+const { probeTables } = await import('../scripts/lib/endpoint-probes.mjs');
+
 let passed = 0, failed = 0;
 const t = (label, fn) => {
   try { fn(); passed++; console.log(`  ✅ ${label}`); }
@@ -395,6 +397,50 @@ t('the package carries every available flow URL, in full, wired or not', () => {
     const m = JSON.parse(fs.readFileSync(path.join(dir, 'PACKAGE_MANIFEST.json'), 'utf8'));
     assert.ok(!SIG.test(JSON.stringify(m)),
       `${id}: a signature reached PACKAGE_MANIFEST.json, which is meant to be shareable`);
+  }
+});
+
+t('the package carries a check the operator can run in their own browser', () => {
+  /* The terminal check needs a checkout, Node, and a network path to Power Automate.
+     Whoever deploys a static directory has a browser and none of the other three, so every
+     round of "does it work?" cost a message to someone who could run the CLI — and the
+     answer came back describing a different machine's network. ENDPOINT-CHECK.html asks the
+     same question from the machine that matters.
+
+     The load-bearing property asserted here is which probes it will run unattended. */
+  const out = path.join(work, 'catalogue');           // built by the test above
+  const { RUNTIME_PROBES } = probeTables({ probeEmail: 'x@y.invalid', runId: 'r' });
+
+  for (const id of SURFACE_IDS) {
+    const page = fs.readFileSync(path.join(out, SURFACES[id].packageName, 'ENDPOINT-CHECK.html'), 'utf8');
+    assert.match(page, /<title>Endpoint check/, `${id}: the check page was not emitted`);
+    assert.ok(page.includes(SURFACES[id].globalName),
+      `${id}: the page does not read this surface's configuration global`);
+    assert.ok(!new RegExp(`${SIG_PARAM}=[A-Za-z0-9_-]{20,}`).test(page),
+      `${id}: a signature is baked into the check page — it must read config.local.js instead`);
+
+    /* All four outcomes must be nameable, or the page collapses a network failure into a
+       credential failure — which is the mistake that has now been made twice in the CLI. */
+    for (const phrase of ['not reached', 'signature', 'refused', 'answered']) {
+      assert.ok(page.includes(phrase), `${id}: the page cannot report "${phrase}"`);
+    }
+  }
+
+  /* DISPATCH_OUTBOUND and ARCHIVE_REFERENCE have no endpoint entry — they ride the
+     DYNAMIC_ACTIONS URL — so a write set derived from the endpoint list omitted both, and
+     the page dispatched correspondence and archived a reference with the write box
+     unticked. Asserted against the contracts, which are the authority. */
+  const runtimePage = fs.readFileSync(path.join(out, 'dgo-internal-platform/ENDPOINT-CHECK.html'), 'utf8');
+  const declared = new Set(JSON.parse(/"writeKeys":(\[[^\]]*\])/.exec(runtimePage)[1]));
+  const mustBeWrites = Object.keys(RUNTIME_PROBES).filter(k => EndpointContracts[k] && !EndpointContracts[k].readOnly);
+  for (const k of mustBeWrites) {
+    assert.ok(declared.has(k),
+      `${k} mutates and the check page would probe it unattended`);
+  }
+  for (const k of Object.keys(RUNTIME_PROBES)) {
+    if (EndpointContracts[k]?.readOnly) {
+      assert.ok(!declared.has(k), `${k} is read-only and is being withheld behind the write gate`);
+    }
   }
 });
 

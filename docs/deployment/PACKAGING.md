@@ -164,8 +164,45 @@ legitimate migration gets deleted, and a deleted validator checks nothing.
 | `PACKAGE_MANIFEST.json` | Every file, its size and its SHA-256; the endpoint provisioning record; the build id. **Signatures are redacted** — the manifest is safe to paste into an issue. |
 | `ENDPOINT_PROVISIONING.md` | What is wired, what is not, which flow routes each URL carries, and how to rotate. Redacted. |
 | `FLOW_CATALOGUE.json` | **Every endpoint URL in full, unredacted** — the ones wired here, and every other flow in the documented estate. **This is a credential.** |
+| `ENDPOINT-CHECK.html` | The endpoint check, run from your own browser. Serve the directory, open it, press the button. |
 | `DEPLOY.md` | How to deploy it and what to verify first. |
 | `config/config.local.js` *or* `config.local.js` | The provisioned endpoint URLs, in the form the browser reads. **This is a credential.** |
+
+### `ENDPOINT-CHECK.html` — the check that runs where the deployment is
+
+`npm run verify:endpoints` answers "do these flows work?" from a terminal, and that is the
+wrong machine. It needs a checkout, Node, and a network path to Power Automate. Whoever is
+serving the static directory has a browser and none of the other three — so every round of
+"does it work?" cost a message to somebody who could run the CLI, and the answer came back
+describing a different machine's network.
+
+The browser is also where the real request path is: it is what actually calls the flows,
+under the CORS rules the flows actually apply, from the network the deployment actually sits
+on. So the check ships inside the package.
+
+```
+cd dist/dgo-internal-platform
+python3 -m http.server 8080
+# open http://localhost:8080/ENDPOINT-CHECK.html and press Run
+```
+
+It calls each flow the same way the platform does — same URL out of the same
+`config.local.js`, same method, same body, from `scripts/lib/endpoint-probes.mjs`, which the
+terminal check reads too. Write probes are behind a tick box. A second tick box probes the
+23 flows no contract key calls.
+
+**It keeps four outcomes apart, because collapsing any two sends someone to fix the wrong
+thing:**
+
+| Result | Means |
+|---|---|
+| **answered** / **refused** | The flow replied. A 4xx it produced itself is a live, validating flow — for `UPLOAD` and `STATUS` a refusal is the *correct* answer. |
+| **signature** | 401/403 from Power Automate. Rotate and rebuild. |
+| **no flow** | 404 on the trigger path. Deleted, or the URL is stale. |
+| **not reached** | The call never got an answer from Power Automate: a browser CORS rejection, an offline network, or something in the middle answering instead. **This says nothing about the endpoint.** A CORS rejection gives the page no status and no body, so it cannot be told apart from an unreachable host — and neither is evidence about the signature. |
+
+That last row is the one that matters. The CLI has got it wrong twice, in opposite
+directions, and both times it reported a network fact as an estate fact.
 
 ### `FLOW_CATALOGUE.json`, and why a package needs it
 
