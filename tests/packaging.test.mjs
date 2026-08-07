@@ -413,7 +413,7 @@ t('the package carries a check the operator can run in their own browser', () =>
 
   for (const id of SURFACE_IDS) {
     const page = fs.readFileSync(path.join(out, SURFACES[id].packageName, 'ENDPOINT-CHECK.html'), 'utf8');
-    assert.match(page, /<title>Endpoint check/, `${id}: the check page was not emitted`);
+    assert.match(page, /<title>Endpoint workbench/, `${id}: the workbench page was not emitted`);
     assert.ok(page.includes(SURFACES[id].globalName),
       `${id}: the page does not read this surface's configuration global`);
     assert.ok(!new RegExp(`${SIG_PARAM}=[A-Za-z0-9_-]{20,}`).test(page),
@@ -440,6 +440,77 @@ t('the package carries a check the operator can run in their own browser', () =>
   for (const k of Object.keys(RUNTIME_PROBES)) {
     if (EndpointContracts[k]?.readOnly) {
       assert.ok(!declared.has(k), `${k} is read-only and is being withheld behind the write gate`);
+    }
+  }
+});
+
+t('the workbench carries every capability it claims, on both surfaces', () => {
+  /* The page grew from one button to six tabs, each because the alternative was a message to
+     somebody with a terminal. A tab that silently stops being emitted is invisible — the page
+     still loads and still says it works — so the claim is asserted rather than trusted. */
+  const out = path.join(work, 'catalogue');           // built by the test above
+  for (const id of SURFACE_IDS) {
+    const dir = path.join(out, SURFACES[id].packageName);
+    const page = fs.readFileSync(path.join(dir, 'ENDPOINT-CHECK.html'), 'utf8');
+
+    for (const tab of ['check', 'routes', 'console', 'estate', 'report', 'env']) {
+      assert.ok(page.includes(`id="tab-${tab}"`), `${id}: the ${tab} tab is not in the page`);
+      assert.ok(page.includes(`data-tab="${tab}"`), `${id}: the ${tab} tab has no control`);
+    }
+
+    /* Every route the surface declares must be walkable, or the Routes tab reports a subset
+       of the obligations and calls it the whole set — which is the failure this repository
+       keeps finding in its own controls. */
+    const declared = SURFACES[id].endpoints
+      .flatMap(e => e.actions.filter(a => a !== '(raw PUT)').map(a => ({ key: e.key, action: a })));
+    const embedded = JSON.parse(/"routes":(\[.*?\}\])/s.exec(page)[1]);
+    assert.equal(embedded.length, declared.length,
+      `${id}: ${embedded.length} routes embedded, ${declared.length} declared`);
+    for (const d of declared) {
+      assert.ok(embedded.some(r => r.key === d.key && r.action === d.action),
+        `${id}: route ${d.key}.${d.action} is declared and the workbench cannot probe it`);
+    }
+
+    /* One classifier. Two would drift, and the terminal verifier proved that twice. */
+    assert.equal((page.match(/function verdict\(/g) || []).length, 1,
+      `${id}: the outcome classifier is defined more than once`);
+
+    /* The report is the artefact that leaves the machine. */
+    assert.ok(page.includes('No url and no signature, by construction'),
+      `${id}: the report payload no longer states that it carries no credential`);
+    assert.ok(!new RegExp(`${SIG_PARAM}=[A-Za-z0-9_-]{20,}`).test(page),
+      `${id}: a signature is baked into the workbench — it must read config.local.js instead`);
+  }
+});
+
+t('the self-contained copy needs no sibling file', () => {
+  /* The first person to open the served copy got `404 File not found`, because a static
+     server serves the directory it was started in and theirs was one level up. The page
+     cannot detect that, cannot explain it, and would have had the same trouble if the
+     package had been extracted somewhere else. The standalone copy removes the question.
+
+     Asserted on CONTENT, not on existence: a file that exists and still reaches for its
+     siblings is the failure this is meant to prevent. */
+  const out = path.join(work, 'catalogue');
+  for (const id of SURFACE_IDS) {
+    const dir = path.join(out, SURFACES[id].packageName);
+    const sa = fs.readFileSync(path.join(dir, 'ENDPOINT-CHECK-STANDALONE.html'), 'utf8');
+
+    assert.ok(!sa.includes(`<script src="${SURFACES[id].configPath}"`),
+      `${id}: the standalone copy still loads its configuration from a sibling file`);
+    assert.ok(sa.includes('window.__FLOW_CATALOGUE = {'),
+      `${id}: the standalone copy does not carry the flow catalogue`);
+    assert.ok(sa.includes(SURFACES[id].globalName + ' ='),
+      `${id}: the standalone copy does not set the configuration global`);
+    assert.ok(sa.includes('Self-contained copy'),
+      `${id}: the standalone copy does not say what it is`);
+
+    /* It must carry the same URLs as the package it came from, not a stale or empty set. */
+    const cfg = fs.readFileSync(path.join(dir, SURFACES[id].configPath), 'utf8');
+    const urls = [...cfg.matchAll(/"(https:\/\/[^"]+)"/g)].map(m => m[1]);
+    assert.ok(urls.length > 0, `${id}: no URLs in the configuration to compare against`);
+    for (const u of urls) {
+      assert.ok(sa.includes(u), `${id}: the standalone copy is missing a provisioned URL`);
     }
   }
 });
