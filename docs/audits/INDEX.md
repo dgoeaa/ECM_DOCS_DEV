@@ -1,6 +1,6 @@
 # Audit record — index and supersession chain
 
-Eight audit documents, written between 1 and 6 August 2026. Seven of them were
+Nine audit documents, written between 1 and 7 August 2026. Seven of them were
 previously at the repository root. They are kept **unedited** — an audit record that
 gets rewritten when it becomes inconvenient is not a record — so several of them
 contain claims that were true of the commit they examined and are not true now.
@@ -29,6 +29,7 @@ must do to go live, [`../deployment/COMMISSIONING.md`](../deployment/COMMISSIONI
 | [`REFERENCE_SNAPSHOT_REVIEW.md`](./REFERENCE_SNAPSHOT_REVIEW.md) | 2026-08-02 | `main` at the time | The `dgo_targets__state.json` snapshot; envelope mismatch `A-1`/`A-2` | **Live.** `A-1`/`A-2` are cited as prerequisites by the root platform audit |
 | [`FRONTEND_REVIEW_ASSESSMENT.md`](./FRONTEND_REVIEW_ASSESSMENT.md) | 2026-08-05, folded 08-06 | `8613358` | Assessment of an external frontend design review, 18 findings, **plus the 2 it missed** | **Live.** Wave 1 shipped; findings 19 and 20 closed; `tests/containment.spec.js` and `tests/portal.spec.js` cover them. The former `FRONTEND_REVIEW_PARITY_VERDICT.md` is folded into this document |
 | [`OPERATIONAL_READINESS_AUDIT.md`](./OPERATIONAL_READINESS_AUDIT.md) | 2026-08-06 | `main` | End-to-end audit of both platforms, all branches, and readiness for live operationalization. Findings `O-nn` | **Live.** The current audit |
+| [`DESIGN_AUDIT_BRIEF_ASSESSMENT.md`](./DESIGN_AUDIT_BRIEF_ASSESSMENT.md) | 2026-08-07 | `b003acd` | Assessment of an external visual/UX audit of both platforms, 33 findings, **plus the 7 it missed** (`V-nn`) | **Live.** 22 findings confirmed, 8 half right, 3 not reproducible — including `P-06`, one of the report's own release gates |
 
 ## Also here
 
@@ -59,6 +60,12 @@ FRONTEND_REVIEW_ASSESSMENT.md  ←── FRONTEND_REVIEW_PARITY_VERDICT.md
    (independent line: external design review, August 2026)
    The verdict was FOLDED IN, not superseded: its two findings, 19 and 20, are the
    ones the review itself missed, and both are now closed.
+        │
+        ├─ DESIGN_AUDIT_BRIEF_ASSESSMENT.md   (7 August 2026)
+        │     Same line, second external report — a visual/UX audit of both platforms,
+        │     assessed at b003acd. Neither supersedes the other: the frontend review
+        │     examined the stylesheet and shell, this one examined navigation, copy and
+        │     rendered layout. Its V-nn findings are the ones this report missed.
         │
         ▼
 OPERATIONAL_READINESS_AUDIT.md   (6 August 2026)
