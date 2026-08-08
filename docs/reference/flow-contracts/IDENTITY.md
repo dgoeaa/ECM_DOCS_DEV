@@ -1,8 +1,8 @@
 # Identity and role assignment — the flow contracts
 
-What Power Automate must do so that authentication and authorisation are real. No Entra, no
-Azure AD, no proxy: the flows are the only place a caller can be checked, so they are the
-only place this can live.
+What Power Automate must do so that authentication and authorisation are real. No external
+identity provider, no proxy: the flows are the only place a caller can be checked, so they are
+the only place this can live.
 
 Three flows and one list. Two of the flows already exist and are already wired.
 

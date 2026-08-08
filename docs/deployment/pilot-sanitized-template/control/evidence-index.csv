@@ -1,2 +1,0 @@
-evidence_id,relative_path,record_type,contains_internal_data,contains_personal_data,sha256,status,notes
-E-001,control/deployment-manifest.yaml,control-record,no,no,null,template,Populate checksum only in external private copy

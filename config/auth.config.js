@@ -1,10 +1,10 @@
 // DGO R11.6 — authentication configuration.
 //
-// NO ENTRA. NO AZURE AD. NO MSAL. NO IDENTITY PROVIDER TO REGISTER OR PAY FOR.
+// NO EXTERNAL IDENTITY PROVIDER. NO TENANT OR DIRECTORY TO REGISTER OR PAY FOR.
 //
-// This file used to describe an Entra ID integration: `provider: 'entra-id'`, a `tenantId`
-// and `clientId` to be supplied at deploy time, OIDC scopes, and a `roleClaimMap` translating
-// an IdP's group claims onto platform roles. None of it was ever activated, and all of it is
+// This file used to describe an external identity-provider integration: a named `provider`,
+// a `tenantId` and `clientId` to be supplied at deploy time, OIDC scopes, and a `roleClaimMap`
+// translating an IdP's group claims onto platform roles. None of it was ever activated, and all of it is
 // removed — it added a tenant registration, a directory dependency and an administrative
 // approval to the critical path of a platform whose entire architecture is otherwise
 // zero-build, zero-dependency and self-contained.
@@ -60,7 +60,7 @@ export const AuthConfig = Object.freeze({
    *   'verified' — the identity the OTP proof resolves to, as the flow returns it
    *
    * There is no 'claims' option any more. Reading a role out of a token claim was the
-   * Entra-shaped path, and it required an IdP to issue the claim and a map to translate it.
+   * identity-provider-shaped path, and it required an IdP to issue the claim and a map to translate it.
    */
   roleSource: _pick('roleSource', 'local'),
 

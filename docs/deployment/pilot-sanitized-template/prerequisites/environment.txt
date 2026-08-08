@@ -1,8 +1,0 @@
-# UTF-8 text template; populate only outside the repository
-NODE_VERSION=null
-NPM_VERSION=null
-WRANGLER_VERSION=null
-PLAYWRIGHT_VERSION=null
-PLATFORM=REDACTED
-BROWSER_TEST_HOST=REDACTED
-NOTES=Record exact local environment used for Part A prerequisite verification.

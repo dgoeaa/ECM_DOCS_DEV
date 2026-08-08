@@ -1,13 +1,15 @@
 # Minimal pilot — the short path
 
-About 75 minutes, most of it building flows.
+About 55 minutes, most of it building flows.
 
 This gets correspondence flowing end to end: a citizen submits, the registry sees it, an
 officer triages, assigns, approves, dispatches and closes. Nothing else.
 
-Use [`CLOUDFLARE.md`](./CLOUDFLARE.md) instead if you want every feature at once. Come back to
-it later to add the ones you skip here — each is one line in your config file and a redeploy of
-the static site.
+Hosting the front end and gating who may load it are handled outside this repository — not
+covered here. See [`FLOW-BUILD-WALKTHROUGH.md`](./FLOW-BUILD-WALKTHROUGH.md) instead if you want
+every SharePoint/Power Automate feature built at once (all 24 flows, not just the pilot's six).
+Come back to it later to add the ones you skip here — each is one line in your config file and a
+redeploy of the static site.
 
 ## Why this is so much smaller
 
@@ -35,7 +37,6 @@ minimal pilot is still a public endpoint on the open internet; build the flows a
 cd /path/to/ECM_DOCS_DEV
 git checkout main && git pull
 npm install
-npx wrangler login
 ```
 
 Then see where you stand before changing anything:
@@ -46,10 +47,6 @@ npm run commission
 
 It lists every obligation between this repository and a live deployment, and exits
 non-zero until they are met. Re-run it after each step below.
-
-The free Cloudflare plan is enough. There is no Worker and no Durable Object any more, so you
-do not need the Workers Paid plan; `wrangler` is used only to create and deploy the Pages
-site. Cloudflare Access, which you set up in step 4, is on the free Zero Trust tier.
 
 Create a plain values file by hand, outside the repository, to hold the flow URLs as you
 collect them:
@@ -146,7 +143,8 @@ revokes only the newer one.
 
 ### 3d · Build the two intake flows — 10 minutes
 
-These do not exist yet. Follow **C7** and **C9** in [`CLOUDFLARE.md`](./CLOUDFLARE.md) — every
+These do not exist yet. Follow **C7** and **C9** in
+[`FLOW-BUILD-WALKTHROUGH.md`](./FLOW-BUILD-WALKTHROUGH.md) — every
 field value and expression is given there, ready to copy.
 
 - **C7** builds `DGO Intake Submission` → paste its URL as `DGO_ENDPOINT_INTAKE_SUBMISSION`
@@ -163,40 +161,15 @@ the only thing standing between the register and an anonymous stranger with the 
 Skip C8, C10 and C11 for now — those are tracking, verification and the help desk. There is no
 signing secret to generate any more; the ticket is issued and redeemed inside the flows.
 
-## 4 · Cloudflare Access — 20 minutes
+## 4 · Gate who may load the internal page
 
-Dashboard → **Zero Trust**. Access gates **who may load the internal page** — nothing more. It
-does not sit between the page and the flows, so in this pilot an officer's role is advisory
-(see step 7). Set it up anyway: it is what keeps the interface off the open internet, and it is
-what you will build real authorisation on later.
-
-**4a** **Settings → Custom Pages.** Copy your team domain (`something.cloudflareaccess.com`)
-and note it in `~/dgo-values.txt` for the record. Nothing consumes it in the pilot — there is
-no Worker verifying tokens — but you will need it if you later enforce authentication per
-`docs/architecture/AUTHENTICATION_CONTRACT.md`.
-
-**4b** **Settings → Authentication → Login methods → Add new.** Add your organisation's
-provider. Then **Edit** it and turn on **Add groups to the JWT**. Click **Test** — the result
-must list your groups. The platform does not read this claim while authentication is inert, but
-enabling it now means the groups are already present when you do enforce auth.
-
-**4c** **Access → Groups.** Create six groups with exactly these names, putting the right
-people in each:
-
-```
-DGO-SystemAdmin    DGO-UserAdmin    DGO-Executive
-DGO-Director       DGO-Operator     DGO-Viewer
-```
-
-Everyone must be in exactly one.
-
-**4d** **Access → Applications → Add an application → Self-hosted.**
-Name `NITDA DGO Platform`, domain `nitda-dgo-platform.pages.dev`, session 8 hours.
-Policy name `DGO pilot access`, action **Allow**, include **Access groups** → all six.
-
-**4e** Open the application → **Overview** → copy the **Application Audience (AUD) Tag** and
-note it in `~/dgo-values.txt`. As with the team domain, nothing verifies it in the pilot; keep
-it for when you enforce authentication.
+Whatever keeps the internal interface off the open internet is set up and operated outside
+this repository. The platform has exactly six roles — `DGO-SystemAdmin`, `DGO-UserAdmin`,
+`DGO-Executive`, `DGO-Director`, `DGO-Operator`, `DGO-Viewer` — and every pilot officer needs to
+land in exactly one of them, however your access gate models that. Nothing here sits between
+the loaded page and the flows (step 3), so in this pilot an officer's role inside the app is
+advisory regardless of which gate you choose (see step 6). That gate is what you build real
+authorisation on later per `docs/architecture/AUTHENTICATION_CONTRACT.md`.
 
 ## 5 · Configure the endpoints — 5 minutes
 
@@ -251,16 +224,11 @@ visitor's browser, so treat them as public and rotate them on a schedule.
 
 ## 6 · Deploy the static site — 5 minutes
 
-Both config files must exist on disk first — `wrangler pages deploy .` uploads the working
-directory as-is, config files included.
-
-```bash
-npx wrangler pages project create nitda-dgo-platform --production-branch main
-npx wrangler pages deploy . --project-name nitda-dgo-platform
-```
-
-If the hostname it prints differs from `nitda-dgo-platform.pages.dev`, go back to 4d and
-correct the application domain, or the internal interface is reachable without a sign-in.
+Both config files must exist on disk first — whatever you use to deploy needs to publish the
+working directory as-is, config files included. How you host the front end and how you gate
+who may load it are decisions made outside this repository; make sure the deployed hostname
+matches whatever application domain your access gate is configured against, or the internal
+interface is reachable without a sign-in.
 
 ## 7 · Check it works — 10 minutes
 
@@ -292,14 +260,14 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST FETCH_ALL_URL \
 There is no Worker to refuse this. If your `FETCH_ALL` flow does not verify a token — the
 inert pilot default — it will answer `200` and hand the register to an anonymous caller. That
 is a known limitation of the pilot posture, not a misconfiguration: the URL is only shielded by
-being unadvertised and by Access gating the interface, never the flow. If a `200` here is
+being unadvertised and by whatever gates the interface, never the flow. If a `200` here is
 unacceptable for your data, build token verification into the flow before going live.
 
-**Have officers sign in.** One from each group opens the Pages URL, signs in through Access,
-and adds `#/diagnostics` to the address bar. Each sees their email and a role — but in the
-inert pilot that role is **advisory**, read from the profile the interface holds, not verified
-against the Access groups claim. Use it to confirm the interface renders per role, not as proof
-that privilege is enforced anywhere.
+**Have officers sign in.** One from each group opens the deployed URL, signs in through
+whatever gates the interface, and adds `#/diagnostics` to the address bar. Each sees their
+email and a role — but in the inert pilot that role is **advisory**, read from the profile the
+interface holds, not verified against any group claim. Use it to confirm the interface renders
+per role, not as proof that privilege is enforced anywhere.
 
 **Confirm the register is shared.** One officer registers a correspondence; a second, on a
 different machine, finds it under `#/lookup`. If they cannot, `FETCH_ALL` is not reaching its
@@ -311,18 +279,54 @@ file.
 Delete the test records from the `Correspondence` list, and delete `~/dgo-values.txt` — it
 holds the signed flow URLs, and each one is a bearer credential.
 
-Confirm the routing table in **Part H** of [`CLOUDFLARE.md`](./CLOUDFLARE.md). It decides which
-desk each kind of correspondence lands on, and nobody has approved it yet.
+Confirm the routing table below. It decides which desk each kind of correspondence lands on,
+and nobody has approved it yet.
+
+**H1** Open `config/correspondence-categories.config.js` in the repository.
+
+**H2** Read this table:
+
+| Document kind | Currently routes to |
+|---|---|
+| Ministerial Directive | Executive Correspondence |
+| Policy Submission | Policy / Regulation |
+| Compliance Filing | Policy / Regulation |
+| Application | Operations |
+| Proposal | Operations |
+| Project Proposal | Operations |
+| Report | Operations |
+| Meeting Request | General Administration |
+| Event Invitation | General Administration |
+| Official Correspondence | General Administration |
+| General Correspondence | General Administration |
+
+**H3** Confirm each row with whoever owns registry policy, or write down the corrections.
+
+**H4** Confirm which kinds the public may choose on the portal. Currently seven of the eleven
+are offered: General Correspondence, Application, Proposal, Report, Compliance Filing, Policy
+Submission, Event Invitation.
+
+**H5** To change a routing destination, edit the `DocumentKindRouting` object in that file so
+the kind points at the correct destination, then run:
+
+```bash
+node tests/categories.test.mjs
+```
+
+It fails if any kind is left without a routing rule.
+
+**H6** If you change the list of kinds, update the `Category` choices in the SharePoint
+`Correspondence` list (step 2) to match exactly.
 
 ---
 
 ## What you skipped, and how to add it
 
-Each is one line added to your config file and a redeploy of the static site (step 6).
+Each is one line added to your config file and a redeploy of the front end (step 6).
 
 | To add | Build the flow | Then set the key |
 |---|---|---|
-| Citizens tracking their submission | C8 in `CLOUDFLARE.md` | `STATUS` in `PF_CONFIG` |
+| Citizens tracking their submission | C8 in `FLOW-BUILD-WALKTHROUGH.md` | `STATUS` in `PF_CONFIG` |
 | Outward correspondence email | new flow | `EMAIL` in `DGO_CONFIG` |
 | Email verification before a reference is issued | C10 — both the verify and confirm flows | `VERIFY` and `VERIFY_CONFIRM` in `PF_CONFIG`, then have the `SUBMISSION` flow require the proof |
 | The public help desk | C11 | `SUPPORT` in `PF_CONFIG` |
@@ -341,7 +345,7 @@ every visitor's browser and can be read straight out of the page. Assume a hosti
 each one from the moment you deploy. Two consequences you cannot pilot your way around:
 
 - **Each flow must be safe when a stranger calls it** — it must validate its own input,
-  rate-limit its own callers, mint its own reference and verify its own uploads. Cloudflare
-  never sees a flow call, so it cannot help.
+  rate-limit its own callers, mint its own reference and verify its own uploads. Whatever
+  fronts the interface never sees a flow call, so it cannot help.
 - **Rotate the URLs on a schedule** — regenerate the SAS signature in Power Automate, paste the
   new URL into the config file, and redeploy. That is the only way to revoke an exposed URL.

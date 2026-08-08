@@ -1,9 +1,0 @@
-template_name: shared-register-test
-sanitized: true
-scenario:
-  machine_a_registers_record: null
-  machine_b_reads_same_record: null
-  fetch_all_endpoint_configured: null
-  result: null
-notes:
-  - Use operator references, not personal names or emails.

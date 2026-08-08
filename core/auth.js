@@ -164,8 +164,8 @@ export function getIdentity() {
  *
  * This was `mapClaimRole()`: it read an identity provider's group values out of a token
  * claim and translated them through `AuthConfig.roleClaimMap`. Both the claim and the map
- * were Entra-shaped — they needed a directory to issue the groups and an administrator to
- * maintain the translation — and both are gone with it.
+ * were identity-provider-shaped — they needed a directory to issue the groups and an
+ * administrator to maintain the translation — and both are gone with it.
  *
  * The OTP flow resolves the caller against DGO_UserDirectory and returns the role it found,
  * so there is nothing to map. Returning null when the proof carries no role is unchanged and

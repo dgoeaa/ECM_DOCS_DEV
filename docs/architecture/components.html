@@ -224,7 +224,7 @@
   </div>
   <div class="key">
     <span><i style="background:var(--public)"></i>Public — no authentication</span>
-    <span><i style="background:var(--internal)"></i>Internal — Entra ID (provisioned, inert until step 8)</span>
+    <span><i style="background:var(--internal)"></i>Internal — OTP identity (provisioned, inert until step 8)</span>
     <span><i style="background:var(--record)"></i>Systems of record — each flow enforces its own callers</span>
   </div>
 </section>
@@ -636,9 +636,10 @@
     <code>ECM_ActivityHub_Portal/</code> (a second internal application; 15 of its 19 pages duplicated
     root routes, and its three unique capabilities are now <code>briefs</code>, <code>meetings</code> and
     <code>projects</code>),
-    and <code>proxy/</code> (the Cloudflare Worker that held every signed trigger URL server-side, minted
-    references, brokered uploads and enforced the filename policy — removed so the platform has no runtime
-    to deploy, at the cost of moving all four obligations onto the flows themselves).
+    and <code>proxy/</code> (the withdrawn authenticating proxy that held every signed trigger URL
+    server-side, minted references, brokered uploads and enforced the filename policy — removed so the
+    platform has no runtime to deploy, at the cost of moving all four obligations onto the flows
+    themselves).
   </p>
 </section>
 

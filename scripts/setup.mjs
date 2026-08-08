@@ -75,9 +75,9 @@ const VALUES_FILE = (() => {
  * Authentication, injected the same way the endpoints are.
  *
  * config/auth.config.js reads `window.DGO_CONFIG.auth` and holds every structure the
- * enforced posture needs, switched off. There is no tenantId or clientId to supply — Entra
- * is removed, and identity is the OTP_GENERATE / OTP_VERIFY pair, which arrives with every
- * other endpoint. Activation is therefore a flag, not a registration.
+ * enforced posture needs, switched off. There is no tenantId or clientId to supply — no
+ * identity provider is depended on, and identity is the OTP_GENERATE / OTP_VERIFY pair,
+ * which arrives with every other endpoint. Activation is therefore a flag, not a registration.
  *
  * Flipping `enabled` changes four behaviours at once, by design — see the header of
  * config/auth.config.js. It does NOT make anything server-authoritative on its own:

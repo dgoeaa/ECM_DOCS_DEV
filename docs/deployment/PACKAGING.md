@@ -302,7 +302,7 @@ Enabling auth provisions the client half: the browser acquires a one-time-code p
 sends it, stops asserting identity itself, and reads the role the proof carries. It does not
 make any decision server-authoritative.
 
-**There is no Entra tenant, no directory registration and no administrator approval on this
+**There is no identity-provider tenant, no directory registration and no administrator approval on this
 path.** Identity is `OTP_GENERATE` and `OTP_VERIFY`, two Power Automate flows that arrive in
 the package with every other URL, so activation is a flag rather than a procurement.
 

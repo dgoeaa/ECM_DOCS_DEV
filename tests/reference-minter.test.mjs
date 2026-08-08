@@ -69,7 +69,7 @@ await t('it is the SAME shape the registry issues', () => {
      the front door. Pinning the guides here is what stops that instruction returning. */
   assert.doesNotMatch(stated, /N{2,}/,
     'the contract must not specify a fixed-width padded sequence; the register does not pad');
-  for (const guide of ['docs/deployment/CLOUDFLARE.md', 'docs/deployment/MINIMAL-PILOT.md']) {
+  for (const guide of ['docs/deployment/FLOW-BUILD-WALKTHROUGH.md', 'docs/deployment/MINIMAL-PILOT.md']) {
     assert.doesNotMatch(read(guide), /NITDA-YYYY-N{2,}/,
       `${guide} still instructs implementers to mint a padded reference`);
   }

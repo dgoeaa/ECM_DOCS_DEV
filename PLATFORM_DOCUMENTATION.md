@@ -188,7 +188,7 @@ Complete on the client side and **switched off**. The platform is in development
 
 ### Why there is no proxy
 
-An authenticating proxy was built — `proxy/`, a Cloudflare Worker holding every signed trigger URL server-side — and then removed, because a platform that needs a runtime deployed and kept alive before it can be used is a platform that mostly is not used. Every request now goes **directly** to the configured flow URL.
+An authenticating proxy was built — `proxy/`, holding every signed trigger URL server-side — and then removed, because a platform that needs a runtime deployed and kept alive before it can be used is a platform that mostly is not used. Every request now goes **directly** to the configured flow URL.
 
 The cost is stated plainly rather than absorbed: the signed URL is delivered to the browser, so it remains a credential in client code, and it can only be rotated, never retired. **Every obligation the proxy discharged now belongs to the flow** — token validation, role derivation, per-action authorisation, idempotency, rate limiting, reference minting, upload ticketing and the Universal Filename Policy. `docs/architecture/AUTHENTICATION_CONTRACT.md` §2 lists them; `document-portal/README.md` gives the per-endpoint contract. A flow that does not implement them is not protected by anything else.
 

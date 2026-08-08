@@ -36,10 +36,11 @@ Every governed Power Automate endpoint **must** perform all of the following. Cl
 
 ## 3. Activation procedure
 
-> **Entra ID is removed.** This section used to open by telling you to register an
-> application in Entra, note a tenant id and a client id, and define six app roles — a
-> directory dependency and an administrator's approval on the critical path of activation,
-> for a platform that otherwise has zero runtime dependencies and nothing to stand up.
+> **No external identity provider is depended on.** This section used to open by telling you
+> to register an application with an identity provider, note a tenant id and a client id, and
+> define six app roles — a directory dependency and an administrator's approval on the
+> critical path of activation, for a platform that otherwise has zero runtime dependencies
+> and nothing to stand up.
 >
 > Identity is `core/otp-identity.js`: `OTP_GENERATE` mails a one-time code, `OTP_VERIFY`
 > exchanges it for a signed expiring proof. Both are Power Automate flows the platform
@@ -94,7 +95,7 @@ Note the last row. The RBAC model was never the weakness; **its input was.**
 - **Inert posture is behaviour-preserving** — no `Authorization` header, `userEmail` still sent, `ensureAuthenticated()` a no-op. Adding auth must not disturb development or pilots.
 - **Enforced posture sends no anonymous request** — every governed call carries a bearer token or throws.
 - **Enforced posture ignores local role tampering** — the demonstrated `viewer` → `systemAdmin` escalation is encoded as a test that fails if the local path is ever reinstated.
-- **Both postures route directly to configured endpoint URLs** — no external proxy, APIM, or Azure Function is consulted. The data client resolves to the flow URL from `window.DGO_CONFIG.endpoints`.
+- **Both postures route directly to configured endpoint URLs** — no external proxy, API gateway, or serverless function is consulted. The data client resolves to the flow URL from `window.DGO_CONFIG.endpoints`.
 - **Activation readiness is checked** — `missingActivationConfig()` names every key still required, surfaced through Diagnostics before anyone attempts to activate. `proxyBaseUrl` is NOT required.
 
 ## 6. Known limitation while inert

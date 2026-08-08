@@ -1,9 +1,10 @@
 # Deployment documentation
 
-**Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — about 75 minutes, gets
+**Start here: [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md)** — the short path, gets
 correspondence flowing end to end. Every governed write in the platform goes through one
 endpoint, so a pilot needs 6 flows rather than 24; the rest are features you add later, one
-config line and a redeploy each.
+config line and a redeploy each. Hosting the front end and gating who may load it are handled
+outside this repository — not covered here.
 
 Then:
 
@@ -17,19 +18,15 @@ Then:
   contract keys across 15 physical flows, each with its request, response and obligations,
   sequenced into six waves by what unblocks what. Start at Wave 0: it closes the fail-open
   that makes every browser a System Administrator, and needs no authentication.
-- **[`CLOUDFLARE.md`](./CLOUDFLARE.md)** — the full deployment, and the reference for the
-  parts the minimal path points at. What to DO. A click-by-click walkthrough in nine
-  parts (A to I), 229 numbered steps, from checking Node.js to reading the logs after
-  go-live. Follow it top to bottom.
+- **[`FLOW-BUILD-WALKTHROUGH.md`](./FLOW-BUILD-WALKTHROUGH.md)** — the full SharePoint and
+  Power Automate build, and the reference for the parts the minimal path points at. What to
+  DO. A click-by-click walkthrough in two parts (B and C), from provisioning SharePoint to
+  building the last intake flow. Follow it top to bottom.
 - **[`LOCAL-DEV.md`](./LOCAL-DEV.md)** — how to run both applications end to end with nothing
   provisioned. `npm run dev` starts one Node process that serves the platform, the portal and
   a stand-in for every endpoint they call. It authenticates nobody, binds loopback only and
   refuses to start under `NODE_ENV=production`; use it to read the code, review a screen or
   reproduce a bug, never to carry real correspondence.
-- **[`pilot-sanitized-template/`](./pilot-sanitized-template/README.md)** — what to RECORD.
-  Registers for each flow regenerated, deleted or rebuilt, the value register, endpoint
-  configuration status and verification results. Fill these in as you work through
-  CLOUDFLARE.md so the cutover leaves evidence rather than only an outcome.
 
 The one script that replaces a tedious part:
 
@@ -42,8 +39,3 @@ straight into the endpoint configuration each platform loads — written into a 
 by `npm run setup`, and into a deliverable package by `npm run package`. Because that file
 is delivered to every visitor's browser, treat every URL in it as a public bearer credential
 and rotate it on a schedule. Rotation is the only revocation there is.
-
-The value register uses the same V1–V7 numbering as Part A of the walkthrough, and the flow
-registers use the same workflow IDs as Part C.
-
-The committed template tree contains placeholders only. Copy it outside the repository before entering any operational, internal, or personal data.

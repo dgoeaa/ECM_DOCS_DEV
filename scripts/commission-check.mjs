@@ -24,13 +24,13 @@
  *                configuration errors surface here rather than against a fresh estate
  *                nobody has ever called. Never serve the public from this posture.
  *
- *   pilot     Cloudflare Access gates who may LOAD the interface. Auth is inert, role
- *             is advisory, and a flow called directly answers whoever calls it. Fit for
- *             an internal pilot on correspondence you accept being readable by anyone
- *             holding a URL. Not fit for citizens' personal data at scale.
+ *   pilot     Whatever gates who may LOAD the interface is set up outside this repository.
+ *             Auth is inert, role is advisory, and a flow called directly answers whoever
+ *             calls it. Fit for an internal pilot on correspondence you accept being
+ *             readable by anyone holding a URL. Not fit for citizens' personal data at scale.
  *
  *   enforced  auth.enabled:true with OTP_GENERATE and OTP_VERIFY wired — and each flow
- *             verifying the proof itself. There is no Entra tenant, no directory
+ *             verifying the proof itself. There is no identity-provider tenant, no directory
  *             registration and no administrator approval on this path; identity is two
  *             Power Automate flows the platform already calls. The client half is in this
  *             repository. The server half is not and cannot be: it lives in the flows.
@@ -361,8 +361,8 @@ if (isDev) {
 } else {
   warn('auth', 'pilot posture: authentication is inert and enforcement is advisory',
     'Caller identity is a client-asserted userEmail from localStorage; editing one ' +
-    'storage key escalates a viewer to systemAdmin. Cloudflare Access gates who may ' +
-    'LOAD the interface, but it does not sit between the page and the flows — a flow ' +
+    'storage key escalates a viewer to systemAdmin. Whatever gates who may LOAD the ' +
+    'interface, it does not sit between the page and the flows — a flow ' +
     'called directly answers whoever calls it.',
     'Acceptable for an internal pilot. Not for citizens\' personal data at scale.');
   if (portalEndpoints && Object.keys(portalEndpoints).some(k => PUBLIC_PORTAL.includes(k) && portalEndpoints[k])) {
@@ -371,7 +371,7 @@ if (isDev) {
       'the page source. Each configured flow must validate its own input, rate-limit its ' +
       'own callers, mint its own reference and verify its own uploads, because nothing ' +
       'else in the request path can.',
-      'Confirm C7/C9 obligations in docs/deployment/CLOUDFLARE.md are built');
+      'Confirm C7/C9 obligations in docs/deployment/FLOW-BUILD-WALKTHROUGH.md are built');
   }
 }
 
@@ -406,9 +406,9 @@ manual('quality', 'browser suite must be run against the deployed build',
  * ------------------------------------------------------------------ */
 
 manual('governance', 'routing table needs approval',
-  'Part H of docs/deployment/CLOUDFLARE.md decides which desk each kind of ' +
+  'docs/deployment/MINIMAL-PILOT.md §8 decides which desk each kind of ' +
   'correspondence lands on. It has not been approved by anyone.',
-  'docs/deployment/CLOUDFLARE.md Part H');
+  'docs/deployment/MINIMAL-PILOT.md §8');
 
 manual('governance', 'test records must be cleared before real correspondence arrives',
   'Commissioning verification writes real rows into the Correspondence list, and a ' +

@@ -68,7 +68,8 @@ t('the generator still runs', () => {
      writes nothing and the committed file keeps answering — correctly, for as long as
      nothing has changed.
 
-     That is not hypothetical. Removing Entra deleted `AuthConfig.scopes`, and
+     That is not hypothetical. Removing the identity-provider integration deleted
+     `AuthConfig.scopes`, and
      `scripts/visual-docs-data.mjs` still spread it: `npm run visual` died with
      "AuthConfig.scopes is not iterable" while this suite stayed green on the last file it
      had successfully produced. A drift test that cannot tell "nothing drifted" from

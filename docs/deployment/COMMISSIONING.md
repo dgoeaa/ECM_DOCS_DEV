@@ -60,8 +60,8 @@ This is the boundary that governs everything below.
 | **Flow token validation, role derivation, per-action authorisation, rate limiting, reference minting, upload ticketing** | **Power Automate** | **only you** |
 | SAS signature rotation | Power Automate | only you |
 | SharePoint lists and columns | your tenant | only you |
-| Cloudflare Pages + Access | your Cloudflare account | only you |
-| ~~Entra tenant and client IDs~~ | **not required** — Entra is removed | — |
+| Hosting the front end, and gating who may load it | your infrastructure, outside this repository | only you |
+| ~~Identity-provider tenant and client IDs~~ | **not required** — no identity provider is depended on | — |
 
 The middle row is gap **G-04**, and it is the one that matters most. An authenticating
 proxy used to discharge it; that proxy has been removed. Every obligation it carried now
@@ -114,10 +114,11 @@ proven.
 > **refuses them in pilot and enforced**, so this wiring cannot reach production by
 > accident. Never point it at real correspondence or expose it publicly.
 
-**Pilot** — Cloudflare Access gates who may *load* the interface. Authentication stays
-inert: caller identity is a client-asserted `userEmail` from `localStorage`, and RBAC is
-advisory, so editing one storage key escalates a viewer to `systemAdmin`. Access does not
-sit between the page and the flows, so a flow called directly answers whoever calls it.
+**Pilot** — whatever gates who may *load* the interface is set up outside this repository.
+Authentication stays inert: caller identity is a client-asserted `userEmail` from
+`localStorage`, and RBAC is advisory, so editing one storage key escalates a viewer to
+`systemAdmin`. That gate does not sit between the page and the flows, so a flow called
+directly answers whoever calls it.
 
 > Fit for an internal pilot on correspondence you accept being readable by anyone holding
 > a URL. **Not fit for the personal data of ~785 individuals** (finding R-01) — the pilot
@@ -133,8 +134,9 @@ npm run commission -- --posture pilot
 npm run commission -- --posture enforced
 ```
 
-`enforced` no longer asks for anything you have to go and get. Entra is removed: there is
-no tenant to register, no client id to obtain and no administrator's approval on the path.
+`enforced` no longer asks for anything you have to go and get. No identity provider is
+depended on: there is no tenant to register, no client id to obtain and no administrator's
+approval on the path.
 What it asks for is two endpoints, and they arrive in the package with every other URL — so
 activation is a flag rather than a procurement. What does not change is that **every
 authentication and authorisation decision belongs to the flow**. The gate reports it as a
@@ -260,14 +262,10 @@ Delete `~/dgo-values.txt` when you are done — every line in it is a credential
 
 ### 5 · Deploy
 
-```bash
-npx wrangler pages project create nitda-dgo-platform --production-branch main
-npx wrangler pages deploy . --project-name nitda-dgo-platform
-```
-
-`wrangler pages deploy .` uploads the working directory as-is, so both config files must
-exist on disk first. Confirm the hostname matches the Access application domain, or the
-internal interface is reachable without a sign-in.
+Hosting the front end, and gating who may load it, are handled outside this repository.
+Whatever you use to publish it needs to upload the working directory as-is, so both config
+files must exist on disk first. Confirm the deployed hostname matches whatever your access
+gate is configured against, or the internal interface is reachable without a sign-in.
 
 ### 6 · Verify, then declare
 
@@ -284,7 +282,7 @@ have one officer from each group sign in and check `#/diagnostics`; confirm two 
 on different machines see the same register.
 
 Before real correspondence arrives, delete the test records and confirm the routing table
-in Part H of `CLOUDFLARE.md` — nobody has approved it yet.
+in `MINIMAL-PILOT.md` §8 — nobody has approved it yet.
 
 ---
 
@@ -296,7 +294,7 @@ remain, and they always require a person:
 
 1. **The flows enforce what they claim to.** Untestable from here. Verify each against an
    anonymous caller and an under-privileged caller before trusting any governance control.
-2. **The routing table is approved.** `CLOUDFLARE.md` Part H decides which desk each kind
+2. **The routing table is approved.** `MINIMAL-PILOT.md` §8 decides which desk each kind
    of correspondence lands on.
 3. **Test records are cleared** and the reference sequence does not continue from them.
 4. **The data protection position is accepted** for the posture you chose. Finding R-01
@@ -308,8 +306,8 @@ remain, and they always require a person:
 
 ## Reference
 
-- `docs/deployment/MINIMAL-PILOT.md` — the 75-minute path
-- `docs/deployment/CLOUDFLARE.md` — the full walkthrough, 229 numbered steps
+- `docs/deployment/MINIMAL-PILOT.md` — the short path
+- `docs/deployment/FLOW-BUILD-WALKTHROUGH.md` — the full SharePoint/Power Automate walkthrough
 - `docs/architecture/AUTHENTICATION_CONTRACT.md` — what the server half must do
 - `docs/STATUS_REPORT.md` — the finding register
 - `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` — the gap analysis behind G-03 and G-04

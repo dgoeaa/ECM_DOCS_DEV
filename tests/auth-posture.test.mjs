@@ -171,7 +171,7 @@ if (POSTURE === 'enforced') {
   // Register a provider issuing a low-privilege token.
   /* The OTP flow resolves the caller against DGO_UserDirectory and returns the role it
      found, so the proof carries `role` directly. There is no claim to map and no map to
-     maintain — that was the Entra-shaped path. */
+     maintain — that was the identity-provider-shaped path. */
   auth.registerTokenProvider(async () => ({
     token: fakeJwt({ email: 'viewer@nitda.gov.ng', name: 'Low Priv', role: 'viewer' }),
     expiresAt: Date.now() + 3_600_000,

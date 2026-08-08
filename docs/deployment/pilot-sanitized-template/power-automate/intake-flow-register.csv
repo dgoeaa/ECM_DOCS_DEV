@@ -1,8 +1,0 @@
-flow_purpose,config_label,exists_before_build,created_identifier,url_vault_reference,notes
-submission,DGO_ENDPOINT_INTAKE_SUBMISSION,null,null,vault://pilot/endpoints/INTAKE_SUBMISSION,
-upload,DGO_ENDPOINT_INTAKE_UPLOAD,null,null,vault://pilot/endpoints/INTAKE_UPLOAD,V6 may reference same underlying flow
-status,DGO_ENDPOINT_INTAKE_STATUS,null,null,vault://pilot/endpoints/INTAKE_STATUS,
-support,DGO_ENDPOINT_INTAKE_SUPPORT,null,null,vault://pilot/endpoints/INTAKE_SUPPORT,
-verify-email,DGO_ENDPOINT_INTAKE_VERIFY_EMAIL,null,null,vault://pilot/endpoints/INTAKE_VERIFY_EMAIL,
-verify-confirm,DGO_ENDPOINT_INTAKE_VERIFY_CONFIRM,null,null,vault://pilot/endpoints/INTAKE_VERIFY_CONFIRM,
-scan-upload,DGO_ENDPOINT_SCAN_UPLOAD,null,null,vault://pilot/endpoints/SCAN_UPLOAD,Optional separate config key

@@ -22,7 +22,7 @@ Client-side web applications powering NITDA's Digital Operations platform, plus 
 
 2. **Authentication is provisioned but INERT.** The auth layer is complete on the client side and switched off so the pilot loop stays frictionless. While inert, caller identity travels as a client-asserted `userEmail` from `localStorage` and RBAC is advisory only — editing one storage key escalates a viewer to `systemAdmin`.
 
-   Activation is a configuration event, not a development one: set `auth.enabled: true` and implement the server obligations. **There is no Entra tenant, no directory registration and no administrator approval** — identity is `OTP_GENERATE` and `OTP_VERIFY`, two Power Automate flows that arrive in the package with every other URL. See **[`docs/architecture/AUTHENTICATION_CONTRACT.md`](docs/architecture/AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
+   Activation is a configuration event, not a development one: set `auth.enabled: true` and implement the server obligations. **There is no identity-provider tenant, no directory registration and no administrator approval** — identity is `OTP_GENERATE` and `OTP_VERIFY`, two Power Automate flows that arrive in the package with every other URL. See **[`docs/architecture/AUTHENTICATION_CONTRACT.md`](docs/architecture/AUTHENTICATION_CONTRACT.md)**. Diagnostics shows the live posture.
 
 Both items are open. See G-03 and G-04 of the capability assessment.
 

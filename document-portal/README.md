@@ -6,7 +6,7 @@ carries no staff-facing function — internal operations live in the root platfo
 the system of record. Built on the **NITDA Design System v2.1**.
 
 Static files only — no build step, no framework, no CDN dependency. Copy the folder to any
-web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, Azure Static Web Apps) and it runs.
+web root (Apache, Nginx, IIS, S3 + CloudFront, GitHub Pages, or any static host) and it runs.
 
 ## Pages
 

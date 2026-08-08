@@ -956,7 +956,7 @@
         '<p>The cache constant must be bumped on every release, and <em>always</em> when endpoints rotate: cache-first means a stale entry survives a redeploy, so rotating without bumping pins returning visitors to an endpoint that no longer exists.</p></div>';
       out += '<h3 class="sub" data-aud="dev">Runtime</h3>';
       out += '<div class="tags" data-aud="dev">' + tagList(pt.scripts) + '</div>';
-      out += '<p data-aud="dev">Classic scripts, one namespace, no build step. The portal can be copied to any web root — Apache, Nginx, IIS, S3 and CloudFront, Cloudflare Pages, Azure Static Web Apps — and it runs.</p>';
+      out += '<p data-aud="dev">Classic scripts, one namespace, no build step. The portal can be copied to any web root — Apache, Nginx, IIS, or any static host — and it runs.</p>';
       return out;
     }
   });
@@ -1218,7 +1218,7 @@
         ['<code>npm run visual</code>', 'Regenerates this atlas\'s dataset from the source tree.'],
         ['<code>npm test</code>', 'The whole suite: import graph, secrets, governance, encoding, hardening, proxy, intake, upload, architecture and the browser smoke tests.']
       ]);
-      out += '<p data-aud="ops">The full click-by-click deployment walkthrough — Cloudflare Access groups, flow regeneration, SharePoint provisioning, secrets, verification evidence and rollback — is <code>docs/deployment/CLOUDFLARE.md</code>, with the shortest viable path in <code>docs/deployment/MINIMAL-PILOT.md</code>.</p>';
+      out += '<p data-aud="ops">The full click-by-click SharePoint and Power Automate build — flow regeneration, provisioning, secrets — is <code>docs/deployment/FLOW-BUILD-WALKTHROUGH.md</code>, with the shortest viable path in <code>docs/deployment/MINIMAL-PILOT.md</code>. Hosting and access-gating are handled outside this repository.</p>';
       return out;
     }
   });
@@ -1307,7 +1307,7 @@
         ['<code>docs/architecture/AUTHENTICATION_CONTRACT.md</code>', 'The activation specification and every server-side obligation, clause by clause.'],
         ['<code>docs/architecture/TARGET_ARCHITECTURE.md</code>', 'The full architecture narrative and the numbered build sequence.'],
         ['<code>docs/architecture/components.html</code>', 'The drift-tested component and relationship sheets this atlas expands on.'],
-        ['<code>docs/deployment/CLOUDFLARE.md</code>', 'The click-by-click deployment walkthrough, with evidence templates.'],
+        ['<code>docs/deployment/FLOW-BUILD-WALKTHROUGH.md</code>', 'The click-by-click SharePoint and Power Automate build.'],
         ['<code>docs/cutover/FLOW_DECOMMISSION_INVENTORY.md</code>', 'Every published workflow signature and its disposition.'],
         ['<code>docs/audits/CAPABILITY_ASSESSMENT_R11.6.md</code>', 'The gap analysis behind the open items in sheet 16.']
       ]);

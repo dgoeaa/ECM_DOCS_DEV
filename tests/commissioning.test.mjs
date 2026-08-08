@@ -223,10 +223,10 @@ check('the auth block is emitted only when supplied', () => {
     .call(sandbox, sandbox.window);
   assert(sandbox.window.DGO_CONFIG.auth?.enabled === true, 'auth.enabled did not carry through');
   assert(sandbox.window.DGO_CONFIG.auth.roleSource === 'verified', 'roleSource did not carry through');
-  /* There is no tenant to carry. Entra is removed, so activation needs no directory
-     registration and no administrator approval — only the two OTP endpoints, which arrive
-     with every other URL. */
-  assert(!('tenantId' in sandbox.window.DGO_CONFIG.auth), 'a tenantId was emitted; Entra is removed');
+  /* There is no tenant to carry. No identity provider is depended on, so activation needs
+     no directory registration and no administrator approval — only the two OTP endpoints,
+     which arrive with every other URL. */
+  assert(!('tenantId' in sandbox.window.DGO_CONFIG.auth), 'a tenantId was emitted; no identity provider is depended on');
 });
 
 /* ------------------------------------------------------------------ *
@@ -348,7 +348,7 @@ check('enforced auth without the OTP endpoints blocks', () => {
   const r = run(dir, 'commission-check.mjs');
   assert(r.status === 1, 'enforced auth cleared with no way to issue a proof');
   assert(/OTP_GENERATE/.test(r.stdout), 'the missing OTP endpoints were not named');
-  assert(!/tenantId|clientId/.test(r.stdout), 'the gate still asks for an Entra tenant');
+  assert(!/tenantId|clientId/.test(r.stdout), 'the gate still asks for an identity-provider tenant');
 });
 
 check('the server half is always reported as unverifiable, never as done', () => {

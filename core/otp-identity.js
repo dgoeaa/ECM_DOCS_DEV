@@ -1,7 +1,7 @@
 // DGO R11.6 — OTP identity.
 //
-// An identity provider built entirely from Power Automate flows: no Entra, no Azure AD, no
-// MSAL, no vendor SDK, and nothing added to a repository whose architecture is zero-build
+// An identity provider built entirely from Power Automate flows: no external identity
+// provider, no vendor SDK, and nothing added to a repository whose architecture is zero-build
 // with no runtime dependencies. It satisfies core/auth.js's token-provider contract, so
 // turning it on is the same activation path docs/architecture/AUTHENTICATION_CONTRACT.md already describes.
 //

@@ -1,6 +1,0 @@
-branch=null
-commit=null
-working_tree_clean=null
-npm_install_result=null
-npm_test_result=null
-notes=Record the pre-change baseline before deployment work begins.

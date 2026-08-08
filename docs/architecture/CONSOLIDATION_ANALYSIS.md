@@ -44,7 +44,7 @@ data model are two views of one system and can reasonably coexist. These do not.
 
 `js/core/config.js:21` — `API_URL: _override.API_URL || ""`.
 
-Its backend was a personal Cloudflare Workers subdomain, removed under **F-023**. With
+Its backend was a personal developer subdomain hard-coded as the default, removed under **F-023**. With
 `API_URL` empty, `js/services/bootstrap.js:21-24` loads `js/data/demo.js` and raises
 *"Running in demo mode (API not configured / unavailable)."*
 
@@ -175,7 +175,7 @@ correspondence model must be made twice.
 | Add 3 state collections | `briefs`, `meetings`, `projects` to `config/state-schema.config.js` |
 | Add 3 routes + boundaries + RBAC | The governance scaffolding already exists and is enforced |
 | Decide `decisions` | Either fold into `executive` or port as a fourth |
-| Delete | 54 files: the duplicate auth/config/store/router, the 39-action contract, the Cloudflare Worker dependency |
+| Delete | 54 files: the duplicate auth/config/store/router, the 39-action contract, the hard-coded backend dependency |
 | Removes | F-023 (already fixed), F-025 (role divergence), and one of the two auth surfaces step 8 must cover |
 
 **Cheapest moment to do this is now,** because §1.2 — there is no live backend and no

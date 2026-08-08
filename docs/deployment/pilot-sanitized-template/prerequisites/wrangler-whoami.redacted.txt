@@ -1,5 +1,0 @@
-You are logged in with a REDACTED identity.
-Account Name: REDACTED
-Account ID: null
-Team Domain: <TEAM-DOMAIN>
-Capture the real output only in the external private copy.

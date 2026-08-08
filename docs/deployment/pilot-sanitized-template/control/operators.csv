@@ -1,2 +1,0 @@
-operator_ref,role_group,vault_reference,personal_data_location,approval_status,notes
-OP-001,DGO-SystemAdmin,vault://pilot/operators/OP-001,OUTSIDE_GIT,pending,Replace with approved operator reference only

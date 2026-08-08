@@ -130,4 +130,4 @@ a real handout rather than a screenshot of a web page.
 | `docs/architecture/architecture.html` | The target-architecture decision sheets, as presented for decision. |
 | `docs/architecture/TARGET_ARCHITECTURE.md` | The full architecture narrative and numbered build sequence. |
 | `docs/architecture/AUTHENTICATION_CONTRACT.md` | Activation spec and every server-side obligation, clause by clause. |
-| `docs/deployment/CLOUDFLARE.md` | The click-by-click deployment walkthrough. |
+| `docs/deployment/FLOW-BUILD-WALKTHROUGH.md` | The click-by-click SharePoint and Power Automate build. |

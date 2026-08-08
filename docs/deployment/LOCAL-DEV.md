@@ -26,8 +26,8 @@ tests.
 
 The deployed platform needs a lot standing behind it: 15
 Power Automate flows each with its own signed URL and its own authentication, and a
-SharePoint site with 33 columns. [`CLOUDFLARE.md`](./CLOUDFLARE.md) walks through it and
-[`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md) cuts that to about 75 minutes.
+SharePoint site with 33 columns. [`FLOW-BUILD-WALKTHROUGH.md`](./FLOW-BUILD-WALKTHROUGH.md) walks
+through it and [`MINIMAL-PILOT.md`](./MINIMAL-PILOT.md) cuts that down to the pilot's six flows.
 
 Ninety minutes is the right price for a pilot that real correspondence flows through. It is
 the wrong price for reading the code, reviewing a screen or reproducing a bug.
@@ -50,8 +50,8 @@ endpoint they call:
                     └──────────────────────────────────────┘
 ```
 
-No Power Automate. No SharePoint. No Cloudflare. No identity provider. No signed URLs anywhere, because
-there is nothing to sign.
+No Power Automate. No SharePoint. No hosting or access gate to stand up. No identity provider.
+No signed URLs anywhere, because there is nothing to sign.
 
 ---
 

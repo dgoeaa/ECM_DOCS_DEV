@@ -25,7 +25,7 @@ const ok = (label, cond, detail = '') => {
 console.log('\nHardening\n');
 
 /* ---------------------------------------------------------------- F-023 / F-024 / D6(b)
-   F-023 (a personal Cloudflare Workers subdomain as the default backend) and
+   F-023 (a personal developer subdomain hard-coded as the default backend) and
    F-024 (an @latest CDN tag) were both fixed inside ECM_ActivityHub_Portal. Decision
    D6(b) then retired that tree entirely: 15 of its 19 pages duplicated root routes, it
    shared no backend, state, identity or code with this platform, and it had no backend at
