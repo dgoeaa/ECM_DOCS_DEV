@@ -1,5 +1,11 @@
-// Workflow Clarity Layer — approved immediate implementation.
-// Visible workspaces are the only primary navigation groups. Technical modules remain routable for contracts and guided handoffs.
+// Workflow Clarity Layer.
+// Locked information architecture (Figma "Application Shell" page, nav-ia table): 24 routes are
+// primary sidebar destinations, grouped START HERE / OPERATIONS / CONTROL / CLOSURE / SYSTEM.
+// The remaining 5 are a genuine sub-view of one primary workspace (a mode of assignment, a
+// deposit channel, a closure step, a user-management panel) and are reached from that parent
+// screen's "Continue in" strip and the command palette rather than the sidebar — see
+// HiddenTechnicalRoutes below. This is the fix for audit finding I-01: every one of the 29
+// declared routes is reachable, 24 of them directly from navigation.
 export const VisibleWorkspaces = Object.freeze([
   {
     "id": "command-center",
@@ -7,21 +13,8 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "Command Center",
     "group": "START HERE",
     "purpose": "Shows what needs attention now and routes users to the correct governed workspace.",
-    "owns": [
-      "work summary",
-      "attention queues",
-      "guided handoff"
-    ],
-    "handoffs": [
-      "correspondence",
-      "orchestrator",
-      "approvals",
-      "dispatch",
-      "response-tracking",
-      "activities",
-      "fasttrack",
-      "assistant"
-    ]
+    "owns": ["work summary", "attention queues", "guided handoff"],
+    "handoffs": ["correspondence", "orchestrator", "approvals", "dispatch", "response-tracking", "activities", "fasttrack", "assistant"]
   },
   {
     "id": "erp-ecm-charter",
@@ -29,19 +22,17 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "ERP–ECM Charter",
     "group": "START HERE",
     "purpose": "Defines the authoritative boundary, ownership model, and integration rules between ERP and ECM.",
-    "owns": [
-      "scope-boundary-charter",
-      "ownership-matrix",
-      "shared-terminology",
-      "integration-rules"
-    ],
-    "handoffs": [
-      "correspondence",
-      "orchestrator",
-      "approvals",
-      "dispatch",
-      "reports"
-    ]
+    "owns": ["scope-boundary-charter", "ownership-matrix", "shared-terminology", "integration-rules"],
+    "handoffs": ["correspondence", "orchestrator", "approvals", "dispatch", "reports"]
+  },
+  {
+    "id": "activities",
+    "route": "activities",
+    "label": "Activities",
+    "group": "OPERATIONS",
+    "purpose": "Cross-workspace queue of items awaiting action, filterable by stage and owner.",
+    "owns": ["attention queue", "queue filters"],
+    "handoffs": ["correspondence", "orchestrator"]
   },
   {
     "id": "intake",
@@ -49,20 +40,8 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "Intake & Assignment",
     "group": "OPERATIONS",
     "purpose": "Capture, triage and classify correspondence, then assign it into a governed task — all in one place.",
-    "owns": [
-      "create correspondence",
-      "classify",
-      "triage",
-      "assign one",
-      "payload preview",
-      "confirmation"
-    ],
-    "handoffs": [
-      "registry",
-      "single-assignment",
-      "bulk-assignment",
-      "scan-intake"
-    ]
+    "owns": ["create correspondence", "classify", "triage", "assign one", "payload preview", "confirmation"],
+    "handoffs": ["single-assignment", "bulk-assignment", "registry"]
   },
   {
     "id": "my-work",
@@ -70,18 +49,44 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "My Work",
     "group": "OPERATIONS",
     "purpose": "Acknowledge, start, update, comment on and complete assigned work.",
-    "owns": [
-      "acknowledge",
-      "start work",
-      "progress",
-      "complete action",
-      "submit review"
-    ],
-    "handoffs": [
-      "acknowledgment",
-      "comments",
-      "lookup"
-    ]
+    "owns": ["acknowledge", "start work", "progress", "complete action", "submit review"],
+    "handoffs": ["acknowledgment", "comments", "lookup"]
+  },
+  {
+    "id": "acknowledgment-queue",
+    "route": "acknowledgment",
+    "label": "Acknowledgment Queue",
+    "group": "OPERATIONS",
+    "purpose": "Confirm receipt of assigned work before it starts, with the SLA clock in view.",
+    "owns": ["acknowledgment queue", "receipt confirmation"],
+    "handoffs": ["orchestrator"]
+  },
+  {
+    "id": "registry",
+    "route": "registry",
+    "label": "Registry",
+    "group": "OPERATIONS",
+    "purpose": "Official file control and registry search across every intake channel.",
+    "owns": ["registry search", "official file control"],
+    "handoffs": ["scan-intake", "correspondence"]
+  },
+  {
+    "id": "comments",
+    "route": "comments",
+    "label": "Comments",
+    "group": "OPERATIONS",
+    "purpose": "Threaded collaboration on correspondence and tasks, visible to everyone on the record.",
+    "owns": ["threaded comments"],
+    "handoffs": ["orchestrator"]
+  },
+  {
+    "id": "lookup",
+    "route": "lookup",
+    "label": "Lookup & Direct Action",
+    "group": "OPERATIONS",
+    "purpose": "Search and retrieve any record by reference, sender or subject, and act on it directly.",
+    "owns": ["record search", "direct action"],
+    "handoffs": ["dispatch", "response-tracking"]
   },
   {
     "id": "tracking",
@@ -89,17 +94,17 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "Tracking & Monitoring",
     "group": "CONTROL",
     "purpose": "Monitor responses, SLA ageing, matched document/email tracking and exports.",
-    "owns": [
-      "monitor response",
-      "ageing",
-      "matched pairs",
-      "tracking export"
-    ],
-    "handoffs": [
-      "reports",
-      "statistics",
-      "projects"
-    ]
+    "owns": ["monitor response", "ageing", "matched pairs", "tracking export"],
+    "handoffs": ["reports", "statistics", "projects"]
+  },
+  {
+    "id": "fasttrack",
+    "route": "fasttrack",
+    "label": "FastTrack SLA",
+    "group": "CONTROL",
+    "purpose": "Track items at risk of breaching their service-level target before they do.",
+    "owns": ["SLA risk queue", "escalation"],
+    "handoffs": ["response-tracking"]
   },
   {
     "id": "review-approval",
@@ -107,19 +112,62 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "Review & Approval",
     "group": "CONTROL",
     "purpose": "Review, return, reject or approve work with audit trail and executive escalation.",
-    "owns": [
-      "approve",
-      "return",
-      "reject",
-      "minute",
-      "executive handoff"
-    ],
-    "handoffs": [
-      "executive",
-      "briefs",
-      "meetings",
-      "dispatch"
-    ]
+    "owns": ["approve", "return", "reject", "minute", "executive handoff"],
+    "handoffs": ["executive", "briefs", "meetings", "dispatch"]
+  },
+  {
+    "id": "briefs",
+    "route": "briefs",
+    "label": "Briefs & Submissions",
+    "group": "CONTROL",
+    "purpose": "Prepare and track brief packs raised for an executive decision.",
+    "owns": ["brief pack", "submission tracking"],
+    "handoffs": ["approvals", "meetings"]
+  },
+  {
+    "id": "meetings",
+    "route": "meetings",
+    "label": "Meetings",
+    "group": "CONTROL",
+    "purpose": "Request, schedule and record the outcomes of meetings; agreed actions become tasks.",
+    "owns": ["meeting requests", "outcomes"],
+    "handoffs": ["orchestrator", "approvals"]
+  },
+  {
+    "id": "projects",
+    "route": "projects",
+    "label": "Projects",
+    "group": "CONTROL",
+    "purpose": "A register of projects and the measures they are tracked against.",
+    "owns": ["project register", "tracked measures"],
+    "handoffs": ["response-tracking", "reports"]
+  },
+  {
+    "id": "reports",
+    "route": "reports",
+    "label": "Reports",
+    "group": "CONTROL",
+    "purpose": "Generate and export operational reports drawn from tracking and management views.",
+    "owns": ["report generation", "export"],
+    "handoffs": ["statistics"]
+  },
+  {
+    "id": "statistics",
+    "route": "statistics",
+    "label": "Statistics",
+    "group": "CONTROL",
+    "purpose": "Analytics and trend views across the correspondence lifecycle.",
+    "owns": ["analytics", "trend views"],
+    "handoffs": ["reports"]
+  },
+  {
+    "id": "executive",
+    "route": "executive",
+    "label": "DGCEO Correspondence & Decision Hub",
+    "group": "CONTROL",
+    "purpose": "Executive review and decision surface for DG/CEO correspondence and exceptions.",
+    "owns": ["executive decision queue"],
+    "handoffs": ["approvals", "briefs"]
   },
   {
     "id": "dispatch-archive",
@@ -127,70 +175,56 @@ export const VisibleWorkspaces = Object.freeze([
     "label": "Dispatch",
     "group": "CLOSURE",
     "purpose": "Prepare dispatch, send/no-dispatch, capture receipt, close and hand off to archive.",
-    "owns": [
-      "send dispatch",
-      "capture receipt",
-      "closure check",
-      "archive handoff"
-    ],
-    "handoffs": [
-      "archive",
-      "lookup"
-    ]
-  },
-  {
-    "id": "administration",
-    "route": "settings",
-    "label": "Administration",
-    "group": "SYSTEM",
-    "purpose": "Manage profile, settings, users, diagnostics and endpoint configuration.",
-    "owns": [
-      "settings",
-      "users",
-      "diagnostics",
-      "operator health"
-    ],
-    "handoffs": [
-      "diagnostics",
-      "user-admin",
-      "operator-hud"
-    ]
+    "owns": ["send dispatch", "capture receipt", "closure check", "archive handoff"],
+    "handoffs": ["archive", "lookup"]
   },
   {
     "id": "correspondence-email",
     "route": "correspondence-email",
     "label": "Correspondence Email Desk",
     "group": "CLOSURE",
-    "purpose": "Manage actual outward official correspondences sent via email, including drafting, branded templates, dispatch evidence and sent register.",
+    "purpose": "Manage outward official correspondence sent by email, including drafting, branded templates, dispatch evidence and the sent register.",
     "owns": ["outgoing correspondence email drafts", "official template rendering", "email dispatch register", "queued email retry evidence"],
     "handoffs": ["dispatch", "archive"]
   },
+  {
+    "id": "assistant",
+    "route": "assistant",
+    "label": "Assistant",
+    "group": "SYSTEM",
+    "purpose": "Contextual guidance for the DGO operating model — not a module of record.",
+    "owns": ["contextual guidance"],
+    "handoffs": ["home"]
+  },
+  {
+    "id": "operator-hud",
+    "route": "operator-hud",
+    "label": "Operator HUD",
+    "group": "SYSTEM",
+    "purpose": "Runtime and integration health at a glance while operating the platform.",
+    "owns": ["runtime health readout"],
+    "handoffs": ["diagnostics"]
+  },
+  {
+    "id": "administration",
+    "route": "settings",
+    "label": "Administration",
+    "group": "SYSTEM",
+    "purpose": "Manage profile, settings and users. Restricted to IT — see the System · Restricted group.",
+    "owns": ["settings", "users"],
+    "handoffs": ["user-admin", "diagnostics"]
+  },
+  {
+    "id": "diagnostics",
+    "route": "diagnostics",
+    "label": "System Health",
+    "group": "SYSTEM",
+    "purpose": "System health, connectivity and configuration checks. Restricted to IT.",
+    "owns": ["diagnostics", "operator health"],
+    "handoffs": ["operator-hud", "settings"]
+  }
 ]);
 export const HiddenTechnicalRoutes = Object.freeze({
-  "activities": {
-    "visibleThrough": "Command Center / Intake",
-    "reason": "Queue lens, not a primary destination."
-  },
-  "registry": {
-    "visibleThrough": "Intake",
-    "reason": "Official file control is a sub-workflow of intake."
-  },
-  "briefs": {
-    "visibleThrough": "Review & Approval",
-    "reason": "A brief pack is raised for a decision, so it belongs to the review and approval journey. Ported from the ECM Activity Hub under decision D6(b)."
-  },
-  "meetings": {
-    "visibleThrough": "Review & Approval",
-    "reason": "A meeting request is approved or declined, and its agreed actions become tasks in My Work. Ported from the ECM Activity Hub under decision D6(b)."
-  },
-  "projects": {
-    "visibleThrough": "Tracking & Monitoring",
-    "reason": "A register of projects and the measures they are tracked against. Ported from the ECM Activity Hub under decision D6(b)."
-  },
-  "scan-intake": {
-    "visibleThrough": "Intake & Assignment",
-    "reason": "Counter deposit of physically-received documents (channel C). It produces correspondence, so it is reached from Intake & Assignment rather than standing alone."
-  },
   "single-assignment": {
     "visibleThrough": "Intake & Assignment",
     "reason": "Single assignment is merged into the Intake & Assignment workspace (assign-in-place); the route remains for reassignment and deep links."
@@ -199,49 +233,13 @@ export const HiddenTechnicalRoutes = Object.freeze({
     "visibleThrough": "Intake & Assignment",
     "reason": "Bulk assignment is a mode of assignment, not a separate visible workspace."
   },
-  "lookup": {
-    "visibleThrough": "Tracking / Dispatch & Archive / command search",
-    "reason": "Lookup is read-only search/retrieval, not a mutation workspace."
-  },
-  "acknowledgment": {
-    "visibleThrough": "My Work",
-    "reason": "Acknowledgment is a work state, not a separate visible destination."
-  },
-  "comments": {
-    "visibleThrough": "My Work",
-    "reason": "Comments are contextual collaboration, not a standalone destination."
-  },
-  "fasttrack": {
-    "visibleThrough": "Command Center / Tracking",
-    "reason": "SLA escalation is surfaced as attention/risk, not a separate primary module."
-  },
-  "executive": {
-    "visibleThrough": "Review & Approval",
-    "reason": "Executive decisions are review exceptions."
+  "scan-intake": {
+    "visibleThrough": "Registry",
+    "reason": "Counter deposit of physically-received documents (channel C). It produces registry-controlled files, so it is reached from Registry rather than standing alone."
   },
   "archive": {
-    "visibleThrough": "Dispatch & Archive",
-    "reason": "Archive is a closure step, not a primary daily action desk."
-  },
-  "reports": {
-    "visibleThrough": "Tracking",
-    "reason": "Reports are outputs of tracking and management views."
-  },
-  "statistics": {
-    "visibleThrough": "Tracking",
-    "reason": "Statistics are analytics output, not operator action space."
-  },
-  "assistant": {
-    "visibleThrough": "Command Center",
-    "reason": "Assistant is contextual help, not a module of record."
-  },
-  "operator-hud": {
-    "visibleThrough": "Administration",
-    "reason": "Runtime monitoring belongs under administration."
-  },
-  "diagnostics": {
-    "visibleThrough": "Administration",
-    "reason": "Diagnostics belongs under administration."
+    "visibleThrough": "Dispatch",
+    "reason": "Archive is a closure step reached from Dispatch, not a primary daily action desk."
   },
   "user-admin": {
     "visibleThrough": "Administration",

@@ -210,12 +210,14 @@ group("Boundary integrity — cross-config consistency");
   }
   check("RBAC never grants access to a route that does not exist", bad.length === 0, bad.join(", "));
 
-  // 26 since step 7 added scan-intake (channel C). It is a HIDDEN technical route under
-  // Intake & Assignment, so the visible-workspace count is deliberately unchanged.
-  // 29 since D6(b) brought briefs, meetings and projects across from the ECM Activity
-  // Hub. All three are HIDDEN technical routes, so the visible-workspace count is unchanged.
+  // 29 since D6(b) brought briefs, meetings and projects across from the ECM Activity Hub.
+  // The Figma "Application Shell" locked IA (audit finding I-01) put 24 of the 29 routes
+  // directly in the sidebar and left 5 as a genuine sub-view of one primary workspace
+  // (single-assignment/bulk-assignment under Intake & Assignment, scan-intake under
+  // Registry, archive under Dispatch, user-admin under Administration) — reached from that
+  // parent screen's "Continue in" strip and the command palette rather than the sidebar.
   check("29 routes are declared", declared.length === 29, `got ${declared.length}`);
-  check("9 visible workspaces", VisibleWorkspaces.length === 9, `got ${VisibleWorkspaces.length}`);
+  check("24 visible workspaces", VisibleWorkspaces.length === 24, `got ${VisibleWorkspaces.length}`);
 }
 
 /* ═══════════════ PROVISIONING PARITY ═══════════════ */

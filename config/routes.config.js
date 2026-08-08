@@ -176,7 +176,7 @@ export const Routes = [
   },
   {
     "path": "diagnostics",
-    "label": "System health (IT only)",
+    "label": "System Health",
     "group": "SYSTEM",
     "kind": "dashboard",
     "kpi": true

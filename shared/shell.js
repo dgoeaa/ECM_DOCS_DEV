@@ -22,17 +22,20 @@ import { NotificationCenter } from '../core/notification-center.js';
    The portal already shipped a proper SVG sprite. It is now shipped with both packages and
    every route and action maps to a real symbol — 29 routes, 29 distinct icons. */
 const I = Object.freeze({
-  home:'i-home','ecm-erp-charter':'i-shield',activities:'i-grid',correspondence:'i-mail',
-  orchestrator:'i-user','response-tracking':'i-eye','single-assignment':'i-id',
-  'bulk-assignment':'i-filter',fasttrack:'i-clock',approvals:'i-check',
-  acknowledgment:'i-bell',dispatch:'i-send','scan-intake':'i-upload',registry:'i-folder',
-  briefs:'i-file',meetings:'i-calendar',projects:'i-building',comments:'i-chat',
-  reports:'i-download',statistics:'i-chart',executive:'i-check-circle',assistant:'i-sparkle',
-  lookup:'i-search','operator-hud':'i-info',settings:'i-settings',diagnostics:'i-alert',
-  'user-admin':'i-users',archive:'i-lock','correspondence-email':'i-external'
+  home:'i-home','ecm-erp-charter':'i-file-text',activities:'i-activity',correspondence:'i-inbox',
+  orchestrator:'i-briefcase','response-tracking':'i-clock','single-assignment':'i-user-check',
+  'bulk-assignment':'i-users',fasttrack:'i-flag',approvals:'i-check-square',
+  acknowledgment:'i-check-circle',dispatch:'i-arrow-up-right','scan-intake':'i-upload-cloud',registry:'i-box',
+  briefs:'i-clipboard',meetings:'i-calendar',projects:'i-layers',comments:'i-chat',
+  reports:'i-bar-chart-2',statistics:'i-trending-up',executive:'i-pie-chart',assistant:'i-compass',
+  lookup:'i-search','operator-hud':'i-navigation-2',settings:'i-settings',diagnostics:'i-server',
+  'user-admin':'i-user',archive:'i-archive','correspondence-email':'i-mail'
 });
 const icon = (name, cls='dgo-icon') => `<svg class="${cls}" aria-hidden="true" focusable="false"><use href="#${name||'i-info'}"></use></svg>`;
 const routeIcon = route => icon(I[route] || 'i-file');
+// The two SYSTEM routes an ordinary account cannot open even if RBAC ever widened by mistake —
+// carries the visual "IT" badge in the sidebar's restricted panel (see systemNavHtml below).
+const SYSTEM_RESTRICTED = new Set(['settings','diagnostics']);
 
 // The sidebar collapses to an off-canvas drawer at this width (see the `@media (max-width:900px)`
 // block in styles/app.css that parks `.dgo-sidebar` at translateX(-100%)). Kept in sync by hand:
@@ -68,6 +71,18 @@ class Shell extends HTMLElement{
           <button type="button" class="dgo-persona-button" data-persona aria-haspopup="menu" aria-expanded="false"><span class="dgo-avatar">${esc((s.profile.name||'R').slice(0,1).toUpperCase())}</span><span><b>${esc(s.profile.name)}</b><small>${esc(personaLabel(s.profile.persona))}</small></span></button>
         </header>
         <main id="main" class="dgo-main dgo-scroll" data-outlet tabindex="-1"></main>
+        ${/* I-11 — route changes used to leave the previous screen's heading and KPI values on
+             screen with no signal that a change was in progress; an operator acting quickly
+             could read a number from the wrong route. core/router.js keeps the outgoing mount
+             in the DOM until the incoming one is ready (avoids a worse "flash of nothing"
+             regression, and the generation-token guard means a mount that loses the race never
+             reaches [data-outlet] regardless) — the fix belongs in the shell as a skeleton
+             overlay, shown only once a mount has taken longer than the router's
+             PENDING_AFTER_MS threshold so an instant route never flickers. */''}
+        <div class="dgo-route-loading" data-route-loading aria-hidden="true">
+          <div class="dgo-route-loading__bar"></div>
+          ${Array.from({length:4}).map(()=>`<div class="dgo-route-loading__row"><span></span><div><i></i><i></i></div></div>`).join('')}
+        </div>
         ${/* I-01 — the twenty guided routes are declared as handoffs of a visible workspace
              but had no link anywhere in the shell, so the only way to reach them was the
              command palette or a typed hash. This strip renders the current workspace's
@@ -83,7 +98,21 @@ class Shell extends HTMLElement{
     ${ToastHost()}${CommandPalette()}${this.notifyPanelHtml()}`;
     this.bind(); this.active(route); this.watchNavBreakpoint(); this.syncNavInert(); this.syncNavScrollHint(); addEventListener('resize',()=>this.syncNavScrollHint());
   }
-  navHtml(){ return NavGroups.map(g=>{ const routes=VisibleWorkspaces.filter(w=>g.routes.includes(w.route)).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); if(!routes.length) return ''; return `<div class="dgo-nav-group"><div class="dgo-nav-group__label">${esc(g.group)}</div>${routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon">${routeIcon(r.path)}</span><span>${esc(r.label)}</span></a>`).join('')}</div>`; }).join(''); }
+  // SYSTEM contains the platform's IT-only screens (Administration, System Health) alongside
+  // Assistant and Operator HUD. The Figma shell sets it apart visually — a recessed panel
+  // docked above the identity footer rather than another scrolling group — so an operator
+  // scanning the primary groups reads it as a different kind of destination, and the two
+  // screens an ordinary user cannot act on carry a small "IT" badge rather than relying on
+  // RBAC alone to communicate that (this platform's route access already gates them; the
+  // badge is the visual half of that same fact).
+  navGroupHtml(routes){ return routes.map(r=>`<a class="dgo-sidebar__item" href="#/${r.path}" data-route="${esc(r.path)}" title="${esc(r.label)}"><span class="dgo-nav-icon">${routeIcon(r.path)}</span><span>${esc(r.label)}</span>${SYSTEM_RESTRICTED.has(r.path)?'<span class="dgo-sidebar__badge">IT</span>':''}</a>`).join(''); }
+  routesForGroup(group){ return VisibleWorkspaces.filter(w=>w.group===group).map(w=>Routes.find(r=>r.path===w.route)).filter(r=>r&&canCurrentUserAccess(r.path)); }
+  // SYSTEM stays inside the same scrollable region as every other group — pulling it into a
+  // separate fixed panel outside .dgo-sidebar__nav starved the scrollable area of height on
+  // short viewports and produced the exact half-cut row I-10 exists to prevent. It still reads
+  // as a different kind of destination: a recessed background, a top rule, and an "IT" badge
+  // on the two screens an ordinary account cannot open (see SYSTEM_RESTRICTED above).
+  navHtml(){ return NavGroups.map(g=>{ const routes=this.routesForGroup(g.group); if(!routes.length) return ''; const system=g.group==='SYSTEM'; return `<div class="dgo-nav-group${system?' dgo-nav-group--system':''}"><div class="dgo-nav-group__label">${system?'SYSTEM &middot; RESTRICTED':esc(g.group)}</div>${this.navGroupHtml(routes)}</div>`; }).join(''); }
   bind(){
     this.querySelector('[data-menu]')?.addEventListener('click',()=>this.toggleNav());
     this.querySelector('[data-scrim]')?.addEventListener('click',()=>this.closeNav());
@@ -196,10 +225,25 @@ class Shell extends HTMLElement{
   // finds the right window among ten.
   applyTitle(route){ document.title=`${this.routeLabel(route)} — DGO Digital Operations`; }
   // I-10 — mark the nav as scrollable only when it actually overflows, so the fade at the
-  // boundary is a signal that there is more below rather than permanent decoration.
+  // boundary is a signal that there is more below rather than permanent decoration. A flexed
+  // container's natural height is essentially never an exact multiple of a 44px item plus an
+  // interleaved group label, so without the clip pass below the scroll boundary lands mid-row
+  // more often than not — that half-cut row, with no indication further navigation exists, was
+  // the original bug. The clip finds the first item or group label whose box would straddle
+  // the boundary and stops the container's visible height just above it, so every row is
+  // either fully shown or fully hidden.
   syncNavScrollHint(){
     const nav=this.querySelector('.dgo-sidebar__nav'); if(!nav) return;
+    nav.style.maxBlockSize='';
     nav.dataset.scrollable=String(nav.scrollHeight>nav.clientHeight+1);
+    if(nav.dataset.scrollable!=='true') return;
+    const navTop=nav.getBoundingClientRect().top;
+    const avail=nav.clientHeight;
+    for(const el of nav.querySelectorAll('.dgo-sidebar__item, .dgo-nav-group__label')){
+      const r=el.getBoundingClientRect();
+      const relTop=r.top-navTop, relBottom=r.bottom-navTop;
+      if(relTop<avail && relBottom>avail+0.5){ nav.style.maxBlockSize=Math.max(0,relTop)+'px'; break; }
+    }
   }
   // I-01 — render the current workspace's declared handoffs as links.
   renderRelated(route){

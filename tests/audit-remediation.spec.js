@@ -316,7 +316,9 @@ test.describe('H-02 / V-06 · a real icon set, not typographic characters', () =
         .filter(h => h && !document.getElementById(h.slice(1)))
     }));
     expect(r.sprite).toBe(true);
-    expect(r.navSvgs).toBe(9);
+    // 24 since the Figma "Application Shell" locked IA (audit finding I-01) put 24 of the
+    // 29 routes directly in the sidebar, grouped START HERE/OPERATIONS/CONTROL/CLOSURE/SYSTEM.
+    expect(r.navSvgs).toBe(24);
     // "Email Desk" used to be a bullet, because it had no entry in the glyph map at all.
     expect(r.glyphText).toEqual([]);
     expect(r.unresolved).toEqual([]);

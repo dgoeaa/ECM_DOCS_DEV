@@ -111,14 +111,17 @@
   --font-body:     Verdana, Geneva, "DejaVu Sans", sans-serif;
   --font-mono:     ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 
-  /* Type scale (uses Outfit/Alwyn for display, Verdana for body) */
-  --fs-display-xl:  72px;
-  --fs-display-l:   56px;
-  --fs-display:     44px;
-  --fs-h1:          36px;
+  /* Type scale — aligned to the Figma foundations scale (Foundations — Type & Spacing):
+     Display XXL 60/66, Display XL 48/53, Display 40/44, H1 33/40 (page heading — matches
+     nav label + tab title), H2 28/34, H3 23/30, H4 19/25. Was 72/56/44/36/28/22/18, an
+     unrelated scale nothing else in the design system referenced. */
+  --fs-display-xl:  60px;
+  --fs-display-l:   48px;
+  --fs-display:     40px;
+  --fs-h1:          33px;
   --fs-h2:          28px;
-  --fs-h3:          22px;
-  --fs-h4:          18px;
+  --fs-h3:          23px;
+  --fs-h4:          19px;
   --fs-body-lg:     18px;
   --fs-body:        16px;
   --fs-body-sm:     14px;
