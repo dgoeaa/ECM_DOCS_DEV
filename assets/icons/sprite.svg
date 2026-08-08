@@ -62,4 +62,27 @@
 <symbol id="i-help" viewBox="0 0 24 24"><g class="dgo-i"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2.5-2.5 4"></path><circle cx="12" cy="17" r="0.5" stroke-width="1.5"></circle></g></symbol>
 <symbol id="i-sparkle" viewBox="0 0 24 24"><g class="dgo-i"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"></path><path d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7z"></path></g></symbol>
 
+<!-- Route/workspace icon set added to match the Figma "Icons" page (Feather-style line
+     icons, reused from the Simple Design System library) — see shared/shell.js's route→icon
+     map. Recreated here as inline symbols rather than importing the library, per H-02. -->
+<symbol id="i-file-text" viewBox="0 0 24 24"><g class="dgo-i"><path d="M6 3h9l4 4v14H6z"></path><path d="M14 3v5h5"></path><path d="M8.5 12h7M8.5 15.5h7M8.5 8.5h3"></path></g></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><g class="dgo-i"><path d="M3 12h4l2 7 4-14 2 7h6"></path></g></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><g class="dgo-i"><path d="M21 12h-5l-2 3h-4l-2-3H3"></path><path d="M6 5l-3 7v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7l-3-7z"></path></g></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><g class="dgo-i"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><path d="M2 13h20"></path></g></symbol>
+<symbol id="i-user-check" viewBox="0 0 24 24"><g class="dgo-i"><path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M16 11l2 2 4-4"></path></g></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><g class="dgo-i"><path d="M5 21V4"></path><path d="M5 4s1.3-1 4-1 4.7 2 7.5 2 3.5-1 3.5-1v9s-.7 1-3.5 1-4.7-2-7.5-2-4 1-4 1"></path></g></symbol>
+<symbol id="i-check-square" viewBox="0 0 24 24"><g class="dgo-i"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M7.5 12.5l3 3 6-7"></path></g></symbol>
+<symbol id="i-arrow-up-right" viewBox="0 0 24 24"><g class="dgo-i"><path d="M7 17L17 7"></path><path d="M9 7h8v8"></path></g></symbol>
+<symbol id="i-upload-cloud" viewBox="0 0 24 24"><g class="dgo-i"><path d="M7 18a5 5 0 0 1-1-9.9A6 6 0 0 1 17.7 8H18a4 4 0 0 1 0 8h-1"></path><path d="M12 12v9"></path><path d="M9 15l3-3 3 3"></path></g></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><g class="dgo-i"><path d="M21 8l-9-5-9 5 9 5 9-5z"></path><path d="M3 8v8l9 5 9-5V8"></path><path d="M12 13v8"></path></g></symbol>
+<symbol id="i-clipboard" viewBox="0 0 24 24"><g class="dgo-i"><rect x="6" y="4" width="12" height="17" rx="1.5"></rect><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"></path><path d="M9 11h6M9 15h6"></path></g></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><g class="dgo-i"><path d="M12 2l9 5-9 5-9-5 9-5z"></path><path d="M3 12l9 5 9-5"></path><path d="M3 16l9 5 9-5"></path></g></symbol>
+<symbol id="i-bar-chart-2" viewBox="0 0 24 24"><g class="dgo-i"><path d="M4 20V10"></path><path d="M12 20V4"></path><path d="M20 20v-6"></path></g></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24"><g class="dgo-i"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 6h6v6"></path></g></symbol>
+<symbol id="i-pie-chart" viewBox="0 0 24 24"><g class="dgo-i"><circle cx="12" cy="12" r="9"></circle><path d="M12 3v9h9"></path></g></symbol>
+<symbol id="i-compass" viewBox="0 0 24 24"><g class="dgo-i"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5.5-5.5 2 2-5.5z"></path></g></symbol>
+<symbol id="i-navigation-2" viewBox="0 0 24 24"><g class="dgo-i"><path d="M12 2l7 18-7-4-7 4z"></path></g></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><g class="dgo-i"><rect x="3" y="4" width="18" height="6" rx="1"></rect><rect x="3" y="14" width="18" height="6" rx="1"></rect><path d="M7 7h.01M7 17h.01"></path></g></symbol>
+<symbol id="i-archive" viewBox="0 0 24 24"><g class="dgo-i"><rect x="3" y="4" width="18" height="4" rx="1"></rect><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"></path><path d="M10 13h4"></path></g></symbol>
+
 </svg>

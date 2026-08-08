@@ -72,17 +72,17 @@ BACKEND        Power Automate (19 contracts) · SharePoint · one-time-code iden
 
 `core/router.js` — hash-based, generation-token guarded so a slow module cannot overwrite a newer route.
 
-Twenty-five routes exist; **nine are visible workspaces**, sixteen are guided internal routes reachable by handoff or deep link. This split lives in `config/workflow-clarity.config.js` and exists so navigation reflects operator intent rather than module inventory.
+Twenty-nine routes exist; **24 are visible workspaces**, 5 are a genuine sub-view of one primary workspace, reached from that parent screen's "Continue in" strip and the command palette rather than the sidebar. This split lives in `config/workflow-clarity.config.js` and follows the locked information architecture from the Figma "Application Shell" page, so navigation reflects operator intent rather than module inventory.
 
 | Group | Visible workspaces |
 |---|---|
 | START HERE | Command Center · ERP–ECM Charter |
-| OPERATIONS | Intake & Assignment · My Work / Departmental Work |
-| CONTROL | Tracking & Monitoring · Review & Approval |
-| CLOSURE | Dispatch & Archive · Correspondence Email Desk |
-| SYSTEM | Administration |
+| OPERATIONS | Activities · Intake & Assignment · My Work · Acknowledgment Queue · Registry · Comments · Lookup & Direct Action |
+| CONTROL | Tracking & Monitoring · FastTrack SLA · Review & Approval · Briefs & Submissions · Meetings · Projects · Reports · Statistics · DGCEO Correspondence & Decision Hub |
+| CLOSURE | Dispatch · Correspondence Email Desk |
+| SYSTEM | Assistant · Operator HUD · Administration · System Health |
 
-Hidden routes — `activities`, `registry`, `single-assignment`, `bulk-assignment`, `lookup`, `acknowledgment`, `comments`, `fasttrack`, `executive`, `archive`, `reports`, `statistics`, `assistant`, `operator-hud`, `diagnostics`, `user-admin` — each declare which workspace surfaces them and why.
+Sub-views — `single-assignment`, `bulk-assignment` (both under Intake & Assignment), `scan-intake` (under Registry), `archive` (under Dispatch), `user-admin` (under Administration) — each declare which workspace surfaces them and why.
 
 ### 3.3 State
 

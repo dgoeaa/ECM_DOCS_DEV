@@ -2,8 +2,8 @@
   "generatedFrom": "scripts/architecture-data.mjs",
   "routes": {
     "total": 29,
-    "visible": 9,
-    "hidden": 20
+    "visible": 24,
+    "hidden": 5
   },
   "routeList": [
     "acknowledgment",
@@ -65,14 +65,22 @@
       ]
     },
     {
+      "route": "activities",
+      "label": "Activities",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "correspondence",
+        "orchestrator"
+      ]
+    },
+    {
       "route": "correspondence",
       "label": "Intake & Assignment",
       "group": "OPERATIONS",
       "handoffs": [
-        "registry",
         "single-assignment",
         "bulk-assignment",
-        "scan-intake"
+        "registry"
       ]
     },
     {
@@ -86,6 +94,40 @@
       ]
     },
     {
+      "route": "acknowledgment",
+      "label": "Acknowledgment Queue",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "orchestrator"
+      ]
+    },
+    {
+      "route": "registry",
+      "label": "Registry",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "scan-intake",
+        "correspondence"
+      ]
+    },
+    {
+      "route": "comments",
+      "label": "Comments",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "orchestrator"
+      ]
+    },
+    {
+      "route": "lookup",
+      "label": "Lookup & Direct Action",
+      "group": "OPERATIONS",
+      "handoffs": [
+        "dispatch",
+        "response-tracking"
+      ]
+    },
+    {
       "route": "response-tracking",
       "label": "Tracking & Monitoring",
       "group": "CONTROL",
@@ -93,6 +135,14 @@
         "reports",
         "statistics",
         "projects"
+      ]
+    },
+    {
+      "route": "fasttrack",
+      "label": "FastTrack SLA",
+      "group": "CONTROL",
+      "handoffs": [
+        "response-tracking"
       ]
     },
     {
@@ -107,22 +157,64 @@
       ]
     },
     {
+      "route": "briefs",
+      "label": "Briefs & Submissions",
+      "group": "CONTROL",
+      "handoffs": [
+        "approvals",
+        "meetings"
+      ]
+    },
+    {
+      "route": "meetings",
+      "label": "Meetings",
+      "group": "CONTROL",
+      "handoffs": [
+        "orchestrator",
+        "approvals"
+      ]
+    },
+    {
+      "route": "projects",
+      "label": "Projects",
+      "group": "CONTROL",
+      "handoffs": [
+        "response-tracking",
+        "reports"
+      ]
+    },
+    {
+      "route": "reports",
+      "label": "Reports",
+      "group": "CONTROL",
+      "handoffs": [
+        "statistics"
+      ]
+    },
+    {
+      "route": "statistics",
+      "label": "Statistics",
+      "group": "CONTROL",
+      "handoffs": [
+        "reports"
+      ]
+    },
+    {
+      "route": "executive",
+      "label": "DGCEO Correspondence & Decision Hub",
+      "group": "CONTROL",
+      "handoffs": [
+        "approvals",
+        "briefs"
+      ]
+    },
+    {
       "route": "dispatch",
       "label": "Dispatch",
       "group": "CLOSURE",
       "handoffs": [
         "archive",
         "lookup"
-      ]
-    },
-    {
-      "route": "settings",
-      "label": "Administration",
-      "group": "SYSTEM",
-      "handoffs": [
-        "diagnostics",
-        "user-admin",
-        "operator-hud"
       ]
     },
     {
@@ -133,28 +225,47 @@
         "dispatch",
         "archive"
       ]
+    },
+    {
+      "route": "assistant",
+      "label": "Assistant",
+      "group": "SYSTEM",
+      "handoffs": [
+        "home"
+      ]
+    },
+    {
+      "route": "operator-hud",
+      "label": "Operator HUD",
+      "group": "SYSTEM",
+      "handoffs": [
+        "diagnostics"
+      ]
+    },
+    {
+      "route": "settings",
+      "label": "Administration",
+      "group": "SYSTEM",
+      "handoffs": [
+        "user-admin",
+        "diagnostics"
+      ]
+    },
+    {
+      "route": "diagnostics",
+      "label": "System Health",
+      "group": "SYSTEM",
+      "handoffs": [
+        "operator-hud",
+        "settings"
+      ]
     }
   ],
   "hiddenRoutes": {
-    "activities": "Command Center / Intake",
-    "registry": "Intake",
-    "briefs": "Review & Approval",
-    "meetings": "Review & Approval",
-    "projects": "Tracking & Monitoring",
-    "scan-intake": "Intake & Assignment",
     "single-assignment": "Intake & Assignment",
     "bulk-assignment": "Intake & Assignment",
-    "lookup": "Tracking / Dispatch & Archive / command search",
-    "acknowledgment": "My Work",
-    "comments": "My Work",
-    "fasttrack": "Command Center / Tracking",
-    "executive": "Review & Approval",
-    "archive": "Dispatch & Archive",
-    "reports": "Tracking",
-    "statistics": "Tracking",
-    "assistant": "Command Center",
-    "operator-hud": "Administration",
-    "diagnostics": "Administration",
+    "scan-intake": "Registry",
+    "archive": "Dispatch",
     "user-admin": "Administration"
   },
   "state": {
