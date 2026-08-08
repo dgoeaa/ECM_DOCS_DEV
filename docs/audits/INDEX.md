@@ -1,9 +1,16 @@
 # Audit record — index and supersession chain
 
-Nine audit documents, written between 1 and 7 August 2026. Seven of them were
+Seven audit documents, written between 1 and 7 August 2026. Five of them were
 previously at the repository root. They are kept **unedited** — an audit record that
 gets rewritten when it becomes inconvenient is not a record — so several of them
 contain claims that were true of the commit they examined and are not true now.
+
+`AUDIT.md` (ECM Activity Hub Portal era) and `FORENSIC_REPOSITORY_AUDIT.md`
+(structural classification, superseded on facts by `docs/forensic/dd2e909/`) were
+removed from the tree during the 2026-08-08 cleanup pass: both were fully superseded,
+their subject trees no longer exist, and no live document or test cited them as a
+dependency. Other unedited records in this index still quote them by name — those
+citations are historical prose, not links, and are left as written.
 
 Two exceptions, both structural rather than revisionist:
 [`OPERATIONAL_READINESS_AUDIT.md`](./OPERATIONAL_READINESS_AUDIT.md) is the current
@@ -21,10 +28,8 @@ must do to go live, [`../deployment/COMMISSIONING.md`](../deployment/COMMISSIONI
 
 | Document | Date | Commit examined | Scope | Status |
 |---|---|---|---|---|
-| [`AUDIT.md`](./AUDIT.md) | 2026-08-01 | ECM Activity Hub Portal era | The retired `ECM_ActivityHub_Portal/` | **Superseded.** Opens by declaring two of its own findings mis-scoped. Its subject tree no longer exists in this repository |
 | [`CAPABILITY_ASSESSMENT_R11.6.md`](./CAPABILITY_ASSESSMENT_R11.6.md) | 2026-08-01 | `31ca711` | The R11.6 runtime — capability and gaps `G-01`…`G-09` | **Partly live.** The `G-nn` numbering is still the canonical reference for the open gaps |
 | [`REPOSITORY_AUDIT.md`](./REPOSITORY_AUDIT.md) | 2026-08-01 | 399 tracked files | Repository-wide security and data, findings `R-nn` | **Superseded on facts, live on method** |
-| [`FORENSIC_REPOSITORY_AUDIT.md`](./FORENSIC_REPOSITORY_AUDIT.md) | 2026-08-01 | 400 tracked files | Structural classification and duplicate detection. Explicitly *not* security | **Superseded.** Its file inventory predates the corpus trim |
 | [`FORENSIC_ROOT_PLATFORM_AUDIT.md`](./FORENSIC_ROOT_PLATFORM_AUDIT.md) | 2026-08-02 | `61604a3` | Root runtime and `document-portal/` behaviour | **Partly live.** `tests/output-encoding.test.mjs` is written case-for-case against its findings |
 | [`REFERENCE_SNAPSHOT_REVIEW.md`](./REFERENCE_SNAPSHOT_REVIEW.md) | 2026-08-02 | `main` at the time | The `dgo_targets__state.json` snapshot; envelope mismatch `A-1`/`A-2` | **Live.** `A-1`/`A-2` are cited as prerequisites by the root platform audit |
 | [`FRONTEND_REVIEW_ASSESSMENT.md`](./FRONTEND_REVIEW_ASSESSMENT.md) | 2026-08-05, folded 08-06 | `8613358` | Assessment of an external frontend design review, 18 findings, **plus the 2 it missed** | **Live.** Wave 1 shipped; findings 19 and 20 closed; `tests/containment.spec.js` and `tests/portal.spec.js` cover them. The former `FRONTEND_REVIEW_PARITY_VERDICT.md` is folded into this document |
@@ -42,14 +47,13 @@ because it audited repository structure rather than the platform.
 ## Supersession chain
 
 ```
-AUDIT.md  (ECM Activity Hub Portal only)
-   │  scope corrected and extended to the root runtime by
-   ▼
+(originally scoped from AUDIT.md and FORENSIC_REPOSITORY_AUDIT.md — both fully
+ superseded and removed from the tree 2026-08-08; see "The documents" above)
+
 CAPABILITY_ASSESSMENT_R11.6.md   ──┐  G-nn  runtime capability
 REPOSITORY_AUDIT.md              ──┤  R-nn  repository-wide security
-FORENSIC_REPOSITORY_AUDIT.md     ──┤        structural classification
    │                                │
-   │  all three superseded on FACTS by
+   │  both superseded on FACTS by
    ▼                                │
 docs/forensic/dd2e909/             ─┘  the current forensic snapshot, on main
    │

@@ -309,7 +309,7 @@ newack/                        Acknowledgement prototype
 ECM_DOCS_DEV.zip               Archive of record — reference material
 ```
 
-Documents: `PLATFORM_DOCUMENTATION.md` · `docs/STATUS_REPORT.md` · `docs/architecture/AUTHENTICATION_CONTRACT.md` · `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` · `docs/audits/REPOSITORY_AUDIT.md` · `docs/audits/FORENSIC_REPOSITORY_AUDIT.md` · `docs/audits/AUDIT.md` · `README.md` · `CONTRIBUTING.md`
+Documents: `PLATFORM_DOCUMENTATION.md` · `docs/STATUS_REPORT.md` · `docs/architecture/AUTHENTICATION_CONTRACT.md` · `docs/audits/CAPABILITY_ASSESSMENT_R11.6.md` · `docs/audits/REPOSITORY_AUDIT.md` · `docs/audits/INDEX.md` · `README.md` · `CONTRIBUTING.md`
 
 ---
 
